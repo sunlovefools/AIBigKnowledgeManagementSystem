@@ -9,7 +9,7 @@ Welcome to the COMP2002 Group44 Software Engineering Project! This repository co
 | Name | Email | Student ID |
 |------|-------|------------|
 | Shao Yiqi     | scyys15@nottingham.ac.uk      |20616297            |
-|      |       |            |
+| Ronith Varatharaj     | psyrv4@nottingham.ac.uk      |20723191            |
 |      |       |            |
 |      |       |            |
 |      |       |            |
