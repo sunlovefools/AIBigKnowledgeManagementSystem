@@ -1,5 +1,7 @@
 # COMP2002 Group44
 
+## PROJECT: CGI-AIBigKnowledgeManagement
+
 Welcome to the COMP2002 Group44 Software Engineering Project! This repository contains all the resources, documentation, and code for our group project as part of the COMP2002 course.
 
 ## Project Overview
@@ -10,8 +12,8 @@ Welcome to the COMP2002 Group44 Software Engineering Project! This repository co
 |------|-------|------------|
 | Shao Yiqi     | scyys15@nottingham.ac.uk      |20616297            |
 | Ronith Varatharaj     | psyrv4@nottingham.ac.uk      |20723191            |
-|      |       |            |
-|      |       |            |
+| Saphia Ahmed     |   psysa22@nottingham.ac.uk    |     20679803       |
+| Aleksandrs Urums   |  psyau4@nottingham.ac.uk    |20692567          |
 |      |       |            |
 
 
