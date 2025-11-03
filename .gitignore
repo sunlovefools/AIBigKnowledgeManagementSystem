@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+.env
+
+# Node / React
+node_modules/
+dist/
+build/
+*.tsbuildinfo
+
+# Environment files
+.env.local
+.env.production
+.env.development
+.env.test
+
+# Logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# __pycache__/
+*.pyc
