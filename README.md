@@ -92,6 +92,10 @@ You can open this URL in your browser to confirm that the FastAPI server is runn
 
 ### 3. Frontend Setup (React + TypeScript)
 
+First, you need to install Node.js on your computer.
+
+You can visit the official [Node.js website](https://nodejs.org/en) and then install Node.js.
+
 In a separate terminal window:
 ```bash
 cd frontend
