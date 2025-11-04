@@ -1,5 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
+import Register from "./Register";
 
 function App() {
   const [response, setResponse] = useState<string>("");
@@ -19,6 +20,7 @@ function App() {
       <h1>Frontend → Backend Test</h1>
       <button onClick={handleClick}>Talk to Backend</button>
       <p>{response}</p>
+      <Register />
     </div>
   );
 }
