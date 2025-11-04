@@ -6,10 +6,17 @@ from auth_service import AuthService, AuthenticationError
 
 def test_authentication():
     """Test the complete authentication flow"""
-    print("🧪 Starting authentication tests...\n")
+    print("Starting authentication tests...\n")
     
     # Initialize auth service
     auth = AuthService()
+
+    try:
+        auth._drop_table()  # Clear existing data for clean test
+    except Exception as e:
+        print(f"❌ Failed to clear table: {e}")
+
+    auth = AuthService()  # Re-initialize to create fresh table
     
     # Test 1: Register a new user with valid credentials
     print("Test 1: Register valid user")

@@ -42,7 +42,17 @@ class AuthService:
     def __init__(self, table_name: str = "users"):
         self.table_name = table_name
         self.table = self._get_or_create_table()
-    
+        
+    def _drop_table(self):
+        """Drop the users table (for testing purposes)"""
+        try:
+            database.drop_table(self.table_name)
+            print(f"✅ Table '{self.table_name}' dropped successfully")
+        except Exception as e:
+            print(f"❌ Failed to drop table: {e}")
+            raise
+
+
     def _get_or_create_table(self):
         """Get or create the users table"""
         try:
