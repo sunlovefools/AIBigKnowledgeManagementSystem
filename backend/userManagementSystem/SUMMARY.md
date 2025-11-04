@@ -5,12 +5,11 @@
 
 ```
 backend/userManagementSystem/
-├── auth_schema.py       # User table schema definition
+├── aut_schema.py       # User table schema definition
 ├── auth_service.py      # Main authentication service
 ├── password_utils.py    # Password hashing utilities
 ├── validation.py        # Input validation utilities
 ├── test_auth.py         # Complete test suite
-├── demo_auth.py         # Quick demo script
 └── AUTH_README.md       # Complete documentation
 ```
 
@@ -20,13 +19,6 @@ backend/userManagementSystem/
 ```bash
 cd backend/userManagementSystem
 python test_auth.py
-```
-
-### Run Demo
-
-```bash
-cd backend/userManagementSystem
-python demo_auth.py
 ```
 
 ##  Dependencies
@@ -70,7 +62,6 @@ ASTRA_DB_TOKEN=your_token
 For detailed information, see:
 - `AUTH_README.md` - Complete API documentation
 - `test_auth.py` - Test cases and examples
-- `demo_auth.py` - Demo script
 
 ##  Technical Stack
 
