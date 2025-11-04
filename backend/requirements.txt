@@ -2,6 +2,8 @@ fastapi
 uvicorn
 python-dotenv
 pydantic
-astrapy
+astrapy>=2.0,<3.0
 bcrypt
 email-validator
+python-dotenv
+

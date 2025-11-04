@@ -1,6 +1,7 @@
 """
 Test script for authentication system
 """
+# Import class AuthService and AuthenticationError to use
 from auth_service import AuthService, AuthenticationError
 
 
@@ -8,15 +9,16 @@ def test_authentication():
     """Test the complete authentication flow"""
     print("Starting authentication tests...\n")
     
-    # Initialize auth service
+    # Initialize auth service (Just like Java new AuthService())
     auth = AuthService()
 
     try:
+        # Ensure clean state by dropping existing users table
         auth._drop_table()  # Clear existing data for clean test
     except Exception as e:
         print(f"❌ Failed to clear table: {e}")
 
-    auth = AuthService()  # Re-initialize to create fresh table
+    auth = AuthService()  # Re-initialize to create fresh table, because we dropped it
     
     # Test 1: Register a new user with valid credentials
     print("Test 1: Register valid user")

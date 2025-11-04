@@ -17,10 +17,13 @@ def validate_email_format(email: str) -> Tuple[bool, Optional[str]]:
         Tuple of (is_valid, error_message)
     """
     try:
-        # Validate and normalize email
+        # Validate and normalize email using the validate_email library
+        # Validate only the format, not deliverability (Deliverability = True, this will connect the internt to check if the email domain exists)
+        # If the email syntax is invalid, it will raise an EmailNotValidError
+        # Else, it will return a ValidatedEmail object
         validated = validate_email(email, check_deliverability=False)
         normalized_email = validated.normalized
-        return True, None
+        return True, None, normalized_email
     except EmailNotValidError as e:
         return False, str(e)
 
@@ -61,12 +64,13 @@ def validate_password_strength(password: str) -> Tuple[bool, Optional[str]]:
 
 def sanitize_email(email: str) -> str:
     """
-    Sanitize and normalize email address
-    
     Args:
         email: Email to sanitize
         
     Returns:
         Normalized email in lowercase
+    Example:
+        For example, input:"   NgYoongShen@Gmail.com" or "NgYooNGSheN@gmaIL.COM     " => output: "ngyoongshen@gmail.com"
+        
     """
     return email.strip().lower()
