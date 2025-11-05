@@ -41,7 +41,7 @@ The system overcomes token limitations in LLMs through vector databases and Retr
 | Saphia Ahmed | psysa22@nottingham.ac.uk | 20679803 |
 | Aleksandrs Urums | psyau4@nottingham.ac.uk | 20692567 |
 | Ng Yoong Shen | hfyyn6@nottingham.ac.uk| 20609660
-
+| Yan Sin Lee | psyyl13@nottingham.ac.uk| 20684067
 ---
 
 ## Getting Started

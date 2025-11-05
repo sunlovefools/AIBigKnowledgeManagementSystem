@@ -1,4 +1,4 @@
-from auth_service import AuthService, AuthenticationError
+from app.service.auth_service import AuthService, AuthenticationError
 
 
 def test_authentication():
