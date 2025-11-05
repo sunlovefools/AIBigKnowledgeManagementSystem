@@ -40,7 +40,6 @@ All notable changes to this project will be documented in this file.
 - Complete test suite with 10 test cases
 - Authentication service API (`AuthService` class)
 - Database schema for user management
-- Comprehensive documentation (AUTH_README.md, SUMMARY_CN.md)
 
 ### Security
 - Implemented bcrypt for secure password hashing
