@@ -103,7 +103,7 @@ export default function Register() {
             </form>
 
             {message && (
-                <p className={`register-message ${message.startsWith("✅") ? "success" : "error"}`}>
+                <p className={`register-message ${message.toLowerCase().includes("success") ? "success" : "error"}`}>
                     {message}
                 </p>
             )}
