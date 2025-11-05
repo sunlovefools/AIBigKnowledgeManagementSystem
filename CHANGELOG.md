@@ -26,6 +26,28 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## 1.0.0 - 2025-11-05
+
+### Added
+Author: @psysa22
+- Login react page with comments
+- Created a pages folder within the SRC to hold the login and register pages
+
+### Modified
+Author: @psysa22
+- Changed main.tsx to run LoginPage instead of App.tsx (have commented out lines for App.tsx)
+
+### Technical Details
+Author: @psysa22
+- Framework: React 18 + TypeScript
+- Build Tool: Vite
+- Styling: CSS (inline and external stylesheets)
+- HTTP Requests: Fetch API
+- Form Validation: Regex-based client-side validation
+- State Management: React useState hooks
+- Routing (optional, if added later): React Router DOM
+- Node.js version: v18+ recommended
+
 ## 1.0.0 - 2025-11-04
 
 ### Added
