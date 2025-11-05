@@ -12,13 +12,15 @@ from auth_schema import get_users_table_definition
 from password_utils import hash_password, verify_password
 from validation import validate_email_format, validate_password_strength, sanitize_email
 
-# Load environment variables
+### This part of the code will run once when the module is imported ###
+# Load environment variables from .env file
 load_dotenv()
 
-# Database connection
+# Database connection by using URL and private token in .env file
 ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
 ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
 
+# If either variable is missing, raise an error
 if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
     raise ValueError(
         "Missing required environment variables!\n"
@@ -27,21 +29,29 @@ if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
         "  - ASTRA_DB_TOKEN"
     )
 
+# Initialize database client
 client = DataAPIClient()
+# Connect to the database
 database = client.get_database(ASTRA_DB_URL, token=ASTRA_DB_TOKEN)
 
+print(f"Connected to database {database.info().name}\n")
+
+### It ends here ###
 
 class AuthenticationError(Exception):
     """Custom exception for authentication errors"""
     pass
 
-
+# AuthService class
 class AuthService:
     """Service for handling user authentication"""
     
+    # Initialize the AuthService
     def __init__(self, table_name: str = "users"):
+        # Set up the users table with the "users" table schema
         self.table_name = table_name
         self.table = self._get_or_create_table()
+        print(f"✅ AuthService initialized with table '{self.table_name}'\n")
         
     def _drop_table(self):
         """Drop the users table (for testing purposes)"""
@@ -55,18 +65,26 @@ class AuthService:
 
     def _get_or_create_table(self):
         """Get or create the users table"""
-        try:
-            table_definition = get_users_table_definition()
-            table = database.create_table(self.table_name, definition=table_definition)
-            print(f"✅ Table '{self.table_name}' created successfully")
-        except Exception as e:
-            error_msg = str(e).lower()
-            if "already exists" in error_msg or "cannot_add_existing_table" in error_msg:
-                table = database.get_table(self.table_name)
-                print(f"ℹ️  Table '{self.table_name}' already exists, using existing table")
-            else:
-                print(f"❌ Failed to create table: {e}")
-                raise
+        # try:
+        #     # Create table definition [Not needed in our case as we assume table exists]
+        #     # It returns a CreateTableDefinition object which we will passed to create_table method to create the table at the astraDB
+        #     table_definition = get_users_table_definition()
+            
+        #     # Attempt to create the table at astraDB
+        #     table = database.create_table(self.table_name, definition=table_definition)
+        #     # print(f"✅ Table '{self.table_name}' created successfully")
+        # except Exception as e:
+        #     # Handle table already exists error
+        #     error_msg = str(e).lower()
+        #     # If the table already exists in the error message, we just get the existing table
+        #     if "already exists" in error_msg or "cannot_add_existing_table" in error_msg:
+        #         table = database.get_table(self.table_name) # Get the existing table
+        #         print(f"ℹ️  Table '{self.table_name}' already exists, using existing table")
+        #     else:
+        #         print(f"❌ Failed to create table: {e}")
+        #         raise
+        # # Return the table object
+        table = database.get_table(self.table_name)
         return table
     
     def _get_next_user_id(self) -> int:
@@ -75,7 +93,12 @@ class AuthService:
             # Find the maximum ID in the table
             # Note: This is a simple implementation. For production, consider using UUID or database sequences
             result = self.table.find({})
+            # .find() will return a cursor object that is iterable (Imagine it's a pointer point to the dataset over at the database [cloud])
+            print(f"\n\n{result}\n\n")
+            # Get a max_id to keep track of the latest id from the table
             max_id = 0
+
+            # Loop through each row in the result to find the maximum id
             for row in result:
                 if row.get('id', 0) > max_id:
                     max_id = row['id']
@@ -93,8 +116,10 @@ class AuthService:
         Returns:
             True if email exists, False otherwise
         """
+        # Sanitize email
         email = sanitize_email(email)
         try:
+            # Check for existing email
             result = self.table.find({"email": email})
             return len(list(result)) > 0
         except Exception:
@@ -114,28 +139,34 @@ class AuthService:
         Raises:
             AuthenticationError: If validation fails or email already exists
         """
-        # Sanitize email
-        email = sanitize_email(email)
+        # Sanitize email into lowercase and remove trailing spaces or leading spaces
+        # email = sanitize_email(email)
         
-        # Validate email format
-        is_valid_email, email_error = validate_email_format(email)
+        # Validate email format and return 
+        # is_valid_email: Boolean indicating if email is valid
+        # email_error: Error message if invalid
+        # email: Normalized email (Normalised email is in lowercase and trimmed [Same as sanitize_email function, that is why I commented out the sanitize_email line above])
+        is_valid_email, email_error, email = validate_email_format(email)
+        # If email is invalid, raise error
         if not is_valid_email:
             raise AuthenticationError(f"Invalid email format: {email_error}")
         
-        # Validate password strength
+        # Validate password strength, if the password is weak, raise error
         is_valid_password, password_error = validate_password_strength(password)
         if not is_valid_password:
             raise AuthenticationError(f"Weak password: {password_error}")
         
-        # Check for duplicate email
+        # Check for duplicate email, if exists, raise error
         if self.email_exists(email):
             raise AuthenticationError(f"Account with email '{email}' already exists")
         
-        # Hash password
+        # Hash password using bcrypt
         password_hash = hash_password(password)
         
         # Create user record
         user_id = self._get_next_user_id()
+
+        # Prepare user data dictionary
         user_data = {
             "id": user_id,
             "email": email,
@@ -146,8 +177,9 @@ class AuthService:
         
         # Insert into database
         try:
+            # Inset the data into the table
             self.table.insert_one(user_data)
-            print(f"✅ User registered successfully: {email}")
+            print(f"✅ User registered successfully:{user_data['id']} is {user_data['email']}")
             
             # Return user data without password
             return {
@@ -178,19 +210,34 @@ class AuthService:
         
         # Find user by email
         try:
+            # Try to find the user in the database
+            # find() method will return a cursor object that is iterable, can you list() it to get all the results
             result = self.table.find({"email": email})
             users = list(result)
+
+            # Example of output: 
+            # [{'id': 1, 
+            # 'created_at': DataAPITimestamp(timestamp_ms=1762275590557 [2025-11-04T16:59:50.557Z]),
+            #  'email': 'test@example.com',
+            #  'is_active': True,
+            #  'password_hash': '$2b$12$zpycz1q9DASaDwt9IGULYehixv6JiFrdJ/O7pGndmvrH2ZhwGNCXC'}]
+
+            # Example of accessing the data of email: 
+            # users[0]['email'] => 'test@example.com'
             
+            # If no user found with that email, raise error
             if not users:
                 raise AuthenticationError("Invalid email or password")
             
+            # Get the first user (there should only be one due to unique email constraint)
             user = users[0]
             
             # Check if account is active
+            # If account is deactivated, raise error
             if not user.get('is_active', False):
                 raise AuthenticationError("Account is deactivated")
             
-            # Verify password
+            # Verify password using hashed password
             if not verify_password(password, user['password_hash']):
                 raise AuthenticationError("Invalid email or password")
             
@@ -200,8 +247,8 @@ class AuthService:
             return {
                 "id": user['id'],
                 "email": user['email'],
-                "created_at": user.get('created_at'),
-                "is_active": user.get('is_active', True)
+                "created_at": user['created_at'],
+                "is_active": user['is_active']
             }
         except AuthenticationError:
             raise
