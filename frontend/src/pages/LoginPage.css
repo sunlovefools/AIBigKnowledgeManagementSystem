@@ -1,0 +1,46 @@
+/*centres login form*/
+.login-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh; /*full screen height*/
+  background-color: #f9f9f9;
+}
+
+/*login box*/
+.login-container {
+  max-width: 500px;
+  width: 80%;
+  padding: 40px;
+  text-align: center;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  font-family: Arial, sans-serif;
+}
+
+/*inputs, select, and button */
+.login-container input,
+.login-container select,
+.login-container button {
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+  font-size: 16px;
+}
+
+.login-container h2 {
+  margin-bottom: 20px;
+}
+
+/*reg link */
+.login-container a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.login-container a:hover {
+  text-decoration: underline;
+}
+

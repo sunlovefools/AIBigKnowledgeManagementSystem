@@ -1,4 +1,5 @@
 import { useState } from "react"; /*allows to store user input*/
+import "./LoginPage.css";
 
 export default function LoginPage() {
     /*setting up state variables */
@@ -41,46 +42,49 @@ export default function LoginPage() {
 
   /*FORMATTING THE PAGE */
   return (
-    <div style={{ maxWidth: 320, margin: "50px auto", textAlign: "center" }}>
-      <h2>Login</h2>
+    <div className="login-page">
+        <div className="login-container">
+        <h2>Login</h2>
 
-      {/*LOGIN FORM: runs handleSubmit when login clicked*/}
-      <form onSubmit={handleSubmit}> 
-        {/*username INPUT*/}
-        <input
-          type="username"
-          placeholder="username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-          required/*cannot be blank*/
-          style={{width: "100%", marginBottom:10}}
-        />
-        {/*password INPUT*/}
-        <input
-          type="password"/*hides what user types*/
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-          style={{width: "100%", marginBottom:10}}
-        />
-        {/*role select DROPDOWN MENU*/}
-        <select
-          value={role}
-          onChange={(e) => setRole(e.target.value)}
-          style={{width: "100%", marginBottom:10}}
-        >
-          <option value="user">User</option>
-          <option value="admin">Admin</option>
-        </select>{/*SUBMIT BUTTON*/}
-        <button type="submit" style={{width:"100%", padding:8}}>
-          Login
-        </button>
-      </form>
-      <p style={{marginTop: 10}}>{message}</p>{/*displays info message e.g. login success*/}
-      <p>
-        Don’t have an account yet? <a href="/register">Register</a>
-      </p>
+        {/*LOGIN FORM: runs handleSubmit when login clicked*/}
+        <form onSubmit={handleSubmit}> 
+            {/*username INPUT*/}
+            <input
+            type="username"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            required/*cannot be blank*/
+            style={{width: "100%", marginBottom:10}}
+            />
+            {/*password INPUT*/}
+            <input
+            type="password"/*hides what user types*/
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            style={{width: "100%", marginBottom:10}}
+            />
+            {/*role select DROPDOWN MENU*/}
+            <h5>Select your role:</h5>
+            <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            style={{width: "100%", marginBottom:10}}
+            >
+            <option value="user">User</option>
+            <option value="admin">Admin</option>
+            </select>{/*SUBMIT BUTTON*/}
+            <button type="submit" style={{width:"100%", padding:8}}>
+            Login
+            </button>
+        </form>
+        <p style={{marginTop: 10}}>{message}</p>{/*displays info message e.g. login success*/}
+        <p>
+            Don’t have an account yet? <a href="/register">Register</a>
+        </p>
+        </div>
     </div>
   );
 }
