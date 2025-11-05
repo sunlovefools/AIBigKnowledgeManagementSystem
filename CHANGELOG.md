@@ -32,6 +32,7 @@ All notable changes to this project will be documented in this file.
 Author: @psysa22
 - Login react page with comments
 - Created a pages folder within the SRC to hold the login and register pages
+- Added CSS style sheet for LoginPage
 
 ### Modified
 Author: @psysa22
