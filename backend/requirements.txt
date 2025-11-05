@@ -6,4 +6,3 @@ astrapy>=2.0,<3.0
 bcrypt
 email-validator
 python-dotenv
-

@@ -8,9 +8,9 @@ from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 from astrapy import DataAPIClient
 
-from auth_schema import get_users_table_definition
-from password_utils import hash_password, verify_password
-from validation import validate_email_format, validate_password_strength, sanitize_email
+# from auth_schema import get_users_table_definition
+from app.core.password_utils import hash_password, verify_password
+from app.core.validation import validate_email_format, validate_password_strength, sanitize_email
 
 ### This part of the code will run once when the module is imported ###
 # Load environment variables from .env file
@@ -39,8 +39,10 @@ print(f"Connected to database {database.info().name}\n")
 ### It ends here ###
 
 class AuthenticationError(Exception):
-    """Custom exception for authentication errors"""
-    pass
+    # Custom exception for authentication errors
+    # Can 'pass' pass the exception to the caller?
+    # Yes, 'pass' allows the exception to be raised and handled by the caller.
+    pass 
 
 # AuthService class
 class AuthService:
@@ -50,7 +52,7 @@ class AuthService:
     def __init__(self, table_name: str = "users"):
         # Set up the users table with the "users" table schema
         self.table_name = table_name
-        self.table = self._get_or_create_table()
+        self.table = self.get_table()
         print(f"✅ AuthService initialized with table '{self.table_name}'\n")
         
     def _drop_table(self):
@@ -63,28 +65,9 @@ class AuthService:
             raise
 
 
-    def _get_or_create_table(self):
+    def get_table(self):
         """Get or create the users table"""
-        # try:
-        #     # Create table definition [Not needed in our case as we assume table exists]
-        #     # It returns a CreateTableDefinition object which we will passed to create_table method to create the table at the astraDB
-        #     table_definition = get_users_table_definition()
-            
-        #     # Attempt to create the table at astraDB
-        #     table = database.create_table(self.table_name, definition=table_definition)
-        #     # print(f"✅ Table '{self.table_name}' created successfully")
-        # except Exception as e:
-        #     # Handle table already exists error
-        #     error_msg = str(e).lower()
-        #     # If the table already exists in the error message, we just get the existing table
-        #     if "already exists" in error_msg or "cannot_add_existing_table" in error_msg:
-        #         table = database.get_table(self.table_name) # Get the existing table
-        #         print(f"ℹ️  Table '{self.table_name}' already exists, using existing table")
-        #     else:
-        #         print(f"❌ Failed to create table: {e}")
-        #         raise
-        # # Return the table object
-        table = database.get_table(self.table_name)
+        table = database.get_collection(self.table_name)
         return table
     
     def _get_next_user_id(self) -> int:
@@ -125,7 +108,7 @@ class AuthService:
         except Exception:
             return False
     
-    def register_user(self, email: str, password: str) -> Dict[str, Any]:
+    def register_user(self, email: str, password: str, role: str) -> Dict[str, Any]:
         """
         Register a new user
         
@@ -135,7 +118,14 @@ class AuthService:
             
         Returns:
             Dictionary with user information (without password)
-            
+            {
+                "id": int,
+                "email": str,
+                "user_role": str,
+                "created_at": datetime,
+                "is_active": bool
+            }
+
         Raises:
             AuthenticationError: If validation fails or email already exists
         """
@@ -159,17 +149,18 @@ class AuthService:
         # Check for duplicate email, if exists, raise error
         if self.email_exists(email):
             raise AuthenticationError(f"Account with email '{email}' already exists")
-        
+
+        # Validate user role
+        if role not in ["user", "admin"]:
+            raise AuthenticationError(f"Invalid user role: {role}")
+
         # Hash password using bcrypt
         password_hash = hash_password(password)
-        
-        # Create user record
-        user_id = self._get_next_user_id()
 
         # Prepare user data dictionary
         user_data = {
-            "id": user_id,
             "email": email,
+            "user_role": role,
             "password_hash": password_hash,
             "created_at": datetime.now(timezone.utc),
             "is_active": True
@@ -178,13 +169,15 @@ class AuthService:
         # Insert into database
         try:
             # Inset the data into the table
-            self.table.insert_one(user_data)
-            print(f"✅ User registered successfully:{user_data['id']} is {user_data['email']}")
+            inserted_result = self.table.insert_one(user_data)
             
+            # Get the new user ID (_id) assigned by the database
+            new_user_id = inserted_result.inserted_id
             # Return user data without password
             return {
-                "id": user_id,
+                "id": new_user_id,
                 "email": email,
+                "user_role": role,
                 "created_at": user_data["created_at"],
                 "is_active": True
             }
