@@ -81,7 +81,7 @@ pip install -r requirements.txt
 
 ### (c) Run the FastAPI development server
 ```bash
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 Once the server starts, the backend will be running locally at:
