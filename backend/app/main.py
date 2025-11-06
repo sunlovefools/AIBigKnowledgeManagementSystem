@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import app.api.router_auth as auth_router # Import the auth router inside app.api
 from fastapi.middleware.cors import CORSMiddleware
-
+from services.beam_client import query_llm
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -30,3 +30,8 @@ app.include_router(
 @app.get("/hello")
 def hello_from_backend():
     return {"message": "Hello from backend"}
+
+@app.post("/ask")
+def ask_user(prompt: str):
+    llm_response = query_llm(prompt)
+    return {"answer": llm_response}
