@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 import app.api.router_auth as auth_router # Import the auth router inside app.api
 from fastapi.middleware.cors import CORSMiddleware
-from services.beam_client import query_llm
+from app.service.beam_client import query_llm
 # Initialize FastAPI app
 app = FastAPI()
 

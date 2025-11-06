@@ -5,7 +5,7 @@ import Register from "./pages/register/Register";
 function App() {
   // State to hold the response message from the backend
   const [response, setResponse] = useState<string>("");
-  const API_BASE = import.meta.env.VITE_API_BASE; // Get the backend API base URL from environment variables, during development it is usually http://
+  const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");; // Get the backend API base URL from environment variables, during development it is usually http://
 
   // Function to handle button click and communicate with backend
   const handleClick = async () => {

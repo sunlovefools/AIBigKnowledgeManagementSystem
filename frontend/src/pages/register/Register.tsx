@@ -3,7 +3,7 @@ import axios from "axios";
 import "./Register.css";
 
 export default function Register() {
-    const API_BASE = import.meta.env.VITE_API_BASE;
+    const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
     // Form state
     // The state we have are: email, password, showPassword, role, message
     const [email, setEmail] = useState("");
