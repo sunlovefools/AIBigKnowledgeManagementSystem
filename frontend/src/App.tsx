@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { Routes, Route } from "react-router-dom";
 import axios from "axios";
 import Register from "./pages/register/Register";
+import MainPage from "./pages/main/MainPage";
 
 function App() {
   // State to hold the response message from the backend
@@ -21,14 +23,19 @@ function App() {
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h1>Frontend → Backend Test</h1>
-      {/* Button to trigger backend communication, after pressed it will call the handleClick function */}
-      <button onClick={handleClick}>Talk to Backend</button>
-      <p>{response}</p>
-      {/* Registration component at the bottom */}
-      <Register />
-    </div>
+    <Routes>
+      <Route path="/" element={<MainPage />} />
+      <Route path="/register" element={<Register />} />
+    </Routes>
+    // <div style={{ textAlign: "center", marginTop: "50px" }}>
+    //   <h1>Frontend → Backend Test</h1>
+    //   {/* Button to trigger backend communication, after pressed it will call the handleClick function */}
+    //   <button onClick={handleClick}>Talk to Backend</button>
+    //   <p>{response}</p>
+    //   {/* Registration component at the bottom
+    //   <Register /> */}
+    //   {/* Just commented out register for now because the landing page now should be main page */}
+    // </div>
   );
 }
 
