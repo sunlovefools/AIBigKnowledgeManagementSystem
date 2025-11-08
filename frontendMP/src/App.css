@@ -1,0 +1,125 @@
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f4f7f6;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #004a99;
+  color: white;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 24px;
+}
+
+/* Requirement 3: Logout Button */
+#logoutButton {
+  background-color: #e60000;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+}
+#logoutButton:hover {
+  background-color: #c40000;
+}
+
+.main-content {
+  display: flex;
+  padding: 20px;
+}
+
+.chat-section {
+  flex: 2;
+  margin-right: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-section {
+  flex: 1;
+}
+
+/* Requirement 1: Chat window placeholder */
+#model-interaction {
+  border: 1px solid #ddd;
+  background-color: #fafafa;
+  height: 400px;
+  overflow-y: auto;
+  padding: 10px;
+  margin-bottom: 15px;
+  border-radius: 5px;
+}
+#model-interaction p {
+  color: #888;
+  font-style: italic;
+}
+
+/* Requirement 4: Query input placeholder */
+#query-placeholder {
+  display: flex;
+}
+#query-input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px 0 0 5px;
+}
+#query-placeholder button {
+  padding: 10px 15px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  cursor: pointer;
+  border-radius: 0 5px 5px 0;
+}
+
+.sidebar-module {
+  background-color: #fdfdfd;
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+.sidebar-module h3 {
+  margin-top: 0;
+}
+
+/* Requirement 5: File upload placeholder */
+#file-upload-placeholder input[type="file"] {
+  width: 100%;
+}
+
+/* Requirement 2: Data display placeholder */
+#data-display-placeholder ul {
+  list-style-type: none;
+  padding-left: 0;
+  color: #555;
+}
+#data-display-placeholder li {
+  padding: 5px 0;
+  border-bottom: 1px dashed #eee;
+}
