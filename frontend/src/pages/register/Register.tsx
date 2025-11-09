@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 import "./Register.css";
+
 
 export default function Register() {
     const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
@@ -11,6 +13,8 @@ export default function Register() {
     const [showPassword, setShowPassword] = useState(false); // By default, password is hidden
     const [role, setRole] = useState("user");
     const [message, setMessage] = useState("");
+    //navigation hook
+    const navigate = useNavigate();
 
     // Handle form submission
     const handleRegister = async (e: React.FormEvent) => {
@@ -42,6 +46,8 @@ export default function Register() {
             });
             console.log(res.data);
             setMessage("Registered successfully!");
+            //send users to mainpage
+            navigate("/mainpage");
             setEmail("");
             setPassword("");
             setRole("user");
