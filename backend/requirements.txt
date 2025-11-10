@@ -7,3 +7,5 @@ bcrypt
 email-validator
 requests
 gunicorn
+langchain
+numpy

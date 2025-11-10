@@ -2,6 +2,7 @@ from fastapi import FastAPI
 import app.api.router_auth as auth_router # Import the auth router inside app.api
 from fastapi.middleware.cors import CORSMiddleware
 from app.service.beam_client import query_llm
+import app.api.router_query as query_router
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -25,6 +26,11 @@ app.include_router(
     prefix="/auth",          # All routes from this file will start with /auth
     tags=["Authentication"]  # Groups them nicely in the API docs
 )
+
+app.include_router(
+    query_router.router, 
+    prefix="/api", 
+    tags=["Query"])
 
 # A simple test endpoint to verify the backend is running, not being used at all
 @app.get("/hello")
