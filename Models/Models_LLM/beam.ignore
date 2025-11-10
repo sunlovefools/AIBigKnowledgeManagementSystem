@@ -1,0 +1,15 @@
+name: qwen-1_8b-inference
+python_version: "3.11"
+
+runtime:
+  type: python:3.11
+  commands:
+    start: uvicorn app:app --host 0.0.0.0 --port 8000
+
+build:
+  python_packages:
+    - -r requirements.txt
+
+resources:
+  concurrency: 1
+  accelerator: "nvidia-tesla-t4" # change to null for CPU

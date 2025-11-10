@@ -1,6 +1,11 @@
 fastapi
-uvicorn[standard]
-torch
+uvicorn
 transformers
+torch
 accelerate
 sentencepiece
+einops
+huggingface_hub
+pydantic
+requests
+numpy
