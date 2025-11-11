@@ -37,6 +37,9 @@ https://<your-app-id>-8000.app.beam.cloud/embed
 
 4. API Usage
 
+**Base URL**  
+`https://21878b0f-3b58-4cf7-999e-16e1e27abce4-8000.app.beam.cloud`
+
 Endpoint
 POST /embed
 Request body
