@@ -1,23 +1,28 @@
-# ---- Base Image ----
+# ---- Base image ----
 FROM python:3.11-slim
 
-# ---- System Setup ----
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    git wget curl build-essential && \
-    rm -rf /var/lib/apt/lists/*
+# ---- Prevent Python from buffering output ----
+ENV PYTHONUNBUFFERED=1
 
-# ---- Working Directory ----
+# ---- Set working directory ----
 WORKDIR /app
 
-# ---- Copy and Install Dependencies ----
+# ---- Install system dependencies ----
+RUN apt-get update && apt-get install -y \
+    git \
+    && rm -rf /var/lib/apt/lists/*
+
+# ---- Copy dependency files first (for caching) ----
 COPY requirements.txt .
+
+# ---- Install Python dependencies ----
 RUN pip install --no-cache-dir -r requirements.txt
 
-# ---- Copy Application Code ----
+# ---- Copy the rest of the app ----
 COPY . .
 
-# ---- Expose Port for FastAPI ----
+# ---- Expose FastAPI port ----
 EXPOSE 8000
 
-# ---- Run the App ----
+# ---- Command to run the API ----
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

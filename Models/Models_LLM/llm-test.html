@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qwen LLM Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0e1117;
+            color: #eee;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            color: #00b4d8;
+        }
+
+        textarea {
+            width: 400px;
+            height: 120px;
+            border-radius: 8px;
+            padding: 10px;
+            border: none;
+            font-size: 14px;
+            background-color: #1a1f2c;
+            color: #eee;
+            resize: none;
+            outline: none;
+        }
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            background-color: #00b4d8;
+            color: #fff;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0092b6;
+        }
+
+        pre {
+            width: 400px;
+            background-color: #1a1f2c;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 20px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        input {
+            width: 400px;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 6px;
+            border: none;
+            background-color: #1a1f2c;
+            color: #eee;
+            outline: none;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🧠 Qwen LLM Tester</h1>
+    <input type="text" id="endpoint" placeholder="Enter your endpoint URL (e.g. https://xxxx-8000.app.beam.cloud)">
+    <textarea id="prompt" placeholder="Enter your prompt here..."></textarea>
+    <button id="sendBtn">Generate</button>
+    <pre id="response">Response will appear here...</pre>
+
+    <script>
+        document.getElementById("sendBtn").addEventListener("click", async () => {
+            const endpoint = document.getElementById("endpoint").value.trim();
+            const prompt = document.getElementById("prompt").value.trim();
+            const responseBox = document.getElementById("response");
+
+            if (!endpoint || !prompt) {
+                responseBox.textContent = "❌ Please enter both endpoint and prompt.";
+                return;
+            }
+
+            responseBox.textContent = "⏳ Generating...";
+
+            try {
+                const res = await fetch(endpoint, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        max_new_tokens: 100,
+                        temperature: 0.7,
+                        top_p: 0.9
+                    })
+                });
+
+                const data = await res.json();
+                responseBox.textContent = data.response || data.error || JSON.stringify(data, null, 2);
+            } catch (err) {
+                responseBox.textContent = `❌ Error: ${err.message}`;
+            }
+        });
+    </script>
+</body>
+
+</html>

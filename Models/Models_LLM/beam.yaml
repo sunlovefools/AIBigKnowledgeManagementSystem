@@ -1,9 +1,11 @@
-name: embedding-service-gemma
+name: qwen-0_5b-inference
 runtime: python3
 entrypoint: uvicorn app:app --host 0.0.0.0 --port $PORT
+
 build:
   packages:
     - -r requirements.txt
+
 resources:
   concurrency: 1
-  accelerator: "nvidia-tesla-t4" # or A100 if available
+  accelerator: null # or "nvidia-tesla-t4" if you want GPU
