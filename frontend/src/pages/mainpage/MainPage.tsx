@@ -5,6 +5,7 @@ import "./MainPage.css";
 
 // blueprint for a chat message, must have a role (user/AI), might have a filename.
 type ChatMessage = { role: "user" | "ai"; text: string; fileName?: string };
+
 // Get the backend API base URL from environment variables, during development it is usually http://
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 
@@ -26,6 +27,8 @@ export default function MainPage() {
     const listRef = useRef<HTMLDivElement | null>(null);
     // State to hold the response message from the backend
     const [response, setResponse] = useState<string>("");
+    // Store the 64encoded content of the file selected by the user
+    const [fileContent, setFileContent] = useState<string>("");
 
     // runs every time the 'messages' array changes (i.e., when a new message is added).
     useEffect(() => {
@@ -44,20 +47,33 @@ export default function MainPage() {
     };
 
     /* query placeholder: add message + dummy AI reply */
-    const handleSend = () => {
+    const handleSend =async () => {
         // Trim whitespace from the input text.
         const textInput = input.trim();
         // Do nothing if there's no text AND no file selected.
         if (!textInput && !selectedFile) return;
-        // Create a new message object that includes text and an optional fileName.
+        // Create a new message object that includes text and an optional fileName (For displaying it later)
         const newMessage: ChatMessage = {
             role: "user",
             text: textInput,
             fileName: selectedFile ? selectedFile.name : undefined, // If a file is picked, add its name.
         };
-
         // Add our new message object to the end of the 'messages' array.
         setMessages((messagesArray) => [...messagesArray, newMessage]);
+
+        // Here, you send the fileContent and its title to the backend
+        if (fileContent){
+          try {
+              // Send POST request to backend /ingest/webhook endpoint along with fileContent only if a file is selected
+              const res = await axios.post(`${API_BASE}/ingest/webhook`, {
+                fileName: selectedFile ? selectedFile.name : "Untitled",
+                contentType: selectedFile ? selectedFile.type : "application/octet-stream",
+                data: fileContent,
+          });
+          } catch (error) {
+              console.error("Error sending query:", error);
+          }
+        }
 
         // After sending, we clear the input box and the picked file.
         setInput("");
@@ -84,6 +100,21 @@ export default function MainPage() {
         const file = event.target.files?.[0] || null;
         // Save the selected file in our 'selectedFile' state.
         setSelectedFile(file);
+
+        // If a file is selected, read its content as base64 and store it
+        if (file) {
+            const reader = new FileReader();
+            // onload is triggered when the file is read successfully by readAsDataURL
+            reader.onload = () => {
+                const base64String = (reader.result as string).split(",")[1]; // Get base64 part
+                setFileContent(base64String);
+            };
+            // Start reading the file and converted to base64
+            // The reason that we put readAsDataURL here is that it's asynchronous
+            reader.readAsDataURL(file); // Once this is done, reader.onload will be called
+        } else {
+            setFileContent(""); // Clear file content if no file is selected
+        }
     };
     
     // Clears currently selected files
