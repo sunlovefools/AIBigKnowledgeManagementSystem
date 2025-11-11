@@ -7,3 +7,5 @@ bcrypt
 email-validator
 requests
 gunicorn
+PyMuPDF
+python-docx
