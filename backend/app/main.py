@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-import app.api.router_auth as auth_router # Import the auth router inside app.api
+import app.api.router_auth as auth_router
+import app.api.router_ingest as ingest_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.service.beam_client import query_llm
 import app.api.router_query as query_router
@@ -22,9 +23,14 @@ app.add_middleware(
 
 # If the request URL starts with /auth, forward it to router_auth.py
 app.include_router(
-    auth_router.router,     # The router object from router_auth.py
-    prefix="/auth",          # All routes from this file will start with /auth
-    tags=["Authentication"]  # Groups them nicely in the API docs
+   auth_router.router,     # The router object from router_auth.py
+   prefix="/auth",          # All routes from this file will start with /auth
+   tags=["Authentication"]  # Groups them nicely in the API docs
+)
+app.include_router(
+    ingest_router.router,
+    prefix="/ingest",
+    tags=["Ingestion"]
 )
 
 app.include_router(

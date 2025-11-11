@@ -56,6 +56,11 @@ except ValueError as e:
 
 # --- API Endpoints ---
 
+# Simple health check endpoint for this module
+@router.get("/health")
+def auth_health():
+    return {"authentication": "ok"}
+
 # Endpoint to register a new user
 # Explain what are all these parameters mean
 # - "/register": The URL path for this endpoint
