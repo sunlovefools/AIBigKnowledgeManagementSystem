@@ -5,9 +5,14 @@ from pathlib import Path
 
 from app.service.text_extractor import extract_text
 from app.service.chunker import split_into_chunks
+from app.service.chunk_polisher import polish_chunks
+from app.service.embedder import embed_text
 
 # For decoding base64 file data
 import base64
+import aiohttp
+
+
 
 # Setup the API router
 router = APIRouter()
@@ -43,7 +48,7 @@ def ingest_health():
 # --- Main endpoint: receive event, extract text, cut into chunks ---
 ## Will still uses /webhook route eventhough there is no real webhook from MinIO at this stage
 @router.post("/webhook")
-def ingest_webhook(file: FileUpload):
+async def ingest_webhook(file: FileUpload):
 #     ev: IngestEvent,
 #     preview: int = Query(0, description="Set 1 to include chunk previews"),
 #     chunk_size: int = Query(4000, ge=200, le=20000, description="Max chars per chunk"),
@@ -77,12 +82,55 @@ def ingest_webhook(file: FileUpload):
 
     # chunking
     chunks = split_into_chunks(text, 3000)
+    
+    # Polishing chunks (Remove unwanted characters such as '\n')
+    polished_chunks = polish_chunks(chunks)
 
-    # Print the chunks for debugging
-    for chunk in chunks:
-        print(f"Chunk {chunk['index']} (length {len(chunk['text'])}):")
-        print(chunk['text'])
-        print("-----")
+    print(f"polished_chunks: {polished_chunks}\n\n\n")
+
+    # prepare payload for embedding
+    documents_payload = {
+        "input": [chunk["text"] for chunk in polished_chunks]
+    }
+
+    print(f"documents_payload: {documents_payload}")
+
+    # Call embedding API asynchronously
+    try:
+        async with aiohttp.ClientSession() as session:
+            vectors = await embed_text(session, documents_payload)
+            print(f"vectors: {vectors}\n\n\n")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Embedding request failed: {e}")
+    
+    # Validate before using it
+    if not vectors or "embedding" not in vectors:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Embedding server did not return valid embeddings. Got: {vectors}"
+    )
+
+    # Attach embeddings back to their chunks
+    embeddings = vectors.get("embedding", [])
+    for index, vector in enumerate(embeddings):
+        polished_chunks[index]["embedding"] = vector
+        polished_chunks[index]["file_name"] = file.fileName
+
+    print(f"polished_chunks with embeddings: {polished_chunks}\n\n\n")
+
+    # The format of output response is:
+    # [
+    #     {
+    #         "index": <int>,               # The position of this chunk in the original document
+    #         "text": <str>,                # The polished, cleaned text extracted from that chunk
+    #         "embedding": <list[float]>,   # The embedding vector (typically 512–1024 dimensions)
+    #         "file_name": <str>            # The original uploaded file name
+    #     }
+    # ]
+
+    # @aleks and @saphia Should input all these into vector DB here...
+    # You guys can remove all the print statements above if you want to
+
 
     # # output
     # resp = {

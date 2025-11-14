@@ -7,10 +7,9 @@ bcrypt
 email-validator
 requests
 gunicorn
-<<<<<<< HEAD
 langchain
 numpy
 =======
 PyMuPDF
 python-docx
->>>>>>> origin/main
+aiohttp
