@@ -1,6 +1,8 @@
+# clean rebuild to fix cache
+# Force rebuild
 name: embedding-service
 runtime: python3
-entrypoint: uvicorn app:app --host 0.0.0.0 --port 8001
+entrypoint: uvicorn app:app --host 0.0.0.0 --port 8000
 visibility: public
 build:
   dockerfile: Dockerfile
