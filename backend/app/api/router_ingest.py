@@ -7,6 +7,7 @@ from app.service.text_extractor import extract_text
 from app.service.chunker import split_into_chunks
 from app.service.chunk_polisher import polish_chunks
 from app.service.embedder import embed_text
+from app.service.vector_store import upsert_chunk
 
 # For decoding base64 file data
 import base64
@@ -102,34 +103,48 @@ async def ingest_webhook(file: FileUpload):
             print(f"vectors: {vectors}\n\n\n")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Embedding request failed: {e}")
-    
-    # Validate before using it
-    if not vectors or "embedding" not in vectors:
+
+    # --- Validate and normalise embeddings field ---
+    embeddings = vectors.get("embeddings") or vectors.get("embedding")
+
+    if not embeddings:
         raise HTTPException(
             status_code=500,
             detail=f"Embedding server did not return valid embeddings. Got: {vectors}"
-    )
+        )
+
+    print(f"Got {len(embeddings)} embeddings from Beam")
+    print(f"First embedding length: {len(embeddings[0])}")
 
     # Attach embeddings back to their chunks
-    embeddings = vectors.get("embedding", [])
     for index, vector in enumerate(embeddings):
         polished_chunks[index]["embedding"] = vector
         polished_chunks[index]["file_name"] = file.fileName
 
     print(f"polished_chunks with embeddings: {polished_chunks}\n\n\n")
 
-    # The format of output response is:
-    # [
-    #     {
-    #         "index": <int>,               # The position of this chunk in the original document
-    #         "text": <str>,                # The polished, cleaned text extracted from that chunk
-    #         "embedding": <list[float]>,   # The embedding vector (typically 512–1024 dimensions)
-    #         "file_name": <str>            # The original uploaded file name
-    #     }
-    # ]
 
-    # @aleks and @saphia Should input all these into vector DB here...
-    # You guys can remove all the print statements above if you want to
+    # --- Save to vector DB with basic error logging ---
+    for chunk in polished_chunks:
+        try:
+            print(
+                f"Upserting chunk {chunk['index']} "
+                f"(len={len(chunk['embedding'])}) for file {chunk['file_name']}"
+            )
+            upsert_chunk(
+                content=chunk["text"],
+                document_name=chunk["file_name"],
+                page_number=0,               # TODO: add numbers (if needed)
+                chunk_number=chunk["index"],
+                uploaded_by="demo-user",     # TODO: change later
+                embedding=chunk["embedding"],
+            )
+        except Exception as e:
+            print(f"❌ Failed to upsert chunk {chunk['index']}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Vector DB upsert failed: {e}"
+            )
 
 
     # # output
