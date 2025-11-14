@@ -61,6 +61,27 @@ export default function MainPage() {
         // Add our new message object to the end of the 'messages' array.
         setMessages((messagesArray) => [...messagesArray, newMessage]);
 
+        // Here you send the user query (textInput) to the backend and get the AI response.
+        // ---- SEND TEXT QUERY TO BACKEND ----
+        try {
+            const res = await axios.post(`${API_BASE}/query`, {
+                query: textInput,
+            });
+
+            // Append AI response to chat
+            setMessages((messagesArray) => [
+                ...messagesArray,
+                { role: "ai", text: res.data.response || "(no response)" },
+            ]);
+        } catch (error) {
+            console.error("Error sending query:", error);
+
+            setMessages((messagesArray) => [
+                ...messagesArray,
+                { role: "ai", text: "❌ Error: Unable to reach backend" },
+            ]);
+        }
+
         // Here, you send the fileContent and its title to the backend
         if (fileContent){
           try {
@@ -75,18 +96,19 @@ export default function MainPage() {
           }
         }
 
-        // After sending, we clear the input box and the picked file.
+        // After sending the text inputs and the file, we clear the input box and the picked file.
         setInput("");
         clearFile();
-
-        // Stimulates placeholder AI reply after a short delay
-        setTimeout(() => {
-            setMessages((messagesArray) => [
-                ...messagesArray,
-                { role: "ai", text: "This is a placeholder response." },
-            ]);
-        }, 200);
     };
+
+    //     // Stimulates placeholder AI reply after a short delay
+    //     setTimeout(() => {
+    //         setMessages((messagesArray) => [
+    //             ...messagesArray,
+    //             { role: "ai", text: "This is a placeholder response." },
+    //         ]);
+    //     }, 200);
+    // };
 
     /*upload file placeholder */
     const handleFileSelectClick = () => {
