@@ -3,8 +3,16 @@ import app.api.router_auth as auth_router
 import app.api.router_ingest as ingest_router
 from fastapi.middleware.cors import CORSMiddleware
 from app.service.beam_client import query_llm
+from app.service.vectordb_init import init_vector_db
+
 # Initialize FastAPI app
 app = FastAPI()
+
+# Initialize the vector database
+@app.on_event("startup")
+def startup_event():
+    print("Initialising vector database (if not already created)...")
+    init_vector_db()
 
 # Allow requests from your React dev server (localhost:5173)
 # When allow_credentials=True, you must specify explicit origins (can't use "*")
