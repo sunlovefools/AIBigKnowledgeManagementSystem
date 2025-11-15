@@ -3,6 +3,7 @@ from datetime import datetime
 
 from .vectordb_init import init_vector_db
 
+# Initialize the vector database and get the collection object (If the collection does not exist, it will be created, if it exists, the existing one will be used)
 collection = init_vector_db()
 
 
@@ -29,7 +30,7 @@ def upsert_chunk(
         "chunk_number": chunk_number,
         "uploaded_by": uploaded_by,
         "timestamp": timestamp,
-        "embedding": embedding,
+        "$vector": embedding,
     }
 
     collection.insert_one(doc)

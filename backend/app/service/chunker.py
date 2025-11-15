@@ -5,6 +5,8 @@ def split_into_chunks(text: str, max_chars: int = 3000):
         max_chars (int): The maximum number of characters allowed in each chunk. (By default, 3000)
     Returns:
         List[Dict[str, Any]]: A list of dictionaries, each containing an "index" and "text" key.
+        {index: int, text: str}:
+            A list of chunks with their respective indices.
     """
 
     # Split the text into paragraphs based on double newlines

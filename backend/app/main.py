@@ -12,13 +12,11 @@ from app.service.vectordb_init import init_vector_db
 # Initialize FastAPI app
 app = FastAPI()
 
-<<<<<<< HEAD
 # Initialize the vector database
 @app.on_event("startup")
 def startup_event():
     print("Initialising vector database (if not already created)...")
     init_vector_db()
-=======
 load_dotenv()
 
 BEAM_LLM_URL = os.getenv("BEAM_LLM_URL")
@@ -28,7 +26,6 @@ BEAM_LLM_KEY = os.getenv("BEAM_LLM_KEY")
 class QueryRequest(BaseModel):
     query: str
 # TEST FOR SENDING WUERY TO BACKEND
->>>>>>> main
 
 # Allow requests from your React dev server (localhost:5173)
 # When allow_credentials=True, you must specify explicit origins (can't use "*")
@@ -66,31 +63,33 @@ async def ask_user(body: QueryRequest):
     user_query = body.query
     print(f"Received query: {user_query}")
 
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {BEAM_LLM_KEY}",
-        "Connection": "keep-alive",
-    }
+    return {"response": "Hi there! This is a placeholder response from the backend."}
 
-    payload = {"prompt": user_query}
+    # headers = {
+    #     "Content-Type": "application/json",
+    #     "Authorization": f"Bearer {BEAM_LLM_KEY}",
+    #     "Connection": "keep-alive",
+    # }
 
-    try:
-        async with httpx.AsyncClient() as client:
-            response = await client.post(
-                BEAM_LLM_URL,
-                headers=headers,
-                json=payload,
-                timeout=60.0,
-            )
+    # payload = {"prompt": user_query}
 
-        response.raise_for_status()
-        data = response.json()
+    # try:
+    #     async with httpx.AsyncClient() as client:
+    #         response = await client.post(
+    #             BEAM_LLM_URL,
+    #             headers=headers,
+    #             json=payload,
+    #             timeout=60.0,
+    #         )
 
-        # Your LLM output is in data["response"]
-        llm_output = data.get("response", "(LLM returned no response field)")
+    #     response.raise_for_status()
+    #     data = response.json()
 
-    except Exception as e:
-        print("Error talking to Beam:", e)
-        return {"response": "❌ Error: Could not reach LLM service"}
+    #     # Your LLM output is in data["response"]
+    #     llm_output = data.get("response", "(LLM returned no response field)")
 
-    return {"response": llm_output}
+    # except Exception as e:
+    #     print("Error talking to Beam:", e)
+    #     return {"response": "❌ Error: Could not reach LLM service"}
+
+    # return {"response": llm_output}

@@ -87,42 +87,59 @@ async def ingest_webhook(file: FileUpload):
     # Polishing chunks (Remove unwanted characters such as '\n')
     polished_chunks = polish_chunks(chunks)
 
-    print(f"polished_chunks: {polished_chunks}\n\n\n")
-
     # prepare payload for embedding
     documents_payload = {
         "input": [chunk["text"] for chunk in polished_chunks]
     }
 
-    print(f"documents_payload: {documents_payload}")
-
     # Call embedding API asynchronously
     try:
         async with aiohttp.ClientSession() as session:
             vectors = await embed_text(session, documents_payload)
+            # Responses format from embed_text():
+            # {"embedding": [[float, ...], ...] }
             print(f"vectors: {vectors}\n\n\n")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Embedding request failed: {e}")
 
-    # --- Validate and normalise embeddings field ---
-    embeddings = vectors.get("embeddings") or vectors.get("embedding")
+    # Write the vectors into a txt file for debugging
+    with open("vectors_debug.txt", "w", encoding="utf-8") as f:
+        f.write(str(vectors))
+    
+    # Extract embeddings list
+    embeddings = vectors.get("embedding")
 
+    # Check if embeddings are returned properly from beam, if not raise error
     if not embeddings:
         raise HTTPException(
             status_code=500,
             detail=f"Embedding server did not return valid embeddings. Got: {vectors}"
         )
 
-    print(f"Got {len(embeddings)} embeddings from Beam")
-    print(f"First embedding length: {len(embeddings[0])}")
-
     # Attach embeddings back to their chunks
     for index, vector in enumerate(embeddings):
         polished_chunks[index]["embedding"] = vector
         polished_chunks[index]["file_name"] = file.fileName
 
-    print(f"polished_chunks with embeddings: {polished_chunks}\n\n\n")
+    # Print the dimension of the embeddings for debugging
+    if len(embeddings) > 0:
+        print(f"Embedding dimension: {len(embeddings[0])}")
+    else:
+        print("No embeddings returned.")
+        
+    # Polished chunks now format:
+    # [
+    #   {
+    #       "index": 0,
+    #       "text": "The text content of the chunk...",
+    #       "embedding": [0.123, 0.456, ...],
+    #       "file_name": "example.txt"
+    #   },
+    # ]
 
+    # Write the polished chunks with embeddings into a txt file for debugging
+    with open("polished_chunks_debug.txt", "w", encoding="utf-8") as f:
+        f.write(str(polished_chunks))
 
     # --- Save to vector DB with basic error logging ---
     for chunk in polished_chunks:

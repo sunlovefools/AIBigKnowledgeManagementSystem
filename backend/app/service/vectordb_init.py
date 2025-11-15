@@ -1,11 +1,12 @@
 import os
 from astrapy import DataAPIClient
+from astrapy.info import CollectionVectorOptions, CollectionDefinition
 
 #load Astra credentials from .env files
 ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
 ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
 
-COLLECTION_NAME = "document_chunks"
+COLLECTION_NAME = "document_chunks_2"
 
 def init_vector_db():
     if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
@@ -22,22 +23,16 @@ def init_vector_db():
 
     print(f"creating vector collection '{COLLECTION_NAME}' ...")
 
+    collection_definition = CollectionDefinition(
+        vector= CollectionVectorOptions(
+            dimension=768,
+            metric="cosine"
+        )
+    )
     #CREATE COLLECTION WITH SCHEMA IF NOT EXIST
     collection = db.create_collection(
         COLLECTION_NAME,
-        {
-            "content": "string",#text chunk content
-            "document_name": "string",#which document the chunk belongs to
-            "page_number": "int",#PDF page index
-            "chunk_number": "int",#chunk index within document
-            "uploaded_by": "string",#username of uploader
-            "timestamp": "string",#upload timestamp(can be useful in future for tracking)
-            "embedding": {# vector embedding for chunk
-                "type": "vector",
-                "dimension": 1024,#gemma embedding size
-                "metric": "cosine"#cosine similarity for search
-            }
-        }
+        definition=collection_definition
     )
 
     print(f"✅ created vector collection '{COLLECTION_NAME}' successfully.")
