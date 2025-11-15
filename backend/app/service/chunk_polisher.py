@@ -13,8 +13,8 @@ def polish_chunks(chunks):
             A list of dictionaries containing "index" and "text" keys.
 
     Returns:
-        List[Dict[str, str]]:
-            A new list of cleaned chunks with normalized text ready for embedding.
+        {index: int, text: str}:
+            A list of polished chunks with cleaned text.
     """
     polished = []
     for chunk in chunks:
