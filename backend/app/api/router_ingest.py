@@ -7,6 +7,7 @@ from app.service.text_extractor import extract_text
 from app.service.chunker import split_into_chunks
 from app.service.chunk_polisher import polish_chunks
 from app.service.embedder import embed_text
+from app.service.vector_store import upsert_chunk
 
 # For decoding base64 file data
 import base64
@@ -86,50 +87,81 @@ async def ingest_webhook(file: FileUpload):
     # Polishing chunks (Remove unwanted characters such as '\n')
     polished_chunks = polish_chunks(chunks)
 
-    print(f"polished_chunks: {polished_chunks}\n\n\n")
-
     # prepare payload for embedding
     documents_payload = {
         "input": [chunk["text"] for chunk in polished_chunks]
     }
 
-    print(f"documents_payload: {documents_payload}")
-
     # Call embedding API asynchronously
     try:
         async with aiohttp.ClientSession() as session:
             vectors = await embed_text(session, documents_payload)
+            # Responses format from embed_text():
+            # {"embedding": [[float, ...], ...] }
             print(f"vectors: {vectors}\n\n\n")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Embedding request failed: {e}")
+
+    # Write the vectors into a txt file for debugging
+    with open("vectors_debug.txt", "w", encoding="utf-8") as f:
+        f.write(str(vectors))
     
-    # Validate before using it
-    if not vectors or "embedding" not in vectors:
+    # Extract embeddings list
+    embeddings = vectors.get("embedding")
+
+    # Check if embeddings are returned properly from beam, if not raise error
+    if not embeddings:
         raise HTTPException(
             status_code=500,
             detail=f"Embedding server did not return valid embeddings. Got: {vectors}"
-    )
+        )
 
     # Attach embeddings back to their chunks
-    embeddings = vectors.get("embedding", [])
     for index, vector in enumerate(embeddings):
         polished_chunks[index]["embedding"] = vector
         polished_chunks[index]["file_name"] = file.fileName
 
-    print(f"polished_chunks with embeddings: {polished_chunks}\n\n\n")
-
-    # The format of output response is:
+    # Print the dimension of the embeddings for debugging
+    if len(embeddings) > 0:
+        print(f"Embedding dimension: {len(embeddings[0])}")
+    else:
+        print("No embeddings returned.")
+        
+    # Polished chunks now format:
     # [
-    #     {
-    #         "index": <int>,               # The position of this chunk in the original document
-    #         "text": <str>,                # The polished, cleaned text extracted from that chunk
-    #         "embedding": <list[float]>,   # The embedding vector (typically 512–1024 dimensions)
-    #         "file_name": <str>            # The original uploaded file name
-    #     }
+    #   {
+    #       "index": 0,
+    #       "text": "The text content of the chunk...",
+    #       "embedding": [0.123, 0.456, ...],
+    #       "file_name": "example.txt"
+    #   },
     # ]
 
-    # @aleks and @saphia Should input all these into vector DB here...
-    # You guys can remove all the print statements above if you want to
+    # Write the polished chunks with embeddings into a txt file for debugging
+    with open("polished_chunks_debug.txt", "w", encoding="utf-8") as f:
+        f.write(str(polished_chunks))
+
+    # --- Save to vector DB with basic error logging ---
+    for chunk in polished_chunks:
+        try:
+            print(
+                f"Upserting chunk {chunk['index']} "
+                f"(len={len(chunk['embedding'])}) for file {chunk['file_name']}"
+            )
+            upsert_chunk(
+                content=chunk["text"],
+                document_name=chunk["file_name"],
+                page_number=0,               # TODO: add numbers (if needed)
+                chunk_number=chunk["index"],
+                uploaded_by="demo-user",     # TODO: change later
+                embedding=chunk["embedding"],
+            )
+        except Exception as e:
+            print(f"❌ Failed to upsert chunk {chunk['index']}: {e}")
+            raise HTTPException(
+                status_code=500,
+                detail=f"Vector DB upsert failed: {e}"
+            )
 
 
     # # output

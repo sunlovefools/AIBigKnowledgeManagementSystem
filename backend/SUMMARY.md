@@ -16,8 +16,8 @@ backend/
 │ │
 │ ├── service/
 │ │ ├── auth_service.py
-│ │ └── init.py
-│ │
+│ │ ├── init.py
+│ │ └── vectordb_init.py
 │ └── main.py
 │
 ├── tests/
@@ -64,6 +64,9 @@ This layer contains all **business logic and helper services** that power the AP
   These functions are used by `router_auth.py` to handle user authentication flow.
 
 By keeping the logic here, we achieve better **separation of concerns** — API routes only delegate work to service functions.
+
+- **`vectordb_init.py`**
+  Initialises the vector database.
 
 ---
 
