@@ -31,3 +31,8 @@ Thumbs.db
 
 # __pycache__/
 *.pyc
+
+cgi-backend-server.pem
+cgi-backend-server.pem
+nginx/ssl/cert.pem
+nginx/ssl/key.pem
