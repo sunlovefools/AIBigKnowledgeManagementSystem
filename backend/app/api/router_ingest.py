@@ -82,7 +82,7 @@ async def ingest_webhook(file: FileUpload):
         raise HTTPException(status_code=500, detail="text extraction failed")
 
     # chunking
-    chunks = split_into_chunks(text, 3000)
+    chunks = split_into_chunks(text, 1000)
     
     # Polishing chunks (Remove unwanted characters such as '\n')
     polished_chunks = polish_chunks(chunks)

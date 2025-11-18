@@ -64,15 +64,16 @@ export default function MainPage() {
         // Here you send the user query (textInput) to the backend and get the AI response.
         // ---- SEND TEXT QUERY TO BACKEND ----
         try {
-            const res = await axios.post(`${API_BASE}/query`, {
+            const res = await axios.post(`${API_BASE}/api/query`, {
                 query: textInput,
             });
 
             // Append AI response to chat
             setMessages((messagesArray) => [
                 ...messagesArray,
-                { role: "ai", text: res.data.response || "(no response)" },
+                { role: "ai", text: res.data.answer || "(no response)" },
             ]);
+            console.log("res.data:", res.data);
         } catch (error) {
             console.error("Error sending query:", error);
 

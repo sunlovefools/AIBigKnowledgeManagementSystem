@@ -1,4 +1,4 @@
-def split_into_chunks(text: str, max_chars: int = 3000):
+def split_into_chunks(text: str, max_chars: int = 1000):
     """Split a huge text into smaller chunks for easier processing.
     Args: 
         text (str): The input text to be split into chunks. (A huge string)
