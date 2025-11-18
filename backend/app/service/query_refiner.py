@@ -2,10 +2,11 @@ import os
 import aiohttp
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 
-LLM_URL = os.getenv("BEAM_LLM_URL")
-LLM_KEY = os.getenv("BEAM_LLM_KEY")
+LLM_URL = os.getenv("BEAM_REFINE_LLM_URL")
+LLM_KEY = os.getenv("BEAM_REFINE_LLM_KEY")
 
 HEADERS = {
     "Authorization": f"Bearer {LLM_KEY}",
@@ -14,10 +15,11 @@ HEADERS = {
 
 async def refine_query(query: str) -> str:
     """
-    Refine user query using Beam LLM (Qwen).
+    Sends user_query to Beam LLM (Qwen Query Refiner).
     """
+
     payload = {
-        "prompt": f"Rewrite the following into a clean search query:\n{query}\nRefined:"
+        "user_query": query
     }
 
     async with aiohttp.ClientSession() as session:
@@ -27,4 +29,6 @@ async def refine_query(query: str) -> str:
                 raise ValueError(f"LLM request failed ({resp.status}): {text}")
 
             data = await resp.json()
-            return data.get("response", "").strip()
+
+            # Beam returns {"original_query": "...", "refined_query": "..."}
+            return data.get("refined_query", "").strip()

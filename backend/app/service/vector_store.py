@@ -53,20 +53,22 @@ def search_similar_chunks(query_embedding, top_k=5):
     # 1) Perform vector search using the old API
     results = list(collection.find(
         sort={"$vector": query_embedding},
-        limit=top_k
+        limit=top_k,
+        include_similarity=True
     ))
 
     formatted = []
 
+    # 2) For each result, compute similarity and format response
     for doc in results:
 
-        # 2) Compute cosine similarity manually
-        similarity = None
-        if "$vector" in doc:
-            try:
-                similarity = cosine_similarity(query_embedding, doc["$vector"])
-            except:
-                similarity = None
+        # # 2) Compute cosine similarity manually
+        # similarity = None
+        # if "$vector" in doc:
+        #     try:
+        #         similarity = cosine_similarity(query_embedding, doc["$vector"])
+        #     except:
+        #         similarity = None
 
         # 3) Build response item
         formatted.append({
@@ -76,7 +78,9 @@ def search_similar_chunks(query_embedding, top_k=5):
             "chunk_number": doc.get("chunk_number"),
             "uploaded_by": doc.get("uploaded_by"),
             "timestamp": doc.get("timestamp"),
-            "similarity_score": similarity,
+            "similarity_score": doc.get("$similarity") or 0.0,
         })
 
+    print(f"✅ Formatted {len(formatted)} similar chunks for response")
+    print(f"🔢 Formatted Response: {formatted}")
     return formatted

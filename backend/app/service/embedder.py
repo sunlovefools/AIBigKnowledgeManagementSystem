@@ -29,7 +29,7 @@ async def embed_text(session: aiohttp.ClientSession, payload: dict):
 
     Returns:
         dict: The response JSON from the embedding server.
-              Expected: {"embeddings": [[float, ...], ...]}
+              Expected: {"embedding": [[float, ...], ...]}
     """
     try:
         async with session.post(
