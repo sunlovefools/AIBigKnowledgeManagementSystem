@@ -1,9 +1,14 @@
 fastapi
-uvicorn
+uvicorn[standard]
 python-dotenv
 pydantic
-astrapy>=2.0,<3.0
+astrapy
 bcrypt
 email-validator
-python-dotenv
 requests
+gunicorn
+langchain
+numpy
+PyMuPDF
+python-docx
+aiohttp

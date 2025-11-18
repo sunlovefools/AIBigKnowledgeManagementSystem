@@ -32,7 +32,12 @@ Thumbs.db
 # __pycache__/
 *.pyc
 
+<<<<<<< HEAD
 cgi-backend-server.pem
 cgi-backend-server.pem
 nginx/ssl/cert.pem
 nginx/ssl/key.pem
+=======
+#pem
+*.pem
+>>>>>>> 8cbaaa96648d9692793998df29c25c6571ddfa6d

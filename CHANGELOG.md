@@ -25,7 +25,16 @@ All notable changes to this project will be documented in this file.
 - Security improvements or vulnerability fixes
 
 ---
+## [0.1.0] - 2025-11-14
+Author: @psysa22
+### Added
+- Vector database initialisation in vectordb_init.py
 
+### Changed
+- Added initialisation to main.py, calls initialisation function on startup
+- SUMMARY.md to include the vectordb_init.py
+
+---
 ## 1.0.0 - 2025-11-04
 
 ### Added
