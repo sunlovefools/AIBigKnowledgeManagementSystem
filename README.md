@@ -183,6 +183,19 @@ This document provides:
 - Testing guidelines
 - Performance optimization notes
 
+### Testing Documentation
+
+For detailed information about the Ingest module testing suite, including unit tests and integration tests, please refer to:
+
+ **[Ingest Module Testing Summary](./backend/tests/INGEST_TESTING_SUMMARY.md)**
+
+This document provides:
+- Complete test coverage overview (37 test cases)
+- Integration test specifications (end-to-end pipeline testing)
+- Unit test details for text_extractor, chunker, and chunk_polisher
+- Test execution instructions
+- Edge case and internationalization coverage
+
 ---
 
 ## Frontend Architecture

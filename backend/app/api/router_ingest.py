@@ -81,8 +81,8 @@ async def ingest_webhook(file: FileUpload):
         # if unexpected error
         raise HTTPException(status_code=500, detail="text extraction failed")
 
-    # chunking
-    chunks = split_into_chunks(text, 1000)
+    # chunking (600 chars to safely stay under Astra DB 8000 byte limit for UTF-8 text)
+    chunks = split_into_chunks(text, 600)
     
     # Polishing chunks (Remove unwanted characters such as '\n')
     polished_chunks = polish_chunks(chunks)
