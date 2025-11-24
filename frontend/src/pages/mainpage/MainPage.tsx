@@ -1,7 +1,11 @@
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeHighlight from "rehype-highlight";
 import "./MainPage.css";
+import "highlight.js/styles/github-dark.css";
 
 // blueprint for a chat message, must have a role (user/AI), might have a filename.
 type ChatMessage = { role: "user" | "ai"; text: string; fileName?: string };
@@ -198,7 +202,33 @@ export default function MainPage() {
                     {message.role === "user" ? "👤" : "🤖"}
                   </div>
                   <div className="message-content">
-                    {message.text && <div className="message-text">{message.text}</div>}
+                    {message.text && (
+                      <div className="message-text">
+                        {message.role === "ai" ? (
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            rehypePlugins={[rehypeHighlight]}
+                            components={{
+                              code({ node, inline, className, children, ...props }: any) {
+                                return inline ? (
+                                  <code className="inline-code" {...props}>
+                                    {children}
+                                  </code>
+                                ) : (
+                                  <code className={className} {...props}>
+                                    {children}
+                                  </code>
+                                );
+                              },
+                            }}
+                          >
+                            {message.text}
+                          </ReactMarkdown>
+                        ) : (
+                          message.text
+                        )}
+                      </div>
+                    )}
                     {message.fileName && (
                       <div className="message-file-attachment">
                         <span>{message.fileName}</span>
