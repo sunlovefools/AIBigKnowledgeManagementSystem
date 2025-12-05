@@ -7,128 +7,150 @@ import rehypeHighlight from "rehype-highlight";
 import "./MainPage.css";
 import "highlight.js/styles/github-dark.css";
 
-// blueprint for a chat message, must have a role (user/AI), might have a filename.
-type ChatMessage = { role: "user" | "ai"; text: string; fileName?: string };
+/**
+ * Defines the structure for messages in the chat state array.
+ * 
+ * NOTE: The 'fileName' is critical for rendering file attachment visuals in the chat history.
+ */
+type ChatMessage = { 
+    role: "user" | "ai";
+    text: string; 
+    fileName?: string // Optional: name of the attached file
+};
 
-// Get the backend API base URL from environment variables, during development it is usually http://
+// Get the backend API base URL from environment variables
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 
+/**
+ * Renders the main chat application page, orchestrating user interaction, state management,
+ * and communication with the backend for queries and file ingestion.
+ *
+ * @returns {JSX.Element} The full-page AI chat interface.
+ */
 export default function MainPage() {
     // function to change the page URL, can use it for logging out.
     const navigate = useNavigate();
 
-    // chat state
-    // 'messages' is an array that will hold all of our chat message objects.
+    // --- State Variables ---
+
+    // History of all messages (User queries and AI responses)
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-    // 'input' will hold the text that the user is currently typing in the textbox.
+
+    // Text currently typed in the input box
     const [input, setInput] = useState("");
-    // 'selectedFile' will hold the file that the user has selected.
-    // Better name for clarity
+
+    // File object currently selected by the user
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    // 'fileRef' gives us a way to "click" the hidden file input element.
-    const fileRef = useRef<HTMLInputElement | null>(null);
-    // 'listRef' gives us a way to control the message area, specifically to make it scroll.
-    const listRef = useRef<HTMLDivElement | null>(null);
+    
+    // The raw content of the selected file in base64 format
+    const [fileContent, setFileContent] = useState<string>("");
+    
     // State to hold the response message from the backend
     const [response, setResponse] = useState<string>("");
-    // Store the 64encoded content of the file selected by the user
-    const [fileContent, setFileContent] = useState<string>("");
 
-    // runs every time the 'messages' array changes (i.e., when a new message is added).
+    // --- References for DOM Interaction ---
+    // 'fileRef' gives us a way to "click" the hidden file input element.
+    const fileRef = useRef<HTMLInputElement | null>(null);
+
+    // 'listRef' gives us a way to control the message area, specifically to make it scroll.
+    const listRef = useRef<HTMLDivElement | null>(null);
+
+    /**
+     * Effect to auto-scroll the message area to the bottom whenever a new message is added.
+     */
     useEffect(() => {
         // Get the message area element.
-        const el = listRef.current;
-        if (el) {
+        const element = listRef.current;
+        if (element) {
             // This makes it automatically scroll to the bottom to show the newest message.
-            el.scrollTop = el.scrollHeight;
+            element.scrollTop = element.scrollHeight;
         }
     }, [messages]);
 
-    /* logging out: clears token and redirects to /register */
+    /**
+     * Clears the authentication token and redirects the user to the registration page.
+     */
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/register");
     };
 
-    /* query placeholder: add message + dummy AI reply */
+    /**
+     * Sends the user's query and the attached file (if any) to the backend API.
+     * This function performs two sequential or concurrent API calls: query and ingestion.
+     */
     const handleSend =async () => {
-        // Trim whitespace from the input text.
         const textInput = input.trim();
-        // Do nothing if there's no text AND no file selected.
+
+        // WHY: Return if there are no text or file to send.
         if (!textInput && !selectedFile) return;
-        // Create a new message object that includes text and an optional fileName (For displaying it later)
+
+        // 1. Prepare and add the user's message to the chat history.
         const newMessage: ChatMessage = {
             role: "user",
             text: textInput,
             fileName: selectedFile ? selectedFile.name : undefined, // If a file is picked, add its name.
         };
-        // Add our new message object to the end of the 'messages' array.
         setMessages((messagesArray) => [...messagesArray, newMessage]);
 
-        // Here you send the user query (textInput) to the backend and get the AI response.
-        // ---- SEND TEXT QUERY TO BACKEND ----
+        // 2. Send user's text query to backend /api/query endpoint
         try {
-            const res = await axios.post(`${API_BASE}/api/query`, {
+            const response = await axios.post(`${API_BASE}/api/query`, {
                 query: textInput,
             });
 
-            // Append AI response to chat
+            // 3. Update the chat history with the AI's response.
             setMessages((messagesArray) => [
                 ...messagesArray,
-                { role: "ai", text: res.data.answer || "(no response)" },
+                { role: "ai", text: response.data.answer || "(no response)" },
             ]);
-            console.log("res.data:", res.data);
         } catch (error) {
             console.error("Error sending query:", error);
-
+            // Provide feedback to user in chat history if fail to connect to backend
             setMessages((messagesArray) => [
                 ...messagesArray,
                 { role: "ai", text: "❌ Error: Unable to reach backend" },
             ]);
         }
 
-        // Here, you send the fileContent and its title to the backend
+        // 4. Send the selected file (if any) to backend /ingest/webhook endpoint
         if (fileContent){
           try {
-              // Send POST request to backend /ingest/webhook endpoint along with fileContent only if a file is selected
-              const res = await axios.post(`${API_BASE}/ingest/webhook`, {
+              // Send the file content along with its name and type to the backend
+              const response = await axios.post(`${API_BASE}/ingest/webhook`, {
                 fileName: selectedFile ? selectedFile.name : "Untitled",
                 contentType: selectedFile ? selectedFile.type : "application/octet-stream",
                 data: fileContent,
           });
+            // NOTE: No UI update for successful ingestion is provided here, it's silent.
+            console.log("File ingestion response:", response.data);
           } catch (error) {
               console.error("Error sending query:", error);
           }
         }
 
-        // After sending the text inputs and the file, we clear the input box and the picked file.
+        // 5. Clear the input box and selected file after sending.
         setInput("");
         clearFile();
     };
 
-    //     // Stimulates placeholder AI reply after a short delay
-    //     setTimeout(() => {
-    //         setMessages((messagesArray) => [
-    //             ...messagesArray,
-    //             { role: "ai", text: "This is a placeholder response." },
-    //         ]);
-    //     }, 200);
-    // };
-
-    /*upload file placeholder */
+    /**
+     * Programmatically triggers the click event on the hidden file input element.
+     */
     const handleFileSelectClick = () => {
-        // Get the hidden file input element.
-        const fileInputElement = fileRef.current;
-        if (fileInputElement) fileInputElement.click();
+        fileRef.current?.click();
     };
 
-    /* Runs when the user selects a file from the file window. */
+    /**
+     * Handles the file selection event: saves the file and converts its content to a Base64 string.
+     *
+     * WHY: Base64 conversion is necessary here because the backend API expects file data in a JSON payload.
+     * @param {React.ChangeEvent<HTMLInputElement>} event The file change event from the input.
+     */
     const onFileChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
         const file = event.target.files?.[0] || null;
-        // Save the selected file in our 'selectedFile' state.
         setSelectedFile(file);
 
-        // If a file is selected, read its content as base64 and store it
         if (file) {
             const reader = new FileReader();
             // onload is triggered when the file is read successfully by readAsDataURL
@@ -140,23 +162,26 @@ export default function MainPage() {
             // The reason that we put readAsDataURL here is that it's asynchronous
             reader.readAsDataURL(file); // Once this is done, reader.onload will be called
         } else {
-            setFileContent(""); // Clear file content if no file is selected
+            setFileContent("");
         }
     };
     
-    // Clears currently selected files
+   /**
+     * Resets the selected file state and clears the file input element's value.
+    */
     const clearFile = () => {
         setSelectedFile(null);
-        const fileInputElement = fileRef.current;
-        if (fileInputElement) fileInputElement.value = ""; // safe clear
+        if (fileRef.current) fileRef.current.value = "";
     };
 
+  /**
+    * Sends a simple GET request to a backend health check endpoint.
+  */
   const handleBackendTestClick = async () => {
     try {
-      // Send GET request to backend /hello endpoint
-      const res = await axios.get(`${API_BASE}/hello`);
+      const response = await axios.get(`${API_BASE}/hello`);
       // setResponse updates the state variable 'response' with the message from the backend
-      setResponse(res.data.message);
+      setResponse(response.data.message);
     } catch (error) {
       console.error("Error connecting to backend:", error);
       setResponse("Error connecting to backend");
