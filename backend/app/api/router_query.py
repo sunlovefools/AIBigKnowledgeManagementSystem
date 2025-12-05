@@ -230,3 +230,5 @@ async def query_documents_direct(request: QueryRequest):
         retrieved_chunks=retrieved_chunks,
         chunks_count=len(retrieved_chunks)
     )
+    # for the test
+    # return QueryResponse(answer="Direct query executed successfully.")
