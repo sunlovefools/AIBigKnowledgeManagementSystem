@@ -48,12 +48,48 @@ export default function MainPage() {
     // State to hold the response message from the backend
     const [response, setResponse] = useState<string>("");
 
+    // State to track if a file is being dragged over the drop zone
+    const [isDragging, setIsDragging] = useState(false);
+
     // --- References for DOM Interaction ---
     // 'fileRef' gives us a way to "click" the hidden file input element.
     const fileRef = useRef<HTMLInputElement | null>(null);
 
     // 'listRef' gives us a way to control the message area, specifically to make it scroll.
     const listRef = useRef<HTMLDivElement | null>(null);
+
+    /**
+     * Helper: Reads a file and returns its Base64 content.
+     */
+    const readFileAsBase64 = (file: File): Promise<string> => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const base64String = (reader.result as string).split(",")[1];
+                resolve(base64String);
+            };
+            reader.onerror = (error) => reject(error);
+            reader.readAsDataURL(file);
+        });
+    };
+
+    /**
+     * Helper: Uploads a file to the backend ingestion endpoint.
+     */
+    const uploadFileToBackend = async (file: File, base64Content: string) => {
+        try {
+            const response = await axios.post(`${API_BASE}/ingest/webhook`, {
+                fileName: file.name,
+                contentType: file.type || "application/octet-stream",
+                data: base64Content,
+            });
+            console.log("File ingestion response:", response.data);
+            return true;
+        } catch (error) {
+            console.error("Error uploading file:", error);
+            return false;
+        }
+    };
 
     /**
      * Effect to auto-scroll the message area to the bottom whenever a new message is added.
@@ -94,44 +130,91 @@ export default function MainPage() {
         setMessages((messagesArray) => [...messagesArray, newMessage]);
 
         // 2. Send user's text query to backend /api/query endpoint
-        try {
-            const response = await axios.post(`${API_BASE}/api/query`, {
-                query: textInput,
-            });
+        if (textInput) {
+            try {
+                const response = await axios.post(`${API_BASE}/api/query`, {
+                    query: textInput,
+                });
 
-            // 3. Update the chat history with the AI's response.
-            setMessages((messagesArray) => [
-                ...messagesArray,
-                { role: "ai", text: response.data.answer || "(no response)" },
-            ]);
-        } catch (error) {
-            console.error("Error sending query:", error);
-            // Provide feedback to user in chat history if fail to connect to backend
-            setMessages((messagesArray) => [
-                ...messagesArray,
-                { role: "ai", text: "❌ Error: Unable to reach backend" },
-            ]);
+                // 3. Update the chat history with the AI's response.
+                setMessages((messagesArray) => [
+                    ...messagesArray,
+                    { role: "ai", text: response.data.answer || "(no response)" },
+                ]);
+            } catch (error) {
+                console.error("Error sending query:", error);
+                // Provide feedback to user in chat history if fail to connect to backend
+                setMessages((messagesArray) => [
+                    ...messagesArray,
+                    { role: "ai", text: "❌ Error: Unable to reach backend" },
+                ]);
+            }
         }
 
         // 4. Send the selected file (if any) to backend /ingest/webhook endpoint
-        if (fileContent){
-          try {
-              // Send the file content along with its name and type to the backend
-              const response = await axios.post(`${API_BASE}/ingest/webhook`, {
-                fileName: selectedFile ? selectedFile.name : "Untitled",
-                contentType: selectedFile ? selectedFile.type : "application/octet-stream",
-                data: fileContent,
-          });
-            // NOTE: No UI update for successful ingestion is provided here, it's silent.
-            console.log("File ingestion response:", response.data);
-          } catch (error) {
-              console.error("Error sending query:", error);
-          }
+        if (selectedFile && fileContent){
+            const success = await uploadFileToBackend(selectedFile, fileContent);
+            if (!success) {
+                 console.error("Failed to upload file via handleSend");
+            }
         }
 
         // 5. Clear the input box and selected file after sending.
         setInput("");
         clearFile();
+    };
+
+    /**
+     * Handles drag over event to show visual feedback.
+     */
+    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(true);
+    };
+
+    /**
+     * Handles drag leave event to remove visual feedback.
+     */
+    const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+    };
+
+    /**
+     * Handles file drop event: automatically uploads the dropped file.
+     */
+    const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+        e.preventDefault();
+        setIsDragging(false);
+
+        const file = e.dataTransfer.files?.[0];
+        if (file) {
+            // 1. Show file in chat as "User uploaded a file"
+            const newMessage: ChatMessage = {
+                role: "user",
+                text: `Uploaded file: ${file.name}`,
+                fileName: file.name,
+            };
+            setMessages((prev) => [...prev, newMessage]);
+
+            try {
+                // 2. Convert to Base64
+                const base64 = await readFileAsBase64(file);
+                
+                // 3. Upload immediately
+                const success = await uploadFileToBackend(file, base64);
+                
+                // 4. Show system response
+                if (success) {
+                    setMessages((prev) => [...prev, { role: "ai", text: `✅ File "${file.name}" uploaded and ingested successfully.` }]);
+                } else {
+                    setMessages((prev) => [...prev, { role: "ai", text: `❌ Failed to upload "${file.name}".` }]);
+                }
+            } catch (error) {
+                console.error("Error processing dropped file:", error);
+                setMessages((prev) => [...prev, { role: "ai", text: `❌ Error processing file "${file.name}".` }]);
+            }
+        }
     };
 
     /**
@@ -147,20 +230,18 @@ export default function MainPage() {
      * WHY: Base64 conversion is necessary here because the backend API expects file data in a JSON payload.
      * @param {React.ChangeEvent<HTMLInputElement>} event The file change event from the input.
      */
-    const onFileChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+    const onFileChange: React.ChangeEventHandler<HTMLInputElement> = async (event) => {
         const file = event.target.files?.[0] || null;
         setSelectedFile(file);
 
         if (file) {
-            const reader = new FileReader();
-            // onload is triggered when the file is read successfully by readAsDataURL
-            reader.onload = () => {
-                const base64String = (reader.result as string).split(",")[1]; // Get base64 part
+            try {
+                const base64String = await readFileAsBase64(file);
                 setFileContent(base64String);
-            };
-            // Start reading the file and converted to base64
-            // The reason that we put readAsDataURL here is that it's asynchronous
-            reader.readAsDataURL(file); // Once this is done, reader.onload will be called
+            } catch (error) {
+                console.error("Error reading file:", error);
+                setFileContent("");
+            }
         } else {
             setFileContent("");
         }
@@ -189,7 +270,12 @@ export default function MainPage() {
   };
 
    return (
-    <div className="app-root">
+    <div 
+        className={`app-root ${isDragging ? "dragging" : ""}`}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+    >
       {/* Header */}
       <header className="app-header">
         <div className="app-title">Your AI Knowledge System</div>

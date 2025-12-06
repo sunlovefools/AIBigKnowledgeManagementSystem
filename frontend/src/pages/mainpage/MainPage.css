@@ -8,6 +8,30 @@ html, body, #root {
     height: 100%;
 }
 
+/* Dragging state for the main container */
+.app-root.dragging {
+    position: relative;
+}
+
+.app-root.dragging::after {
+    content: "Drop file to upload";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(74, 144, 226, 0.1);
+    border: 4px dashed #4a90e2;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    color: #4a90e2;
+    pointer-events: none; /* Allow drop events to pass through */
+}
+
 body {
     margin: 0;
     background: #f7f7f8;
