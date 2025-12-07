@@ -1,5 +1,4 @@
 import os
-import requests
 from typing import List, Any
 import aiohttp # 💡 Use asynchronous client for non-blocking I/O
 import asyncio

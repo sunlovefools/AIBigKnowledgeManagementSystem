@@ -1,9 +1,9 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
-from app.service.query_refiner import refine_query
-from app.service.vectordb import search_and_retrieve_context
-from app.service.answer_generator import generate_answer
+from app.service.rag.retrieval.query_refiner import refine_query
+from app.vectordb.vectordb import search_and_retrieve_context
+from app.service.rag.retrieval.answer_generator import generate_answer
 
 # Setup the API router
 router = APIRouter()

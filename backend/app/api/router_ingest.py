@@ -3,10 +3,10 @@ from pydantic import BaseModel
 from datetime import datetime
 from pathlib import Path
 
-from app.service.text_extractor import extract_text
-from app.service.chunker import split_parent_child_chunks
-from app.service.chunk_polisher import polish_chunks
-from app.service.vectordb import upsert_documents
+from app.service.rag.ingestion.text_extractor import extract_text
+from app.service.rag.ingestion.chunker import split_parent_child_chunks
+from app.service.rag.ingestion.chunk_polisher import polish_chunks
+from app.vectordb.vectordb import upsert_documents
 
 # For decoding base64 file data
 import base64
