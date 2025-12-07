@@ -46,7 +46,6 @@ async def generate_answer(rag_contents: list[str], user_query: str) -> str:
 
     # Debug: Print payload
     print("🚀 Sending payload to Beam Answer Generator:")
-    print(payload)
     async with aiohttp.ClientSession() as session:
         try:
             async with session.post(BEAM_ANSWER_URL, json=payload, headers=HEADERS, timeout=60) as resp:

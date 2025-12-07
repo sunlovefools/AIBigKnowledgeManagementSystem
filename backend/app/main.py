@@ -7,8 +7,8 @@ from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 # import app.api.router_auth as auth_router
 import app.api.router_ingest as ingest_router
+import app.api.router_query as query_router
 # from app.service.beam_client import query_llm
-# import app.api.router_query as query_router
 # Initialize FastAPI app
 app = FastAPI()
 
@@ -53,10 +53,10 @@ app.include_router(
     tags=["Ingestion"]
 )
 
-# app.include_router(
-#     query_router.router, 
-#     prefix="/api", 
-#     tags=["Query"])
+app.include_router(
+    query_router.router, 
+    prefix="/api", 
+    tags=["Query"])
 
 # A simple test endpoint to verify the backend is running, not being used at all
 @app.get("/hello")

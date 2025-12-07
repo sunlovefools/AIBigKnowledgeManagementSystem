@@ -62,7 +62,6 @@ class BeamGemmaEmbeddings(Embeddings):
 
     async def aembed_query(self, text: str) -> List[float]:
         """Async method called by VECTOR_STORE.asimilarity_search()."""
-        print("Embedding query asynchronously...")
         result = await self._aembed([text])
         return result[0] if result and result[0] else []
 
@@ -80,6 +79,7 @@ class BeamGemmaEmbeddings(Embeddings):
         if loop.is_running():
             # Running inside FastAPI event loop → run coro in another thread
             import concurrent.futures
+            print("Embedding query asynchronously...")
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 return executor.submit(asyncio.run, coro).result()
 
