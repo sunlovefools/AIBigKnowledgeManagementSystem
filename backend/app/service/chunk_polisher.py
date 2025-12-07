@@ -9,14 +9,14 @@ def polish_chunks(chunks):
     to improve embedding quality and ensure consistent text structure.
 
     Args:
-        chunks (List[Dict[str, str]]): 
-            A list of dictionaries containing "index" and "text" keys.
+        chunks (List[Dict[str, any]]): 
+            A list of dictionaries containing "text" keys.
 
     Returns:
-        {index: int, text: str}:
-            A list of polished chunks with cleaned text.
+        List[Dict[str, any]]: 
+            The same list of dictionaries with polished "text" values.
+            We are only modifying the "text" field in each dictionary.
     """
-    polished = []
     for chunk in chunks:
         text = chunk["text"]
 
@@ -37,10 +37,7 @@ def polish_chunks(chunks):
         # Converts common bullet characters (•) to a plain dash ("-") for uniformity.
         text = re.sub(r"•\s*", "- ", text)
 
-        # Add cleaned result to the output list
-        polished.append({
-            "index": chunk["index"],
-            "text": text
-        })
+        # Amend the chunk text
+        chunk["text"] = text
 
-    return polished
+    return chunks
