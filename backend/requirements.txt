@@ -12,3 +12,6 @@ numpy
 PyMuPDF
 python-docx
 aiohttp
+langchain-core
+langchain-text-splitters
+langchain-astradb

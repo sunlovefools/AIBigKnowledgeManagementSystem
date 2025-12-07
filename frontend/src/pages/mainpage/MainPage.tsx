@@ -5,328 +5,286 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import "./MainPage.css";
-import "highlight.js/styles/github-dark.css";
+import "highlight.js/styles/github.css";
 
-/**
- * Defines the structure for messages in the chat state array.
- * 
- * NOTE: The 'fileName' is critical for rendering file attachment visuals in the chat history.
- */
-type ChatMessage = { 
+
+type ChatMessage = {
     role: "user" | "ai";
-    text: string; 
-    fileName?: string // Optional: name of the attached file
+    text: string;
 };
 
-// Get the backend API base URL from environment variables
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 
-/**
- * Renders the main chat application page, orchestrating user interaction, state management,
- * and communication with the backend for queries and file ingestion.
- *
- * @returns {JSX.Element} The full-page AI chat interface.
- */
 export default function MainPage() {
-    // function to change the page URL, can use it for logging out.
     const navigate = useNavigate();
 
-    // --- State Variables ---
-
-    // History of all messages (User queries and AI responses)
     const [messages, setMessages] = useState<ChatMessage[]>([]);
-
-    // Text currently typed in the input box
     const [input, setInput] = useState("");
 
-    // File object currently selected by the user
+    // File State
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    
-    // The raw content of the selected file in base64 format
     const [fileContent, setFileContent] = useState<string>("");
-    
-    // State to hold the response message from the backend
-    const [response, setResponse] = useState<string>("");
 
-    // --- References for DOM Interaction ---
-    // 'fileRef' gives us a way to "click" the hidden file input element.
+    // Loading States
+    const [isQuerying, setIsQuerying] = useState<boolean>(false);
+    const [isUploading, setIsUploading] = useState<boolean>(false);
+
+    // Refs
     const fileRef = useRef<HTMLInputElement | null>(null);
+    const bottomRef = useRef<HTMLDivElement | null>(null);
 
-    // 'listRef' gives us a way to control the message area, specifically to make it scroll.
-    const listRef = useRef<HTMLDivElement | null>(null);
-
-    /**
-     * Effect to auto-scroll the message area to the bottom whenever a new message is added.
-     */
     useEffect(() => {
-        // Get the message area element.
-        const element = listRef.current;
-        if (element) {
-            // This makes it automatically scroll to the bottom to show the newest message.
-            element.scrollTop = element.scrollHeight;
-        }
-    }, [messages]);
+        bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    }, [messages, isQuerying, isUploading]);
 
-    /**
-     * Clears the authentication token and redirects the user to the registration page.
-     */
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/register");
     };
 
-    /**
-     * Sends the user's query and the attached file (if any) to the backend API.
-     * This function performs two sequential or concurrent API calls: query and ingestion.
-     */
-    const handleSend =async () => {
-        const textInput = input.trim();
-
-        // WHY: Return if there are no text or file to send.
-        if (!textInput && !selectedFile) return;
-
-        // 1. Prepare and add the user's message to the chat history.
-        const newMessage: ChatMessage = {
-            role: "user",
-            text: textInput,
-            fileName: selectedFile ? selectedFile.name : undefined, // If a file is picked, add its name.
-        };
-        setMessages((messagesArray) => [...messagesArray, newMessage]);
-
-        // 2. Send user's text query to backend /api/query endpoint
-        try {
-            const response = await axios.post(`${API_BASE}/api/query`, {
-                query: textInput,
-            });
-
-            // 3. Update the chat history with the AI's response.
-            setMessages((messagesArray) => [
-                ...messagesArray,
-                { role: "ai", text: response.data.answer || "(no response)" },
-            ]);
-        } catch (error) {
-            console.error("Error sending query:", error);
-            // Provide feedback to user in chat history if fail to connect to backend
-            setMessages((messagesArray) => [
-                ...messagesArray,
-                { role: "ai", text: "❌ Error: Unable to reach backend" },
-            ]);
-        }
-
-        // 4. Send the selected file (if any) to backend /ingest/webhook endpoint
-        if (fileContent){
-          try {
-              // Send the file content along with its name and type to the backend
-              const response = await axios.post(`${API_BASE}/ingest/webhook`, {
-                fileName: selectedFile ? selectedFile.name : "Untitled",
-                contentType: selectedFile ? selectedFile.type : "application/octet-stream",
-                data: fileContent,
-          });
-            // NOTE: No UI update for successful ingestion is provided here, it's silent.
-            console.log("File ingestion response:", response.data);
-          } catch (error) {
-              console.error("Error sending query:", error);
-          }
-        }
-
-        // 5. Clear the input box and selected file after sending.
-        setInput("");
-        clearFile();
-    };
-
-    /**
-     * Programmatically triggers the click event on the hidden file input element.
-     */
+    // --- File Handlers ---
     const handleFileSelectClick = () => {
         fileRef.current?.click();
     };
 
-    /**
-     * Handles the file selection event: saves the file and converts its content to a Base64 string.
-     *
-     * WHY: Base64 conversion is necessary here because the backend API expects file data in a JSON payload.
-     * @param {React.ChangeEvent<HTMLInputElement>} event The file change event from the input.
-     */
     const onFileChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
         const file = event.target.files?.[0] || null;
         setSelectedFile(file);
 
         if (file) {
             const reader = new FileReader();
-            // onload is triggered when the file is read successfully by readAsDataURL
             reader.onload = () => {
-                const base64String = (reader.result as string).split(",")[1]; // Get base64 part
+                const base64String = (reader.result as string).split(",")[1];
                 setFileContent(base64String);
             };
-            // Start reading the file and converted to base64
-            // The reason that we put readAsDataURL here is that it's asynchronous
-            reader.readAsDataURL(file); // Once this is done, reader.onload will be called
+            reader.readAsDataURL(file);
         } else {
             setFileContent("");
         }
     };
-    
-   /**
-     * Resets the selected file state and clears the file input element's value.
-    */
+
     const clearFile = () => {
         setSelectedFile(null);
+        setFileContent("");
         if (fileRef.current) fileRef.current.value = "";
     };
 
-  /**
-    * Sends a simple GET request to a backend health check endpoint.
-  */
-  const handleBackendTestClick = async () => {
-    try {
-      const response = await axios.get(`${API_BASE}/hello`);
-      // setResponse updates the state variable 'response' with the message from the backend
-      setResponse(response.data.message);
-    } catch (error) {
-      console.error("Error connecting to backend:", error);
-      setResponse("Error connecting to backend");
-    }
-  };
+    const handleUpload = async () => {
+        if (!fileContent || !selectedFile || isUploading) return;
+        setIsUploading(true);
+        try {
+            await axios.post(`${API_BASE}/ingest/webhook`, {
+                fileName: selectedFile.name,
+                contentType: selectedFile.type || "application/octet-stream",
+                data: fileContent,
+            });
 
-   return (
-    <div className="app-root">
-      {/* Header */}
-      <header className="app-header">
-        <div className="app-title">Your AI Knowledge System</div>
-        <div className="header-actions">
-          <div className="user-badge">👤 User</div>
-          <button className="logout-button" onClick={handleLogout}>
-            Logout
-          </button>
-          {/* Hidden backend test button */}
-          <button className="dev-test-button" onClick={handleBackendTestClick} title="Backend test">
-            ⚙️
-          </button>
-        </div>
-      </header>
+            setMessages((prev) => [
+                ...prev,
+                { role: "ai", text: `"${selectedFile.name}" has been added to the knowledge base.` },
+            ]);
+            clearFile();
+        } catch (error) {
+            console.error("Error ingesting file:", error);
+            setMessages((prev) => [
+                ...prev,
+                { role: "ai", text: `Failed to upload "${selectedFile?.name ?? "file"}".` },
+            ]);
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
-      {/* Chat Section */}
-      <div className="chat-container">
-        <div className="messages-area" ref={listRef}>
-          {!messages.length ? (
-            <div className="welcome-screen">
-              <div className="welcome-icon">✨</div>
-              <h2 className="welcome-title">How can I help you today?</h2>
-              <p className="welcome-subtitle">
-                Upload documents, ask questions, and collaborate with your AI workspace
-              </p>
-            </div>
-          ) : (
-            <div className="messages-column">
-              {messages.map((message, index) => (
-                <div
-                  key={index}
-                  className={`message ${message.role === "user" ? "user" : "ai"}`}
-                >
-                  <div className="message-avatar">
-                    {message.role === "user" ? "👤" : "🤖"}
-                  </div>
-                  <div className="message-content">
-                    {message.text && (
-                      <div className="message-text">
-                        {message.role === "ai" ? (
-                          <ReactMarkdown
-                            remarkPlugins={[remarkGfm]}
-                            rehypePlugins={[rehypeHighlight]}
-                            components={{
-                              code({ node, inline, className, children, ...props }: any) {
-                                return inline ? (
-                                  <code className="inline-code" {...props}>
-                                    {children}
-                                  </code>
-                                ) : (
-                                  <code className={className} {...props}>
-                                    {children}
-                                  </code>
-                                );
-                              },
-                            }}
-                          >
-                            {message.text}
-                          </ReactMarkdown>
-                        ) : (
-                          message.text
-                        )}
-                      </div>
-                    )}
-                    {message.fileName && (
-                      <div className="message-file-attachment">
-                        <span>{message.fileName}</span>
-                      </div>
-                    )}
-                  </div>
+    // --- Chat Handlers ---
+    const handleQuery = async () => {
+        const textInput = input.trim();
+        if (!textInput || isQuerying) return;
+
+        setIsQuerying(true);
+        const newMessage: ChatMessage = { role: "user", text: textInput };
+        let placeholderIndex = -1;
+
+        setMessages((prev) => {
+            placeholderIndex = prev.length + 1; // index of the placeholder
+            return [...prev, newMessage, { role: "ai" as const, text: "Processing…" }];
+        });
+        setInput("");
+
+        try {
+            const response = await axios.post(`${API_BASE}/api/query`, {
+                query: textInput,
+            });
+
+            setMessages((prev) =>
+                prev.map((msg, idx) =>
+                    idx === placeholderIndex
+                        ? { role: "ai", text: response.data.answer || "(no response)" }
+                        : msg
+                )
+            );
+        } catch {
+            setMessages((prev) =>
+                prev.map((msg, idx) =>
+                    idx === placeholderIndex
+                        ? { role: "ai", text: "Error: Unable to reach backend" }
+                        : msg
+                )
+            );
+        } finally {
+            setIsQuerying(false);
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleQuery();
+        }
+    };
+
+    return (
+        <div className="app-root">
+            <aside className="sidebar">
+                <div className="sidebar-header">
+                    <div className="logo-mark">KB</div>
+                    <div>
+                        <div className="eyebrow">Workspace</div>
+                        <div className="sidebar-title">Upload sources</div>
+                    </div>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <p className="sidebar-hint">PDF, DOCX or TXT - keep everything you need for the chat here.</p>
 
-        {/* Input fixed bottom */}
-        <div className="input-area">
-          <div className="input-wrapper">
-            <button
-              className="upload-button"
-              title="Upload file"
-              onClick={handleFileSelectClick}
-            >
-              📎
-            </button>
-            <input
-              ref={fileRef}
-              type="file"
-              className="file-input"
-              onChange={onFileChange}
-              accept="image/*,.pdf,.doc,.docx,.txt"
-            />
-            {selectedFile && (
-              <div className="uploaded-file">
-                📄 {selectedFile.name}
-                <button
-                  className="remove-file"
-                  onClick={clearFile}
-                  title="Remove file"
-                >
-                  ✕
-                </button>
-              </div>
-            )}
-            <textarea
-              className="message-input"
-              placeholder="Type your message..."
-              rows={1}
-              value={input}
-              onChange={(event) => setInput(event.target.value)}
-            />
-            <button
-              className="send-button"
-              onClick={handleSend}
-              disabled={!input.trim()}
-              title="Send"
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3.4 20.4L20.85 12.02L3.4 3.6V10.29L15.3 12.02L3.4 13.75V20.4Z"
-                  fill="white"
-                />
-              </svg>
-            </button>
-          </div>
-        </div>
-      </div>
+                <div className="sources-section">
+                    <div className="section-title">Files</div>
 
-      {/* hidden backend test response */}
-      {response && <div className="backend-response">{response}</div>}
-    </div>
-  );
+                    <input
+                        ref={fileRef}
+                        type="file"
+                        className="hidden-file-input"
+                        style={{ display: "none" }}
+                        onChange={onFileChange}
+                        accept=".pdf,.doc,.docx,.txt"
+                    />
+
+                    {!selectedFile && (
+                        <button className="add-source-btn" onClick={handleFileSelectClick}>
+                            <span className="plus-icon" aria-hidden>
+                                +
+                            </span>
+                            Select file
+                        </button>
+                    )}
+
+                    {selectedFile && (
+                        <div className="source-card active">
+                            <div className="file-info">
+                                <span className="file-icon" aria-hidden>
+                                    DOC
+                                </span>
+                                <span className="file-name">{selectedFile.name}</span>
+                            </div>
+                            <div className="file-actions">
+                                <button
+                                    className="action-btn upload-confirm-btn"
+                                    onClick={handleUpload}
+                                    disabled={isUploading}
+                                >
+                                    {isUploading ? "Uploading..." : "Confirm upload"}
+                                </button>
+                                <button className="action-btn remove-btn" onClick={clearFile} disabled={isUploading}>
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+            </aside>
+
+            <main className="main-content">
+                <header className="top-nav">
+                    <div>
+                        <div className="nav-eyebrow">Document chat</div>
+                        <div className="nav-title">Ask your documents</div>
+                    </div>
+                    <div className="nav-actions">
+                        <button className="nav-btn" onClick={handleLogout}>
+                            Logout
+                        </button>
+                    </div>
+                </header>
+
+                <div className="chat-scroll-area">
+                    {!messages.length ? (
+                        <div className="welcome-screen">
+                            <div className="welcome-icon">*</div>
+                            <h2>Start the conversation</h2>
+                            <p>Upload a document from the left panel, then ask anything about it.</p>
+                        </div>
+                    ) : (
+                        <div className="messages-container">
+                            {messages.map((msg, idx) => (
+                                <div key={idx} className={`message ${msg.role}`}>
+                                    <div className="message-avatar">{msg.role === "user" ? "You" : "AI"}</div>
+                                    <div className="message-content">
+                                        <ReactMarkdown
+                                            remarkPlugins={[remarkGfm]}
+                                            rehypePlugins={[rehypeHighlight]}
+                                        >
+                                            {msg.text}
+                                        </ReactMarkdown>
+                                    </div>
+                                </div>
+                            ))}
+                            {isUploading && (
+                                <div className="message ai">
+                                    <div className="message-avatar">AI</div>
+                                    <div className="message-content">
+                                        <span className="typing-indicator">
+                                            Reading document...
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={bottomRef} />
+                        </div>
+                    )}
+                </div>
+
+                <div className="input-area-wrapper">
+                    <div className="input-container">
+                        <textarea
+                            className="chat-input"
+                            placeholder="Ask something about your files..."
+                            rows={1}
+                            value={input}
+                            onChange={(e) => setInput(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                        />
+                        <button
+                            className="send-icon-btn"
+                            onClick={handleQuery}
+                            disabled={!input.trim() || isQuerying}
+                            aria-label="Send message"
+                        >
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div className="input-hint">Enter to send | Shift+Enter for a new line</div>
+                </div>
+            </main>
+        </div>
+    );
 }
