@@ -1,5 +1,4 @@
-from typing import List, Dict, Any, Tuple
-# 💡 NEW IMPORTS: LangChain splitting and UUID for unique IDs
+from typing import List, Tuple
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from pydantic import BaseModel, Field
@@ -10,7 +9,7 @@ class ParentChunkModel(BaseModel):
     """Schema for the large, context-rich Parent Documents (Document Store)."""
     # Uses Field(..., alias="_id") and by_alias=True config for AstraDB compatibility
     # The MongoDB driver prefers '_id', but we use 'parent_id' internally.
-    _id: str = Field(..., alias="_id")
+    db_id: str = Field(..., alias="_id")
     content: str                    # The large text segment (full context for LLM)
     document_name: str
     
@@ -91,23 +90,27 @@ def split_parent_child_chunks(
         parent_id = str(uuid4())
         
         # Format the Parent Chunk for insertion into the AstraDB Document Store (Parent_Store)
-        final_parent_chunks.append({
-            "_id": parent_id,
-            "content": parent_doc.page_content.strip(),
-            "document_name": parent_doc.metadata.get("document_name"),
-        })
+        final_parent_chunks.append(
+            ParentChunkModel(
+                db_id=parent_id,
+                content=parent_doc.page_content.strip(),
+                document_name=parent_doc.metadata.get("document_name"),
+            )
+        )
         
         # 5. Split Parent Document into Child Documents (Return List [Document])
         child_docs = child_splitter.split_documents([parent_doc])
         
         for child_doc in child_docs:
             # Format the Child Chunk for insertion into the AstraDB Vector Store (Vector_Store)
-            final_child_chunks.append({
-                "index": child_global_index,
-                "text": child_doc.page_content.strip(),
-                "parent_id": parent_id, # Links back to Parent Chunk
-                "file_name": file_name,
-            })
+            final_child_chunks.append(
+                ChildChunkModel(
+                    index=child_global_index,
+                    text=child_doc.page_content.strip(),
+                    parent_id=parent_id, # Links back to Parent Chunk
+                    file_name=file_name,
+                )
+            )
             child_global_index += 1
             
     return final_parent_chunks, final_child_chunks

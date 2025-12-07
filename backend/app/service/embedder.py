@@ -36,7 +36,7 @@ async def embed_text(session: aiohttp.ClientSession, payload: dict):
             BEAM_EMBEDDING_URL,
             json=payload,
             headers=HEADERS,
-            timeout=aiohttp.ClientTimeout(total=60)
+            timeout=aiohttp.ClientTimeout(total=90)
         ) as response:
             # If response status is not successful, raise an error and log details
             if response.status != 200:
@@ -45,7 +45,7 @@ async def embed_text(session: aiohttp.ClientSession, payload: dict):
 
             # Parse and return the JSON response
             data = await response.json()
-            return data  # should contain "embeddings"
+            return data
     except Exception as e:
         print(f"❌ Embedding request failed: {e}")
         return {"embeddings": None, "error": str(e)}

@@ -1,86 +1,97 @@
-from typing import List, Optional
-from datetime import datetime
+from typing import List, Dict, Any, Tuple
+from langchain_core.documents import Document
 
+# Import the initialization function which runs once at module load
 from .vectordb_init import init_vector_db
 
-# Initialize the vector database and get the collection object (If the collection does not exist, it will be created, if it exists, the existing one will be used)
-collection = init_vector_db()
+# Initialize stores once on module load
+# These variables hold the ready-to-use, globally accessible LangChain AstraDB objects.
+RAG_STORES = init_vector_db()
+VECTOR_STORE = RAG_STORES['vector_store'] # LangChain AstraDBVectorStore for Child Chunks
+PARENT_STORE = RAG_STORES['parent_store'] # LangChain AstraDBStore for Parent Documents
 
 
-def upsert_chunk(
-    content: str,
-    document_name: str,
-    page_number: int,
-    chunk_number: int,
-    uploaded_by: str,
-    embedding: List[float],
-    timestamp: Optional[str] = None,
-) -> None:
+# --- INGESTION/UPSERTION OPERATIONS ---
+
+async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
+    """
+    Inserts Parent (Context) documents and Child (Vector) chunks into the respective AstraDB stores.
+
+    This function orchestrates the persistence phase of the Parent-Child RAG pipeline. It converts 
+    the input dictionaries (which originated from Pydantic models) into LangChain Document objects, 
+    ensuring that the Parent-Child relationship (`parent_id`) is maintained. Crucially, calling 
+    `VECTOR_STORE.add_documents()` triggers the automatic, asynchronous embedding of the Child 
+    Chunks using the configured Beam Embeddings service.
+
+    Args:
+        parent_chunks (List[Dict[str, Any]]): List of large parent document dictionaries. Must 
+                                              contain the AstraDB primary key '_id' (from the 
+                                              Pydantic alias) and 'content'.
+        child_chunks (List[Dict[str, Any]]): List of polished child chunk dictionaries. Must 
+                                             contain the text ('text') and the foreign key 
+                                             ('parent_id') linking back to the parent.
+
+    Returns:
+        None: The function handles persistence internally and does not return data.
+
+    Example:
+        >>> # Assume parent_list and child_list are valid List[Dict] objects
+        >>> upsert_documents(parent_list, child_list)
+        ✅ Stored X Parent Documents in Document Store.
+        ✅ Stored Y Child Documents in Vector Store.
+
+    Notes:
+        - The `parent_doc_map` uses the tuple (UUID, Document) format required by LangChain's 
+          `PARENT_STORE.mset()` method.
+        - The `VECTOR_STORE` handles all network I/O for embedding the child documents.
+    """
     
-    #Stores one chunk in AstraDB (the document_chunks collection).
-    #For now, i'll just do a simple Insert_one.
+    # 1. Prepare Parent Documents (for key-value storage)
+    parent_doc_map: List[Tuple[str, Document]] = []
+    for parent_dict in parent_chunks:
 
-    if timestamp is None:
-        timestamp = datetime.utcnow().isoformat()
+        # Extract metadata keys, excluding 'content' and the primary key '_id'
+        parent_metadata = {
+            metadata_key: metadata_value 
+            for metadata_key, metadata_value in parent_dict.items() 
+            if metadata_key not in ["content", "_id"]
+        }
+        
+        parent_doc = Document(
+            page_content=parent_dict["content"],
+            metadata=parent_metadata
+        )
+        # Convert to JSON-serializable dict for AstraDBStore
+        json_serializable_doc = parent_doc.dict()
+        # Store as a tuple (key, Document object)
+        parent_doc_map.append((parent_dict["_id"], json_serializable_doc))
+        
+    # 2. Prepare Child Documents (for vector storage)
+    child_docs: List[Document] = []
+    for child_chunk_dict in child_chunks:
+        # Construct the Document object from the polished child dictionary
+        child_doc = Document(
+            page_content=child_chunk_dict["text"],
+            metadata={
+                "parent_id": child_chunk_dict["parent_id"],
+                "document_name": child_chunk_dict["file_name"], 
+                "chunk_number": child_chunk_dict["index"], 
+            }
+        )
+        child_docs.append(child_doc)
 
-    doc = {
-        "content": content,
-        "document_name": document_name,
-        "page_number": page_number,
-        "chunk_number": chunk_number,
-        "uploaded_by": uploaded_by,
-        "timestamp": timestamp,
-        "$vector": embedding,
-    }
+    # 3. Store Parent Documents (Document Store)
+    try:
+        await PARENT_STORE.amset(parent_doc_map)
+        print(f"✅ Stored {len(parent_doc_map)} Parent Documents in Document Store.")
+    except Exception as error:
+        print(f"❌ Failed to store Parent Documents: {error}")
+        raise
 
-    collection.insert_one(doc)
-
-import numpy as np
-
-def cosine_similarity(a, b):
-    a = np.array(a, dtype=float)
-    b = np.array(b, dtype=float)
-    return float(np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b)))
-
-
-def search_similar_chunks(query_embedding, top_k=5):
-    """
-    Vector similarity search for old AstraDB Data API client.
-    Uses sort={"$vector": query_embedding}.
-    Manually computes similarity because old API does not return $similarity.
-    """
-
-    # 1) Perform vector search using the old API
-    results = list(collection.find(
-        sort={"$vector": query_embedding},
-        limit=top_k,
-        include_similarity=True
-    ))
-
-    formatted = []
-
-    # 2) For each result, compute similarity and format response
-    for doc in results:
-
-        # # 2) Compute cosine similarity manually
-        # similarity = None
-        # if "$vector" in doc:
-        #     try:
-        #         similarity = cosine_similarity(query_embedding, doc["$vector"])
-        #     except:
-        #         similarity = None
-
-        # 3) Build response item
-        formatted.append({
-            "content": doc.get("content"),
-            "document_name": doc.get("document_name"),
-            "page_number": doc.get("page_number"),
-            "chunk_number": doc.get("chunk_number"),
-            "uploaded_by": doc.get("uploaded_by"),
-            "timestamp": doc.get("timestamp"),
-            "similarity_score": doc.get("$similarity") or 0.0,
-        })
-
-    print(f"✅ Formatted {len(formatted)} similar chunks for response")
-    print(f"🔢 Formatted Response: {formatted}")
-    return formatted
+    # 4. Store Child Documents (Vector Store - automatically embeds)
+    try:
+        await VECTOR_STORE.aadd_documents(child_docs)
+        print(f"✅ Stored {len(child_docs)} Child Documents in Vector Store.")
+    except Exception as error:
+        print(f"❌ Failed to store Child Documents: {error}")
+        raise

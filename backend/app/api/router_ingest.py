@@ -4,16 +4,13 @@ from datetime import datetime
 from pathlib import Path
 
 from app.service.text_extractor import extract_text
-from app.service.chunker import split_into_chunks
+from app.service.chunker import split_parent_child_chunks, ParentChunkModel, ChildChunkModel
 from app.service.chunk_polisher import polish_chunks
-from app.service.embedder import embed_text
-from app.service.vector_store import upsert_chunk
+from app.service.vector_store import upsert_documents
 
 # For decoding base64 file data
 import base64
 import aiohttp
-
-
 
 # Setup the API router
 router = APIRouter()
@@ -24,16 +21,6 @@ MAX_SIZE = 50 * 1024 * 1024  # 50 MB
 # parents[0]=.../api, [1]=.../app, [2]=.../backend
 BASE_DIR = Path(__file__).resolve().parents[2]    # .../backend
 LOCAL_ROOT = BASE_DIR / "_local_uploads"          # .../backend/_local_uploads
-
-# --- The model of the event that MinIO webhook typically sends ---
-class IngestEvent(BaseModel):
-    bucket: str
-    object_key: str           # e.g.: "user-123/demo.txt"
-    filename: str
-    content_type: str         # "text/plain" | "application/pdf" | "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-    size_bytes: int
-    user_id: str
-    upload_ts: datetime
 
 # --- The model for file upload (used for when there is no real webhook) ---
 class FileUpload(BaseModel):
@@ -70,98 +57,117 @@ async def ingest_webhook(file: FileUpload):
     # decode the data from base64 into bytes
     file_bytes = base64.b64decode(file.data)
 
-    # text extraction
+    # 1. Extract text from the file bytes
     try:
-        # text is a huge string of all extracted text
         text = extract_text(file.contentType, file_bytes)
     except ValueError as error:
-        # if unsupported type
         raise HTTPException(status_code=415, detail=str(error))
     except Exception:
-        # if unexpected error
         raise HTTPException(status_code=500, detail="text extraction failed")
 
-    # chunking (600 chars to safely stay under Astra DB 8000 byte limit for UTF-8 text)
-    chunks = split_into_chunks(text, 600)
+    print("Successfully extracted text")
+    # 2. Parent-Child Splitting
+    # Returns lists of Pydantic models: [ParentChunkModel], [ChildChunkModel] (Refer to chunker.py)
+    parent_chunks_models, child_chunks_models = split_parent_child_chunks(
+        text, 
+        file_name=file.fileName,
+        parent_max_chars=1500,
+        child_max_chars=600    
+    )
+
+    # 3. Preparation for Polishing: Convert Child Models to raw dictionaries
+    # The polisher expects a List[Dict[str, Any]]. We use .model_dump() for conversion.
+    child_chunks_dicts = [chunk.model_dump(by_alias=False) for chunk in child_chunks_models]
     
-    # Polishing chunks (Remove unwanted characters such as '\n')
-    polished_chunks = polish_chunks(chunks)
+    # 4. Polishing: Applied only to the embeddable child chunks' text
+    polished_child_chunks = polish_chunks(child_chunks_dicts)
 
-    # prepare payload for embedding
-    documents_payload = {
-        "input": [chunk["text"] for chunk in polished_chunks]
-    }
-
-    # Call embedding API asynchronously
+    parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
+    print("Done")
     try:
-        async with aiohttp.ClientSession() as session:
-            vectors = await embed_text(session, documents_payload)
-            # Responses format from embed_text():
-            # {"embedding": [[float, ...], ...] }
-            print(f"vectors: {vectors}\n\n\n")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Embedding request failed: {e}")
-
-    # Write the vectors into a txt file for debugging
-    with open("vectors_debug.txt", "w", encoding="utf-8") as f:
-        f.write(str(vectors))
-    
-    # Extract embeddings list
-    embeddings = vectors.get("embedding")
-
-    # Check if embeddings are returned properly from beam, if not raise error
-    if not embeddings:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Embedding server did not return valid embeddings. Got: {vectors}"
+        # 5. Upsert both Parent and Child chunks into their respective stores
+        await upsert_documents(
+            parent_chunks=parent_chunks_dicts,
+            child_chunks=polished_child_chunks
         )
+        print("✅ Upserted all chunks into vector store.")
+    except Exception:
+        raise HTTPException(status_code=500, detail="upsert to vector store failed")
+    # # prepare payload for embedding
+    # documents_payload = {
+    #     "input": [chunk["text"] for chunk in polished_chunks]
+    # }
 
-    # Attach embeddings back to their chunks
-    for index, vector in enumerate(embeddings):
-        polished_chunks[index]["embedding"] = vector
-        polished_chunks[index]["file_name"] = file.fileName
+    # # Call embedding API asynchronously
+    # try:
+    #     async with aiohttp.ClientSession() as session:
+    #         vectors = await embed_text(session, documents_payload)
+    #         # Responses format from embed_text():
+    #         # {"embedding": [[float, ...], ...] }
+    #         print(f"vectors: {vectors}\n\n\n")
+    # except Exception as e:
+    #     raise HTTPException(status_code=500, detail=f"Embedding request failed: {e}")
 
-    # Print the dimension of the embeddings for debugging
-    if len(embeddings) > 0:
-        print(f"Embedding dimension: {len(embeddings[0])}")
-    else:
-        print("No embeddings returned.")
+    # # Write the vectors into a txt file for debugging
+    # with open("vectors_debug.txt", "w", encoding="utf-8") as f:
+    #     f.write(str(vectors))
+    
+    # # Extract embeddings list
+    # embeddings = vectors.get("embedding")
+
+    # # Check if embeddings are returned properly from beam, if not raise error
+    # if not embeddings:
+    #     raise HTTPException(
+    #         status_code=500,
+    #         detail=f"Embedding server did not return valid embeddings. Got: {vectors}"
+    #     )
+
+    # # Attach embeddings back to their chunks
+    # for index, vector in enumerate(embeddings):
+    #     polished_chunks[index]["embedding"] = vector
+    #     polished_chunks[index]["file_name"] = file.fileName
+
+    # # Print the dimension of the embeddings for debugging
+    # if len(embeddings) > 0:
+    #     print(f"Embedding dimension: {len(embeddings[0])}")
+    # else:
+    #     print("No embeddings returned.")
         
-    # Polished chunks now format:
-    # [
-    #   {
-    #       "index": 0,
-    #       "text": "The text content of the chunk...",
-    #       "embedding": [0.123, 0.456, ...],
-    #       "file_name": "example.txt"
-    #   },
-    # ]
+    # # Polished chunks now format:
+    # # [
+    # #   {
+    # #       "index": 0,
+    # #       "text": "The text content of the chunk...",
+    # #       "embedding": [0.123, 0.456, ...],
+    # #       "file_name": "example.txt"
+    # #   },
+    # # ]
 
-    # Write the polished chunks with embeddings into a txt file for debugging
-    with open("polished_chunks_debug.txt", "w", encoding="utf-8") as f:
-        f.write(str(polished_chunks))
+    # # Write the polished chunks with embeddings into a txt file for debugging
+    # with open("polished_chunks_debug.txt", "w", encoding="utf-8") as f:
+    #     f.write(str(polished_chunks))
 
-    # --- Save to vector DB with basic error logging ---
-    for chunk in polished_chunks:
-        try:
-            print(
-                f"Upserting chunk {chunk['index']} "
-                f"(len={len(chunk['embedding'])}) for file {chunk['file_name']}"
-            )
-            upsert_chunk(
-                content=chunk["text"],
-                document_name=chunk["file_name"],
-                page_number=0,               # TODO: add numbers (if needed)
-                chunk_number=chunk["index"],
-                uploaded_by="demo-user",     # TODO: change later
-                embedding=chunk["embedding"],
-            )
-        except Exception as e:
-            print(f"❌ Failed to upsert chunk {chunk['index']}: {e}")
-            raise HTTPException(
-                status_code=500,
-                detail=f"Vector DB upsert failed: {e}"
-            )
+    # # --- Save to vector DB with basic error logging ---
+    # for chunk in polished_chunks:
+    #     try:
+    #         print(
+    #             f"Upserting chunk {chunk['index']} "
+    #             f"(len={len(chunk['embedding'])}) for file {chunk['file_name']}"
+    #         )
+    #         upsert_chunk(
+    #             content=chunk["text"],
+    #             document_name=chunk["file_name"],
+    #             page_number=0,               # TODO: add numbers (if needed)
+    #             chunk_number=chunk["index"],
+    #             uploaded_by="demo-user",     # TODO: change later
+    #             embedding=chunk["embedding"],
+    #         )
+    #     except Exception as e:
+    #         print(f"❌ Failed to upsert chunk {chunk['index']}: {e}")
+    #         raise HTTPException(
+    #             status_code=500,
+    #             detail=f"Vector DB upsert failed: {e}"
+    #         )
 
 
     # # output

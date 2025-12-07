@@ -2,25 +2,25 @@ from fastapi import FastAPI
 import httpx
 import os
 from dotenv import load_dotenv
+load_dotenv()
 from pydantic import BaseModel
-import app.api.router_auth as auth_router
-import app.api.router_ingest as ingest_router
 from fastapi.middleware.cors import CORSMiddleware
-from app.service.beam_client import query_llm
-from app.service.vectordb_init import init_vector_db
-import app.api.router_query as query_router
+# import app.api.router_auth as auth_router
+import app.api.router_ingest as ingest_router
+# from app.service.beam_client import query_llm
+# import app.api.router_query as query_router
 # Initialize FastAPI app
 app = FastAPI()
 
 # Initialize the vector database
-@app.on_event("startup")
-def startup_event():
-    print("Initialising vector database (if not already created)...")
-    init_vector_db()
-load_dotenv()
+# @app.on_event("startup")
+# def startup_event():
+#     print("Initialising vector database (if not already created)...")
+#     init_vector_db()
 
-BEAM_LLM_URL = os.getenv("BEAM_LLM_URL")
-BEAM_LLM_KEY = os.getenv("BEAM_LLM_KEY")
+
+# BEAM_LLM_URL = os.getenv("BEAM_LLM_URL")
+# BEAM_LLM_KEY = os.getenv("BEAM_LLM_KEY")
 
 # TEST FOR SENDINGQUERY TO BACKEND
 class QueryRequest(BaseModel):
@@ -42,21 +42,21 @@ app.add_middleware(
 )
 
 # If the request URL starts with /auth, forward it to router_auth.py
-app.include_router(
-   auth_router.router,     # The router object from router_auth.py
-   prefix="/auth",          # All routes from this file will start with /auth
-   tags=["Authentication"]  # Groups them nicely in the API docs
-)
+# app.include_router(
+#    auth_router.router,     # The router object from router_auth.py
+#    prefix="/auth",          # All routes from this file will start with /auth
+#    tags=["Authentication"]  # Groups them nicely in the API docs
+# )
 app.include_router(
     ingest_router.router,
     prefix="/ingest",
     tags=["Ingestion"]
 )
 
-app.include_router(
-    query_router.router, 
-    prefix="/api", 
-    tags=["Query"])
+# app.include_router(
+#     query_router.router, 
+#     prefix="/api", 
+#     tags=["Query"])
 
 # A simple test endpoint to verify the backend is running, not being used at all
 @app.get("/hello")

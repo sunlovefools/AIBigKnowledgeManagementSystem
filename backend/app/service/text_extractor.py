@@ -18,7 +18,6 @@ def extract_text(contentType: str, data: bytes) -> str:
     Return a huge string of all extracted text.
     """
     print(f"Extracting text for contentType: {contentType}")
-    print
     # If the content type is PDF
     if contentType == "application/pdf":
         # Write bytes to a temporary file
