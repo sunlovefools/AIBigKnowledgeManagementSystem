@@ -2,9 +2,10 @@ import os
 from typing import Dict, Any
 from langchain_astradb import AstraDBVectorStore, AstraDBStore
 from app.embedding.embedding_client import BeamGemmaEmbeddings
+from app.embedding.local_embedding_client import LocalGemmaEmbeddings
 
 try:
-    BEAM_EMBEDDINGS_INSTANCE = BeamGemmaEmbeddings()
+    BEAM_EMBEDDINGS_INSTANCE = LocalGemmaEmbeddings()
 except ValueError as error:
     # to the init_vector_db check, which will raise a final error if needed.
     print(f"Configuration Warning: {error}. Attempting database initialization.")
