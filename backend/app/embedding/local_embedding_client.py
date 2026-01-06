@@ -1,16 +1,11 @@
-
 # This is only used due to not wasting the credit of beam cloud embeddings
 # For locally run only, need to be commented out when it is not used
 # When using import this to vectordb_init.py, it will use local embedding model instead of beam cloud embedding service
 
-
-
 import asyncio
 from typing import List
 from langchain_core.embeddings import Embeddings
-from langchain_community.embeddings import HuggingFaceEmbeddings
-
-
+from langchain_huggingface import HuggingFaceEmbeddings
 
 class LocalGemmaEmbeddings(Embeddings):
     """
@@ -25,12 +20,12 @@ class LocalGemmaEmbeddings(Embeddings):
 
         self.embedding_model = HuggingFaceEmbeddings(
             model_name="google/embeddinggemma-300m",
-            model_kwargs={"device": "cpu"},        # use GPU
+            model_kwargs={"device": "cuda"},
             encode_kwargs={"normalize_embeddings": True},
             show_progress=True
         )
 
-        print("✅ Local Gemma Embedding Model Loaded Successfully!")
+        print(f"✅ Local Gemma Embedding Model Loaded Successfully!\nUsing device: {self.embedding_model.model_kwargs['device']}")
 
     # ==========================================================
     # INTERNAL ASYNC ENCODER
@@ -51,9 +46,15 @@ class LocalGemmaEmbeddings(Embeddings):
         return embeddings
 
     async def aembed_documents(self, texts: List[str]) -> List[List[float]]:
+        """
+        Async document embedding.
+        """
         return await self._aembed(texts)
 
     async def aembed_query(self, text: str) -> List[float]:
+        """
+        Async query embedding.
+        """
         result = await self._aembed([text])
         return result[0]
 
