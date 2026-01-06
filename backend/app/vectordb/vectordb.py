@@ -1,17 +1,15 @@
 from typing import List, Dict, Any, Tuple
 from langchain_core.documents import Document
 
-# Import the initialization function which runs once at module load
+# Import vector DB initilisation logic
 from .vectordb_init import init_vector_db
 
-# Initialize stores once on module load
-# These variables hold the ready-to-use, globally accessible LangChain AstraDB objects.
-RAG_STORES = init_vector_db()
+# --- Global store initialisation ---
+RAG_STORES = init_vector_db() # A dictionary with 'vector_store' and 'parent_store' keys which store the LangChain AstraDB objects
 VECTOR_STORE = RAG_STORES['vector_store'] # LangChain AstraDBVectorStore for Child Chunks
 PARENT_STORE = RAG_STORES['parent_store'] # LangChain AstraDBStore for Parent Documents
 
-
-# --- INGESTION/UPSERTION OPERATIONS ---
+# --- Ingestion / Upsertion Operations ---
 
 async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
     """
@@ -34,12 +32,6 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
     Returns:
         None: The function handles persistence internally and does not return data.
 
-    Example:
-        >>> # Assume parent_list and child_list are valid List[Dict] objects
-        >>> upsert_documents(parent_list, child_list)
-        ✅ Stored X Parent Documents in Document Store.
-        ✅ Stored Y Child Documents in Vector Store.
-
     Notes:
         - The `parent_doc_map` uses the tuple (UUID, Document) format required by LangChain's 
           `PARENT_STORE.mset()` method.
@@ -50,6 +42,10 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
     parent_doc_map: List[Tuple[str, Document]] = []
     for parent_dict in parent_chunks:
 
+        # Ensure required fields are present
+        if "_id" not in parent_dict or "content" not in parent_dict:
+            raise ValueError("Each parent chunk must have '_id' and 'content' fields.")
+        
         # Extract metadata keys, excluding 'content' and the primary key '_id'
         parent_metadata = {
             metadata_key: metadata_value 
@@ -96,7 +92,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         print(f"❌ Failed to store Child Documents: {error}")
         raise
 
-# --- QUERY/RETRIEVAL OPERATIONS ---
+# --- Query/Retrieval Operations ---
 
 async def search_and_retrieve_context(query: str, top_k: int = 10) -> List[str]:
     """
@@ -126,7 +122,7 @@ async def search_and_retrieve_context(query: str, top_k: int = 10) -> List[str]:
     if not child_documents:
         return []
 
-    # 2. Extract unique Parent IDs
+    # 2. Extract unique Parent IDs from the retrieved child chunks
     parent_ids = list(
         {doc.metadata["parent_id"] for doc in child_documents if "parent_id" in doc.metadata}
     )
@@ -146,6 +142,16 @@ async def search_and_retrieve_context(query: str, top_k: int = 10) -> List[str]:
         ]
         
         print(f"✅ Retrieved {len(parent_contents)} parent contents as RAG context.")
+
+        # 4. For debug purposes, store the entire parent documents'content into a backend/app/retrieved_parent_contents.txt file
+        try:
+            with open("backend/app/retrieved_parent_contents.txt", "w", encoding="utf-8") as f:
+                for content in parent_contents:
+                    f.write(content + "\n---\n")
+            print("📝 Saved retrieved parent contents to 'backend/app/retrieved_parent_contents.txt' for debugging.")
+        except Exception as e:
+            print(f"❌ Failed to save retrieved parent contents for debugging: {e}")
+        
         return parent_contents
 
     except Exception as error:

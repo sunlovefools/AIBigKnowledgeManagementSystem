@@ -4,13 +4,14 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
+load_dotenv() # Need to be called before the local import below
+app = FastAPI()
+
 # Local imports
 import app.api.router_ingest as ingest_router
 import app.api.router_query as query_router
 # import app.api.router_auth as auth_router # Uncomment when auth is implemented
 
-load_dotenv()
-app = FastAPI()
 
 # Allow requests from your React dev server (localhost:5173)
 # When allow_credentials=True, you must specify explicit origins (can't use "*")
