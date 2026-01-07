@@ -1,40 +1,46 @@
-from fastapi import APIRouter, HTTPException, Query
-from pydantic import BaseModel
-from datetime import datetime
+import base64
 from pathlib import Path
+from fastapi import APIRouter, HTTPException
+from pydantic import BaseModel
 
+# Local imports
 from app.service.rag.ingestion.text_extractor import extract_text
 from app.service.rag.ingestion.chunker import split_parent_child_chunks
 from app.service.rag.ingestion.chunk_polisher import polish_chunks
 from app.vectordb.vectordb import upsert_documents
 
-# For decoding base64 file data
-import base64
-
 # Setup the API router
 router = APIRouter()
 
-# --- Constants and paths ---
-MAX_SIZE = 50 * 1024 * 1024  # 50 MB
-# file in: backend/app/api/router_ingest.py
-# parents[0]=.../api, [1]=.../app, [2]=.../backend
-BASE_DIR = Path(__file__).resolve().parents[2]    # .../backend
-LOCAL_ROOT = BASE_DIR / "_local_uploads"          # .../backend/_local_uploads
-
-# --- The model for file upload (used for when there is no real webhook) ---
+# --- Data Models ---
 class FileUpload(BaseModel):
+    """
+    Model for file upload.
+    Expects base64-encoded file data.
+    """
     fileName: str
     contentType: str
     data: str
 
-# --- Simple health for this module ---
+# --- Endpoint ---
 @router.get("/health")
 def ingest_health():
+    """
+    Health check endpoint for ingestion module.
+    """
     return {"ingestion": "ok"}
 
-# --- Main endpoint: receive event, extract text, cut into chunks ---
 @router.post("/webhook")
 async def ingest_webhook(file: FileUpload):
+    """
+    Main ingestion endpoint.
+    
+    Functionality:
+    1. Extract text from the uploaded file.
+    2. Split the text into Parent and Child chunks.
+    3. Polish the Child chunks for better embedding quality.
+    4. Upsert both Parent and Child chunks into their respective stores.
+    """
     
     # decode the data from base64 into bytes
     file_bytes = base64.b64decode(file.data)
@@ -47,7 +53,8 @@ async def ingest_webhook(file: FileUpload):
     except Exception:
         raise HTTPException(status_code=500, detail="text extraction failed")
 
-    print("Successfully extracted text")
+    print(f"✅ Successfully extracted text from {file.fileName}")
+
     # 2. Parent-Child Splitting
     # Returns lists of Pydantic models: [ParentChunkModel], [ChildChunkModel] (Refer to chunker.py)
     parent_chunks_models, child_chunks_models = split_parent_child_chunks(
@@ -65,8 +72,9 @@ async def ingest_webhook(file: FileUpload):
     polished_child_chunks = polish_chunks(child_chunks_dicts)
 
     parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
+    
+    # 5. Upsert both Parent and Child chunks into their respective stores
     try:
-        # 5. Upsert both Parent and Child chunks into their respective stores
         await upsert_documents(
             parent_chunks=parent_chunks_dicts,
             child_chunks=polished_child_chunks
