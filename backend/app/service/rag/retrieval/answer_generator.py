@@ -2,25 +2,25 @@ import aiohttp
 import asyncio
 import os
 
-# ============================================================
-# Beam Answer Generator Configuration
-# ============================================================
-BEAM_ANSWER_URL = os.getenv("BEAM_ANSWER_GENERATOR_LLM_URL")  # e.g. https://api.beam.cloud/v1/qwen-1_5b-answer-generator
-BEAM_ANSWER_KEY = os.getenv("BEAM_ANSWER_GENERATOR_LLM_KEY")  # Your Beam API Key
+# --- Configuration ---
+ANSWER_GENERATOR_LLM_PROVIDER = os.getenv("ANSWER_GENERATOR_LLM_PROVIDER", "BEAM")  # Default to BEAM
+LLM_API_URL = os.getenv("LOCAL_ANSWER_GENERATOR_LLM_URL")  # e.g. http://localhost:8000/answer-generator
+LLM_API_KEY = os.getenv("LOCAL_ANSWER_GENERATOR_LLM_KEY")  #
+
+if ANSWER_GENERATOR_LLM_PROVIDER == "BEAM":
+    LLM_API_URL = os.getenv("BEAM_ANSWER_GENERATOR_LLM_URL")  # e.g. https://api.beam.cloud/v1/qwen-1_5b-answer-generator
+    LLM_API_KEY = os.getenv("BEAM_ANSWER_GENERATOR_LLM_KEY")  # Your Beam API Key
 
 
 HEADERS = {
-    "Authorization": f"Bearer {BEAM_ANSWER_KEY}",
+    "Authorization": f"Bearer {LLM_API_KEY}",
     "Content-Type": "application/json"
 }
 
-
-# ============================================================
-# Call Beam Answer Generator (Async)
-# ============================================================
+# --- Service Function ---
 async def generate_answer(rag_contents: list[str], user_query: str) -> str:
     """
-    Calls the Beam Answer Generator Endpoint with:
+    Calls the Answer Generator Endpoint with:
     - rag_context (string)
     - user_query (string)
 
@@ -29,11 +29,11 @@ async def generate_answer(rag_contents: list[str], user_query: str) -> str:
         user_query: the user question
 
     Returns:
-        The final structured answer from Beam LLM.
+        The final structured answer from the Answer Generator LLM.
     """
 
-    if not BEAM_ANSWER_URL or not BEAM_ANSWER_KEY:
-        raise RuntimeError("Beam Answer Generator config missing. Set BEAM_ANSWER_URL and BEAM_ANSWER_KEY.")
+    if not LLM_API_URL or not LLM_API_KEY:
+        raise RuntimeError("Answer Generator config missing. Set LLM_API_URL and LLM_API_KEY.")
 
     # Convert list of chunks into a single context string
     rag_context = "\n\n".join(rag_contents)
@@ -41,24 +41,23 @@ async def generate_answer(rag_contents: list[str], user_query: str) -> str:
     payload = {
         "rag_context": rag_context,
         "user_query": user_query,
-        # "max_new_tokens": 350 (optional, it is defaulted 400 at Beam endpoint)
     }
 
     # Debug: Print payload
-    print("🚀 Sending payload to Beam Answer Generator:")
+    print("🚀 Sending payload to Answer Generator LLM:")
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.post(BEAM_ANSWER_URL, json=payload, headers=HEADERS, timeout=60) as resp:
+            async with session.post(LLM_API_URL, json=payload, headers=HEADERS, timeout=60) as resp:
                 if resp.status != 200:
                     error_text = await resp.text()
-                    raise RuntimeError(f"Beam Answer API Error ({resp.status}): {error_text}")
+                    raise RuntimeError(f"Answer Generator API Error ({resp.status}): {error_text}")
 
                 data = await resp.json()
-                return data.get("answer", "No answer returned by Beam")
+                return data.get("answer", "No answer returned by Answer Generator")
         
         except asyncio.TimeoutError:
-            raise RuntimeError("Beam Answer Generator timed out.")
+            raise RuntimeError("Answer Generator timed out.")
         
         except Exception as e:
-            raise RuntimeError(f"Beam Answer Generator failed: {str(e)}")
+            raise RuntimeError(f"Answer Generator failed: {str(e)}")
 
