@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
 from langchain_core.documents import Document
 
 # Import vector DB initilisation logic
@@ -94,7 +94,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
 
 # --- Query/Retrieval Operations ---
 
-async def search_and_retrieve_context(query: str, top_k: int = 10) -> List[str]:
+async def search_and_retrieve_context(query: str, top_k: int) -> List[str]:
     """
     Performs vector search on child chunks and retrieves the content of their parent documents.
 
@@ -113,7 +113,7 @@ async def search_and_retrieve_context(query: str, top_k: int = 10) -> List[str]:
     # 1. Search the Vector Store (Child Chunks)
     # The LangChain VectorStore handles embedding the query using the configured BeamGemmaEmbeddings.
     try:
-        child_documents = await VECTOR_STORE.asimilarity_search(query, k=top_k)
+        child_documents = await VECTOR_STORE.asimilarity_search_with_score(query, k=top_k)
         print(f"✅ Found {len(child_documents)} relevant child chunks.")
     except Exception as e:
         print(f"❌ Vector Store search failed: {e}")
@@ -122,9 +122,13 @@ async def search_and_retrieve_context(query: str, top_k: int = 10) -> List[str]:
     if not child_documents:
         return []
 
+    _log_retrieval_debug(query=query, child_docs=child_documents)
+
+    child_documents = [doc for doc, score in child_documents]
+
     # 2. Extract unique Parent IDs from the retrieved child chunks
     parent_ids = list(
-        {doc.metadata["parent_id"] for doc in child_documents if "parent_id" in doc.metadata}
+        {doc.metadata["parent_id"] for doc in child_documents if doc.metadata.get("parent_id")}
     )
     print(f"🔗 Retrieving content for {len(parent_ids)} unique parent documents.")
     
@@ -143,17 +147,49 @@ async def search_and_retrieve_context(query: str, top_k: int = 10) -> List[str]:
         
         print(f"✅ Retrieved {len(parent_contents)} parent contents as RAG context.")
 
-        # 4. For debug purposes, store the entire parent documents'content into a backend/app/retrieved_parent_contents.txt file
-        try:
-            with open("backend/app/retrieved_parent_contents.txt", "w", encoding="utf-8") as f:
-                for content in parent_contents:
-                    f.write(content + "\n---\n")
-            print("📝 Saved retrieved parent contents to 'backend/app/retrieved_parent_contents.txt' for debugging.")
-        except Exception as e:
-            print(f"❌ Failed to save retrieved parent contents for debugging: {e}")
+        _log_retrieval_debug(parent_contents=parent_contents)
         
         return parent_contents
 
     except Exception as error:
         print(f"❌ Parent Document retrieval failed: {error}")
         raise RuntimeError(f"Parent Document retrieval failed: {error}")
+    
+def _log_retrieval_debug(
+    query: str = "",
+    child_docs: Optional[List[Tuple[Document,float]]] = None,
+    parent_contents: Optional[List[str]] = None,
+    filename: str = "retrieval_debug.txt"
+) -> None:
+    """
+    Helper to append debug information to a text file.
+    Handles both Child Chunk logging and Parent Document logging.
+    """
+    try:
+        with open(filename, "a", encoding="utf-8") as f:
+            
+            # Mode 1: Log Child Chunks (Start of retrieval)
+            if child_docs is not None:
+                f.write(f"\n{'='*50}\n")
+                f.write(f"DEBUG: Child chunk with query of: {query}\n")
+                f.write(f"{'-'*50}\n")
+                
+                if not child_docs:
+                    f.write("No child chunks found.\n")
+                
+                for i, (doc, score) in enumerate(child_docs):
+                    parent_id = doc.metadata.get("parent_id", "UNKNOWN")
+                    f.write(f"[Child Chunk {i+1} | Linked to Parent ID: {parent_id} | Score: {score}]\n")
+                    f.write(f"Content: {doc.page_content}\n\n")
+
+            # Mode 2: Log Parent Contents (End of retrieval)
+            if parent_contents is not None:
+                f.write(f"--- FETCHED PARENT DOCUMENTS ({len(parent_contents)}) ---\n")
+                for i, content in enumerate(parent_contents):
+                    f.write(f"[Parent Document {i+1}]\n")
+                    f.write(f"{content}\n\n")
+                f.write(f"{'='*50}\n") # Closing separator
+
+    except Exception as e:
+        # Non-blocking error handling: Don't crash the app if logging fails
+        print(f"⚠️ Warning: Failed to write to {filename}: {e}")

@@ -1,0 +1,51 @@
+
+==================================================
+DEBUG: Child chunk with query of: Who is Elon Musk
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 5441de4a-5f81-4752-93bb-797b0525e3eb | Score: 0.70831025]
+Content: Timeline
+
+[Child Chunk 2 | Linked to Parent ID: 96d45a4a-6085-46e4-9743-f84b45235478 | Score: 0.70102423]
+Content: History
+
+[Child Chunk 3 | Linked to Parent ID: 0e7f8523-3676-4d06-ab2c-2297417acc8f | Score: 0.7010242]
+Content: History
+
+[Child Chunk 4 | Linked to Parent ID: 02f1dcfc-d3ca-4146-8278-36349f5f2374 | Score: 0.7010242]
+Content: History
+
+[Child Chunk 5 | Linked to Parent ID: 2b6dc811-80ac-4336-a7f7-f981255c5878 | Score: 0.7010242]
+Content: History
+
+--- FETCHED PARENT DOCUMENTS (5) ---
+[Parent Document 1]
+History
+The Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund.In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No.1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Parent Document 2]
+Timeline
+
+[Parent Document 3]
+History
+The rainbow plaque programme was initiated in 2018 by York Civic Trust and the York LGBT Forum to honour lesbian diarist Anne Lister (1791–1840) and her partner Ann Walker, with the first version of a plaque unveiled on 24 July 2018, replaced with amended wording including the word 'lesbian' in February 2019. Temporary cardboard plaques were also placed on key sites during LGBT pride campaigns in York in 2018 and Leeds in 2019.The permanent plaque initiative then extended nationally through the Wandsworth LGBTQ+ Forum and Studio Voltaire, unveiling permanent plaques for Oscar Wilde at Clapham Junction railway station on 24 July 2019, and for the 1980s film My Beautiful Laundrette on Wilcox Road in South Lambeth on 10 September 2021.In 2023, five further rainbow plaques were announced for London, supported by the Mayor of London's Untold Stories Fund and Wandsworth Oasis.
+Greenwich Tavern - Then a well-known gay bar, the Gloucester Arms (today the Greenwich Tavern) in Greenwich was the location of a key scene in the 1996 film Beautiful Thing which was set and filmed in Thamesmead and Greenwich in southeast London. The plaque was unveiled at the Greenwich Tavern on 23 July 2023.
+Black Lesbian and Gay Centre - Originally established in Haringey in 1985, the centre moved to a converted railway arch in Peckham in 1992.
+
+[Parent Document 4]
+History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship. SpaceX has since been applying the iterative design methodology, using intensive tests on a series of rocket prototypes. The first prototype, Starhopper, performed several static fires and low-altitude flights. Seven of Starship's upper-stage prototypes were flight tested between August 2020 and May 2021. The last of the seven, a full-size Starship SN15, successfully landed after reaching an altitude of 10 kilometers (6.2 mi). A full-scale orbital test flight of the rocket took place on April 20, 2023.
+
+Early design proposals
+In 2007, Elon Musk publicly stated that he hopes to enable the exploration and settlement of Mars through SpaceX. SpaceX began developing the Raptor rocket engine before 2014. From 2011 to 2014, Musk made various statements expressing his hope that SpaceX would send humans to Mars in the 2020s to 2030s.
+
+[Parent Document 5]
+The Inter Expo Center (IEC) is a multi-purpose convention center in Sofia, Bulgaria. It consists of six exhibition halls, eight congress halls, and outdoor exhibition spaces. The center is the biggest convention and exhibition venue in the city. The development also includes an office tower above the main reception area and restaurants around the main entrance.
+
+History
+The Inter Expo Center opened in 2001, initially featuring two exhibition halls and outdoor exhibition spaces alongside leasable office and trade spaces in an office tower above the halls and in public areas around the main entrance facing the street.The center had its first expansion in 2003, adding a congress center featuring eight congress halls, as well as an additional exhibition hall. In 2008, the center was expanded again with the opening of further exhibition halls. The Inter Expo Center – Tsarigradsko shose Metro Station, part of the Sofia Metro, opened in April 2012. Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+References
+External links
+Official website
+
+==================================================
