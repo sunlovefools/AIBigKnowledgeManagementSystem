@@ -24,16 +24,21 @@ def polish_chunks(chunks):
         # Remove excessive spaces, tabs, or newlines so all spacing becomes single spaces.
         text = re.sub(r"\s+", " ", text.strip())
 
-        # --- Step 2: Fix spacing before punctuation ---
+        # --- Step 2: Remove leading punctuation ---
+        # Fixes the issue where chunks start with ". " due to bad splitting.
+        # We remove any leading periods, commas, or semicolons so the text starts with a word.
+        text = re.sub(r"^[.,;:]\s*", "", text)
+
+        # --- Step 3: Fix spacing before punctuation ---
         # Example: "Hello , world !" → "Hello, world!"
         text = re.sub(r"\s+([.,!?;:])", r"\1", text)
 
-        # --- Step 3: Ensure first character is capitalized ---
+        # --- Step 4: Ensure first character is capitalized ---
         # Helps maintain cleaner sentence casing for readability and consistency.
         if text and not text[0].isupper():
             text = text[0].upper() + text[1:]
 
-        # --- Step 4: Replace bullet symbols or stray artifacts ---
+        # --- Step 5: Replace bullet symbols or stray artifacts ---
         # Converts common bullet characters (•) to a plain dash ("-") for uniformity.
         text = re.sub(r"•\s*", "- ", text)
 
