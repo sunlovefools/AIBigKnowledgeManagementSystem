@@ -4,12 +4,13 @@ import os
 
 # --- Configuration ---
 ANSWER_GENERATOR_LLM_PROVIDER = os.getenv("ANSWER_GENERATOR_LLM_PROVIDER", "BEAM")  # Default to BEAM
-LLM_API_URL = os.getenv("LOCAL_ANSWER_GENERATOR_LLM_URL")  # e.g. http://localhost:8000/answer-generator
-LLM_API_KEY = os.getenv("LOCAL_ANSWER_GENERATOR_LLM_KEY")  #
+LLM_API_URL = os.getenv("LOCAL_ANSWER_GENERATOR_LLM_URL")  # e.g. http://localhost:8001/answer-generator or the ngrok URL
+LLM_API_KEY = os.getenv("LOCAL_ANSWER_GENERATOR_LLM_KEY")
 
 if ANSWER_GENERATOR_LLM_PROVIDER == "BEAM":
     LLM_API_URL = os.getenv("BEAM_ANSWER_GENERATOR_LLM_URL")  # e.g. https://api.beam.cloud/v1/qwen-1_5b-answer-generator
     LLM_API_KEY = os.getenv("BEAM_ANSWER_GENERATOR_LLM_KEY")  # Your Beam API Key
+    print("🪛 Using BEAM Answer Generator LLM configuration.")
 
 
 HEADERS = {
@@ -47,7 +48,7 @@ async def generate_answer(rag_contents: list[str], user_query: str) -> str:
     print("🚀 Sending payload to Answer Generator LLM:")
     async with aiohttp.ClientSession() as session:
         try:
-            async with session.post(LLM_API_URL, json=payload, headers=HEADERS, timeout=60) as resp:
+            async with session.post(LLM_API_URL, json=payload, headers=HEADERS, timeout=500) as resp:
                 if resp.status != 200:
                     error_text = await resp.text()
                     raise RuntimeError(f"Answer Generator API Error ({resp.status}): {error_text}")
