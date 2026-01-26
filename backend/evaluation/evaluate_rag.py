@@ -45,11 +45,20 @@ from app.embedding.local_embedding_client import LocalGemmaEmbeddings
 # Filter warnings for cleaner output
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
+def clean_text(text):
+    """Helper to remove newlines and flatten text for cleaner CSVs"""
+    if isinstance(text, str):
+        # Replace newlines with a distinct separator
+        return text.replace('\n', ' | ').replace('\r', '')
+    return text
+
 async def generate_rag_responses(dataset_path: str):
     print(f"📂 Loading Golden Dataset from: {dataset_path}")
     
     with open(dataset_path, "r") as f:
         golden_data = json.load(f)
+    
+    golden_data = golden_data[:1]
     
     questions = []
     ground_truths = []
@@ -73,6 +82,7 @@ async def generate_rag_responses(dataset_path: str):
 
         try:
             rag_contents = await search_and_retrieve_context(query=question, top_k=5)
+            print(rag_contents)
             answer = await generate_answer(rag_contents, question)
 
             questions.append(question)
@@ -154,9 +164,36 @@ def run_evaluation(data_dict):
 
     # Save results
     df = results.to_pandas()
+
+    # CLEANUP: Convert lists to strings for CSV
+    cols_to_clean = ['response', 'reference', 'retrieved_contexts']
+    for col in cols_to_clean:
+        if col in df.columns:
+            df[col] = df[col].apply(clean_text)
+
+    # 2. AGGREGATION: Calculate averages
+    # Select only numeric columns (the metrics)
+    numeric_cols = df.select_dtypes(include=['number']).columns
+    averages = df[numeric_cols].mean()
+
+    print("\n📊 Aggregated Scores:")
+    print(averages)
+
+    # Create a summary row dictionary
+    summary_row = {col: "" for col in df.columns}
+    summary_row['user_input'] = "AGGREGATED METRICS (AVERAGE)" # Label the first column
+    
+    # Fill in the calculated averages
+    for col, val in averages.items():
+        summary_row[col] = val
+
+    # Convert summary row to DataFrame and concatenate at the top
+    summary_df = pd.DataFrame([summary_row])
+    final_df = pd.concat([summary_df, df], ignore_index=True)
+
     output_file = os.path.join(current_dir, "ragas_evaluation_results.csv")
-    df.to_csv(output_file, index=False)
-    print(f"💾 Detailed results saved to: {output_file}")
+    final_df.to_csv(output_file, index=False)
+    print(f"💾 Detailed results (with averages on line 1) saved to: {output_file}")
 
 async def main():
     dataset_path = os.path.join(current_dir, "data", "wikieval_golden_dataset.json")

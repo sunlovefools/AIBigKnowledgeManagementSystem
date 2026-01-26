@@ -85,9 +85,7 @@ async def main():
         # We pass the text of THIS row only
         parent_chunks_models, child_chunks_models = split_parent_child_chunks(
             text=full_text, 
-            file_name=file_name,
-            parent_max_chars=1500,
-            child_max_chars=600    
+            file_name=file_name
         )
 
         # 3. Polish Child Chunks
