@@ -159,13 +159,16 @@ def _log_retrieval_debug(
     query: str = "",
     child_docs: Optional[List[Tuple[Document,float]]] = None,
     parent_contents: Optional[List[str]] = None,
-    filename: str = "retrieval_debug.txt"
+    filename: str = "backend/app/service/vectordb/retrieval_debug.txt"
 ) -> None:
     """
     Helper to append debug information to a text file.
     Handles both Child Chunk logging and Parent Document logging.
     """
     try:
+        import os
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+
         with open(filename, "a", encoding="utf-8") as f:
             
             # Mode 1: Log Child Chunks (Start of retrieval)
