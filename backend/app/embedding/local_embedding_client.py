@@ -20,7 +20,7 @@ class LocalGemmaEmbeddings(Embeddings):
 
         self.embedding_model = HuggingFaceEmbeddings(
             model_name="google/embeddinggemma-300m",
-            model_kwargs={"device": "cuda"},
+            model_kwargs={"device": "cpu"},  # Changed from "cuda" to "cpu" for CPU-only environments
             encode_kwargs={"normalize_embeddings": True},
             show_progress=True
         )
