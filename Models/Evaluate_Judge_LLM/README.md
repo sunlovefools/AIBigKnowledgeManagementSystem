@@ -63,17 +63,15 @@ Synchronize the environment with the dependencies specified in `uv.lock`:
 ```Bash
 uv sync
 ```
-## 3) Configure Secure Access Token
-To ensure secure access to the Judge service, set an environment variable for the access token. This token will be required for any client (like Ragas) to interact with the Judge API.
 
-## 4) Start the Answer Service  
-Start the Answer Service: Run the application using Python. It will start on port 8002.
+## 3) Start the Judge Service  
+Start the Judge Service: Run the application using Python. It will start on port 8002.
 
 ```Bash
 python main.py
 ```
 
-Output should indicate: 🚀 Starting Local Answer Service (Ollama) on http://localhost:8001
+Output should indicate: ⚖️ Starting Judge Service (Bearer Auth) on Port 8002
 
 # 3. Use in evaluation
 # results = evaluate(..., metrics=[answer_correctness], llm=ragas_judge)
