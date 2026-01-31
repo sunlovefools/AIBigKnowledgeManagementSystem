@@ -39,4 +39,4 @@ async def generate_endpoint(request: AnswerRequest):
 
 if __name__ == "__main__":
     print("🚀 Starting Public Service (No Auth) on Port 8003")
-    uvicorn.run("main:app", host="0.0.0.0", port=8003, reload=False)
+    uvicorn.run("main:app", host="0.0.0.0", port=8002, reload=False)
