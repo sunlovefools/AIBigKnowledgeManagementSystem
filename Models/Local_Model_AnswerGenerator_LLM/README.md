@@ -44,12 +44,62 @@ pip install fastapi uvicorn langchain-ollama
 ```
 
 ## 🏃‍♂️ Running the Service
-Start Ollama: Ensure the Ollama server is running in the background (usually on port 11434):
+
+This service uses **Ollama** for the local LLM backend and **uv** for Python dependency management (via `uv.lock`).
+
+### ✅ Requirements
+1. **Ollama installed**
+   - Download: https://ollama.com/download
+2. **uv installed**
+   - Install guide: https://docs.astral.sh/uv/getting-started/installation/
+
+---
+
+## 1) Start Ollama server and pull the model
+
+Ollama must be running locally (default: `http://127.0.0.1:11434`) and the model **`qwen2.5:14b`** must be pulled.
 
 ```Bash
+# Start the Ollama server (keep this running in a terminal)
 ollama serve
 ```
+In a separate terminal, pull the required model:
 
+```Bash
+ollama pull qwen2.5:14b
+```
+
+To verify the model is available:
+```Bash
+# You should see qwen2.5:14b listed
+ollama list
+```
+
+## 2) Set up Python environment with uv
+Make sure that you are in correct directory where this README.md file is located.
+
+You can check the directory by running:
+```Bash
+ls # You should see README.md, pyproject.toml,uv.lock and other associated files under Local_Model_AnswerGenerator_LLM directory
+```
+
+Then you create and activate a new uv environment:
+```Bash
+uv venv # Create a new uv environment
+```
+
+Activate the environment:
+```Bash
+.venv/Scripts/activate  # On Windows
+source .venv/bin/activate  # On macOS/Linux
+```
+
+Synchronize the environment with the dependencies specified in `uv.lock`:
+```Bash
+uv sync
+```
+
+## 3) Start the Answer Service  
 Start the Answer Service: Run the application using Python. It will start on port 8001.
 
 ```Bash
