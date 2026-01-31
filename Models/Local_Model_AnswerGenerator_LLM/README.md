@@ -17,43 +17,16 @@ Before running the service, ensure you have the following installed:
 
 1.  **Python 3.10+**
 2.  **Ollama**: You must have Ollama installed and running. [Download Ollama here](https://ollama.com/).
+3. **uv**: For Python dependency management. [Install uv here](https://docs.astral.sh/uv/getting-started/installation/).
 
 ### Model Setup
-This service is hardcoded to use the `qwen2.5:14b` model. You must pull this model before starting the app:
-
-```bash
-ollama pull qwen2.5:14b
-```
+This service is hardcoded to use the `qwen2.5:14b` model. You must pull this model before starting the app (More details in the Running the Service section):
 
 Note: If you wish to use a different model, update the MODEL_ID variable in engine.py.
-
-## 📦 Installation
-Clone the repository:
-
-```Bash
-git clone <your-repo-url>
-cd answer-generator
-```
-
-Install dependencies: Since a pyproject.toml is provided, you can install the project in editable mode or install the specific packages directly:
-
-```Bash
-pip install .
-# OR manually
-pip install fastapi uvicorn langchain-ollama
-```
 
 ## 🏃‍♂️ Running the Service
 
 This service uses **Ollama** for the local LLM backend and **uv** for Python dependency management (via `uv.lock`).
-
-### ✅ Requirements
-1. **Ollama installed**
-   - Download: https://ollama.com/download
-2. **uv installed**
-   - Install guide: https://docs.astral.sh/uv/getting-started/installation/
-
----
 
 ## 1) Start Ollama server and pull the model
 
