@@ -57,3 +57,15 @@ python evaluate_rag.py
 ## Output
 - **CSV Report:** `backend/evaluation/ragas_evaluation_results.csv` which contains per-row metric scores
 - **Console Summary:** aggregated metric scores
+
+## More Information about each Metric
+
+### Faithfulness
+In Faithfulness, RAGAS first uses the LLM to split the responses (From the generated answer) into a list of standalone statements. Then, for each statement, it uses the LLM to check if it is supported by the retrieved context. A statement is supported will receive a score of 1, otherwise 0. The final faithfulness score is the average of these scores across all statements.
+
+faithfulness = (Number of Supported Statements [Statement with score 1]) / (Total Number of Statements)
+
+More details can be found here:
+https://github.com/vibrantlabsai/ragas/blob/main/src/ragas/metrics/_faithfulness.py
+
+### Answer Relevancy
