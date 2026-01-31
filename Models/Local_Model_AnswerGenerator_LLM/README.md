@@ -72,7 +72,14 @@ Synchronize the environment with the dependencies specified in `uv.lock`:
 uv sync
 ```
 
-## 3) Start the Answer Service  
+## 3) Configure Secure Access Token
+Create a `.env` file in the same directory as `main.py` and add the following line:
+
+```Bash
+API_TOKEN=your_secure_answer_generator_token_here
+```
+
+## 4) Start the Answer Service  
 Start the Answer Service: Run the application using Python. It will start on port 8001.
 
 ```Bash
