@@ -2,6 +2,7 @@ fastapi
 uvicorn[standard]
 python-dotenv
 pydantic
+pandas
 astrapy
 bcrypt
 email-validator
