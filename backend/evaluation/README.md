@@ -7,7 +7,7 @@ This directory contains the tools and scripts required to ingest test data and e
 Before running any scripts, ensure your environment is set up:
 1.  **Install Dependencies:**
     ```bash
-    pip install datasets ragas pandas python-dotenv openai langchain langchain-openai langchain-community
+    pip install -r requirements.txt
     ```
     Note that these dependancies are extra to those required for the main RAG pipeline.
     
