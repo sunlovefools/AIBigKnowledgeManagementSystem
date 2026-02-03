@@ -1,0 +1,50 @@
+[project]
+name = "team44-backend"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "aiohttp",
+    "astrapy",
+    "bcrypt",
+    "datasets",
+    "email-validator",
+    "fastapi",
+    "gunicorn",
+    "langchain",
+    "langchain-astradb",
+    "langchain-core",
+    "langchain-huggingface",
+    "langchain-text-splitters",
+    "numpy",
+    "pandas",
+    "pydantic",
+    "pymupdf",
+    "python-docx",
+    "python-dotenv",
+    "ragas",
+    "requests",
+    "sentence-transformers",
+    "torch",
+    "torchvision",
+    "transformers>=4.48.0",
+    "uvicorn[standard]",
+    "einops"
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+# Keep PyTorch index, but make it explicit-only
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+# Pin only torch/torchvision to that index
+[tool.uv.sources]
+torch = { index = "pytorch-cu126" }
+torchvision = { index = "pytorch-cu126" }
+
+[tool.hatch.build.targets.wheel]
+packages = ["app"]
