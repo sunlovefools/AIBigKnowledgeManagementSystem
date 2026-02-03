@@ -3,11 +3,13 @@ from langchain_core.documents import Document
 
 # Import vector DB initilisation logic
 from .vectordb_init import init_vector_db
+from app.service.rag.retrieval.reranker import ZeRankerService
 
 # --- Global store initialisation ---
 RAG_STORES = init_vector_db() # A dictionary with 'vector_store' and 'parent_store' keys which store the LangChain AstraDB objects
 VECTOR_STORE = RAG_STORES['vector_store'] # LangChain AstraDBVectorStore for Child Chunks
 PARENT_STORE = RAG_STORES['parent_store'] # LangChain AstraDBStore for Parent Documents
+_RERANKER_SERVICE = ZeRankerService(model_name="BAAI/bge-reranker-v2-m3") # Reranker service instance
 
 # --- Ingestion / Upsertion Operations ---
 
@@ -113,7 +115,7 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[str]:
     # 1. Search the Vector Store (Child Chunks)
     # The LangChain VectorStore handles embedding the query using the configured BeamGemmaEmbeddings.
     try:
-        child_documents = await VECTOR_STORE.asimilarity_search_with_score(query, k=top_k)
+        child_documents = await VECTOR_STORE.asimilarity_search_with_score(query, k=top_k * 2)
         print(f"✅ Found {len(child_documents)} relevant child chunks.")
     except Exception as e:
         print(f"❌ Vector Store search failed: {e}")
@@ -124,11 +126,33 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[str]:
 
     _log_retrieval_debug(query=query, child_docs=child_documents)
 
-    child_documents = [doc for doc, score in child_documents]
+    child_documents = [doc for doc, _ in child_documents]
+    child_texts = [doc.page_content for doc in child_documents]
 
+    print(f"⚖️  Reranking {len(child_texts)} candidates...")
+    
+    # Rerank the retrieved child chunks using the BGE Reranker
+    reranked_pairs = await _RERANKER_SERVICE.rerank_documents(
+        query=query,
+        documents=child_texts,
+        top_k=top_k
+    )
+
+    # Reconstruct the list of Documents based on the reranked order
+    reranked_child_docs = []
+    for content, new_score in reranked_pairs:
+        # Find original doc to preserve metadata (parent_id, etc.)
+        for original_doc in child_documents:
+            if original_doc.page_content == content:
+                reranked_child_docs.append(original_doc)
+                break
+    
+    # Log Reranked Results
+    _log_rerank_debug(query=query, reranked_pairs=reranked_pairs)
+    
     # 2. Extract unique Parent IDs from the retrieved child chunks
     parent_ids = list(
-        {doc.metadata["parent_id"] for doc in child_documents if doc.metadata.get("parent_id")}
+        {doc.metadata["parent_id"] for doc in reranked_child_docs if doc.metadata.get("parent_id")}
     )
     print(f"🔗 Retrieving content for {len(parent_ids)} unique parent documents.")
     
@@ -200,4 +224,33 @@ def _log_retrieval_debug(
 
     except Exception as e:
         # Non-blocking error handling: Don't crash the app if logging fails
+        print(f"⚠️ Warning: Failed to write to {filename}: {e}")
+
+def _log_rerank_debug(
+    query: str,
+    reranked_pairs: List[Tuple[str, float]],
+    filename: str = "backend/debug/retrieval_debug.txt"
+) -> None:
+    """
+    Logs RERANKED results with their BGE scores.
+    """
+    try:
+        import os
+        if os.path.basename(os.getcwd()) == "backend" and filename.startswith("backend/"):
+            filename = filename.replace("backend/", "", 1)
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+
+        with open(filename, "a", encoding="utf-8") as f:
+            f.write(f"\n{'-'*50}\n")
+            f.write(f"⚖️  RERANKER RESULTS (Top {len(reranked_pairs)} Selected)\n")
+            f.write(f"{'-'*50}\n")
+            
+            for i, (content, score) in enumerate(reranked_pairs):
+                # Note: These are BGE Reranker scores (usually logits, higher is better)
+                f.write(f"[Rank {i+1} | BGE Score: {score:.4f}]\n")
+                f.write(f"Content: {content}\n\n")
+            
+            f.write(f"{'-'*50}\n")
+
+    except Exception as e:
         print(f"⚠️ Warning: Failed to write to {filename}: {e}")

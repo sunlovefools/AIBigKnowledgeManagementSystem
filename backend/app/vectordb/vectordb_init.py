@@ -1,7 +1,7 @@
 import os
 from typing import Dict, Any
 from langchain_astradb import AstraDBVectorStore, AstraDBStore
-from app.embedding.embedding_client import BeamGemmaEmbeddings
+# from app.embedding.embedding_client import BeamGemmaEmbeddings
 from app.embedding.local_embedding_client import LocalGemmaEmbeddings
 
 # Initialize the embedding model instance
