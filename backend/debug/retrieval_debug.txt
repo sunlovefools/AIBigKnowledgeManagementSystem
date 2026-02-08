@@ -1,0 +1,164 @@
+
+==================================================
+DEBUG: Child chunk with query of: hello
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: ed17783c-2aed-4238-82c5-f48cda22a29f | Score: 0.7319657]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: c62740df-52f8-4977-a9e7-b92f2244e5eb | Score: 0.692997]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: 4c9aaf0e-5127-459f-a921-56141d52cfb5 | Score: 0.6863671]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: f8ce6ddd-fa5a-4750-a802-fa7af2c379e5 | Score: 0.6716262]
+Content: References External links Official website
+
+[Child Chunk 5 | Linked to Parent ID: 5ee7951f-652e-4d64-bdc2-0cad895285e7 | Score: 0.67100054]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 6 | Linked to Parent ID: df4d3c79-bbee-4f33-bda0-51f90bf4b622 | Score: 0.6457201]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 7 | Linked to Parent ID: d210da42-934e-414b-97f6-f24282a05e8c | Score: 0.63394755]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 8 | Linked to Parent ID: fcc7f5f6-22b7-42ee-8806-96244073e4cd | Score: 0.6317989]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 9 | Linked to Parent ID: 59a27412-e4d2-4094-a15e-67b88ae5fbbb | Score: 0.62882626]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 10 | Linked to Parent ID: 7f9c24b5-2f65-4d37-b725-9f374f07a697 | Score: 0.62881845]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.0081]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 2 | BGE Score: 0.0072]
+Content: References External links Official website
+
+[Rank 3 | BGE Score: 0.0067]
+Content: Measures Infrastructure and international development
+
+[Rank 4 | BGE Score: 0.0057]
+Content: == References ==
+
+[Rank 5 | BGE Score: 0.0041]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (5) ---
+[Parent Document 1]
+The Inter Expo Center (IEC) is a multi-purpose convention center in Sofia, Bulgaria. It consists of six exhibition halls, eight congress halls, and outdoor exhibition spaces. The center is the biggest convention and exhibition venue in the city. The development also includes an office tower above the main reception area and restaurants around the main entrance. History
+The Inter Expo Center opened in 2001, initially featuring two exhibition halls and outdoor exhibition spaces alongside leasable office and trade spaces in an office tower above the halls and in public areas around the main entrance facing the street.The center had its first expansion in 2003, adding a congress center featuring eight congress halls, as well as an additional exhibition hall. In 2008, the center was expanded again with the opening of further exhibition halls. The Inter Expo Center – Tsarigradsko shose Metro Station, part of the Sofia Metro, opened in April 2012 . Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion. References
+External links
+Official website
+
+[Parent Document 2]
+. Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming
+The trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==
+
+[Parent Document 3]
+Attempts to sabotage competitors
+In 2014, Uber employees were caught ordering and then quickly cancelling rides on competing services Lyft and Gett, in an attempt to disrupt these services. In 2014, Uber was also accused of recruiting people to use competing services for the sole purpose of recruiting their drivers to Uber, at which point the recruiter would receive a commission. Uber denied that it had any involvement with the cancellation of orders or the recruitment efforts. Wage disputes
+In January 2017, Uber agreed to pay $20 million to the Federal Trade Commission to resolve allegations of having misled drivers about potential earnings.In 2017, a class action lawsuit was filed on behalf of thousands of Uber drivers, alleging that Uber’s “upfront prices” policy did not provide drivers with the 80% of fares to which they were entitled. The lawsuit was settled for $345,622, with each driver in the class getting at least $20 .In May 2017, after the New York Taxi Workers Alliance (NYTWA) filed a class-action lawsuit in federal court in New York, Uber admitted to underpaying New York City drivers tens of millions of dollars over 2.5 years by calculating driver commissions on a net amount. Uber agreed to pay the amounts owed plus interest. Boycott in the US
+In late January 2017, GrabYourWallet advised to boycott Uber because the company did not join its Protests against Executive Order 13769, while Travis Kalanick, then CEO of Uber, was a member of Donald Trump's "business advisory council" and GrabYourWallet was advising boycotts of businesses with ties to Trump. Approximately 200,000 users deleted the Uber mobile app. On February 2, 2017, Kalanick resigned from the council, which disbanded in August 2017. Sexual harassment allegations and management shakeup (2017)
+
+[Parent Document 4]
+.”On 6 April 2022, the CBSL allegedly printed 119.08 billion rupees, making it the highest reported amount printed on a single day by the CBSL for the year 2022. The total money added to financial markets for the year 2022 increased to Rs. 432.76 billion. External debt
+Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020 .3 billion in 2005 to $56.3 billion in 2020. While foreign debt was about 42% of the GDP in 2019, it rose to 119% of its GDP in 2021. By February 2022, the country had only $2.31 billion left in its reserves, yet faces debt repayments of around $4 billion in 2022, which also includes a $1 billion international sovereign bond (ISB) maturing in July.In 2020, US economist Joseph Eugene Stiglitz, published a report that blamed the quantitative easing policy made by US banks after 2008, for exporting debt bubbles to deve . This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Parent Document 5]
+MERS-CoV/NeoCoV alert
+In January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out "whether the virus detected in the study will pose a risk for humans". Monkeypox
+On 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures
+Infrastructure and international development
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: hello
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: ed17783c-2aed-4238-82c5-f48cda22a29f | Score: 0.7319657]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: c62740df-52f8-4977-a9e7-b92f2244e5eb | Score: 0.692997]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: 4c9aaf0e-5127-459f-a921-56141d52cfb5 | Score: 0.6863671]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: f8ce6ddd-fa5a-4750-a802-fa7af2c379e5 | Score: 0.6716262]
+Content: References External links Official website
+
+[Child Chunk 5 | Linked to Parent ID: 5ee7951f-652e-4d64-bdc2-0cad895285e7 | Score: 0.67100054]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 6 | Linked to Parent ID: df4d3c79-bbee-4f33-bda0-51f90bf4b622 | Score: 0.6457201]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 7 | Linked to Parent ID: d210da42-934e-414b-97f6-f24282a05e8c | Score: 0.63394755]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 8 | Linked to Parent ID: fcc7f5f6-22b7-42ee-8806-96244073e4cd | Score: 0.6317989]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 9 | Linked to Parent ID: 59a27412-e4d2-4094-a15e-67b88ae5fbbb | Score: 0.62882626]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 10 | Linked to Parent ID: 7f9c24b5-2f65-4d37-b725-9f374f07a697 | Score: 0.62881845]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.0081]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 2 | BGE Score: 0.0072]
+Content: References External links Official website
+
+[Rank 3 | BGE Score: 0.0067]
+Content: Measures Infrastructure and international development
+
+[Rank 4 | BGE Score: 0.0057]
+Content: == References ==
+
+[Rank 5 | BGE Score: 0.0041]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (5) ---
+[Parent Document 1]
+The Inter Expo Center (IEC) is a multi-purpose convention center in Sofia, Bulgaria. It consists of six exhibition halls, eight congress halls, and outdoor exhibition spaces. The center is the biggest convention and exhibition venue in the city. The development also includes an office tower above the main reception area and restaurants around the main entrance. History
+The Inter Expo Center opened in 2001, initially featuring two exhibition halls and outdoor exhibition spaces alongside leasable office and trade spaces in an office tower above the halls and in public areas around the main entrance facing the street.The center had its first expansion in 2003, adding a congress center featuring eight congress halls, as well as an additional exhibition hall. In 2008, the center was expanded again with the opening of further exhibition halls. The Inter Expo Center – Tsarigradsko shose Metro Station, part of the Sofia Metro, opened in April 2012 . Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion. References
+External links
+Official website
+
+[Parent Document 2]
+. Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming
+The trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==
+
+[Parent Document 3]
+Attempts to sabotage competitors
+In 2014, Uber employees were caught ordering and then quickly cancelling rides on competing services Lyft and Gett, in an attempt to disrupt these services. In 2014, Uber was also accused of recruiting people to use competing services for the sole purpose of recruiting their drivers to Uber, at which point the recruiter would receive a commission. Uber denied that it had any involvement with the cancellation of orders or the recruitment efforts. Wage disputes
+In January 2017, Uber agreed to pay $20 million to the Federal Trade Commission to resolve allegations of having misled drivers about potential earnings.In 2017, a class action lawsuit was filed on behalf of thousands of Uber drivers, alleging that Uber’s “upfront prices” policy did not provide drivers with the 80% of fares to which they were entitled. The lawsuit was settled for $345,622, with each driver in the class getting at least $20 .In May 2017, after the New York Taxi Workers Alliance (NYTWA) filed a class-action lawsuit in federal court in New York, Uber admitted to underpaying New York City drivers tens of millions of dollars over 2.5 years by calculating driver commissions on a net amount. Uber agreed to pay the amounts owed plus interest. Boycott in the US
+In late January 2017, GrabYourWallet advised to boycott Uber because the company did not join its Protests against Executive Order 13769, while Travis Kalanick, then CEO of Uber, was a member of Donald Trump's "business advisory council" and GrabYourWallet was advising boycotts of businesses with ties to Trump. Approximately 200,000 users deleted the Uber mobile app. On February 2, 2017, Kalanick resigned from the council, which disbanded in August 2017. Sexual harassment allegations and management shakeup (2017)
+
+[Parent Document 4]
+.”On 6 April 2022, the CBSL allegedly printed 119.08 billion rupees, making it the highest reported amount printed on a single day by the CBSL for the year 2022. The total money added to financial markets for the year 2022 increased to Rs. 432.76 billion. External debt
+Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020 .3 billion in 2005 to $56.3 billion in 2020. While foreign debt was about 42% of the GDP in 2019, it rose to 119% of its GDP in 2021. By February 2022, the country had only $2.31 billion left in its reserves, yet faces debt repayments of around $4 billion in 2022, which also includes a $1 billion international sovereign bond (ISB) maturing in July.In 2020, US economist Joseph Eugene Stiglitz, published a report that blamed the quantitative easing policy made by US banks after 2008, for exporting debt bubbles to deve . This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Parent Document 5]
+MERS-CoV/NeoCoV alert
+In January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out "whether the virus detected in the study will pose a risk for humans". Monkeypox
+On 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures
+Infrastructure and international development
+
+==================================================

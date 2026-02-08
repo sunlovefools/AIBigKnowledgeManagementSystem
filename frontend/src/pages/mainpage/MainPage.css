@@ -419,6 +419,29 @@ body, html, #root {
   cursor: default;
 }
 
+.modification-btn {
+  background: #6b7280;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  color: white;
+}
+
+.modification-btn:hover:not(:disabled) {
+  background-color: #4b5563;
+}
+
+.modification-btn:disabled {
+  background-color: #f1f3f4;
+  color: #bdc1c6;
+  cursor: default;
+}
+
 .input-hint {
   width: 100%;
   max-width: 800px;

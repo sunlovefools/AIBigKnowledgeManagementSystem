@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
+import ModificationModal from "./ModificationModal";
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
 
@@ -20,6 +21,9 @@ export default function MainPage() {
 
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
+
+    // Modification Modal State
+    const [isModificationModalOpen, setIsModificationModalOpen] = useState(false);
 
     // File State
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -262,6 +266,25 @@ export default function MainPage() {
                             onKeyDown={handleKeyDown}
                         />
                         <button
+                            className="modification-btn"
+                            onClick={() => setIsModificationModalOpen(true)}
+                            aria-label="Open modifications"
+                            title="Modifications"
+                        >
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L21 6"></path>
+                            </svg>
+                        </button>
+                        <button
                             className="send-icon-btn"
                             onClick={handleQuery}
                             disabled={!input.trim() || isQuerying}
@@ -285,6 +308,11 @@ export default function MainPage() {
                     <div className="input-hint">Enter to send | Shift+Enter for a new line</div>
                 </div>
             </main>
+
+            <ModificationModal 
+                isOpen={isModificationModalOpen} 
+                onClose={() => setIsModificationModalOpen(false)}
+            />
         </div>
     );
 }
