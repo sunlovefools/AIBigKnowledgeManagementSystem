@@ -1,4 +1,5 @@
 import logging
+import os
 from langchain_ollama import ChatOllama
 from langchain_core.prompts import ChatPromptTemplate
 
@@ -16,7 +17,6 @@ logger = logging.getLogger(__name__)
 # Global storage
 llm_client = None
 MODEL_ID = "qwen2.5:14b"  # Ensure you ran: ollama pull qwen2.5:14b
-
 def load_model():
     """
     Initializes the connection to Ollama.
