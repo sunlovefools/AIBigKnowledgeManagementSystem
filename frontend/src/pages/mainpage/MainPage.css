@@ -35,6 +35,15 @@ body, html, #root {
   grid-template-columns: 300px 1fr 320px;
 }
 
+.app-root.sidebar-collapsed {
+  display: flex;
+}
+
+.app-root.sidebar-collapsed.with-mod-panel {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+}
+
 /* --- Left Sidebar (Sources) --- */
 .sidebar {
   width: 300px;
@@ -227,6 +236,39 @@ body, html, #root {
   border-bottom: 1px solid var(--border-color);
   background: linear-gradient(135deg, #f8fbff, #eef2ff);
   box-shadow: 0 6px 12px rgba(0,0,0,0.04);
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sidebar-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  width: 36px;
+  height: 36px;
+}
+
+.sidebar-toggle-btn:hover {
+  background: #ffffff;
+  border-color: var(--accent-color);
+  color: var(--accent-color);
+}
+
+.sidebar-toggle-btn.active {
+  background: #eef2ff;
+  border-color: var(--accent-color);
+  color: var(--accent-color);
 }
 
 .nav-eyebrow {
@@ -492,7 +534,7 @@ body, html, #root {
   border-left: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
-  padding: 20px 16px;
+  padding: 20px 12px;
   flex-shrink: 0;
   overflow: hidden;
   box-shadow: -2px 0 8px rgba(0, 0, 0, 0.04);
@@ -504,20 +546,29 @@ body, html, #root {
   align-items: center;
   margin-bottom: 16px;
   padding-bottom: 12px;
+  padding-right: 0;
   border-bottom: 1px solid var(--border-color);
+  gap: 12px;
 }
 
 .mod-panel-header h3 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
   color: var(--text-primary);
   font-weight: 600;
+  flex-shrink: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .mod-panel-header-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+  flex-shrink: 0;
+  margin-right: 15px;  /* 向左移动 10px */
 }
 
 .mod-panel-refresh-btn {

@@ -29,6 +29,9 @@ export default function MainPage() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
 
+    // Sidebar State
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+
     // Modification Panel State
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
     const [documents, setDocuments] = useState<DocumentItem[]>([]);
@@ -84,6 +87,10 @@ export default function MainPage() {
 
     const handleToggleModificationPanel = () => {
         setIsModificationPanelOpen(!isModificationPanelOpen);
+    };
+
+    const handleToggleSidebar = () => {
+        setIsSidebarOpen(!isSidebarOpen);
     };
 
     const handleDocumentSelect = (docId: string) => {
@@ -206,7 +213,8 @@ export default function MainPage() {
     };
 
     return (
-        <div className={`app-root ${isModificationPanelOpen ? "with-mod-panel" : ""}`}>
+        <div className={`app-root ${isSidebarOpen ? "" : "sidebar-collapsed"} ${isModificationPanelOpen ? "with-mod-panel" : ""}`}>
+            {isSidebarOpen && (
             <aside className="sidebar">
                 <div className="sidebar-header">
                     <div className="logo-mark">KB</div>
@@ -263,12 +271,36 @@ export default function MainPage() {
 
                 </div>
             </aside>
+            )}
 
             <main className="main-content">
                 <header className="top-nav">
-                    <div>
-                        <div className="nav-eyebrow">Document chat</div>
-                        <div className="nav-title">Ask your documents</div>
+                    <div className="nav-left">
+                        <button
+                            className={`sidebar-toggle-btn ${isSidebarOpen ? "active" : ""}`}
+                            onClick={handleToggleSidebar}
+                            aria-label="Toggle sidebar"
+                            title={isSidebarOpen ? "Hide files" : "Show files"}
+                        >
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <line x1="3" y1="12" x2="21" y2="12"></line>
+                                <line x1="3" y1="6" x2="21" y2="6"></line>
+                                <line x1="3" y1="18" x2="21" y2="18"></line>
+                            </svg>
+                        </button>
+                        <div>
+                            <div className="nav-eyebrow">Document chat</div>
+                            <div className="nav-title">Ask your documents</div>
+                        </div>
                     </div>
                     <div className="nav-actions">
                         <button className="nav-btn" onClick={handleLogout}>
