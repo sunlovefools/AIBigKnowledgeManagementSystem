@@ -17,7 +17,7 @@ def _truncate(text: str, limit: int) -> str:
 
 
 def _resolve_debug_dir() -> Path:
-    """Resolve backend/debug whether running from project root or backend/."""
+    """Resolve backend/debug/logs whether running from project root or backend/."""
     cwd = Path.cwd()
     if (cwd / "backend").is_dir():
         backend_dir = cwd / "backend"
@@ -26,7 +26,7 @@ def _resolve_debug_dir() -> Path:
     else:
         backend_dir = Path(__file__).resolve().parent.parent
 
-    debug_dir = backend_dir / "debug"
+    debug_dir = backend_dir / "debug" / "logs"
     debug_dir.mkdir(parents=True, exist_ok=True)
     return debug_dir
 
