@@ -15,7 +15,7 @@ class QueryRequest(BaseModel):
     Request model for RAG query endpoint.
     """
     query: str
-    top_k: int = 5  # Number of similar child documents to retrieve
+    top_k: int = 10  # Number of similar child documents to retrieve
 
 class QueryResponse(BaseModel):
     """
@@ -61,15 +61,13 @@ async def query_documents(request: QueryRequest):
     try:
         # search_and_retrieve_context performs vector search on child chunks 
         # and looks up the full content from the parent documents.
-        rag_contents = await search_and_retrieve_context(
+        rag_docs = await search_and_retrieve_context(
             query=request.query,
             top_k=request.top_k
         )
 
-        if not rag_contents:
+        if not rag_docs:
             return QueryResponse(answer="No relevant documents found for your query. Try ingesting more data.")
-
-        print(f"🔍 Retrieved context from {len(rag_contents)} parent documents.")
 
     except Exception as e:
         print(f"❌ Retrieval failed: {e}")
@@ -81,7 +79,7 @@ async def query_documents(request: QueryRequest):
 
     # ---- Step 3: Send to LLM for Answer Generation ----
     try:
-        answer = await generate_answer(rag_contents, request.query)
+        answer = await generate_answer(rag_docs, request.query)
         print("🧠 LLM Answer Generated!")
     except Exception as error:
         print(f"❌ LLM Answer Generation Failed: {error}")

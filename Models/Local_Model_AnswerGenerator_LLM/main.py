@@ -1,4 +1,5 @@
 import os
+import json
 from fastapi import FastAPI, HTTPException, Security, Depends, status
 from dotenv import load_dotenv
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
@@ -6,6 +7,7 @@ from pydantic import BaseModel
 from contextlib import asynccontextmanager
 import uvicorn
 import engine
+from typing import Any
 
 load_dotenv()
 
@@ -28,7 +30,7 @@ class AnswerRequest(BaseModel):
     """
     Request model for answer generation.
     """
-    rag_context: str
+    rag_context: str | list[dict[str, Any]]
     user_query: str
 
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)):
@@ -49,8 +51,13 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
 @app.post("/generate_answer", dependencies=[Depends(verify_token)]) # Add dependency for token verification
 async def generate_endpoint(request: AnswerRequest):
     try:
+        if isinstance(request.rag_context, list):
+            rag_context_text = json.dumps(request.rag_context, ensure_ascii=False, indent=2)
+        else:
+            rag_context_text = request.rag_context
+
         answer = engine.generate_answer(
-            request.rag_context,
+            rag_context_text,
             request.user_query
         )
         return {"answer": answer}

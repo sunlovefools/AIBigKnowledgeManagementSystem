@@ -78,14 +78,46 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         raise
 
 
+def _normalize_parent_document(raw_doc: Any) -> Dict[str, Any] | None:
+    """
+    Normalize a stored parent doc into a JSON-serializable dict shape.
+    
+    Args:
+        raw_doc: The raw document object retrieved from the parent store, 
+        which is in the form of LangChain Document
+    """
+    if not isinstance(raw_doc, dict):
+        return None
+
+    page_content = raw_doc.get("page_content")
+    if page_content is None:
+        return None
+
+    metadata = raw_doc.get("metadata")
+    if not isinstance(metadata, dict):
+        metadata = {}
+
+    return {
+        "id": raw_doc.get("id"),
+        "metadata": metadata,
+        "page_content": str(page_content),
+        "type": str(raw_doc.get("type", "Document")),
+    }
+
+
 # --- Query/Retrieval Operations ---
 
-async def search_and_retrieve_context(query: str, top_k: int) -> List[str]:
+async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, Any]]:
     """
-    Performs vector search on child chunks and retrieves the content of their parent documents.
+    Performs vector search on child chunks and retrieves normalized parent document dicts.
 
-    This implements the "Parent Document Retriever" pattern: it searches small, embedded
-    child chunks and returns the larger, context-rich parent chunks to the LLM.
+    Args:
+        query: The search query string.
+        top_k: The number of top results to retrieve.
+
+    Returns:
+        List[Dict[str, Any]]: JSON-serializable parent documents with keys:
+            id, metadata, page_content, type
     """
     print(f"Searching Vector Store (Child Chunks) for {query!r} (top_k={top_k})...")
 
@@ -111,7 +143,7 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[str]:
     reranked_pairs = await _RERANKER_SERVICE.rerank_documents(
         query=query,
         documents=child_texts,
-        top_k=top_k,
+        top_k=top_k * 2,
     )
 
     # Reconstruct the list of Documents based on the reranked order
@@ -132,14 +164,19 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[str]:
 
     # 3. Retrieve Parent Documents (Full Context)
     try:
-        parent_documents_dict = await PARENT_STORE.amget(parent_ids)
+        parent_documents_raw = await PARENT_STORE.amget(parent_ids)
 
-        parent_contents = [
-            doc["page_content"] for doc in parent_documents_dict if doc and "page_content" in doc
-        ]
+        for index in range(len(parent_ids)):
+            parent_documents_raw[index]["id"] = parent_ids[index]
 
-        print(f"Retrieved {len(parent_contents)} parent contents as RAG context.")
-        return parent_contents
+        parent_documents: List[Dict[str, Any]] = []
+        for raw_doc in parent_documents_raw:
+            normalized = _normalize_parent_document(raw_doc)
+            if normalized is not None:
+                parent_documents.append(normalized)
+
+        print(f"Retrieved {len(parent_documents)} parent documents as RAG context.")
+        return parent_documents
 
     except Exception as error:
         print(f"Parent Document retrieval failed: {error}")

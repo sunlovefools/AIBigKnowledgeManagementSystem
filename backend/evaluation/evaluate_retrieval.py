@@ -2,7 +2,7 @@ import sys
 import os
 import json
 import asyncio
-from typing import Dict
+from typing import Any, Dict
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -15,6 +15,11 @@ sys.path.append(backend_dir)
 # --- IMPORTS ---
 from app.vectordb.vectordb import search_and_retrieve_context
 from retrieval_metrics import calculate_hit_rate, calculate_mrr
+
+
+def _extract_page_contents(retrieved_docs: list[dict[str, Any]]) -> list[str]:
+    """Convert retrieved parent document dicts into plain content strings for metrics."""
+    return [str(doc.get("page_content", "")) for doc in retrieved_docs if isinstance(doc, dict)]
 
 
 async def run_retrieval_test(dataset_path: str, top_k: int = 5):
@@ -57,11 +62,12 @@ async def run_retrieval_test(dataset_path: str, top_k: int = 5):
         except Exception as e:
             print(f"   ❌ Error retrieving: {e}")
             retrieved_docs = []
-        
+
         retrieved_results.append(retrieved_docs)
-        
-        current_hit = calculate_hit_rate(retrieved_docs, context_val)
-        current_mrr = calculate_mrr(retrieved_docs, context_val)
+
+        retrieved_contents = _extract_page_contents(retrieved_docs)
+        current_hit = calculate_hit_rate(retrieved_contents, context_val)
+        current_mrr = calculate_mrr(retrieved_contents, context_val)
         
         total_hits += current_hit
         total_mrr += current_mrr

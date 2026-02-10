@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import json
 import os
 from typing import Any
 
@@ -18,7 +19,7 @@ except ImportError:
         log_answer_generation_request,
         log_answer_generation_response,
     )
-from .prompts.answer_generator_prompt import SYSTEM_PROMPT, build_user_message
+from .prompts.answer_generator_prompt import SYSTEM_PROMPT, build_user_message_json_context
 
 __all__ = ["generate_answer", "generate_answer_api"]
 
@@ -76,6 +77,35 @@ def _load_config() -> _AnswerGeneratorConfig:
     )
 
 
+def _normalize_rag_docs(rag_docs: list[dict[str, Any]] | list[str]) -> list[dict[str, Any]]:
+    """Normalize mixed RAG input into JSON-serializable document dictionaries."""
+    normalized: list[dict[str, Any]] = []
+
+    for item in rag_docs:
+        if isinstance(item, dict):
+            page_content = item.get("page_content", "")
+            metadata = item.get("metadata", {})
+            normalized.append(
+                {
+                    "id": item.get("id"),
+                    "metadata": metadata if isinstance(metadata, dict) else {},
+                    "page_content": str(page_content) if page_content is not None else "",
+                    "type": str(item.get("type", "Document")),
+                }
+            )
+        else:
+            normalized.append(
+                {
+                    "id": None,
+                    "metadata": {},
+                    "page_content": str(item),
+                    "type": "Document",
+                }
+            )
+
+    return normalized
+
+
 async def _post_json(
     session: aiohttp.ClientSession,
     url: str,
@@ -106,14 +136,14 @@ def _log_llm_request(
     provider: str,
     model: str | None,
     user_query: str,
-    rag_context: str,
+    rag_context_json: str,
 ) -> None:
     """Write safe LLM request debug info."""
     log_answer_generation_request(
         provider=provider,
         model=model,
         user_query=user_query,
-        rag_context=rag_context,
+        rag_context=rag_context_json,
     )
 
 
@@ -125,7 +155,7 @@ def _log_llm_response(answer: str) -> None:
 async def _generate_via_beam(
     session: aiohttp.ClientSession,
     cfg: _AnswerGeneratorConfig,
-    rag_contents: list[str],
+    rag_docs: list[dict[str, Any]],
     user_query: str,
 ) -> str:
     """Generate an answer using the BEAM/local endpoint."""
@@ -136,10 +166,11 @@ async def _generate_via_beam(
             "(or LOCAL_ANSWER_GENERATOR_LLM_KEY)."
         )
 
-    rag_context = "\n\n".join(rag_contents)
-    _log_llm_request(provider="BEAM", model=None, user_query=user_query, rag_context=rag_context)
+    rag_context_json = json.dumps(rag_docs, ensure_ascii=False, indent=2)
+    _log_llm_request(provider="BEAM", model=None, user_query=user_query, rag_context_json=rag_context_json)
 
-    payload = {"rag_context": rag_context, "user_query": user_query}
+    # Send rag_context in JSON doc-list form. Beam handler can keep backward compatibility.
+    payload = {"rag_context": rag_docs, "user_query": user_query}
     headers = {"Authorization": f"Bearer {cfg.beam_key}", "Content-Type": "application/json"}
 
     data = await _post_json(
@@ -160,24 +191,24 @@ async def _generate_via_beam(
 async def _generate_via_openrouter(
     session: aiohttp.ClientSession,
     cfg: _AnswerGeneratorConfig,
-    rag_contents: list[str],
+    rag_docs: list[dict[str, Any]],
     user_query: str,
 ) -> str:
     """Generate an answer via OpenRouter Chat Completions."""
     if not cfg.openrouter_api_key:
         raise RuntimeError("OPENROUTER_API_KEY is required when ANSWER_GENERATOR_LLM_PROVIDER=OPENROUTER.")
 
-    rag_context = "\n\n".join(rag_contents)
+    rag_context_json = json.dumps(rag_docs, ensure_ascii=False, indent=2)
     _log_llm_request(
         provider="OPENROUTER",
         model=cfg.openrouter_model,
         user_query=user_query,
-        rag_context=rag_context,
+        rag_context_json=rag_context_json,
     )
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": build_user_message(rag_context, user_query)},
+        {"role": "user", "content": build_user_message_json_context(rag_docs, user_query)},
     ]
     payload = {"model": cfg.openrouter_model, "messages": messages, "temperature": 0.0}
     headers = {
@@ -209,21 +240,26 @@ async def _generate_via_openrouter(
     return _NO_ANSWER_FALLBACK
 
 
-async def generate_answer(rag_contents: list[str], user_query: str) -> str:
-    """Public entry point for generating an answer with configured provider."""
+async def generate_answer(rag_docs: list[dict[str, Any]] | list[str], user_query: str) -> str:
+    """
+    Public entry point for generating an answer with configured provider.
+
+    Accepts normalized RAG docs (preferred) and remains backward compatible with list[str].
+    """
     cfg = _load_config()
+    normalized_docs = _normalize_rag_docs(rag_docs)
 
     async with aiohttp.ClientSession() as session:
         if cfg.provider == "BEAM":
-            return await _generate_via_beam(session, cfg, rag_contents, user_query)
+            return await _generate_via_beam(session, cfg, normalized_docs, user_query)
         if cfg.provider == "OPENROUTER":
-            return await _generate_via_openrouter(session, cfg, rag_contents, user_query)
+            return await _generate_via_openrouter(session, cfg, normalized_docs, user_query)
         raise RuntimeError(
             f"Invalid ANSWER_GENERATOR_LLM_PROVIDER: {cfg.provider}. "
             "Expected 'BEAM' or 'OPENROUTER'."
         )
 
 
-async def generate_answer_api(rag_contents: list[str], user_query: str) -> str:
+async def generate_answer_api(rag_docs: list[dict[str, Any]] | list[str], user_query: str) -> str:
     """Compatibility wrapper for callers using generate_answer_api."""
-    return await generate_answer(rag_contents, user_query)
+    return await generate_answer(rag_docs, user_query)
