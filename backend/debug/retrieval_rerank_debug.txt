@@ -1,0 +1,55 @@
+==================================================
+DEBUG: Child chunk with query of: What opportunities exist for students to gain industry experience during the Computer Science degree?
+Timestamp: 2026-02-10T21:40:33.058531+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: aadbeb2a-331c-4848-bcbc-17370e147359 | Score: 0.786085]
+Content: ## Educational Aims Students completing the BSc (Hons) in Computer Science will: Develop a more specialised knowledge of the theoretical foundation of computer science and other selected topics within the discipline. Encounter and work with a variety of approaches, techniques and tools in order to solve the different t... [truncated, total_len=591]
+
+[Child Chunk 2 | Linked to Parent ID: 8bf12eef-97b9-40ce-a3ab-752eb055cb17 | Score: 0.778515]
+Content: Project topics in Computer Science generally aim to combine theoretical foundations and practical applications within a specific area of research. Finally, students can choose from a wide range of options in Computer Science, and outside of the School, to explore topics of personal interest in support of the core Compu... [truncated, total_len=568]
+
+[Child Chunk 3 | Linked to Parent ID: 3e4b4b8b-580b-4fa2-b45d-e0ec10390752 | Score: 0.776076]
+Content: You’ll define a project topic, conduct a literature review, and produce a substantial piece of work demonstrating originality, technical competence and critical analysis. ### **Industrial Experience** This module provides the opportunity to gain experience working in an industrial or professional computing environment.... [truncated, total_len=550]
+
+[Child Chunk 4 | Linked to Parent ID: 932680bd-ecad-489c-9df3-2f5296d4b51e | Score: 0.772285]
+Content: Book an open day --- ## Course overview Computer science is more than just programming. It is about problem-solving and creativity. Our range of optional modules allows you to explore the areas of computer science that excite you. These include user experience design, virtual reality, artificial intelligence and machin... [truncated, total_len=331]
+
+[Child Chunk 5 | Linked to Parent ID: 912d85df-9ed2-4980-b451-f406abeb2f1e | Score: 0.769119]
+Content: Acquire a general knowledge and understanding of computers and computer science. ## Programme Description ### Course Overview Course overview Computer science is more than just programming. It is about problem-solving and creativity. Our range of optional modules allows you to explore the areas of computer science that... [truncated, total_len=433]
+
+[Child Chunk 6 | Linked to Parent ID: e862b6c8-ddba-4dc9-af4d-6114c122277c | Score: 0.764371]
+Content: The Computer Science course combines the theoretical foundations of the discipline with practical applications of computer systems. Throughout the course, students study a range of modules that support these two themes and the connection between them. From the theoretical side, students learn about the mathematical mod... [truncated, total_len=495]
+
+[Child Chunk 7 | Linked to Parent ID: 638714c7-5841-48e3-88eb-c7214bf49c13 | Score: 0.761870]
+Content: --- ## Industry & Careers Our staff and students work closely with national and international industries. Employer-led sessions feature in our taught modules, some two-thirds of our flagship Year 2 Software Engineering Group Projects have industrial supervisors and our Year in Industry courses attract high-profile plac... [truncated, total_len=503]
+
+[Child Chunk 8 | Linked to Parent ID: 5bbf5485-6dc9-49c0-ac13-fd4f1449ffdf | Score: 0.758100]
+Content: We offer BSc, MSci and MSc courses in Computer Science and Computer Science with Artificial Intelligence. Our undergraduate courses allow you to take an additional Year in Industry and our MSci courses can include an International Year studying at one of our carefully selected partner institutions. We take a balanced a... [truncated, total_len=479]
+
+[Child Chunk 9 | Linked to Parent ID: 912d85df-9ed2-4980-b451-f406abeb2f1e | Score: 0.743971]
+Content: The School participates in student exchange programmes with higher education institutes of equivalent status and the Universitys own campuses in Malaysia and China. More information can be found in the Computer Science factsheet for studying abroad (http://www.nottingham.ac.uk/aglobaluniversity/documents/currentstudent... [truncated, total_len=403]
+
+[Child Chunk 10 | Linked to Parent ID: b758cd9c-4529-4869-ab56-afba3204d86f | Score: 0.741387]
+Content: ### **Human-AI Interaction** This module explores how humans interact with artificial intelligence systems. You’ll examine usability, trust, transparency, and ethical considerations in AI-driven systems, and learn how to design interfaces that support effective human-AI collaboration. ### **Individual Dissertation in C... [truncated, total_len=469]
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.631411]
+Content: N/A
+
+[Rank 2 | BGE Score: 0.479662]
+Content: N/A
+
+[Rank 3 | BGE Score: 0.353686]
+Content: N/A
+
+[Rank 4 | BGE Score: 0.031851]
+Content: N/A
+
+[Rank 5 | BGE Score: 0.029723]
+Content: N/A
+
+--------------------------------------------------

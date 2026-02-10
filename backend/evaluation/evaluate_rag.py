@@ -83,7 +83,7 @@ async def generate_rag_responses(dataset_path: str):
         try:
             rag_contents = await search_and_retrieve_context(query=question, top_k=5)
             print(rag_contents)
-            answer = await generate_answer(rag_contents, question)
+            answer = await generate_answer_api(rag_contents, question)
 
             questions.append(question)
             ground_truths.append(ground_truth) 
