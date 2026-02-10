@@ -60,7 +60,7 @@ async def ingest_webhook(file: FileUpload):
     parent_chunks_models, child_chunks_models = split_parent_child_chunks(
         text, 
         file_name=file.fileName,
-        parent_max_chars=1500,
+        parent_target_chars=1500,
         child_max_chars=600    
     )
 
