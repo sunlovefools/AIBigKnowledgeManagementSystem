@@ -1036,3 +1036,955 @@ FoodFutureCo's network of investors and social influencers provide mentorship th
 = References =
 
 ==================================================
+
+==================================================
+DEBUG: Child chunk with query of: test
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: ed17783c-2aed-4238-82c5-f48cda22a29f | Score: 0.7713938]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: c62740df-52f8-4977-a9e7-b92f2244e5eb | Score: 0.7038892]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: 4c9aaf0e-5127-459f-a921-56141d52cfb5 | Score: 0.68890893]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: f8ce6ddd-fa5a-4750-a802-fa7af2c379e5 | Score: 0.68674165]
+Content: References External links Official website
+
+[Child Chunk 5 | Linked to Parent ID: 59a27412-e4d2-4094-a15e-67b88ae5fbbb | Score: 0.667475]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 6 | Linked to Parent ID: 5ee7951f-652e-4d64-bdc2-0cad895285e7 | Score: 0.66441655]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 7 | Linked to Parent ID: d323d4e2-fd79-4d7b-84e9-31ea9fb3b7f5 | Score: 0.6580118]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 8 | Linked to Parent ID: 7f9c24b5-2f65-4d37-b725-9f374f07a697 | Score: 0.64876693]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 9 | Linked to Parent ID: d2214669-2ae2-448e-87d3-7e82e3cb3dc3 | Score: 0.6481308]
+Content: Assessment is through a mixture of formal examinations and coursework, including written and oral reports, programming tasks and design scenarios. Project work is important in the later stages of the degree, and is assessed through reports, presentations and demonstrations. --- ## Teaching & Learning
+
+[Child Chunk 10 | Linked to Parent ID: df4d3c79-bbee-4f33-bda0-51f90bf4b622 | Score: 0.646829]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.0515]
+Content: Measures Infrastructure and international development
+
+[Rank 2 | BGE Score: 0.0317]
+Content: Assessment is through a mixture of formal examinations and coursework, including written and oral reports, programming tasks and design scenarios. Project work is important in the later stages of the degree, and is assessed through reports, presentations and demonstrations. --- ## Teaching & Learning
+
+[Rank 3 | BGE Score: 0.0154]
+Content: == References ==
+
+[Rank 4 | BGE Score: 0.0039]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 5 | BGE Score: 0.0027]
+Content: Background History and development of reconnaissance balloons
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (5) ---
+[Parent Document 1]
+MERS-CoV/NeoCoV alert
+In January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out "whether the virus detected in the study will pose a risk for humans". Monkeypox
+On 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures
+Infrastructure and international development
+
+[Parent Document 2]
+Attempts to sabotage competitors
+In 2014, Uber employees were caught ordering and then quickly cancelling rides on competing services Lyft and Gett, in an attempt to disrupt these services. In 2014, Uber was also accused of recruiting people to use competing services for the sole purpose of recruiting their drivers to Uber, at which point the recruiter would receive a commission. Uber denied that it had any involvement with the cancellation of orders or the recruitment efforts. Wage disputes
+In January 2017, Uber agreed to pay $20 million to the Federal Trade Commission to resolve allegations of having misled drivers about potential earnings.In 2017, a class action lawsuit was filed on behalf of thousands of Uber drivers, alleging that Uber’s “upfront prices” policy did not provide drivers with the 80% of fares to which they were entitled. The lawsuit was settled for $345,622, with each driver in the class getting at least $20 .In May 2017, after the New York Taxi Workers Alliance (NYTWA) filed a class-action lawsuit in federal court in New York, Uber admitted to underpaying New York City drivers tens of millions of dollars over 2.5 years by calculating driver commissions on a net amount. Uber agreed to pay the amounts owed plus interest. Boycott in the US
+In late January 2017, GrabYourWallet advised to boycott Uber because the company did not join its Protests against Executive Order 13769, while Travis Kalanick, then CEO of Uber, was a member of Donald Trump's "business advisory council" and GrabYourWallet was advising boycotts of businesses with ties to Trump. Approximately 200,000 users deleted the Uber mobile app. On February 2, 2017, Kalanick resigned from the council, which disbanded in August 2017. Sexual harassment allegations and management shakeup (2017)
+
+[Parent Document 3]
+. Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming
+The trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==
+
+[Parent Document 4]
+| Item | Value |
+|----|------|
+| **Course Weightings** | Part I: 33% &nbsp;|&nbsp; Part II: 67% |
+| **Degree Calculation Model** | Arithmetic Mean |
+
+---
+
+## Other Regulations
+
+- Registration, attendance, and study:  
+  https://www.nottingham.ac.uk/qualitymanual/registration-andattendance/index.aspx
+- University of Nottingham Qualifications Framework:  
+  https://www.nottingham.ac.uk/qualitymanual/academic-regulations/unqf.aspx
+- Maximum period from initial registration for the completion of studies: https://www.nottingham.ac.uk/qualitymanual/registration-and-attendance/max-period-from-initialregistration.aspx
+
+---
+
+## Additional Regulations
+
+---
+
+## Learning Outcomes
+
+### Overview
+
+The following learning outcomes refer to the **BSc (Hons)** course. Students who transfer to the **BSc (Ord)** course will be expected to meet most, but not all, of these outcomes, and will generally require a lower level of achievement. Assessment is through a mixture of formal examinations and coursework, including written and oral reports, programming tasks and design scenarios. Project work is important in the later stages of the degree, and is assessed through reports, presentations and demonstrations.
+
+---
+
+## Teaching & Learning
+
+[Parent Document 5]
+.The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background
+History and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for "meteorological survey" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.85315835]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.73847055]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.70754576]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.68723845]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.66770715]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Child Chunk 6 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.66107136]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 7 | Linked to Parent ID: c62740df-52f8-4977-a9e7-b92f2244e5eb | Score: 0.6597489]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 8 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.658849]
+Content: JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success.
+
+[Child Chunk 9 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65441144]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65072304]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9183]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.6905]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 3 | BGE Score: 0.2891]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 4 | BGE Score: 0.0799]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.0662]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+. The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+[Parent Document 2]
+The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch
+It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Parent Document 3]
+Timeline
+Launch
+JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory
+Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:
+Interplanetary transfer (Earth, Venus, Earth, Earth)
+Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists
+Increase inclination with 10–12 Callisto gravity assists
+
+[Parent Document 4]
+The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background
+The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: tell me about the cheapest accomodation
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: f7a3733f-5ad2-47f9-a283-0ad490c2f29f | Score: 0.72918844]
+Content: ## Affordable Living and Bursaries Our student community is an incredibly diverse one, comprising a vast range of identities, backgrounds and lived experiences. As a member of our diverse community we expect you to extend respect to others both on and off campus as a respectful member of your new campus and city. We are a positive and peaceful community. Pledge to be a part of this so that we can be truly stronger together.
+
+[Child Chunk 2 | Linked to Parent ID: 6c9df353-9675-49d5-a029-b80a73d3a783 | Score: 0.7259601]
+Content: --- ## Address Please see our website for the address and contact details of your Hall/Site here. There is a single contact number for all welcome points. You are then given the option to select the one you want, and it also includes a link to ResX and Security. The Phone number is **0115 74 87600**. To contact them via email, please see Welcome Point Email Addresses and look for your Hall. --- ## Cost of living
+
+[Child Chunk 3 | Linked to Parent ID: f7a3733f-5ad2-47f9-a283-0ad490c2f29f | Score: 0.71770227]
+Content: --- ## Access to Affordable Living At the University of Nottingham, we believe every student deserves access to a safe, comfortable, and affordable place to live during their studies, regardless of their financial background. The Access to Affordable Living scheme was established to ensure that students from low-income households have access to a range of reserved accommodation options priced below normal rates.
+
+[Child Chunk 4 | Linked to Parent ID: be845d57-bd8a-4e7e-8e49-f382bda580c9 | Score: 0.71624714]
+Content: --- ## How to apply To apply for the Access to Affordable Living scheme, please follow the steps below: 1. Complete the application form, providing details about your financial background and circumstances. 2. Submit the required documentation, such as your Student Finance assessment or other proof of financial need. 3. Await approval and, if eligible, an offer of accommodation. You will receive confirmation of your application status within 14 days. If successful, you will be offered a room from our available options. --- ## Accommodation Bursary
+
+[Child Chunk 5 | Linked to Parent ID: bc554e38-cce3-428c-949e-c844aa1af658 | Score: 0.7101314]
+Content: # Accommodation options ## Find the accommodation that's right for you Each of our residences has its own unique identity, and an amazing residential team ready to welcome and support you throughout your time with us. If you are ready to make lifelong friends, explore our amazing city, and begin your journey into student life, university accommodation is the choice for you. You can find all of our halls below or view them all on a map to help you get situated. --- ### On-campus and off-campus halls
+
+[Child Chunk 6 | Linked to Parent ID: bc554e38-cce3-428c-949e-c844aa1af658 | Score: 0.6958524]
+Content: --- ### On-campus and off-campus halls Below are the accommodation options available, showing indicative prices and features. | Hall / Residence | Campus | Room type | Catering | Weekly from | |------------------|--------|------------|----------|-------------| | **Albion House** | University Park | Shared bathrooms | Self-catered | £155.00 | | **Ancaster Hall** | University Park | En-suite & shared bathrooms | Catered | £244.00 | | **Broadgate Park** | University Park | Shared & en-suite rooms | Self-catered | £145.00 |
+
+[Child Chunk 7 | Linked to Parent ID: 6c9df353-9675-49d5-a029-b80a73d3a783 | Score: 0.6923319]
+Content: --- ## Cost of living Money management is an important part of student life. Whether you are living away from home for the first time, are an international student moving to the UK to study, or are a mature student who has lived independently before, you will need to carefully consider your income versus expenditure to make sure you have all the essentials covered during your time at university. --- ## Posts and Parcels The University have invested in Inpost, Amazon and Royal Mail lockers, so you can choose a location and time to collect your deliveries that suits you.
+
+[Child Chunk 8 | Linked to Parent ID: f7a3733f-5ad2-47f9-a283-0ad490c2f29f | Score: 0.68743384]
+Content: As a diverse and welcoming community, we pledge to support each other and be respectful of the challenges that each of us face in our everyday lives. We might be from different backgrounds and identities, but we are one community who is Stronger Together. This page is a place for you to learn about fellow students from different walks of life, understand a bit more about their University experiences, and find out how you can support each other. --- ## Access to Affordable Living
+
+[Child Chunk 9 | Linked to Parent ID: d0cf5768-fab1-4a5e-bdb8-c9526298099e | Score: 0.6854385]
+Content: --- ## TV Licence TVs are available in common rooms across our halls. However, if you wish to bring a TV for your room, you will need to pay for a TV licence – this will also apply if you are watching any live TV on other devices, including laptops and tablets. You can find out more about TV licences here. --- ## Staying Active
+
+[Child Chunk 10 | Linked to Parent ID: 2b647234-8cc4-47b4-961c-841fe4a5e551 | Score: 0.6854062]
+Content: ## Accommodation ## Everything you need to know about life in halls The information below is for students moving into University managed catering accommodation on University Park and Jubilee Campus as well as our self-catered sites: Dagfa, Varsity and Melton Hall. If you are moving into any other site, please contact your relevant provider. You can also find plenty of other helpful guides to help you discover life in our halls. --- ## Here’s what to expect in a typical day
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.0094]
+Content: --- ### On-campus and off-campus halls Below are the accommodation options available, showing indicative prices and features. | Hall / Residence | Campus | Room type | Catering | Weekly from | |------------------|--------|------------|----------|-------------| | **Albion House** | University Park | Shared bathrooms | Self-catered | £155.00 | | **Ancaster Hall** | University Park | En-suite & shared bathrooms | Catered | £244.00 | | **Broadgate Park** | University Park | Shared & en-suite rooms | Self-catered | £145.00 |
+
+[Rank 2 | BGE Score: 0.0045]
+Content: --- ## Access to Affordable Living At the University of Nottingham, we believe every student deserves access to a safe, comfortable, and affordable place to live during their studies, regardless of their financial background. The Access to Affordable Living scheme was established to ensure that students from low-income households have access to a range of reserved accommodation options priced below normal rates.
+
+[Rank 3 | BGE Score: 0.0013]
+Content: --- ## How to apply To apply for the Access to Affordable Living scheme, please follow the steps below: 1. Complete the application form, providing details about your financial background and circumstances. 2. Submit the required documentation, such as your Student Finance assessment or other proof of financial need. 3. Await approval and, if eligible, an offer of accommodation. You will receive confirmation of your application status within 14 days. If successful, you will be offered a room from our available options. --- ## Accommodation Bursary
+
+[Rank 4 | BGE Score: 0.0012]
+Content: # Accommodation options ## Find the accommodation that's right for you Each of our residences has its own unique identity, and an amazing residential team ready to welcome and support you throughout your time with us. If you are ready to make lifelong friends, explore our amazing city, and begin your journey into student life, university accommodation is the choice for you. You can find all of our halls below or view them all on a map to help you get situated. --- ### On-campus and off-campus halls
+
+[Rank 5 | BGE Score: 0.0006]
+Content: ## Accommodation ## Everything you need to know about life in halls The information below is for students moving into University managed catering accommodation on University Park and Jubilee Campus as well as our self-catered sites: Dagfa, Varsity and Melton Hall. If you are moving into any other site, please contact your relevant provider. You can also find plenty of other helpful guides to help you discover life in our halls. --- ## Here’s what to expect in a typical day
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+# Accommodation options
+
+## Find the accommodation that's right for you
+
+Each of our residences has its own unique identity, and an amazing residential team ready to welcome and support you throughout your time with us. If you are ready to make lifelong friends, explore our amazing city, and begin your journey into student life, university accommodation is the choice for you. You can find all of our halls below or view them all on a map to help you get situated.
+
+---
+
+### On-campus and off-campus halls ---
+
+### On-campus and off-campus halls
+
+Below are the accommodation options available, showing indicative prices and features.
+
+| Hall / Residence | Campus | Room type | Catering | Weekly from |
+|------------------|--------|------------|----------|-------------|
+| **Albion House** | University Park | Shared bathrooms | Self-catered | £155.00 |
+| **Ancaster Hall** | University Park | En-suite & shared bathrooms | Catered | £244.00 |
+| **Broadgate Park** | University Park | Shared & en-suite rooms | Self-catered | £145.00 |
+
+[Parent Document 2]
+## Accommodation  
+
+## Everything you need to know about life in halls
+
+The information below is for students moving into University managed catering accommodation on University Park and Jubilee Campus as well as our self-catered sites: Dagfa, Varsity and Melton Hall. If you are moving into any other site, please contact your relevant provider.
+
+You can also find plenty of other helpful guides to help you discover life in our halls.
+
+---
+
+## Here’s what to expect in a typical day ---
+
+## Here’s what to expect in a typical day
+
+Below you will find information on catering, your Residential Experience Team and socialising in halls. Scroll down for handy guidance on everything you might need to know from collecting your parcels to doing your laundry.
+
+---
+
+## Welcome Point ---
+
+## Welcome Point
+
+Your Welcome Point is your designated team to speak to during your stay in halls. You can contact the team on **0115 748 7600**. The Welcome Point team will handle all enquiries during your time in halls and should be your primary point of contact for questions about your room, hall maintenance, catering, or room changes.
+
+---
+
+## Address
+
+[Parent Document 3]
+The following University Park halls rooms are included in the scheme:
+
+- **Single Study, Catered – 41 weeks:** £165 per week  
+- **Shared Bathroom Plus, Catered – 41 weeks:** £180 per week  
+- **En-suite, Catered – 41 weeks:** £199 per week  
+
+Please note that the number of rooms available through this scheme is limited. While we aim to offer accommodation to as many eligible students as possible, we may not be able to offer a place to every applicant. If we are unable to accommodate you through this scheme, we will help guide you to other accommodation options that may be available. ---
+
+## How to apply
+
+To apply for the Access to Affordable Living scheme, please follow the steps below:
+
+1. Complete the application form, providing details about your financial background and circumstances.
+2. Submit the required documentation, such as your Student Finance assessment or other proof of financial need.
+3. Await approval and, if eligible, an offer of accommodation.
+
+You will receive confirmation of your application status within 14 days. If successful, you will be offered a room from our available options.
+
+---
+
+## Accommodation Bursary
+
+[Parent Document 4]
+## Affordable Living and Bursaries
+
+Our student community is an incredibly diverse one, comprising a vast range of identities, backgrounds and lived experiences. As a member of our diverse community we expect you to extend respect to others both on and off campus as a respectful member of your new campus and city. We are a positive and peaceful community. Pledge to be a part of this so that we can be truly stronger together. As a diverse and welcoming community, we pledge to support each other and be respectful of the challenges that each of us face in our everyday lives. We might be from different backgrounds and identities, but we are one community who is Stronger Together. This page is a place for you to learn about fellow students from different walks of life, understand a bit more about their University experiences, and find out how you can support each other.
+
+---
+
+## Access to Affordable Living ---
+
+## Access to Affordable Living
+
+At the University of Nottingham, we believe every student deserves access to a safe, comfortable, and affordable place to live during their studies, regardless of their financial background.
+
+The Access to Affordable Living scheme was established to ensure that students from low-income households have access to a range of reserved accommodation options priced below normal rates.
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.88612044]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.74379003]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.7020182]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.69026905]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.6669639]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Child Chunk 6 | Linked to Parent ID: 3b95e310-7643-4ca7-bb69-328e7757b177 | Score: 0.65580964]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Child Chunk 7 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.6552137]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 8 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.6540152]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 9 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.653553]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65259135]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9994]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.8862]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 3 | BGE Score: 0.2367]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 4 | BGE Score: 0.0345]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.0286]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch
+It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Parent Document 2]
+. The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+[Parent Document 3]
+Timeline
+Launch
+JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory
+Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:
+Interplanetary transfer (Earth, Venus, Earth, Earth)
+Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists
+Increase inclination with 10–12 Callisto gravity assists
+
+[Parent Document 4]
+The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background
+The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.88612044]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.74379003]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.7020182]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.69026905]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.6669639]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Child Chunk 6 | Linked to Parent ID: 3b95e310-7643-4ca7-bb69-328e7757b177 | Score: 0.65580964]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Child Chunk 7 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.6552137]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 8 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.6540152]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 9 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.653553]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65259135]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9994]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.8862]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 3 | BGE Score: 0.2367]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 4 | BGE Score: 0.0345]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.0286]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background
+The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Parent Document 2]
+Timeline
+Launch
+JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory
+Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:
+Interplanetary transfer (Earth, Venus, Earth, Earth)
+Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists
+Increase inclination with 10–12 Callisto gravity assists
+
+[Parent Document 3]
+. The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+[Parent Document 4]
+The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch
+It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.88612044]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.74379003]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.7020182]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.69026905]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.6669639]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Child Chunk 6 | Linked to Parent ID: 3b95e310-7643-4ca7-bb69-328e7757b177 | Score: 0.65580964]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Child Chunk 7 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.6552137]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 8 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.6540152]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 9 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.653553]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65259135]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9994]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.8862]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 3 | BGE Score: 0.2367]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 4 | BGE Score: 0.0345]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.0286]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+. The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+[Parent Document 2]
+Timeline
+Launch
+JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory
+Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:
+Interplanetary transfer (Earth, Venus, Earth, Earth)
+Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists
+Increase inclination with 10–12 Callisto gravity assists
+
+[Parent Document 3]
+The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background
+The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Parent Document 4]
+The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch
+It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.88612044]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.74379003]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.7020182]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.69026905]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.6669639]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Child Chunk 6 | Linked to Parent ID: 3b95e310-7643-4ca7-bb69-328e7757b177 | Score: 0.65580964]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Child Chunk 7 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.6552137]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 8 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.6540152]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 9 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.653553]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65259135]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9994]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.8862]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 3 | BGE Score: 0.2367]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 4 | BGE Score: 0.0345]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.0286]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch
+It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Parent Document 2]
+The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background
+The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Parent Document 3]
+Timeline
+Launch
+JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory
+Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:
+Interplanetary transfer (Earth, Venus, Earth, Earth)
+Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists
+Increase inclination with 10–12 Callisto gravity assists
+
+[Parent Document 4]
+. The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.88612044]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.74379003]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.7020182]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.69026905]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.6669639]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Child Chunk 6 | Linked to Parent ID: 3b95e310-7643-4ca7-bb69-328e7757b177 | Score: 0.65580964]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Child Chunk 7 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.6552137]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 8 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.6540152]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 9 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.653553]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65259135]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9994]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.8862]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 3 | BGE Score: 0.2367]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 4 | BGE Score: 0.0345]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.0286]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+Timeline
+Launch
+JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory
+Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:
+Interplanetary transfer (Earth, Venus, Earth, Earth)
+Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists
+Increase inclination with 10–12 Callisto gravity assists
+
+[Parent Document 2]
+The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background
+The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Parent Document 3]
+The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch
+It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Parent Document 4]
+. The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.88612044]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.74379003]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.7020182]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.69026905]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.6669639]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Child Chunk 6 | Linked to Parent ID: 3b95e310-7643-4ca7-bb69-328e7757b177 | Score: 0.65580964]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Child Chunk 7 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.6552137]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 8 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.6540152]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 9 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.653553]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65259135]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9994]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.8862]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 3 | BGE Score: 0.2367]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 4 | BGE Score: 0.0345]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.0286]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background
+The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Parent Document 2]
+The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch
+It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Parent Document 3]
+Timeline
+Launch
+JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory
+Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:
+Interplanetary transfer (Earth, Venus, Earth, Earth)
+Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists
+Increase inclination with 10–12 Callisto gravity assists
+
+[Parent Document 4]
+. The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.88612044]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.74379003]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.7020182]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.69026905]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.6669639]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Child Chunk 6 | Linked to Parent ID: 3b95e310-7643-4ca7-bb69-328e7757b177 | Score: 0.65580964]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Child Chunk 7 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.6552137]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 8 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.6540152]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 9 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.653553]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.65259135]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9994]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.8862]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 3 | BGE Score: 0.2367]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 4 | BGE Score: 0.0345]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.0286]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (4) ---
+[Parent Document 1]
+. The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History
+Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+[Parent Document 2]
+Timeline
+Launch
+JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory
+Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:
+Interplanetary transfer (Earth, Venus, Earth, Earth)
+Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists
+Increase inclination with 10–12 Callisto gravity assists
+
+[Parent Document 3]
+The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch
+It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Parent Document 4]
+The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background
+The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+==================================================
+
+==================================================
+DEBUG: Child chunk with query of: What is the taxonomy of Dasypoda radchenkoi, and what is its relationship to Dasypoda morotei?
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: d6aa0257-da26-4173-a08a-635a201bc9bb | Score: 0.8138475]
+Content: The phylogenetic position of the species shows that it is the sister species of the near cryptic Dasypoda morotei, as it could be expected based on morphology alone. After the formal description if D. radchenkoi at the University of Mons, the holotype female was sent to the Museum of Linz, in Austria, where it now hosted. Some paratypes were sent to the Naturalis Biodiversity Center, in The Netherlands.
+
+[Child Chunk 2 | Linked to Parent ID: 65e75102-b7e7-4bca-987f-ac143f435541 | Score: 0.80307674]
+Content: Description Dasypoda radchenkoi is a medium-size, solitary Hymenoptera from the species-poor family Melittidae, a wild bee family comprising approximately 150 species globally. The species is near cryptic with the Iberian pantaloon bee Dasypoda morotei, which means that the morphology is both species is highly similar and hardly allows their differentiation. Although tiny morphological features allow to distinguish the females of both species, males remain unidentifiable based on visual examination only
+
+[Child Chunk 3 | Linked to Parent ID: 65e75102-b7e7-4bca-987f-ac143f435541 | Score: 0.78091824]
+Content: Taxonomy The genus Dasypoda is divided into four subgenera that allow the classification of most species globally: Dasypoda sensu stricto (the group of the common pantaloon bee Dasypoda hirtipes ), Heterodasypoda (including the Iberian Dasypoda morotei ), Microdasypoda (the group of small-sized pantaloon bee Dasypoda crassicornis ) and Megadasypoda (the group of the large-sized pantaloon bees such as Dasypoda vulpecula ). The morphology of Dasypoda radchenkoi is typical of the subgenus Heterodasypoda
+
+[Child Chunk 4 | Linked to Parent ID: d6aa0257-da26-4173-a08a-635a201bc9bb | Score: 0.7656735]
+Content: Conservation Based on the guidelines of the International Union for the Conservation of Nature, Dasypoda radchenkoi was assessed “Data Deficient” based on two arguments: no information about the possible threats to the species is known, and the complete distribution of the species is yet to be assessed. More surveys in southern Spain are necessary to understand more in detail the ecology and biogeography of the species. == References == Dasypoda is a genus of bees in the family Melittidae.
+
+[Child Chunk 5 | Linked to Parent ID: 65e75102-b7e7-4bca-987f-ac143f435541 | Score: 0.76219964]
+Content: Dasypoda radchenkoi, also known as Radchenko's pantaloon bee, is a species of solitary bee from the family Melittidae. It was described in 2023 in the scientific journal Osmia based on specimens caught in the limestone areas of southern Spain.
+
+[Child Chunk 6 | Linked to Parent ID: d6aa0257-da26-4173-a08a-635a201bc9bb | Score: 0.75591445]
+Content: Species Dasypoda albimana Pérez, 1905 Dasypoda albipila Spinola, 1838 Dasypoda altercator (Harris 1780) Dasypoda argentata Panzer 1809 Dasypoda aurata Rudow, 1881 Dasypoda braccata Eversmann 1852 Dasypoda brevicornis Pérez, 1895 Dasypoda chinensis Wu, 1978 Dasypoda cingulata Erichson 1835 Dasypoda cockerelli Yasumatsu, 1935 Dasypoda comberi Cockerell 1911 Dasypoda crassicornis Friese, 1896 Dasypoda delectabilis Ghisbain & Michez, 2023 Dasypoda
+
+[Child Chunk 7 | Linked to Parent ID: 65e75102-b7e7-4bca-987f-ac143f435541 | Score: 0.75095665]
+Content: The discovery of Dasypoda radchenkoi as a separate species was initially fortuitous via the genetic barcoding of two specimens, one being the holotype female and the other being a paratype male. The species is only known from the limestone mountains of southern Spain, from where it is thought to be endemic. The species flies in May and June and collects floral resources on plants of the genus Cistus (Cistaceae).
+
+[Child Chunk 8 | Linked to Parent ID: d6aa0257-da26-4173-a08a-635a201bc9bb | Score: 0.70129275]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+[Child Chunk 9 | Linked to Parent ID: 11c9ca14-3fff-4d70-9914-4c4f150a9b6f | Score: 0.693784]
+Content: The present genus is closely related to Polypedates, which in former times was often included in Rhacophorus. Even today, it is not fully resolved in which of these genera "P." feae and the Chinese flying frog ("R." dennysi) properly belong, and the supposedly new species "P. pingbianensis" has turned out to be the same as R. duboisi.
+
+[Child Chunk 10 | Linked to Parent ID: 11c9ca14-3fff-4d70-9914-4c4f150a9b6f | Score: 0.6568681]
+Content: == References == Rhacophorus is a genus of frogs in the shrub frog family (Rhacophoridae) and the related Hylidae make up the true tree frogs. They are found in India, Japan, China, and Southeast Asia. Over 40 species are currently recognised.These frogs have long toes with strong webbing between them, enabling the animals to slow their fall to a glide, a form of arboreal locomotion known as parachuting. They are, therefore, among the anurans commonly known as "flying frogs".
+
+
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.9941]
+Content: Taxonomy The genus Dasypoda is divided into four subgenera that allow the classification of most species globally: Dasypoda sensu stricto (the group of the common pantaloon bee Dasypoda hirtipes ), Heterodasypoda (including the Iberian Dasypoda morotei ), Microdasypoda (the group of small-sized pantaloon bee Dasypoda crassicornis ) and Megadasypoda (the group of the large-sized pantaloon bees such as Dasypoda vulpecula ). The morphology of Dasypoda radchenkoi is typical of the subgenus Heterodasypoda
+
+[Rank 2 | BGE Score: 0.9878]
+Content: Dasypoda radchenkoi, also known as Radchenko's pantaloon bee, is a species of solitary bee from the family Melittidae. It was described in 2023 in the scientific journal Osmia based on specimens caught in the limestone areas of southern Spain.
+
+[Rank 3 | BGE Score: 0.9715]
+Content: Description Dasypoda radchenkoi is a medium-size, solitary Hymenoptera from the species-poor family Melittidae, a wild bee family comprising approximately 150 species globally. The species is near cryptic with the Iberian pantaloon bee Dasypoda morotei, which means that the morphology is both species is highly similar and hardly allows their differentiation. Although tiny morphological features allow to distinguish the females of both species, males remain unidentifiable based on visual examination only
+
+[Rank 4 | BGE Score: 0.7301]
+Content: The discovery of Dasypoda radchenkoi as a separate species was initially fortuitous via the genetic barcoding of two specimens, one being the holotype female and the other being a paratype male. The species is only known from the limestone mountains of southern Spain, from where it is thought to be endemic. The species flies in May and June and collects floral resources on plants of the genus Cistus (Cistaceae).
+
+[Rank 5 | BGE Score: 0.7296]
+Content: Conservation Based on the guidelines of the International Union for the Conservation of Nature, Dasypoda radchenkoi was assessed “Data Deficient” based on two arguments: no information about the possible threats to the species is known, and the complete distribution of the species is yet to be assessed. More surveys in southern Spain are necessary to understand more in detail the ecology and biogeography of the species. == References == Dasypoda is a genus of bees in the family Melittidae.
+
+--------------------------------------------------
+--- FETCHED PARENT DOCUMENTS (2) ---
+[Parent Document 1]
+Dasypoda radchenkoi, also known as Radchenko's pantaloon bee, is a species of solitary bee from the family Melittidae. It was described in 2023 in the scientific journal Osmia based on specimens caught in the limestone areas of southern Spain. Description
+Dasypoda radchenkoi is a medium-size, solitary Hymenoptera from the species-poor family Melittidae, a wild bee family comprising approximately 150 species globally. The species is near cryptic with the Iberian pantaloon bee Dasypoda morotei, which means that the morphology is both species is highly similar and hardly allows their differentiation. Although tiny morphological features allow to distinguish the females of both species, males remain unidentifiable based on visual examination only . The discovery of Dasypoda radchenkoi as a separate species was initially fortuitous via the genetic barcoding of two specimens, one being the holotype female and the other being a paratype male. The species is only known from the limestone mountains of southern Spain, from where it is thought to be endemic. The species flies in May and June and collects floral resources on plants of the genus Cistus (Cistaceae). Taxonomy
+The genus Dasypoda is divided into four subgenera that allow the classification of most species globally: Dasypoda sensu stricto (the group of the common pantaloon bee Dasypoda hirtipes ), Heterodasypoda (including the Iberian Dasypoda morotei ), Microdasypoda (the group of small-sized pantaloon bee Dasypoda crassicornis ) and Megadasypoda (the group of the large-sized pantaloon bees such as Dasypoda vulpecula ). The morphology of Dasypoda radchenkoi is typical of the subgenus Heterodasypoda
+
+[Parent Document 2]
+. The phylogenetic position of the species shows that it is the sister species of the near cryptic Dasypoda morotei, as it could be expected based on morphology alone. After the formal description if D. radchenkoi at the University of Mons, the holotype female was sent to the Museum of Linz, in Austria, where it now hosted. Some paratypes were sent to the Naturalis Biodiversity Center, in The Netherlands. Etymology
+The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine. Conservation
+Based on the guidelines of the International Union for the Conservation of Nature, Dasypoda radchenkoi was assessed “Data Deficient” based on two arguments: no information about the possible threats to the species is known, and the complete distribution of the species is yet to be assessed. More surveys in southern Spain are necessary to understand more in detail the ecology and biogeography of the species.
+
+
+== References ==
+Dasypoda is a genus of bees in the family Melittidae. Species
+Dasypoda albimana Pérez, 1905
+Dasypoda albipila Spinola, 1838
+Dasypoda altercator (Harris 1780)
+Dasypoda argentata Panzer 1809
+Dasypoda aurata Rudow, 1881
+Dasypoda braccata Eversmann 1852
+Dasypoda brevicornis Pérez, 1895
+Dasypoda chinensis Wu, 1978
+Dasypoda cingulata Erichson 1835
+Dasypoda cockerelli Yasumatsu, 1935
+Dasypoda comberi Cockerell 1911
+Dasypoda crassicornis Friese, 1896
+Dasypoda delectabilis Ghisbain & Michez, 2023
+Dasypoda
+
+==================================================
