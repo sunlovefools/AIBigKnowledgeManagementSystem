@@ -44,6 +44,7 @@ def _extract_from_pdf(data: bytes) -> str:
 
     with fitz.open(stream=data, filetype="pdf") as pdf_doc:
         text_pages = [] # List to hold text from each page
+
         for page in pdf_doc:
             text_pages.append(page.get_text())
         
@@ -83,3 +84,32 @@ def _extract_from_plain_text(data: bytes) -> str:
     """
 
     return data.decode('utf-8', errors='ignore')
+
+def detect_image_tables_in_pdf(pdf_data: bytes):
+    """
+    Detects image-based tables on each PDF page.
+
+    Returns a list of dicts per page:
+    [
+        {"page": 0, "image_table": True/False, "images": [...]},
+        ...
+    ]
+    """
+    results = []
+
+    with fitz.open(stream=pdf_data, filetype="pdf") as pdf_doc:
+        for page_num, page in enumerate(pdf_doc):
+            images = page.get_images(full=True)
+
+            # Heuristic: consider an image as table if it's "large enough"
+            image_table_detected = any(
+                (img[2] * img[3] > 50000) for img in images
+            )
+
+            results.append({
+                "page": page_num,
+                "image_table": image_table_detected,
+                "images": images
+            })
+
+    return results
