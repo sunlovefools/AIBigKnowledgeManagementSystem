@@ -13,6 +13,14 @@ type ChatMessage = {
     text: string;
 };
 
+type DocumentItem = {
+    id: string;
+    fileName: string;
+    content: string;
+    size: number;
+    chunks: number;
+};
+
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 
 export default function MainPage() {
@@ -20,6 +28,14 @@ export default function MainPage() {
 
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [input, setInput] = useState("");
+
+    // Modification Panel State
+    const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
+    const [documents, setDocuments] = useState<DocumentItem[]>([]);
+    const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+    const [checkedDocs, setCheckedDocs] = useState<Set<string>>(new Set());
+    const [isLoadingDocs, setIsLoadingDocs] = useState(false);
+    const [isDocsCached, setIsDocsCached] = useState(false); // 标记是否已缓存数据
 
     // File State
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -36,6 +52,53 @@ export default function MainPage() {
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isQuerying, isUploading]);
+
+    // Fetch documents when modification panel opens (only on first load)
+    useEffect(() => {
+        if (isModificationPanelOpen && !isDocsCached) {
+            fetchDocuments();
+        }
+    }, [isModificationPanelOpen, isDocsCached]);
+
+    const fetchDocuments = async () => {
+        setIsLoadingDocs(true);
+        try {
+            const response = await axios.get(`${API_BASE}/api/modifications/list`);
+            const docs = response.data.documents || response.data;
+            setDocuments(docs);
+            setIsDocsCached(true); // 标记数据已缓存
+            if (docs.length > 0 && !selectedDocId) {
+                setSelectedDocId(docs[0].id);
+            }
+        } catch (error) {
+            console.error("Error fetching documents:", error);
+        } finally {
+            setIsLoadingDocs(false);
+        }
+    };
+
+    const handleRefreshDocuments = async () => {
+        // 手动刷新文档列表
+        await fetchDocuments();
+    };
+
+    const handleToggleModificationPanel = () => {
+        setIsModificationPanelOpen(!isModificationPanelOpen);
+    };
+
+    const handleDocumentSelect = (docId: string) => {
+        setSelectedDocId(docId);
+    };
+
+    const handleDocumentCheck = (docId: string, checked: boolean) => {
+        const newChecked = new Set(checkedDocs);
+        if (checked) {
+            newChecked.add(docId);
+        } else {
+            newChecked.delete(docId);
+        }
+        setCheckedDocs(newChecked);
+    };
 
     const handleLogout = () => {
         localStorage.removeItem("token");
@@ -143,7 +206,7 @@ export default function MainPage() {
     };
 
     return (
-        <div className="app-root">
+        <div className={`app-root ${isModificationPanelOpen ? "with-mod-panel" : ""}`}>
             <aside className="sidebar">
                 <div className="sidebar-header">
                     <div className="logo-mark">KB</div>
@@ -262,6 +325,25 @@ export default function MainPage() {
                             onKeyDown={handleKeyDown}
                         />
                         <button
+                            className={`modification-toggle ${isModificationPanelOpen ? "active" : ""}`}
+                            onClick={handleToggleModificationPanel}
+                            aria-label="Toggle modifications panel"
+                            title="Toggle modifications"
+                        >
+                            <svg
+                                width="20"
+                                height="20"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            >
+                                <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L21 6"></path>
+                            </svg>
+                        </button>
+                        <button
                             className="send-icon-btn"
                             onClick={handleQuery}
                             disabled={!input.trim() || isQuerying}
@@ -285,6 +367,100 @@ export default function MainPage() {
                     <div className="input-hint">Enter to send | Shift+Enter for a new line</div>
                 </div>
             </main>
+
+            {/* Modification Panel */}
+            {isModificationPanelOpen && (
+                <aside className="modification-panel">
+                    <div className="mod-panel-header">
+                        <h3>🔧 Modifications</h3>
+                        <div className="mod-panel-header-actions">
+                            <button
+                                className="mod-panel-refresh-btn"
+                                onClick={handleRefreshDocuments}
+                                disabled={isLoadingDocs}
+                                aria-label="Refresh documents"
+                                title="Refresh from database"
+                            >
+                                <svg
+                                    width="16"
+                                    height="16"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
+                                    <polyline points="23 4 23 10 17 10"></polyline>
+                                    <polyline points="1 20 1 14 7 14"></polyline>
+                                    <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
+                                </svg>
+                            </button>
+                            <button
+                                className="mod-panel-close-btn"
+                                onClick={() => setIsModificationPanelOpen(false)}
+                                aria-label="Close modifications panel"
+                            >
+                                ✕
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Preview Section - Top Half */}
+                    <div className="mod-panel-preview-section">
+                        <h4>Document Preview</h4>
+                        {isLoadingDocs ? (
+                            <div className="mod-panel-loading">Loading documents...</div>
+                        ) : selectedDocId && documents.find(d => d.id === selectedDocId) ? (
+                            <div className="mod-panel-preview-content">
+                                <div className="preview-doc-info">
+                                    <strong>{documents.find(d => d.id === selectedDocId)?.fileName}</strong>
+                                    <span className="preview-meta">
+                                        {documents.find(d => d.id === selectedDocId)?.chunks} chunks
+                                    </span>
+                                </div>
+                                <div className="preview-text">
+                                    {documents.find(d => d.id === selectedDocId)?.content}
+                                </div>
+                            </div>
+                        ) : (
+                            <div className="mod-panel-empty">No document selected</div>
+                        )}
+                    </div>
+
+                    {/* File List Section - Bottom Half */}
+                    <div className="mod-panel-list-section">
+                        <h4>Available Documents</h4>
+                        <div className="mod-panel-file-list">
+                            {isLoadingDocs ? (
+                                <div className="mod-panel-loading">Loading...</div>
+                            ) : documents.length === 0 ? (
+                                <div className="mod-panel-empty">No documents available</div>
+                            ) : (
+                                documents.map((doc) => (
+                                    <div
+                                        key={doc.id}
+                                        className={`mod-panel-file-item ${selectedDocId === doc.id ? "active" : ""}`}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            checked={checkedDocs.has(doc.id)}
+                                            onChange={(e) => handleDocumentCheck(doc.id, e.target.checked)}
+                                            className="mod-panel-checkbox"
+                                        />
+                                        <span
+                                            className="mod-panel-file-name"
+                                            onClick={() => handleDocumentSelect(doc.id)}
+                                        >
+                                            {doc.fileName}
+                                        </span>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+                    </div>
+                </aside>
+            )}
         </div>
     );
 }
