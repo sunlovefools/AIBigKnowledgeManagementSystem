@@ -210,7 +210,13 @@ async def _generate_via_openrouter(
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": build_user_message_json_context(rag_docs, user_query)},
     ]
-    payload = {"model": cfg.openrouter_model, "messages": messages, "temperature": 0.0}
+
+    payload = {
+        "model": cfg.openrouter_model,
+        "messages": messages, 
+        "temperature": 0
+    }
+    
     headers = {
         "Authorization": f"Bearer {cfg.openrouter_api_key}",
         "Content-Type": "application/json",
