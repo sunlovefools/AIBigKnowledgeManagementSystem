@@ -8,11 +8,27 @@ export type ChatMessage = {
     text: string;
 };
 
-// Type for a document item, representing an uploaded document with its metadata.
-export type DocumentItem = {
-    id: string;
+// Type for a sidebar file item (merged by uploaded filename).
+export type SidebarFileSummary = {
     fileName: string;
+    preview: string;
+    totalParentChunks: number;
+};
+
+// Type for one parent chunk payload in full-view mode.
+export type ParentChunkContent = {
+    parentId: string;
     content: string;
     size: number;
-    chunks: number;
+};
+
+// Type for tab state of an opened file.
+export type FileTabState = {
+    chunks: ParentChunkContent[];
+    hasMore: boolean;
+    nextCursor: string | null;
+    isLoading: boolean;
+    isInitialized: boolean;
+    totalParentChunks: number;
+    error: string | null;
 };

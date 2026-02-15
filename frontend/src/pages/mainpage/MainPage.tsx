@@ -34,18 +34,26 @@ export default function MainPage() {
     
     // Document management state and handlers
     const {
-        documents,
-        selectedDocId,
-        selectedDocument,
-        checkedDocs,
-        isLoadingDocs,
+        files,
+        isLoadingFiles,
+        fileListError,
+        openTabs,
+        activeTab,
+        activeTabState,
         handleRefreshDocuments,
-        handleDocumentSelect,
-        handleDocumentCheck,
+        openDocumentTab,
+        closeDocumentTab,
+        setActiveDocumentTab,
+        loadMoreActiveTab,
+        invalidateDocumentCache,
     } = useDocuments(isModificationPanelOpen); // run the useDocuments hook to get document-related state and handlers
 
     const { selectedFile, isUploading, handleFileSelect, handleUpload, clearFile } = useFileUpload({
         onUploadMessage: (message) => appendMessage({ role: "ai", text: message }),
+        onUploadSuccess: async () => {
+            invalidateDocumentCache();
+            await handleRefreshDocuments();
+        },
     });
 
     // Effect to scroll to the bottom of the chat area whenever messages, querying state, or uploading state changes
@@ -66,6 +74,7 @@ export default function MainPage() {
 
     return (
         <div
+            // Root div of the main page, with dynamic classes and styles based on the current state of the layout
             className={`app-root ${isMobile ? "mobile-layout" : ""} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
             style={
                 {
@@ -78,12 +87,24 @@ export default function MainPage() {
                 <Sidebar // Render the sidebar component
                     selectedFile={selectedFile}
                     isUploading={isUploading}
+                    files={files}
+                    isLoadingFiles={isLoadingFiles}
+                    fileListError={fileListError}
+                    activeTab={activeTab}
                     onFileSelect={handleFileSelect}
                     onUpload={handleUpload}
                     onClearFile={clearFile}
+                    onOpenFile={(fileName) => {
+                        void openDocumentTab(fileName);
+                        setIsModificationPanelOpen(true);
+                    }}
+                    onRefreshFiles={() => {
+                        void handleRefreshDocuments();
+                    }}
                 />
             </div>
 
+            {/* Allowing this div with resizing sidebar if the sidebar is open and not in mobile view */}
             {!isMobile && isSidebarOpen && (
                 <div
                     className="resize-handle resize-handle-sidebar"
@@ -94,15 +115,18 @@ export default function MainPage() {
                 />
             )}
 
+            {/* Main content which includes the chatbox */}
             <main className="main-content">
                 <header className="top-nav">
                     <div className="nav-title-row">
+                        {/* Button for opening and closing the sidebar */}
                         <button
                             className="nav-sidebar-toggle"
                             onClick={toggleSidebar}
                             aria-label={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
                             title={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
                         >
+                            {/* The svg image for the sidebar toggle button (It is a 3 lines menu button) */}
                             <svg
                                 width="16"
                                 height="16"
@@ -129,8 +153,10 @@ export default function MainPage() {
                     </div>
                 </header>
 
+                {/* Chat area of the app (Responsible for showing messages from AI and the user question) */}
                 <ChatArea messages={messages} isUploading={isUploading} bottomRef={bottomRef} />
 
+                {/* Chat input area of the app */}
                 <ChatInput
                     input={input}
                     isQuerying={isQuerying}
@@ -142,6 +168,7 @@ export default function MainPage() {
                 />
             </main>
 
+            {/* Allow of resizing of the modification panel if the user is not in mobile view and the modification panel is open*/}
             {!isMobile && isModificationPanelOpen && (
                 <div
                     className="resize-handle resize-handle-mod-panel"
@@ -154,15 +181,17 @@ export default function MainPage() {
 
             <div className={`mod-panel-container ${isModificationPanelOpen ? "open" : "closed"}`}>
                 <ModificationPanel
-                    documents={documents}
-                    selectedDocId={selectedDocId}
-                    selectedDocument={selectedDocument}
-                    checkedDocs={checkedDocs}
-                    isLoadingDocs={isLoadingDocs}
+                    openTabs={openTabs}
+                    activeTab={activeTab}
+                    activeTabState={activeTabState}
+                    isLoadingFiles={isLoadingFiles}
                     onRefreshDocuments={handleRefreshDocuments}
                     onClose={() => setIsModificationPanelOpen(false)}
-                    onDocumentSelect={handleDocumentSelect}
-                    onDocumentCheck={handleDocumentCheck}
+                    onTabSelect={(fileName) => {
+                        void setActiveDocumentTab(fileName);
+                    }}
+                    onTabClose={closeDocumentTab}
+                    onLoadMoreActiveTab={loadMoreActiveTab}
                 />
             </div>
 

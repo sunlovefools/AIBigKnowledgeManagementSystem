@@ -1,19 +1,32 @@
 import { useRef, type ChangeEventHandler } from "react";
+import type { SidebarFileSummary } from "../types";
 
 type SidebarProps = {
     selectedFile: File | null;
     isUploading: boolean;
+    files: SidebarFileSummary[];
+    isLoadingFiles: boolean;
+    fileListError: string | null;
+    activeTab: string | null;
     onFileSelect: ChangeEventHandler<HTMLInputElement>;
     onUpload: () => void;
     onClearFile: () => void;
+    onOpenFile: (fileName: string) => void;
+    onRefreshFiles: () => void;
 };
 
 export default function Sidebar({
     selectedFile,
     isUploading,
+    files,
+    isLoadingFiles,
+    fileListError,
+    activeTab,
     onFileSelect,
     onUpload,
     onClearFile,
+    onOpenFile,
+    onRefreshFiles,
 }: SidebarProps) {
     const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -42,7 +55,7 @@ export default function Sidebar({
             </p>
 
             <div className="sources-section">
-                <div className="section-title">Files</div>
+                <div className="section-title">Upload</div>
 
                 <input
                     ref={fileRef}
@@ -85,6 +98,43 @@ export default function Sidebar({
                         </div>
                     </div>
                 )}
+
+                <div className="sidebar-documents-header">
+                    <div className="section-title">Knowledge files</div>
+                    <button
+                        className="sidebar-refresh-btn"
+                        onClick={onRefreshFiles}
+                        disabled={isLoadingFiles}
+                        type="button"
+                    >
+                        {isLoadingFiles ? "Refreshing..." : "Refresh"}
+                    </button>
+                </div>
+
+                <div className="sidebar-documents-list">
+                    {isLoadingFiles ? (
+                        <div className="sidebar-documents-status">Loading files...</div>
+                    ) : fileListError ? (
+                        <div className="sidebar-documents-status error">{fileListError}</div>
+                    ) : files.length === 0 ? (
+                        <div className="sidebar-documents-status">No files found in vector database.</div>
+                    ) : (
+                        files.map((file) => (
+                            <button
+                                key={file.fileName}
+                                className={`sidebar-document-item ${activeTab === file.fileName ? "active" : ""}`}
+                                onClick={() => onOpenFile(file.fileName)}
+                                type="button"
+                            >
+                                <div className="sidebar-document-title">{file.fileName}</div>
+                                <div className="sidebar-document-preview">{file.preview || "..."}</div>
+                                <div className="sidebar-document-meta">
+                                    {file.totalParentChunks} parent chunks
+                                </div>
+                            </button>
+                        ))
+                    )}
+                </div>
             </div>
         </aside>
     );

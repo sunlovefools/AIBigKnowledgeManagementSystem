@@ -1,38 +1,54 @@
-import type { DocumentItem } from "../types";
+import { useRef } from "react";
+import type { FileTabState } from "../types";
 
 // Type definitions for the ModificationPanel component props
 type ModificationPanelProps = {
-    documents: DocumentItem[];
-    selectedDocId: string | null;
-    selectedDocument: DocumentItem | null;
-    checkedDocs: Set<string>;
-    isLoadingDocs: boolean;
+    activeTab: string | null;
+    activeTabState: FileTabState | null;
+    openTabs: string[];
+    isLoadingFiles: boolean;
     onRefreshDocuments: () => void;
     onClose: () => void;
-    onDocumentSelect: (docId: string) => void;
-    onDocumentCheck: (docId: string, checked: boolean) => void;
+    onTabSelect: (fileName: string) => void;
+    onTabClose: (fileName: string) => void;
+    onLoadMoreActiveTab: () => void;
 };
 
 export default function ModificationPanel({
-    documents,
-    selectedDocId,
-    selectedDocument,
-    checkedDocs,
-    isLoadingDocs,
+    activeTab,
+    activeTabState,
+    openTabs,
+    isLoadingFiles,
     onRefreshDocuments,
     onClose,
-    onDocumentSelect,
-    onDocumentCheck,
+    onTabSelect,
+    onTabClose,
+    onLoadMoreActiveTab,
 }: ModificationPanelProps) {
+    const contentRef = useRef<HTMLDivElement | null>(null);
+
+    const handleContentScroll = () => {
+        if (!contentRef.current || !activeTabState || activeTabState.isLoading || !activeTabState.hasMore) {
+            return;
+        }
+
+        const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
+        const remaining = scrollHeight - scrollTop - clientHeight;
+
+        if (remaining < 120) {
+            void onLoadMoreActiveTab();
+        }
+    };
+
     return (
         <aside className="modification-panel">
             <div className="mod-panel-header">
-                <h3>Modifications</h3>
+                <h3>Full View</h3>
                 <div className="mod-panel-header-actions">
                     <button
                         className="mod-panel-refresh-btn"
                         onClick={onRefreshDocuments}
-                        disabled={isLoadingDocs}
+                        disabled={isLoadingFiles}
                         aria-label="Refresh documents"
                         title="Refresh from database"
                     >
@@ -61,54 +77,62 @@ export default function ModificationPanel({
                 </div>
             </div>
 
-            <div className="mod-panel-preview-section">
-                <h4>Document Preview</h4>
-                {isLoadingDocs ? (
-                    <div className="mod-panel-loading">Loading documents...</div>
-                ) : selectedDocument ? (
-                    <div className="mod-panel-preview-content">
-                        <div className="preview-doc-info">
-                            <strong>{selectedDocument.fileName}</strong>
-                            <span className="preview-meta">{selectedDocument.chunks} chunks</span>
-                        </div>
-                        <div className="preview-text">{selectedDocument.content}</div>
-                    </div>
+            <div className="mod-panel-tabs" role="tablist" aria-label="Opened documents">
+                {openTabs.length === 0 ? (
+                    <div className="mod-panel-empty">Open a file from the sidebar to view full content.</div>
                 ) : (
-                    <div className="mod-panel-empty">No document selected</div>
+                    openTabs.map((fileName) => (
+                        <div
+                            key={fileName}
+                            className={`mod-panel-tab ${activeTab === fileName ? "active" : ""}`}
+                        >
+                            <button
+                                className="mod-panel-tab-label"
+                                onClick={() => void onTabSelect(fileName)}
+                                type="button"
+                            >
+                                {fileName}
+                            </button>
+                            <button
+                                className="mod-panel-tab-close"
+                                onClick={() => onTabClose(fileName)}
+                                aria-label={`Close ${fileName}`}
+                                type="button"
+                            >
+                                ×
+                            </button>
+                        </div>
+                    ))
                 )}
             </div>
 
-            <div className="mod-panel-list-section">
-                <h4>Available Documents</h4>
-                <div className="mod-panel-file-list">
-                    {isLoadingDocs ? (
-                        <div className="mod-panel-loading">Loading...</div>
-                    ) : documents.length === 0 ? (
-                        <div className="mod-panel-empty">No documents available</div>
-                    ) : (
-                        documents.map((doc) => (
-                            <div
-                                key={doc.id}
-                                className={`mod-panel-file-item ${selectedDocId === doc.id ? "active" : ""}`}
-                            >
-                                <input
-                                    type="checkbox"
-                                    checked={checkedDocs.has(doc.id)}
-                                    onChange={(event) =>
-                                        onDocumentCheck(doc.id, event.target.checked)
-                                    }
-                                    className="mod-panel-checkbox"
-                                />
-                                <span
-                                    className="mod-panel-file-name"
-                                    onClick={() => onDocumentSelect(doc.id)}
-                                >
-                                    {doc.fileName}
-                                </span>
-                            </div>
-                        ))
-                    )}
-                </div>
+            <div className="mod-panel-content" ref={contentRef} onScroll={handleContentScroll}>
+                {!activeTab ? (
+                    <div className="mod-panel-empty">No file tab selected.</div>
+                ) : activeTabState?.error ? (
+                    <div className="mod-panel-empty">{activeTabState.error}</div>
+                ) : activeTabState?.chunks.length ? (
+                    <>
+                        {activeTabState.chunks.map((chunk, index) => (
+                            <section key={chunk.parentId} className="mod-panel-chunk">
+                                <div className="mod-panel-chunk-header">
+                                    Parent chunk {index + 1}
+                                </div>
+                                <pre className="mod-panel-chunk-text">{chunk.content}</pre>
+                            </section>
+                        ))}
+                        {activeTabState.isLoading && (
+                            <div className="mod-panel-loading">Loading more chunks...</div>
+                        )}
+                        {!activeTabState.hasMore && (
+                            <div className="mod-panel-end">End of document</div>
+                        )}
+                    </>
+                ) : activeTabState?.isLoading ? (
+                    <div className="mod-panel-loading">Loading full content...</div>
+                ) : (
+                    <div className="mod-panel-empty">No content available for this file.</div>
+                )}
             </div>
         </aside>
     );

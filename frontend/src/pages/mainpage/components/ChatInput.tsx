@@ -4,7 +4,7 @@ import { useCallback, useLayoutEffect, useRef, type KeyboardEvent } from "react"
 type ChatInputProps = {
     input: string; // The current words in the chat input field
     isQuerying: boolean; // Whether a query is currently being processed, used to disable input and send button
-    isModificationPanelOpen: boolean; // Whether the modification panl
+    isModificationPanelOpen: boolean; // Whether the modification panel is currently open
     onInputChange: (value: string) => void;
     onInputKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
     onToggleModificationPanel: () => void;
@@ -22,12 +22,14 @@ export default function ChatInput({
 }: ChatInputProps) {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
+    // A function to adjust the height of the textarea based on its content, ensuring it grows with input up to a maximum height, after which it becomes scrollable.
     const adjustTextareaHeight = useCallback(() => {
         const textarea = textareaRef.current;
         if (!textarea) return;
 
-        textarea.style.height = "0px";
+        textarea.style.height = "0px"; // Reset height to measure scrollHeight correctly
 
+        // Setting the height of the textarea to its scrollHeight but not exceeding the maxHeight defined in CSS
         const maxHeight = Number.parseFloat(window.getComputedStyle(textarea).maxHeight) || 200;
         const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
 
@@ -35,6 +37,7 @@ export default function ChatInput({
         textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
     }, []);
 
+    // Adjust the textarea height whenever the input value changes
     useLayoutEffect(() => {
         adjustTextareaHeight();
     }, [input, adjustTextareaHeight]);

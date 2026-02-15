@@ -4,8 +4,9 @@ import rehypeHighlight from "rehype-highlight";
 import type { RefObject } from "react";
 import type { ChatMessage } from "../types";
 
+// Type definitions for the ChatArea component props
 type ChatAreaProps = {
-    messages: ChatMessage[];
+    messages: ChatMessage[]; // An array of chat messages to be displayed in the chat area
     isUploading: boolean;
     bottomRef: RefObject<HTMLDivElement | null>;
 };
@@ -36,6 +37,7 @@ export default function ChatArea({ messages, isUploading, bottomRef }: ChatAreaP
                             </div>
                         </div>
                     ))}
+                    {/* If the user is uploading the file, the chatbox will show the status of the upload of the file (Maybe can be removed) */}
                     {isUploading && (
                         <div className="message ai">
                             <div className="message-avatar">AI</div>

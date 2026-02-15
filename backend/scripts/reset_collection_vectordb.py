@@ -1,4 +1,4 @@
-# This script is used to reset (clear) the vector database collections.
+# This script is used to reset (clear) all the vector database collections.
 # Delete the existing collections used for RAG storage in Astra DB.
 # On next backend startup, the collections will be recreated empty.
 # So after running this script, restart the backend server.

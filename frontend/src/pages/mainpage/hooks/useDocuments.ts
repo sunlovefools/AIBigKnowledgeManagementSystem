@@ -1,81 +1,241 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import type { DocumentItem } from "../types";
+import type { FileTabState, ParentChunkContent, SidebarFileSummary } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
+const PAGE_SIZE = 7;
 
-// Custom hook to manage documents in the modification panel
+function createEmptyTabState(): FileTabState {
+    return {
+        chunks: [],
+        hasMore: true,
+        nextCursor: null,
+        isLoading: false,
+        isInitialized: false,
+        totalParentChunks: 0,
+        error: null,
+    };
+}
+
+// Custom hook to manage sidebar files and tabbed full-view state.
 export function useDocuments(isModificationPanelOpen: boolean) {
-    const [documents, setDocuments] = useState<DocumentItem[]>([]); // Array of documents fetched from the backend
-    const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
-    const [checkedDocs, setCheckedDocs] = useState<Set<string>>(new Set()); // Set of document IDs that is selected by user
-    const [isLoadingDocs, setIsLoadingDocs] = useState(false);
+    const [files, setFiles] = useState<SidebarFileSummary[]>([]);
+    const [isLoadingFiles, setIsLoadingFiles] = useState(false);
+    const [fileListError, setFileListError] = useState<string | null>(null);
     const [isDocsCached, setIsDocsCached] = useState(false);
+    const [openTabs, setOpenTabs] = useState<string[]>([]);
+    const [activeTab, setActiveTab] = useState<string | null>(null);
+    const [tabStates, setTabStates] = useState<Record<string, FileTabState>>({});
 
-    // Fetch documents from the backend API
-    const fetchDocuments = useCallback(async () => { //Callback to memoize the function and prevent unnecessary re-renders
-        setIsLoadingDocs(true);
+    const fetchFiles = useCallback(async () => {
+        setIsLoadingFiles(true);
+        setFileListError(null);
         try {
-            const response = await axios.get(`${API_BASE}/api/modifications/list`);
-            const docs = response.data.documents
-            setDocuments(docs);
+            const response = await axios.get(`${API_BASE}/api/modifications/files`);
+            const incomingFiles = (response.data.files ?? []) as SidebarFileSummary[];
+            setFiles(incomingFiles);
             setIsDocsCached(true);
 
-            if (docs.length > 0 && !selectedDocId) {
-                setSelectedDocId(docs[0].id); // Auto-select the first document if none is selected
-            }
+            const validNames = new Set(incomingFiles.map((item) => item.fileName));
+
+            setOpenTabs((previousTabs) => previousTabs.filter((fileName) => validNames.has(fileName)));
+            setTabStates((previousStates) => {
+                const nextStates: Record<string, FileTabState> = {};
+                Object.entries(previousStates).forEach(([fileName, state]) => {
+                    if (validNames.has(fileName)) {
+                        nextStates[fileName] = state;
+                    }
+                });
+                return nextStates;
+            });
+            setActiveTab((previousActiveTab) =>
+                previousActiveTab && validNames.has(previousActiveTab) ? previousActiveTab : null
+            );
         } catch (error) {
             console.error("Error fetching documents:", error);
+            setFileListError("Failed to load files from vector database.");
         } finally {
-            setIsLoadingDocs(false);
+            setIsLoadingFiles(false);
         }
-    }, [selectedDocId]); // If user select a document, React will rerun this function to fetch documents again.
-
-    // Effect to call fetchDocuments, when the modification panel is first opened, or when the cache is invalidated
-    useEffect(() => {
-        if (isModificationPanelOpen && !isDocsCached) {
-            void fetchDocuments();
-        }
-    }, [isDocsCached, isModificationPanelOpen, fetchDocuments]); // If either 3 of the dependencies changes, React will rerun this effect to check if it needs to fetch documents again.
-
-    // Handler to refresh the document list, mounted to the refresh button in the modification panel.
-    const handleRefreshDocuments = useCallback(async () => {
-        await fetchDocuments();
-    }, [fetchDocuments]);
-
-    // Handle selecting a document from the list, mounted to each document item in the modification panel.
-    const handleDocumentSelect = useCallback((docId: string) => {
-        setSelectedDocId(docId);
     }, []);
 
-    // Handle checking/unchecking a document, mounted to the checkbox of each document item in the modification panel.
-    const handleDocumentCheck = useCallback((docId: string, checked: boolean) => {
-        setCheckedDocs((prev) => {
-            const next = new Set(prev);
-            if (checked) {
-                next.add(docId);
-            } else {
-                next.delete(docId);
+    useEffect(() => {
+        if (isModificationPanelOpen && !isDocsCached) {
+            void fetchFiles();
+        }
+    }, [isDocsCached, isModificationPanelOpen, fetchFiles]);
+
+    const loadFileChunks = useCallback(
+        async (fileName: string, reset = false) => {
+            const currentState = tabStates[fileName] ?? createEmptyTabState();
+
+            if (currentState.isLoading) {
+                return;
             }
-            return next;
+
+            if (!reset && currentState.isInitialized && !currentState.hasMore) {
+                return;
+            }
+
+            setTabStates((previousStates) => {
+                const state = previousStates[fileName] ?? createEmptyTabState();
+                return {
+                    ...previousStates,
+                    [fileName]: {
+                        ...state,
+                        ...(reset
+                            ? {
+                                  chunks: [],
+                                  nextCursor: null,
+                                  hasMore: true,
+                                  isInitialized: false,
+                              }
+                            : {}),
+                        isLoading: true,
+                        error: null,
+                    },
+                };
+            });
+
+            const cursor = reset ? null : currentState.nextCursor;
+
+            try {
+                const response = await axios.get(`${API_BASE}/api/modifications/file-chunks`, {
+                    params: {
+                        fileName,
+                        limit: PAGE_SIZE,
+                        ...(cursor ? { cursor } : {}),
+                    },
+                });
+
+                const incomingChunks = (response.data.chunks ?? []) as ParentChunkContent[];
+
+                setTabStates((previousStates) => {
+                    const state = previousStates[fileName] ?? createEmptyTabState();
+                    const mergedChunks = reset ? incomingChunks : [...state.chunks, ...incomingChunks];
+                    const dedupedChunks = Array.from(
+                        new Map(mergedChunks.map((chunk) => [chunk.parentId, chunk])).values()
+                    );
+
+                    return {
+                        ...previousStates,
+                        [fileName]: {
+                            ...state,
+                            chunks: dedupedChunks,
+                            hasMore: Boolean(response.data.hasMore),
+                            nextCursor: response.data.nextCursor ?? null,
+                            totalParentChunks: Number(response.data.totalParentChunks ?? 0),
+                            isLoading: false,
+                            isInitialized: true,
+                            error: null,
+                        },
+                    };
+                });
+            } catch (error) {
+                console.error(`Error loading chunks for ${fileName}:`, error);
+                setTabStates((previousStates) => {
+                    const state = previousStates[fileName] ?? createEmptyTabState();
+                    return {
+                        ...previousStates,
+                        [fileName]: {
+                            ...state,
+                            isLoading: false,
+                            isInitialized: true,
+                            error: `Failed to load document content for ${fileName}.`,
+                        },
+                    };
+                });
+            }
+        },
+        [tabStates]
+    );
+
+    const openDocumentTab = useCallback(
+        async (fileName: string) => {
+            setOpenTabs((previousTabs) =>
+                previousTabs.includes(fileName) ? previousTabs : [...previousTabs, fileName]
+            );
+            setActiveTab(fileName);
+
+            const state = tabStates[fileName];
+            if (!state || !state.isInitialized) {
+                await loadFileChunks(fileName, false);
+            }
+        },
+        [loadFileChunks, tabStates]
+    );
+
+    const closeDocumentTab = useCallback((fileName: string) => {
+        setOpenTabs((previousTabs) => {
+            const index = previousTabs.indexOf(fileName);
+            if (index < 0) {
+                return previousTabs;
+            }
+
+            const nextTabs = previousTabs.filter((name) => name !== fileName);
+
+            setActiveTab((previousActiveTab) => {
+                if (previousActiveTab !== fileName) {
+                    return previousActiveTab;
+                }
+
+                if (nextTabs.length === 0) {
+                    return null;
+                }
+
+                const nextIndex = Math.min(index, nextTabs.length - 1);
+                return nextTabs[nextIndex];
+            });
+
+            return nextTabs;
         });
     }, []);
 
-    // A memorized value that computes the currently selected document based on the selectedDocId and the documents list.
-    const selectedDocument = useMemo( // useMemo  to avoid unnecessary computations of selectedDocument on every render, it will only recompute when documents or selectedDocId changes.
-        () => documents.find((doc) => doc.id === selectedDocId) ?? null,
-        [documents, selectedDocId]
+    const setActiveDocumentTab = useCallback(
+        async (fileName: string) => {
+            setActiveTab(fileName);
+            const state = tabStates[fileName];
+            if (!state || !state.isInitialized) {
+                await loadFileChunks(fileName, false);
+            }
+        },
+        [loadFileChunks, tabStates]
+    );
+
+    const loadMoreActiveTab = useCallback(async () => {
+        if (!activeTab) {
+            return;
+        }
+        await loadFileChunks(activeTab, false);
+    }, [activeTab, loadFileChunks]);
+
+    const handleRefreshDocuments = useCallback(async () => {
+        await fetchFiles();
+    }, [fetchFiles]);
+
+    const invalidateDocumentCache = useCallback(() => {
+        setIsDocsCached(false);
+    }, []);
+
+    const activeTabState = useMemo(
+        () => (activeTab ? tabStates[activeTab] ?? createEmptyTabState() : null),
+        [activeTab, tabStates]
     );
 
     return {
-        documents,
-        selectedDocId,
-        selectedDocument,
-        checkedDocs,
-        isLoadingDocs,
-        fetchDocuments,
+        files,
+        isLoadingFiles,
+        fileListError,
+        openTabs,
+        activeTab,
+        activeTabState,
+        tabStates,
+        fetchFiles,
         handleRefreshDocuments,
-        handleDocumentSelect,
-        handleDocumentCheck,
+        invalidateDocumentCache,
+        openDocumentTab,
+        closeDocumentTab,
+        setActiveDocumentTab,
+        loadMoreActiveTab,
     };
 }
