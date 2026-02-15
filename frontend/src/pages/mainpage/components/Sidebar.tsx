@@ -65,9 +65,6 @@ export default function Sidebar({
                 {selectedFile && (
                     <div className="source-card active">
                         <div className="file-info">
-                            <span className="file-icon" aria-hidden>
-                                DOC
-                            </span>
                             <span className="file-name">{selectedFile.name}</span>
                         </div>
                         <div className="file-actions">

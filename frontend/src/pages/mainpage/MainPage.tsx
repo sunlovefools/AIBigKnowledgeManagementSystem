@@ -22,6 +22,7 @@ export default function MainPage() {
         isSidebarOpen,
         isMobile,
         isResizing,
+        isSidebarToggling,
         toggleSidebar,
         closeSidebar,
         startSidebarResize,
@@ -52,10 +53,12 @@ export default function MainPage() {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isQuerying, isUploading]);
 
+    // Handler to toggle the modification panel open state
     const handleToggleModificationPanel = () => {
         setIsModificationPanelOpen((prev) => !prev);
     };
 
+    // Handler for logging out the user
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/register");
@@ -63,7 +66,7 @@ export default function MainPage() {
 
     return (
         <div
-            className={`app-root ${isMobile ? "mobile-layout" : ""} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""}`}
+            className={`app-root ${isMobile ? "mobile-layout" : ""} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
             style={
                 {
                     "--sidebar-width": `${sidebarWidth}px`,

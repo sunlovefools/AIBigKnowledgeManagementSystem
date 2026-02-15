@@ -196,15 +196,18 @@ html,
 .file-info {
     display: flex;
     align-items: center;
-    gap: 10px;
+    min-width: 0;
     font-size: 0.9rem;
-    word-break: break-all;
     color: var(--text-primary);
     font-weight: 500;
 }
 
-.file-icon {
-    font-size: 1.2rem;
+.file-name {
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .file-actions {
@@ -488,6 +491,9 @@ html,
     font-size: 1rem;
     resize: none;
     max-height: 200px;
+    min-height: 24px;
+    line-height: 1.5;
+    overflow-y: hidden;
     padding: 8px 0;
     outline: none;
     font-family: inherit;
@@ -557,6 +563,18 @@ html,
     text-align: left;
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+.app-root.is-sidebar-toggling .sidebar .eyebrow,
+.app-root.is-sidebar-toggling .sidebar .sidebar-title,
+.app-root.is-sidebar-toggling .sidebar .sidebar-hint,
+.app-root.is-sidebar-toggling .sidebar .section-title,
+.app-root.is-sidebar-toggling .sidebar .add-source-btn,
+.app-root.is-sidebar-toggling .sidebar .file-name,
+.app-root.is-sidebar-toggling .sidebar .action-btn {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* Markdown Styles for Light Mode */

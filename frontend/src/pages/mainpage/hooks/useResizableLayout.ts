@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const SIDEBAR_WIDTH_KEY = "mainpage_sidebar_width";
 const MODIFICATION_PANEL_WIDTH_KEY = "mainpage_mod_panel_width";
@@ -10,9 +10,10 @@ const DEFAULT_MODIFICATION_PANEL_WIDTH = 400;
 const SIDEBAR_MIN_WIDTH = 240;
 const SIDEBAR_MAX_WIDTH = 420;
 const MODIFICATION_PANEL_MIN_WIDTH = 280;
-const MODIFICATION_PANEL_MAX_WIDTH = 520;
+const MODIFICATION_PANEL_MAX_WIDTH = 1000;
 
 const MOBILE_BREAKPOINT = 1024;
+const SIDEBAR_TOGGLE_TRANSITION_MS = 220;
 
 type ResizeTarget = "sidebar" | "mod-panel";
 
@@ -42,6 +43,8 @@ export function useResizableLayout() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
     const [dragState, setDragState] = useState<DragState | null>(null); // State to track the current drag operation for resizing
+    const [isSidebarToggling, setIsSidebarToggling] = useState(false);
+    const sidebarToggleTimeoutRef = useRef<number | null>(null);
 
     // Effect to handle responsive layout changes based on viewport width, sets the isMobile state accordingly
     useEffect(() => {
@@ -100,7 +103,7 @@ export function useResizableLayout() {
         localStorage.setItem(SIDEBAR_OPEN_KEY, String(isSidebarOpen));
     }, [isSidebarOpen]);
 
-    // 
+    // Effect to handle the mouse move and mouse up events during resizing, updates the corresponding width state based on the current dragState and cleans up the event listeners after resizing is done
     useEffect(() => {
         if (!dragState || isMobile) {
             return;
@@ -143,6 +146,14 @@ export function useResizableLayout() {
         };
     }, [dragState, isMobile]);
 
+    useEffect(() => {
+        return () => {
+            if (sidebarToggleTimeoutRef.current !== null) {
+                window.clearTimeout(sidebarToggleTimeoutRef.current);
+            }
+        };
+    }, []);
+
     // Handler to set the dragState to start resizing the sidebar which is mounted to the resize handle of the sidebar
     const startSidebarResize = (startX: number) => {
         if (isMobile || !isSidebarOpen) return;
@@ -157,7 +168,17 @@ export function useResizableLayout() {
 
     // Handler to toggle the sidebar open state, which is mounted to the sidebar toggle button
     const toggleSidebar = () => {
+        if (sidebarToggleTimeoutRef.current !== null) {
+            window.clearTimeout(sidebarToggleTimeoutRef.current);
+        }
+
+        setIsSidebarToggling(true);
         setIsSidebarOpen((prev) => !prev);
+
+        sidebarToggleTimeoutRef.current = window.setTimeout(() => {
+            setIsSidebarToggling(false);
+            sidebarToggleTimeoutRef.current = null;
+        }, SIDEBAR_TOGGLE_TRANSITION_MS + 40);
     };
 
     // Handler to close the sidebar, which can be used in various places such as the sidebar itself
@@ -171,6 +192,7 @@ export function useResizableLayout() {
         isSidebarOpen,
         isMobile,
         isResizing: dragState !== null,
+        isSidebarToggling,
         toggleSidebar,
         closeSidebar,
         startSidebarResize,

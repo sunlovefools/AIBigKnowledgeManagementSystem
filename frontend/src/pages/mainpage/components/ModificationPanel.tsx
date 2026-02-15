@@ -1,5 +1,6 @@
 import type { DocumentItem } from "../types";
 
+// Type definitions for the ModificationPanel component props
 type ModificationPanelProps = {
     documents: DocumentItem[];
     selectedDocId: string | null;
