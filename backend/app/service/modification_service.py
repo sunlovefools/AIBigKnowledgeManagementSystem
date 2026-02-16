@@ -32,14 +32,17 @@ class ReconstructionService:
 
         for child_doc in all_child_chunks:
             metadata = child_doc.metadata or {}
-            if metadata.get("document_name", "Unknown") != file_name:
+            file_metadata = metadata.get("file_metadata") or {}
+            child_chunk_metadata = metadata.get("child_chunk_metadata") or {}
+
+            if file_metadata.get("file_name", "Unknown") != file_name:
                 continue
 
-            parent_id = metadata.get("parent_id")
+            parent_id = child_chunk_metadata.get("parent_id")
             if not parent_id:
                 continue
 
-            chunk_number = metadata.get("chunk_number")
+            chunk_number = child_chunk_metadata.get("child_chunk_number")
             if isinstance(chunk_number, (int, float)):
                 chunk_number = int(chunk_number)
             else:
@@ -73,9 +76,9 @@ class ReconstructionService:
             files_map: dict[str, list[str]] = {}
 
             file_names = {
-                (doc.metadata or {}).get("document_name", "Unknown")
+                ((doc.metadata or {}).get("file_metadata") or {}).get("file_name", "Unknown")
                 for doc in all_child_chunks
-                if (doc.metadata or {}).get("parent_id")
+                if ((doc.metadata or {}).get("child_chunk_metadata") or {}).get("parent_id")
             }
 
             for file_name in file_names:
@@ -222,8 +225,7 @@ class ReconstructionService:
                         continue
 
                     file_name = (
-                        metadata.get("file_name")
-                        or metadata.get("document_name")
+                        (metadata.get("file_metadata") or {}).get("file_name")
                         or metadata.get("source")
                         or "Unknown"
                     )

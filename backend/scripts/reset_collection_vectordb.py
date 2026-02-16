@@ -15,8 +15,8 @@ ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
 
 # 2. Define the collection names used in your app
 # These match the constants in app/vectordb/vectordb_init.py
-CHILD_COLLECTION_NAME = "rag_child_vectors"       # Stores the vector embeddings
-PARENT_COLLECTION_NAME = "rag_parent_documents"   # Stores the full text content
+CHILD_COLLECTION_NAME = "Default_Child_Collection"     # Stores the vector embeddings
+PARENT_COLLECTION_NAME = "Default_Parent_Collection"   # Stores the full text content
 
 def reset_database():
     """

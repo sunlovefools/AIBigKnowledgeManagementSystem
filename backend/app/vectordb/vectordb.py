@@ -32,13 +32,13 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
     # 1. Prepare Parent Documents (for key-value storage)
     parent_doc_map: List[Tuple[str, Document]] = []
     for parent_dict in parent_chunks:
-        if "_id" not in parent_dict or "content" not in parent_dict:
-            raise ValueError("Each parent chunk must have '_id' and 'content' fields.")
+        if "parent_chunk_id" not in parent_dict or "content" not in parent_dict:
+            raise ValueError("Each parent chunk must have 'parent_chunk_id' and 'content' fields.")
 
         parent_metadata = {
             metadata_key: metadata_value
             for metadata_key, metadata_value in parent_dict.items()
-            if metadata_key not in ["content", "_id"]
+            if metadata_key not in ["content", "parent_chunk_id"]
         }
 
         parent_doc = Document(
@@ -46,20 +46,25 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
             metadata=parent_metadata,
         )
         json_serializable_doc = parent_doc.dict()
-        parent_doc_map.append((parent_dict["_id"], json_serializable_doc))
+        parent_doc_map.append((parent_dict["parent_chunk_id"], json_serializable_doc))
 
     # 2. Prepare Child Documents (for vector storage)
     child_docs: List[Document] = []
+    child_doc_ids: List[str] = []
     for child_chunk_dict in child_chunks:
+        child_id = child_chunk_dict.get("child_chunk_id")
+        if not child_id:
+            raise ValueError("Each child chunk must have 'child_chunk_id'.")
+
         child_doc = Document(
-            page_content=child_chunk_dict["text"],
+            page_content=child_chunk_dict["content"],
             metadata={
-                "parent_id": child_chunk_dict["parent_id"],
-                "document_name": child_chunk_dict["file_name"],
-                "chunk_number": child_chunk_dict["index"],
+                "file_metadata": child_chunk_dict["file_metadata"],
+                "child_chunk_metadata": child_chunk_dict["child_chunk_metadata"],
             },
         )
         child_docs.append(child_doc)
+        child_doc_ids.append(child_id)
 
     # 3. Store Parent Documents (Document Store)
     try:
@@ -71,7 +76,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
 
     # 4. Store Child Documents (Vector Store - automatically embeds)
     try:
-        await VECTOR_STORE.aadd_documents(child_docs)
+        await VECTOR_STORE.aadd_documents(child_docs, ids=child_doc_ids)
         print(f"Stored {len(child_docs)} Child Documents in Vector Store.")
     except Exception as error:
         print(f"Failed to store Child Documents: {error}")
@@ -158,7 +163,11 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
 
     # 2. Extract unique Parent IDs from the retrieved child chunks
     parent_ids = list(
-        {doc.metadata["parent_id"] for doc in reranked_child_docs if doc.metadata.get("parent_id")}
+        {
+            (doc.metadata.get("child_chunk_metadata") or {}).get("parent_id")
+            for doc in reranked_child_docs
+            if (doc.metadata.get("child_chunk_metadata") or {}).get("parent_id")
+        }
     )
     print(f"Retrieving content for {len(parent_ids)} unique parent documents.")
 
