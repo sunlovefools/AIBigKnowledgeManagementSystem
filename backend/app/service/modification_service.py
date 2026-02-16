@@ -5,7 +5,12 @@ from their stored chunks via the Parent-Child RAG pattern.
 """
 
 import traceback
-from app.vectordb.vectordb import VECTOR_STORE, PARENT_STORE
+from app.vectordb.vectordb import (
+    VECTOR_STORE, PARENT_STORE,
+    delete_children_by_parent_id, delete_parent_document, upsert_documents
+)
+from app.service.rag.ingestion.chunker import split_parent_child_chunks
+from app.service.rag.ingestion.chunk_polisher import polish_chunks
 
 
 class ReconstructionService:
@@ -176,3 +181,72 @@ class ReconstructionService:
         except Exception as e:
             print(f"❌ Failed to retrieve document {parent_id}: {e}")
             return None
+
+    @staticmethod
+    async def update_document(parent_id: str, new_content: str, file_name: str) -> dict:
+        """
+        Updates a document's content by:
+        1. Deleting old child chunks and parent document
+        2. Re-chunking the new content
+        3. Polishing and re-embedding the new chunks
+        4. Storing everything back in the database
+
+        Args:
+            parent_id: The existing parent document ID to update
+            new_content: The new text content for the document
+            file_name: The original file name
+
+        Returns:
+            dict: Updated document info with new chunk count and size
+        """
+        print(f"📝 Updating document {parent_id} ({file_name})...")
+
+        try:
+            # 1. Delete old child chunks
+            print("  → Step 1: Deleting old child chunks...")
+            await delete_children_by_parent_id(parent_id)
+
+            # 2. Delete old parent document
+            print("  → Step 2: Deleting old parent document...")
+            await delete_parent_document(parent_id)
+
+            # 3. Re-chunk the new content
+            print("  → Step 3: Re-chunking new content...")
+            parent_chunks_models, child_chunks_models = split_parent_child_chunks(
+                new_content,
+                file_name=file_name,
+                parent_target_chars=1500,
+                child_max_chars=600
+            )
+
+            if not parent_chunks_models:
+                raise ValueError("New content produced no chunks — content may be empty.")
+
+            # 4. Polish child chunks
+            print("  → Step 4: Polishing child chunks...")
+            child_chunks_dicts = [chunk.model_dump(by_alias=False) for chunk in child_chunks_models]
+            polished_child_chunks = polish_chunks(child_chunks_dicts)
+
+            # 5. Prepare parent chunks
+            parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
+
+            # 6. Upsert new chunks into the database
+            print("  → Step 5: Storing new chunks in database...")
+            await upsert_documents(
+                parent_chunks=parent_chunks_dicts,
+                child_chunks=polished_child_chunks
+            )
+
+            print(f"✅ Document {file_name} updated successfully!")
+            return {
+                "id": parent_chunks_dicts[0]["_id"],
+                "fileName": file_name,
+                "content": new_content,
+                "size": len(new_content),
+                "chunks": len(child_chunks_dicts),
+            }
+
+        except Exception as e:
+            print(f"❌ Failed to update document {parent_id}: {e}")
+            traceback.print_exc()
+            raise RuntimeError(f"Document update failed: {str(e)}")

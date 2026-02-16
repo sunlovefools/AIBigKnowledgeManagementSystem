@@ -78,6 +78,47 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         raise
 
 
+# --- Deletion Operations (for document updates) ---
+
+async def delete_children_by_parent_id(parent_id: str) -> int:
+    """
+    Deletes all child chunks belonging to a specific parent document.
+
+    Args:
+        parent_id: The parent document ID whose children should be removed.
+
+    Returns:
+        int: Number of child chunks deleted.
+    """
+    print(f"🗑️ Deleting child chunks for parent_id={parent_id}...")
+    try:
+        collection = VECTOR_STORE.astra_env.async_collection
+        result = await collection.delete_many(filter={"metadata.parent_id": parent_id})
+        deleted = result.deleted_count if hasattr(result, 'deleted_count') else 0
+        print(f"  ✅ Deleted child chunks for parent_id={parent_id}")
+        return deleted
+    except Exception as e:
+        print(f"  ❌ Failed to delete child chunks: {e}")
+        raise RuntimeError(f"Child chunk deletion failed: {e}")
+
+
+async def delete_parent_document(parent_id: str) -> None:
+    """
+    Deletes a single parent document from the Parent Store.
+
+    Args:
+        parent_id: The parent document ID to delete.
+    """
+    print(f"🗑️ Deleting parent document {parent_id}...")
+    try:
+        collection = PARENT_STORE.astra_env.async_collection
+        await collection.delete_one(filter={"_id": parent_id})
+        print(f"  ✅ Deleted parent document {parent_id}")
+    except Exception as e:
+        print(f"  ❌ Failed to delete parent document: {e}")
+        raise RuntimeError(f"Parent document deletion failed: {e}")
+
+
 def _normalize_parent_document(raw_doc: Any) -> Dict[str, Any] | None:
     """
     Normalize a stored parent doc into a JSON-serializable dict shape.

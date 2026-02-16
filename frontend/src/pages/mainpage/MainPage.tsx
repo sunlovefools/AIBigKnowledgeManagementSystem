@@ -35,7 +35,12 @@ export default function MainPage() {
     const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
     const [checkedDocs, setCheckedDocs] = useState<Set<string>>(new Set());
     const [isLoadingDocs, setIsLoadingDocs] = useState(false);
-    const [isDocsCached, setIsDocsCached] = useState(false); // 标记是否已缓存数据
+    const [isDocsCached, setIsDocsCached] = useState(false);
+
+    // Editing State
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedContent, setEditedContent] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
     // File State
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -86,10 +91,6 @@ export default function MainPage() {
         setIsModificationPanelOpen(!isModificationPanelOpen);
     };
 
-    const handleDocumentSelect = (docId: string) => {
-        setSelectedDocId(docId);
-    };
-
     const handleDocumentCheck = (docId: string, checked: boolean) => {
         const newChecked = new Set(checkedDocs);
         if (checked) {
@@ -98,6 +99,65 @@ export default function MainPage() {
             newChecked.delete(docId);
         }
         setCheckedDocs(newChecked);
+    };
+
+    // --- Edit Handlers ---
+    const handleStartEdit = () => {
+        const doc = documents.find(d => d.id === selectedDocId);
+        if (doc) {
+            setEditedContent(doc.content);
+            setIsEditing(true);
+        }
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setEditedContent("");
+    };
+
+    const handleSaveEdit = async () => {
+        if (!selectedDocId || isSaving) return;
+        const doc = documents.find(d => d.id === selectedDocId);
+        if (!doc) return;
+
+        setIsSaving(true);
+        try {
+            const response = await axios.put(
+                `${API_BASE}/api/modifications/document/${selectedDocId}`,
+                {
+                    content: editedContent,
+                    fileName: doc.fileName,
+                }
+            );
+
+            // Update local document list with new data
+            const updatedDoc = response.data;
+            setDocuments(prev =>
+                prev.map(d =>
+                    d.id === selectedDocId
+                        ? { ...d, id: updatedDoc.id, content: updatedDoc.content, size: updatedDoc.size, chunks: updatedDoc.chunks }
+                        : d
+                )
+            );
+            setSelectedDocId(updatedDoc.id);
+            setIsEditing(false);
+            setEditedContent("");
+        } catch (error) {
+            console.error("Error saving document:", error);
+            alert("Failed to save document. Please try again.");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
+    const handleDocumentSelect = (docId: string) => {
+        if (isEditing) {
+            const confirmLeave = window.confirm("You have unsaved changes. Discard them?");
+            if (!confirmLeave) return;
+            setIsEditing(false);
+            setEditedContent("");
+        }
+        setSelectedDocId(docId);
     };
 
     const handleLogout = () => {
@@ -406,9 +466,20 @@ export default function MainPage() {
                         </div>
                     </div>
 
-                    {/* Preview Section - Top Half */}
+                    {/* Preview / Edit Section - Top Half */}
                     <div className="mod-panel-preview-section">
-                        <h4>Document Preview</h4>
+                        <div className="preview-header">
+                            <h4>{isEditing ? "Edit Document" : "Document Preview"}</h4>
+                            {selectedDocId && documents.find(d => d.id === selectedDocId) && !isEditing && (
+                                <button
+                                    className="edit-btn"
+                                    onClick={handleStartEdit}
+                                    title="Edit document"
+                                >
+                                    Edit
+                                </button>
+                            )}
+                        </div>
                         {isLoadingDocs ? (
                             <div className="mod-panel-loading">Loading documents...</div>
                         ) : selectedDocId && documents.find(d => d.id === selectedDocId) ? (
@@ -419,9 +490,36 @@ export default function MainPage() {
                                         {documents.find(d => d.id === selectedDocId)?.chunks} chunks
                                     </span>
                                 </div>
-                                <div className="preview-text">
-                                    {documents.find(d => d.id === selectedDocId)?.content}
-                                </div>
+                                {isEditing ? (
+                                    <>
+                                        <textarea
+                                            className="edit-textarea"
+                                            value={editedContent}
+                                            onChange={(e) => setEditedContent(e.target.value)}
+                                            disabled={isSaving}
+                                        />
+                                        <div className="edit-actions">
+                                            <button
+                                                className="save-btn"
+                                                onClick={handleSaveEdit}
+                                                disabled={isSaving}
+                                            >
+                                                {isSaving ? "Saving..." : "Save"}
+                                            </button>
+                                            <button
+                                                className="cancel-btn"
+                                                onClick={handleCancelEdit}
+                                                disabled={isSaving}
+                                            >
+                                                Cancel
+                                            </button>
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="preview-text">
+                                        {documents.find(d => d.id === selectedDocId)?.content}
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className="mod-panel-empty">No document selected</div>
