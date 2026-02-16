@@ -27,13 +27,16 @@ def _create_initial_child_chunks(text: str, file_name: str, chunk_size: int) -> 
     Step 1: Raw Splitting.
     Splits text into raw child chunks using LangChain's recursive splitter.
     """
+    # Initialise the RecursiveCharacterTextSplitter with the desired chunk size and overlap.
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=int(chunk_size * 0.1),  # 10% overlap
         separators=["\n\n", "\n", ".", " ", ""]
     )
+
+    # Initialise a document type with the content and basic metadata (filename) for splitting.
     base_doc = Document(page_content=text, metadata={"file_name": file_name})
-    return splitter.split_documents([base_doc])
+    return splitter.split_documents([base_doc]) # Returns a list of LangChain Document objects with 'page_content' and 'metadata' (including file_name).
 
 def _merge_small_chunks(docs: List[Document], min_chars: int) -> List[Document]:
     """
@@ -89,7 +92,7 @@ def _group_children_into_parents(
 
         # Check if adding this child exceeds the parent target
         if current_length + child_len > target_parent_size:
-            if current_group:
+            if current_group: # Only append if there are already child chunks in the current group
                 parent_groups.append(current_group)
             
             # Reset for new group
@@ -168,7 +171,7 @@ def split_parent_child_chunks(
     final_parent_chunks = []
     final_child_chunks = []
     child_global_index = 0
-    file_id = generate_uuid_v6()
+    file_id = generate_uuid_v6() # Generate a UUID for the file to link all chunks together in metadata
 
     for parent_chunk_number, group in enumerate(parent_groups):
         # Assign a unique ID to the Parent (To link Children later)
