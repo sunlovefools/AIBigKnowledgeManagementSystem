@@ -19,7 +19,6 @@ _RERANKER_SERVICE = ZeRankerService(model_name="BAAI/bge-reranker-v2-m3")
 
 
 # --- Ingestion / Upsertion Operations ---
-
 async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
     """
     Inserts Parent (Context) documents and Child (Vector) chunks into the respective AstraDB stores.
@@ -31,6 +30,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
 
     # 1. Prepare Parent Documents (for key-value storage)
     parent_doc_map: List[Tuple[str, Document]] = []
+
     for parent_dict in parent_chunks:
         if "parent_chunk_id" not in parent_dict or "content" not in parent_dict:
             raise ValueError("Each parent chunk must have 'parent_chunk_id' and 'content' fields.")
@@ -40,6 +40,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
             for metadata_key, metadata_value in parent_dict.items()
             if metadata_key not in ["content", "parent_chunk_id"]
         }
+
 
         parent_doc = Document(
             page_content=parent_dict["content"],
@@ -66,7 +67,6 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         child_docs.append(child_doc)
         child_doc_ids.append(child_id)
 
-    # 3. Store Parent Documents (Document Store)
     try:
         await PARENT_STORE.amset(parent_doc_map)
         print(f"Stored {len(parent_doc_map)} Parent Documents in Document Store.")
@@ -74,7 +74,6 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         print(f"Failed to store Parent Documents: {error}")
         raise
 
-    # 4. Store Child Documents (Vector Store - automatically embeds)
     try:
         await VECTOR_STORE.aadd_documents(child_docs, ids=child_doc_ids)
         print(f"Stored {len(child_docs)} Child Documents in Vector Store.")
@@ -151,7 +150,6 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
         top_k=top_k * 2,
     )
 
-    # Reconstruct the list of Documents based on the reranked order
     reranked_child_docs = []
     for content, _new_score in reranked_pairs:
         for original_doc in child_documents:

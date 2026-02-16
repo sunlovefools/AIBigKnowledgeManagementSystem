@@ -12,9 +12,8 @@ from typing import Any
 load_dotenv()
 
 security = HTTPBearer()
-
-# Get token from environment variable
 EXPECTED_API_KEY = os.getenv("API_TOKEN")
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -24,7 +23,19 @@ async def lifespan(app: FastAPI):
     engine.load_model()
     yield
 
+
 app = FastAPI(lifespan=lifespan)
+
+
+# -------------------------
+# Request Models
+# -------------------------
+
+class RetrievedChunk(BaseModel):
+    filename: str
+    chunk_context: str
+    page: Optional[int] = None
+
 
 class AnswerRequest(BaseModel):
     """
@@ -33,12 +44,12 @@ class AnswerRequest(BaseModel):
     rag_context: str | list[dict[str, Any]]
     user_query: str
 
+
+# -------------------------
+# Authentication
+# -------------------------
+
 def verify_token(credentials: HTTPAuthorizationCredentials = Security(security)):
-    """
-    Validates the Bearer token.
-    FastAPI automatically extracts the token from "Authorization: Bearer <token>"
-    and puts it into credentials.credentials.
-    """
     token = credentials.credentials
     if token != EXPECTED_API_KEY:
         raise HTTPException(
@@ -47,8 +58,12 @@ def verify_token(credentials: HTTPAuthorizationCredentials = Security(security))
         )
     return token
 
-# --- Endpoint ---
-@app.post("/generate_answer", dependencies=[Depends(verify_token)]) # Add dependency for token verification
+
+# -------------------------
+# Endpoint
+# -------------------------
+
+@app.post("/generate_answer", dependencies=[Depends(verify_token)])
 async def generate_endpoint(request: AnswerRequest):
     try:
         if isinstance(request.rag_context, list):
@@ -61,8 +76,10 @@ async def generate_endpoint(request: AnswerRequest):
             request.user_query
         )
         return {"answer": answer}
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
 
 if __name__ == "__main__":
     print("🚀 Starting Secured Service (Bearer Auth) on Port 8001")
