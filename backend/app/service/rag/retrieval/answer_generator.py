@@ -25,7 +25,7 @@ from .prompts.answer_generator_prompt import SYSTEM_PROMPT, build_user_message_j
 __all__ = ["generate_answer", "generate_answer_api"]
 
 _OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-_DEFAULT_TIMEOUT_S = 120.0
+_DEFAULT_TIMEOUT_S = 500.0
 _NO_ANSWER_FALLBACK = "No answer returned by Answer Generator"
 _SOURCES_SUFFIX_UNKNOWN = "(Sources: filename unknown)"
 
@@ -170,10 +170,14 @@ def _format_sources_suffix(source_names: list[str]) -> str:
 
 def _append_or_replace_sources_suffix(answer_text: str, source_names: list[str]) -> str:
     """Ensure the final answer ends with one canonical sources suffix."""
+
+    # Remove any existing sources suffix and append the correct one based on source_names.
     base = answer_text.strip() if isinstance(answer_text, str) and answer_text.strip() else _NO_ANSWER_FALLBACK
-    base = re.sub(r"\s*\(Sources:\s*[^)]*\)\s*$", "", base).strip()
+    base = re.sub(r"\s*\(Sources:\s*[^)]*\)\s*$", "", base).strip() # Remove existing suffix if present
     sources_suffix = _format_sources_suffix(source_names)
-    return f"{base} {sources_suffix}".strip()
+    print(base)
+    print(sources_suffix)
+    return f"{base}".strip()
 
 
 async def _post_json(
