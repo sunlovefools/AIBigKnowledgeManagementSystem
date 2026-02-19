@@ -4,7 +4,7 @@ Handles retrieving document lists and reconstructing files from chunks.
 """
 
 import traceback
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, Query, status
 from pydantic import BaseModel
 from typing import List
 
@@ -16,7 +16,7 @@ router = APIRouter()
 # --- Data Models ---
 class DocumentInfo(BaseModel):
     """Information about a reconstructed document."""
-    id: str                    # Parent document ID
+    id: str                   # Parent document ID
     fileName: str             # Original file name
     content: str              # Full reconstructed document content
     size: int                 # Character count
@@ -29,6 +29,35 @@ class ModificationsResponse(BaseModel):
     total: int
 
 
+class FileSummary(BaseModel):
+    """Sidebar summary for a merged file item."""
+    fileName: str
+    preview: str
+    totalParentChunks: int
+
+
+class FileSummaryResponse(BaseModel):
+    """Response containing merged filenames and their preview snippets."""
+    files: List[FileSummary]
+    total: int
+
+
+class ParentChunkContent(BaseModel):
+    """Parent chunk content item used by full-view tabs."""
+    parentId: str
+    content: str
+    size: int
+
+
+class FileChunksResponse(BaseModel):
+    """Paginated parent chunks for one merged file item."""
+    fileName: str
+    chunks: List[ParentChunkContent]
+    totalParentChunks: int
+    hasMore: bool
+    nextCursor: str | None
+
+
 # --- API Endpoints ---
 
 @router.get("/health")
@@ -38,7 +67,7 @@ def modifications_health():
 
 
 @router.get("/list", response_model=ModificationsResponse)
-async def get_modifiable_documents():
+async def get_all_documents():
     """
     Retrieves all documents that have been ingested into the system.
     
@@ -52,7 +81,7 @@ async def get_modifiable_documents():
         HTTPException: If document retrieval fails
     """
     
-    print("📋 API: GET /api/modifications/list called")
+    print("📋 API: GET /api/modifications/list called (get_all_documents)")
     
     try:
         print("  → Calling ReconstructionService.get_all_documents()...")
@@ -93,68 +122,73 @@ async def get_modifiable_documents():
         )
 
 
-class UpdateDocumentRequest(BaseModel):
-    """Request body for updating a document's content."""
-    content: str              # New document content
-    fileName: str             # Original file name (needed for re-chunking)
-
-
-@router.put("/document/{document_id}", response_model=DocumentInfo)
-async def update_document_content(document_id: str, request: UpdateDocumentRequest):
-    """
-    Updates the content of a specific document.
-
-    This will:
-    1. Delete old chunks from the database
-    2. Re-chunk the new content
-    3. Re-embed and store the new chunks
-
-    Args:
-        document_id: The parent document ID to update
-        request: New content and file name
-
-    Returns:
-        DocumentInfo: The updated document info
-    """
-
-    print(f"📝 API: PUT /api/modifications/document/{document_id} called")
-
-    if not request.content.strip():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Content cannot be empty"
-        )
-
+@router.get("/files", response_model=FileSummaryResponse)
+async def get_file_summaries(
+    preview_length: int = Query(default=220, ge=80, le=1000),
+):
+    """Return filename-merged summaries for the left sidebar."""
     try:
-        result = await ReconstructionService.update_document(
-            parent_id=document_id,
-            new_content=request.content,
-            file_name=request.fileName
-        )
-
-        return DocumentInfo(
-            id=result["id"],
-            fileName=result["fileName"],
-            content=result["content"],
-            size=result["size"],
-            chunks=result["chunks"],
-        )
-
-    except ValueError as e:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail=str(e)
-        )
+        files = await ReconstructionService.get_file_summaries(preview_length=preview_length)
+        response_files = [
+            FileSummary(
+                fileName=file_item["fileName"],
+                preview=file_item["preview"],
+                totalParentChunks=file_item["totalParentChunks"],
+            )
+            for file_item in files
+        ]
+        return FileSummaryResponse(files=response_files, total=len(response_files))
     except RuntimeError as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Database service error: {str(e)}"
+            detail=f"Database service error: {str(e)}",
         )
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to update document: {str(e)}"
+            detail=f"Failed to retrieve file summaries: {str(e)}",
+        )
+
+
+@router.get("/file-chunks", response_model=FileChunksResponse)
+async def get_file_chunks(
+    file_name: str = Query(..., alias="fileName", min_length=1),
+    limit: int = Query(default=7, ge=1, le=50),
+    cursor: str | None = Query(default=None),
+):
+    """Return paginated parent chunks for one merged filename."""
+    try:
+        result = await ReconstructionService.get_file_parent_chunks(
+            file_name=file_name,
+            limit=limit,
+            cursor=cursor,
+        )
+
+        return FileChunksResponse(
+            fileName=result["fileName"],
+            chunks=[
+                ParentChunkContent(
+                    parentId=chunk["parentId"],
+                    content=chunk["content"],
+                    size=chunk["size"],
+                )
+                for chunk in result["chunks"]
+            ],
+            totalParentChunks=result["totalParentChunks"],
+            hasMore=result["hasMore"],
+            nextCursor=result["nextCursor"],
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database service error: {str(e)}",
+        )
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to retrieve file chunks: {str(e)}",
         )
 
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 import json
 import os
+import re
 from typing import Any
 
 import aiohttp
@@ -24,8 +25,9 @@ from .prompts.answer_generator_prompt import SYSTEM_PROMPT, build_user_message_j
 __all__ = ["generate_answer", "generate_answer_api"]
 
 _OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
-_DEFAULT_TIMEOUT_S = 120.0
+_DEFAULT_TIMEOUT_S = 500.0
 _NO_ANSWER_FALLBACK = "No answer returned by Answer Generator"
+_SOURCES_SUFFIX_UNKNOWN = "(Sources: filename unknown)"
 
 
 @dataclass(frozen=True)
@@ -84,11 +86,11 @@ def _normalize_rag_docs(rag_docs: list[dict[str, Any]] | list[str]) -> list[dict
     for item in rag_docs:
         if isinstance(item, dict):
             page_content = item.get("page_content", "")
-            metadata = item.get("metadata", {})
+            metadata = _extract_minimal_metadata(item.get("metadata", {}))
             normalized.append(
                 {
                     "id": item.get("id"),
-                    "metadata": metadata if isinstance(metadata, dict) else {},
+                    "metadata": metadata,
                     "page_content": str(page_content) if page_content is not None else "",
                     "type": str(item.get("type", "Document")),
                 }
@@ -104,6 +106,78 @@ def _normalize_rag_docs(rag_docs: list[dict[str, Any]] | list[str]) -> list[dict
             )
 
     return normalized
+
+
+def _extract_minimal_metadata(metadata: Any) -> dict[str, Any]:
+    """Keep only metadata fields needed for answer citation and traceability."""
+    if not isinstance(metadata, dict):
+        return {}
+
+    file_name = None
+    parent_chunk_number = None
+
+    file_metadata = metadata.get("file_metadata")
+    if isinstance(file_metadata, dict):
+        file_name = file_metadata.get("file_name")
+    elif isinstance(metadata.get("file_name"), str):
+        file_name = metadata.get("file_name")
+
+    parent_chunk_metadata = metadata.get("parent_chunk_metadata")
+    if isinstance(parent_chunk_metadata, dict):
+        parent_chunk_number = parent_chunk_metadata.get("parent_chunk_number")
+    elif "parent_chunk_number" in metadata:
+        parent_chunk_number = metadata.get("parent_chunk_number")
+
+    minimal_metadata: dict[str, Any] = {}
+    if isinstance(file_name, str) and file_name.strip():
+        minimal_metadata["file_name"] = file_name.strip()
+    if isinstance(parent_chunk_number, int):
+        minimal_metadata["parent_chunk_number"] = parent_chunk_number
+
+    return minimal_metadata
+
+
+def _collect_source_file_names(rag_docs: list[dict[str, Any]]) -> list[str]:
+    """Collect unique source file names from normalized docs while preserving order."""
+    seen: set[str] = set()
+    source_names: list[str] = []
+
+    for doc in rag_docs:
+        if not isinstance(doc, dict):
+            continue
+        metadata = doc.get("metadata")
+        if not isinstance(metadata, dict):
+            continue
+        file_name = metadata.get("file_name")
+        if not isinstance(file_name, str):
+            continue
+
+        normalized_name = file_name.strip()
+        if not normalized_name or normalized_name in seen:
+            continue
+        seen.add(normalized_name)
+        source_names.append(normalized_name)
+
+    return source_names
+
+
+def _format_sources_suffix(source_names: list[str]) -> str:
+    """Build a deterministic sources suffix for final answers."""
+    if not source_names:
+        return _SOURCES_SUFFIX_UNKNOWN
+    return f"(Sources: {', '.join(source_names)})"
+
+
+def _append_or_replace_sources_suffix(answer_text: str, source_names: list[str]) -> str:
+    """Ensure the final answer ends with one canonical sources suffix."""
+
+    # Remove any existing sources suffix and append the correct one based on source_names.
+    base = answer_text.strip() if isinstance(answer_text, str) and answer_text.strip() else _NO_ANSWER_FALLBACK
+    base = re.sub(r"\s*\(Sources:\s*[^)]*\)\s*$", "", base).strip() # Remove existing suffix if present
+    sources_suffix = _format_sources_suffix(source_names)
+    print(base)
+    print(sources_suffix)
+    return f"{base}".strip()
 
 
 async def _post_json(
@@ -210,7 +284,13 @@ async def _generate_via_openrouter(
         {"role": "system", "content": SYSTEM_PROMPT},
         {"role": "user", "content": build_user_message_json_context(rag_docs, user_query)},
     ]
-    payload = {"model": cfg.openrouter_model, "messages": messages, "temperature": 0.0}
+
+    payload = {
+        "model": cfg.openrouter_model,
+        "messages": messages, 
+        "temperature": 0
+    }
+    
     headers = {
         "Authorization": f"Bearer {cfg.openrouter_api_key}",
         "Content-Type": "application/json",
@@ -225,6 +305,8 @@ async def _generate_via_openrouter(
         error_prefix="Answer Generator OpenRouter API error",
     )
 
+    source_names = _collect_source_file_names(rag_docs)
+
     choices = data.get("choices")
     if isinstance(choices, list) and choices:
         first_choice = choices[0] if isinstance(choices[0], dict) else {}
@@ -232,12 +314,13 @@ async def _generate_via_openrouter(
         if isinstance(message, dict):
             content = message.get("content")
             if isinstance(content, str) and content.strip():
-                final_answer = content.strip()
+                final_answer = _append_or_replace_sources_suffix(content, source_names)
                 _log_llm_response(final_answer)
                 return final_answer
 
-    _log_llm_response(_NO_ANSWER_FALLBACK)
-    return _NO_ANSWER_FALLBACK
+    final_fallback = _append_or_replace_sources_suffix(_NO_ANSWER_FALLBACK, source_names)
+    _log_llm_response(final_fallback)
+    return final_fallback
 
 
 async def generate_answer(rag_docs: list[dict[str, Any]] | list[str], user_query: str) -> str:

@@ -28,7 +28,8 @@ dependencies = [
     "torchvision",
     "transformers>=4.48.0",
     "uvicorn[standard]",
-    "einops"
+    "einops",
+    "uuid6>=2025.0.1",
 ]
 
 [build-system]

@@ -10,15 +10,15 @@ def polish_chunks(chunks):
 
     Args:
         chunks (List[Dict[str, any]]): 
-            A list of dictionaries containing "text" keys.
+            A list of dictionaries containing "content" keys.
 
     Returns:
         List[Dict[str, any]]: 
-            The same list of dictionaries with polished "text" values.
-            We are only modifying the "text" field in each dictionary.
+            The same list of dictionaries with polished "content" values.
+            We are only modifying the "content" field in each dictionary.
     """
     for chunk in chunks:
-        text = chunk["text"]
+        text = chunk["content"]
 
         # --- Step 1: Normalize whitespace and line breaks ---
         # Remove excessive spaces, tabs, or newlines so all spacing becomes single spaces.
@@ -43,6 +43,6 @@ def polish_chunks(chunks):
         text = re.sub(r"•\s*", "- ", text)
 
         # Amend the chunk text
-        chunk["text"] = text
+        chunk["content"] = text
 
     return chunks
