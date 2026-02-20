@@ -32,7 +32,7 @@ class ModificationsResponse(BaseModel):
 class FileSummary(BaseModel):
     """Sidebar summary for a merged file item."""
     fileName: str
-    preview: str
+    previewTexts: str
 
 
 class FileSummaryResponse(BaseModel):
@@ -145,7 +145,7 @@ async def get_all_preview_files():
         response_files = [
             FileSummary(
                 fileName=file_item["fileName"],
-                preview=file_item["preview"],
+                previewTexts=file_item["preview"],
             )
             for file_item in files
         ]

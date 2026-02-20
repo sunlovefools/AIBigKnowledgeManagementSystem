@@ -100,7 +100,7 @@ export default function Sidebar({
                 )}
 
                 <div className="sidebar-documents-header">
-                    <div className="section-title">Knowledge files</div>
+                    <div className="section-title">Knowledge files ({files.length})</div>
                     <button
                         className="sidebar-refresh-btn"
                         onClick={onRefreshFiles}
