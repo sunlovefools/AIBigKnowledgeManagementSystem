@@ -44,16 +44,7 @@ class ReconstructionService:
                 parent_first_chunk[parent_id] = chunk_number
 
         return sorted(parent_first_chunk.keys(), key=lambda pid: (parent_first_chunk[pid], pid))
-
-    @staticmethod
-    def _truncate_preview(text: str, preview_length: int) -> str:
-        if not text:
-            return ""
-        normalized = " ".join(text.split())
-        if len(normalized) <= preview_length:
-            return normalized
-        return f"{normalized[:preview_length].rstrip()}..."
-
+    
     @staticmethod
     async def get_all_preview_files() -> list[dict]:
         """Retrieve merged file list with one parent-chunk preview per filename."""
