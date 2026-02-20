@@ -10,8 +10,9 @@ export type ChatMessage = {
 
 // Type for a sidebar file item (merged by uploaded filename).
 export type SidebarFileSummary = {
+    fileId: string;
     fileName: string;
-    preview: string;
+    previewTexts: string;
 };
 
 // Type for one parent chunk payload in full-view mode.
@@ -28,6 +29,5 @@ export type FileTabState = {
     nextCursor: string | null;
     isLoading: boolean;
     isInitialized: boolean;
-    totalParentChunks: number;
     error: string | null;
 };

@@ -5,6 +5,10 @@ from their stored chunks via the Parent-Child RAG pattern.
 """
 
 import traceback
+import asyncio
+import json
+from datetime import datetime, timezone
+from pathlib import Path
 from app.vectordb.vectordb import (
     VECTOR_STORE, PARENT_STORE,
     delete_children_by_parent_id, delete_parent_document, upsert_documents
@@ -13,8 +17,108 @@ from app.service.rag.ingestion.chunker import split_parent_child_chunks
 from app.service.rag.ingestion.chunk_polisher import polish_chunks
 
 
+_VECTOR_DB_PARENT_CHUNKS_LOG_FILE = "vector_database_parent_chunks_log.txt"
+
+
+def _resolve_vector_db_log_path() -> Path:
+    cwd = Path.cwd()
+    if (cwd / "backend").is_dir():
+        backend_dir = cwd / "backend"
+    elif cwd.name == "backend":
+        backend_dir = cwd
+    else:
+        backend_dir = Path(__file__).resolve().parents[2]
+
+    logs_dir = backend_dir / "debug" / "logs"
+    logs_dir.mkdir(parents=True, exist_ok=True)
+    return logs_dir / _VECTOR_DB_PARENT_CHUNKS_LOG_FILE
+
+
+def _log_vector_db_result(function_name: str, retrieved: dict | list, context: dict | None = None) -> None:
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        lines = [
+            "=" * 80,
+            f"Function: {function_name}",
+            f"Timestamp: {timestamp}",
+        ]
+
+        if context:
+            lines.append("Context:")
+            lines.append(json.dumps(context, ensure_ascii=False, indent=2))
+
+        lines.append("Retrieved:")
+        lines.append(json.dumps(retrieved, ensure_ascii=False, indent=2))
+
+        log_path = _resolve_vector_db_log_path()
+        with log_path.open("a", encoding="utf-8") as file_handle:
+            file_handle.write("\n".join(lines) + "\n")
+    except Exception as log_error:
+        print(f"⚠️ Failed to write vector DB debug log: {log_error}")
+
+
 class ReconstructionService:
     """Service for reconstructing files from stored chunks."""
+
+    @staticmethod
+    async def _find_parent_chunks_in_range(file_id: str, current_chunk_number: int, limit: int) -> tuple[list[dict], bool, str | None]:
+        """Find parent chunks by file_id and parent_chunk_number range using collection.find."""
+
+        def _query_rows() -> list[dict]:
+            collection = PARENT_STORE.collection
+            cursor = collection.find(
+                {
+                    "value.metadata.file_metadata.file_id": file_id,
+                    "value.metadata.parent_chunk_metadata.parent_chunk_number": {
+                        "$gt": current_chunk_number,
+                        "$lt": current_chunk_number + limit,
+                    },
+                }
+            )
+            rows: list[dict] = []
+            for row in cursor:
+                if isinstance(row, dict):
+                    rows.append(row)
+            return rows
+
+        rows = await asyncio.to_thread(_query_rows)
+
+        normalized_rows: list[tuple[int, str, str]] = []
+        for row in rows:
+            parent_id = str(row.get("_id", ""))
+            value = row.get("value")
+            if not isinstance(value, dict):
+                continue
+
+            metadata = value.get("metadata") or {}
+            if not isinstance(metadata, dict):
+                metadata = {}
+
+            parent_chunk_metadata = metadata.get("parent_chunk_metadata") or {}
+            chunk_number_raw = parent_chunk_metadata.get("parent_chunk_number")
+            if not isinstance(chunk_number_raw, (int, float)):
+                continue
+
+            content = str(value.get("page_content", ""))
+            normalized_rows.append((int(chunk_number_raw), parent_id, content))
+
+        normalized_rows.sort(key=lambda item: (item[0], item[1]))
+
+        window_size = max(limit - 1, 1)
+        page_rows = normalized_rows[:window_size]
+        has_more = len(page_rows) == window_size
+        next_cursor = str(page_rows[-1][0]) if has_more and page_rows else None
+
+        chunks = [
+            {
+                "parentId": parent_id,
+                "content": content,
+                "size": len(content),
+            }
+            for _chunk_number, parent_id, content in page_rows
+        ]
+
+        return chunks, has_more, next_cursor
 
     @staticmethod
     def _sorted_parent_ids_for_file(all_child_chunks, file_name: str) -> list[str]:
@@ -68,17 +172,25 @@ class ReconstructionService:
                 metadata = parent_doc.get("metadata", {}) or {}
                 file_metadata = metadata.get("file_metadata", {}) or {}
                 file_name = file_metadata.get("file_name") or metadata.get("source") or "Unknown"
+                file_id = file_metadata.get("file_id") or ""
                 preview_text = str(parent_doc.get("page_content", ""))
 
                 # Append a preview of the first parent chunk for each file.
                 summaries.append(
                     {
+                        "fileId": file_id,
                         "fileName": file_name,
                         "preview": preview_text,
                     }
                 )
 
-            return sorted(summaries, key=lambda item: str(item.get("fileName", "")).lower()) # Return a sorted list of summaries, based on the filename
+            sorted_summaries = sorted(summaries, key=lambda item: str(item.get("fileName", "")).lower())
+            _log_vector_db_result(
+                function_name="get_all_preview_files",
+                context={"totalRows": len(rows), "returnedSummaries": len(sorted_summaries)},
+                retrieved=sorted_summaries,
+            )
+            return sorted_summaries
         except RuntimeError:
             raise
         except Exception as error:
@@ -87,147 +199,124 @@ class ReconstructionService:
             raise RuntimeError(f"File summary retrieval failed: {str(error)}")
 
     @staticmethod
-    async def get_file_parent_chunks(file_name: str, limit: int = 7, cursor: str | None = None) -> dict:
-        """Retrieve paginated parent chunks for a merged filename item."""
-        print(f"🔄 Retrieving paginated parent chunks for file: {file_name}")
+    async def get_file_parent_chunks(file_id: str, limit: int, cursor: str | None) -> dict:
+        """Retrieve paginated parent chunks for a merged file ID item."""
+        print(f"🔄 Retrieving paginated parent chunks for file_id: {file_id}")
 
         try:
-            all_child_chunks = await ReconstructionService._collect_child_chunks()
-            if not all_child_chunks:
-                return {
-                    "fileName": file_name,
-                    "chunks": [],
-                    "totalParentChunks": 0,
-                    "hasMore": False,
-                    "nextCursor": None,
-                }
-
-            ordered_parent_ids = ReconstructionService._sorted_parent_ids_for_file(all_child_chunks, file_name)
-            total_parent_chunks = len(ordered_parent_ids)
-
-            if total_parent_chunks == 0:
-                return {
-                    "fileName": file_name,
-                    "chunks": [],
-                    "totalParentChunks": 0,
-                    "hasMore": False,
-                    "nextCursor": None,
-                }
-
-            start_index = 0
+            current_chunk_number = -1
             if cursor:
                 try:
-                    start_index = max(int(cursor), 0)
+                    current_chunk_number = int(cursor)
                 except ValueError:
-                    start_index = 0
+                    current_chunk_number = -1
 
-            end_index = min(start_index + limit, total_parent_chunks)
-            page_parent_ids = ordered_parent_ids[start_index:end_index]
+            chunks, has_more, next_cursor = await ReconstructionService._find_parent_chunks_in_range(
+                file_id=file_id,
+                current_chunk_number=current_chunk_number,
+                limit=limit,
+            )
 
-            parent_docs = await PARENT_STORE.amget(page_parent_ids)
-            chunks = []
-            for idx, parent_doc in enumerate(parent_docs):
-                if not isinstance(parent_doc, dict):
-                    continue
-                content = str(parent_doc.get("page_content", ""))
-                chunks.append(
-                    {
-                        "parentId": page_parent_ids[idx],
-                        "content": content,
-                        "size": len(content),
-                    }
-                )
-
-            has_more = end_index < total_parent_chunks
-            next_cursor = str(end_index) if has_more else None
-
-            return {
-                "fileName": file_name,
+            result = {
+                "fileId": file_id,
                 "chunks": chunks,
-                "totalParentChunks": total_parent_chunks,
                 "hasMore": has_more,
                 "nextCursor": next_cursor,
             }
+            _log_vector_db_result(
+                function_name="get_file_parent_chunks",
+                context={
+                    "fileId": file_id,
+                    "limit": limit,
+                    "cursor": cursor,
+                    "currentChunkNumber": current_chunk_number,
+                    "returnedChunks": len(chunks),
+                    "hasMore": has_more,
+                    "nextCursor": next_cursor,
+                },
+                retrieved=result,
+            )
+            return result
         except RuntimeError:
             raise
         except Exception as error:
-            print(f"❌ Failed to retrieve parent chunks for {file_name}: {error}")
+            print(f"❌ Failed to retrieve parent chunks for file_id={file_id}: {error}")
             traceback.print_exc()
             raise RuntimeError(f"File chunk retrieval failed: {str(error)}")
 
-    @staticmethod
-    async def get_all_documents() -> list[dict]:
-        """
-        Retrieves all unique documents that have been ingested into the system.
+    # @staticmethod
+    # async def get_all_documents() -> list[dict]:
+    #     """
+    #     Retrieves all unique documents that have been ingested into the system.
 
-        This function iterates directly through the parent document store keys
-        and fetches each parent document by key.
+    #     This function iterates directly through the parent document store keys
+    #     and fetches each parent document by key.
 
-        Returns:
-            list[dict]: A list of document dictionaries, each containing:
-                - id: str - The parent ID (unique identifier)
-                - fileName: str - Original file name
-                - content: str - Full reconstructed document content
-                - size: int - Character count
-                - chunks: int - Number of chunks (0 when unavailable)
-        """
+    #     Returns:
+    #         list[dict]: A list of document dictionaries, each containing:
+    #             - id: str - The parent ID (unique identifier)
+    #             - fileName: str - Original file name
+    #             - content: str - Full reconstructed document content
+    #             - size: int - Character count
+    #             - chunks: int - Number of chunks (0 when unavailable)
+    #     """
 
-        print("🔄 Retrieving all documents from Parent Store keys...")
+    #     print("🔄 Retrieving all documents from Parent Store keys...")
 
-        try:
-            documents_list: list[dict] = []
-            count = 0
+    #     try:
+    #         documents_list: list[dict] = []
+    #         count = 0
 
-            async for parent_id in PARENT_STORE.ayield_keys():
-                try:
-                    parent_doc = await PARENT_STORE.aget(parent_id)
-                    if not parent_doc:
-                        continue
+    #         async for parent_id in PARENT_STORE.ayield_keys():
+    #             try:
+    #                 parent_doc = await PARENT_STORE.aget(parent_id)
+    #                 if not parent_doc:
+    #                     continue
 
-                    if isinstance(parent_doc, dict):
-                        content = str(parent_doc.get("page_content", ""))
-                        metadata = parent_doc.get("metadata", {}) or {}
-                    else:
-                        content = str(getattr(parent_doc, "page_content", ""))
-                        metadata = getattr(parent_doc, "metadata", {}) or {}
+    #                 if isinstance(parent_doc, dict):
+    #                     content = str(parent_doc.get("page_content", ""))
+    #                     metadata = parent_doc.get("metadata", {}) or {}
+    #                 else:
+    #                     content = str(getattr(parent_doc, "page_content", ""))
+    #                     metadata = getattr(parent_doc, "metadata", {}) or {}
 
-                    if not content:
-                        continue
+    #                 if not content:
+    #                     continue
 
-                    file_name = (
-                        (metadata.get("file_metadata") or {}).get("file_name")
-                        or metadata.get("source")
-                        or "Unknown"
-                    )
+    #                 file_name = (
+    #                     (metadata.get("file_metadata") or {}).get("file_name")
+    #                     or metadata.get("source")
+    #                     or "Unknown"
+    #                 )
 
-                    documents_list.append(
-                        {
-                            "id": parent_id,
-                            "fileName": file_name,
-                            "content": content,
-                            "size": len(content),
-                            "chunks": int(metadata.get("chunks", 0)) if str(metadata.get("chunks", "")).isdigit() else 0,
-                        }
-                    )
-                    count += 1
-                except Exception as item_error:
-                    print(f"  ⚠️  Error processing parent key {parent_id}: {item_error}")
-                    continue
+    #                 documents_list.append(
+    #                     {
+    #                         "id": parent_id,
+    #                         "fileName": file_name,
+    #                         "content": content,
+    #                         "size": len(content),
+    #                         "chunks": int(metadata.get("chunks", 0)) if str(metadata.get("chunks", "")).isdigit() else 0,
+    #                     }
+    #                 )
+    #                 count += 1
+    #             except Exception as item_error:
+    #                 print(f"  ⚠️  Error processing parent key {parent_id}: {item_error}")
+    #                 continue
 
-            if count == 0:
-                print("ℹ️ No documents found in the system.")
-                return []
+    #         if count == 0:
+    #             print("ℹ️ No documents found in the system.")
+    #             return []
 
-            print(f"✅ Successfully reconstructed {len(documents_list)} documents")
-            return documents_list
+    #         print(f"✅ Successfully reconstructed {len(documents_list)} documents")
+    #         return documents_list
 
-        except RuntimeError as e:
-            print(f"❌ Runtime Error: {e}")
-            raise
-        except Exception as e:
-            print(f"❌ Unexpected error retrieved documents: {e}")
-            traceback.print_exc()
-            raise RuntimeError(f"Document retrieval failed: {str(e)}")
+    #     except RuntimeError as e:
+    #         print(f"❌ Runtime Error: {e}")
+    #         raise
+    #     except Exception as e:
+    #         print(f"❌ Unexpected error retrieved documents: {e}")
+    #         traceback.print_exc()
+    #         raise RuntimeError(f"Document retrieval failed: {str(e)}")
 
     @staticmethod
     async def get_document_by_id(parent_id: str) -> dict | None:

@@ -40,5 +40,6 @@ nginx/ssl/key.pem
 *.pem
 
 # debug.txt file
-backend\debug\logs\answer_generation_debug.txt
+backend/debug/logs/answer_generation_debug.txt
 backend/debug/logs/retrieval_rerank_debug.txt
+backend/debug/logs/vector_database_parent_chunks_log.txt

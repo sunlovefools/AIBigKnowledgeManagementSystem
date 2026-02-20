@@ -31,6 +31,7 @@ class ModificationsResponse(BaseModel):
 
 class FileSummary(BaseModel):
     """Sidebar summary for a merged file item."""
+    fileId: str
     fileName: str
     previewTexts: str
 
@@ -50,9 +51,8 @@ class ParentChunkContent(BaseModel):
 
 class FileChunksResponse(BaseModel):
     """Paginated parent chunks for one merged file item."""
-    fileName: str
+    fileId: str
     chunks: List[ParentChunkContent]
-    totalParentChunks: int
     hasMore: bool
     nextCursor: str | None
 
@@ -80,62 +80,6 @@ def modifications_health():
     """Health check endpoint for modifications module."""
     return {"modifications": "ok"}
 
-
-@router.get("/list", response_model=ModificationsResponse)
-async def get_all_documents():
-    """
-    Retrieves all documents that have been ingested into the system.
-    
-    Returns a list of documents with their reconstructed content for modification.
-    Each document is reconstructed from its parent chunks stored in the database.
-    
-    Returns:
-        ModificationsResponse: List of documents with their metadata
-    
-    Raises:
-        HTTPException: If document retrieval fails
-    """
-    
-    print("📋 API: GET /api/modifications/list called (get_all_documents)")
-    
-    try:
-        print("  → Calling ReconstructionService.get_all_documents()...")
-        documents = await ReconstructionService.get_all_documents()
-        
-        print(f"  ✓ Retrieved {len(documents)} documents from service")
-        
-        # Convert to DocumentInfo models
-        doc_list = [
-            DocumentInfo(
-                id=doc["id"],
-                fileName=doc["fileName"],
-                content=doc["content"],
-                size=doc["size"],
-                chunks=doc["chunks"],
-            )
-            for doc in documents
-        ]
-        
-        print(f"  ✓ Successfully returning {len(doc_list)} DocumentInfo objects")
-        return ModificationsResponse(
-            documents=doc_list,
-            total=len(doc_list)
-        )
-        
-    except RuntimeError as e:
-        print(f"  ❌ RuntimeError from service: {e}")
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Database service error: {str(e)}"
-        )
-    except Exception as e:
-        print(f"  ❌ Unexpected error: {e}")
-        traceback.print_exc()
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve documents: {str(e)}"
-        )
-
 # The endpoint for retrieving all preview files in a summary format for the left sidebar.
 @router.get("/all-preview-files", response_model=FileSummaryResponse)
 async def get_all_preview_files():
@@ -144,6 +88,7 @@ async def get_all_preview_files():
         files = await ReconstructionService.get_all_preview_files()
         response_files = [
             FileSummary(
+                fileId=file_item["fileId"],
                 fileName=file_item["fileName"],
                 previewTexts=file_item["preview"],
             )
@@ -163,22 +108,23 @@ async def get_all_preview_files():
         )
 
 
+# The endpoint for retrieving paginated parent chunks for a specific merged file, used by the full-view tabs.
 @router.get("/file-chunks", response_model=FileChunksResponse)
 async def get_file_chunks(
-    file_name: str = Query(..., alias="fileName", min_length=1),
-    limit: int = Query(default=7, ge=1, le=50),
+    file_id: str = Query(..., alias="fileId", min_length=1),
+    limit: int = Query(default=7, ge=1, le=20), # This limit is for the number of parent chunks to return per request.
     cursor: str | None = Query(default=None),
 ):
-    """Return paginated parent chunks for one merged filename."""
+    """Return paginated parent chunks for one merged file ID."""
     try:
         result = await ReconstructionService.get_file_parent_chunks(
-            file_name=file_name,
+            file_id=file_id,
             limit=limit,
             cursor=cursor,
         )
 
         return FileChunksResponse(
-            fileName=result["fileName"],
+            fileId=result["fileId"],
             chunks=[
                 ParentChunkContent(
                     parentId=chunk["parentId"],
@@ -187,7 +133,6 @@ async def get_file_chunks(
                 )
                 for chunk in result["chunks"]
             ],
-            totalParentChunks=result["totalParentChunks"],
             hasMore=result["hasMore"],
             nextCursor=result["nextCursor"],
         )

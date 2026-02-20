@@ -21,7 +21,6 @@ function createEmptyTabState(): FileTabState {
         nextCursor: null,
         isLoading: false,
         isInitialized: false,
-        totalParentChunks: 0,
         error: null,
     };
 }
@@ -40,6 +39,11 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const [editingDraftByParentId, setEditingDraftByParentId] = useState<Record<string, string>>({});
     const [savingParentId, setSavingParentId] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
+
+    const getFileIdByName = useCallback(
+        (fileName: string) => files.find((item) => item.fileName === fileName)?.fileId ?? null,
+        [files]
+    );
 
     const fetchFiles = useCallback(async () => {
         setIsLoadingFiles(true);
@@ -90,6 +94,23 @@ export function useDocuments(isModificationPanelOpen: boolean) {
 
     const loadFileChunks = useCallback(
         async (fileName: string, reset = false) => {
+            const fileId = getFileIdByName(fileName);
+            if (!fileId) {
+                setTabStates((previousStates) => {
+                    const state = previousStates[fileName] ?? createEmptyTabState();
+                    return {
+                        ...previousStates,
+                        [fileName]: {
+                            ...state,
+                            isLoading: false,
+                            isInitialized: true,
+                            error: `Missing file ID for ${fileName}. Please refresh documents.`,
+                        },
+                    };
+                });
+                return;
+            }
+
             const currentState = tabStates[fileName] ?? createEmptyTabState();
 
             if (currentState.isLoading) {
@@ -125,7 +146,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             try {
                 const response = await axios.get(`${API_BASE}/api/modifications/file-chunks`, {
                     params: {
-                        fileName,
+                        fileId,
                         limit: PAGE_SIZE,
                         ...(cursor ? { cursor } : {}),
                     },
@@ -147,7 +168,6 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                             chunks: dedupedChunks,
                             hasMore: Boolean(response.data.hasMore),
                             nextCursor: response.data.nextCursor ?? null,
-                            totalParentChunks: Number(response.data.totalParentChunks ?? 0),
                             isLoading: false,
                             isInitialized: true,
                             error: null,
@@ -184,7 +204,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                 });
             }
         },
-        [tabStates]
+        [getFileIdByName, tabStates]
     );
 
     const getChunkContentByParentId = useCallback(

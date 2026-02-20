@@ -121,13 +121,13 @@ export default function Sidebar({
                     ) : (
                         files.map((file) => (
                             <button
-                                key={file.fileName}
+                                key={file.fileId}
                                 className={`sidebar-document-item ${activeTab === file.fileName ? "active" : ""}`}
                                 onClick={() => onOpenFile(file.fileName)}
                                 type="button"
                             >
                                 <div className="sidebar-document-title">{file.fileName}</div>
-                                <div className="sidebar-document-preview">{file.preview || "..."}</div>
+                                <div className="sidebar-document-preview">{file.previewTexts || "..."}</div>
                             </button>
                         ))
                     )}
