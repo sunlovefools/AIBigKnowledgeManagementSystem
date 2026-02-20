@@ -17,20 +17,6 @@ class ReconstructionService:
     """Service for reconstructing files from stored chunks."""
 
     @staticmethod
-    async def _collect_child_chunks():
-        """Retrieve child chunks from vector DB with fallback search."""
-        try:
-            return await VECTOR_STORE.asimilarity_search("document", k=1000)
-        except Exception as search_error:
-            print(f"  ⚠️  Vector search failed: {search_error}")
-            print("  → Attempting fallback: using different search term...")
-            try:
-                return await VECTOR_STORE.asimilarity_search("the", k=1000)
-            except Exception as fallback_error:
-                print(f"  ❌ Fallback also failed: {fallback_error}")
-                raise RuntimeError(f"Vector search failed: {str(search_error)}")
-
-    @staticmethod
     def _sorted_parent_ids_for_file(all_child_chunks, file_name: str) -> list[str]:
         """Get deterministic ordered parent IDs for a file name."""
         parent_first_chunk: dict[str, int] = {}
@@ -69,51 +55,39 @@ class ReconstructionService:
         return f"{normalized[:preview_length].rstrip()}..."
 
     @staticmethod
-    async def get_file_summaries(preview_length: int = 220) -> list[dict]:
+    async def get_all_preview_files() -> list[dict]:
         """Retrieve merged file list with one parent-chunk preview per filename."""
-        print("🔄 Retrieving filename-merged summaries from Vector Store...")
+        print("🔄 Retrieving filename-merged summaries from Parent Store...")
 
         try:
-            all_child_chunks = await ReconstructionService._collect_child_chunks()
-            if not all_child_chunks:
-                return []
-
-            files_map: dict[str, list[str]] = {}
-
-            file_names = {
-                ((doc.metadata or {}).get("file_metadata") or {}).get("file_name", "Unknown")
-                for doc in all_child_chunks
-                if ((doc.metadata or {}).get("child_chunk_metadata") or {}).get("parent_id")
-            }
-
-            for file_name in file_names:
-                ordered_parent_ids = ReconstructionService._sorted_parent_ids_for_file(all_child_chunks, file_name)
-                if ordered_parent_ids:
-                    files_map[file_name] = ordered_parent_ids
-
-            if not files_map:
+            rows = await PARENT_STORE.get_all_files()
+            if not rows:
                 return []
 
             summaries: list[dict] = []
+            for row in rows:
+                if not isinstance(row, dict):
+                    continue
 
-            for file_name in sorted(files_map.keys(), key=lambda value: value.lower()):
-                ordered_parent_ids = files_map[file_name]
-                first_parent_id = ordered_parent_ids[0]
-                preview_text = ""
+                # The value will have everything of the chunk, including the metadata, filename and content.
+                parent_doc = row.get("value")
+                if not isinstance(parent_doc, dict):
+                    continue
 
-                parent_doc = await PARENT_STORE.aget(first_parent_id)
-                if isinstance(parent_doc, dict):
-                    preview_text = str(parent_doc.get("page_content", ""))
+                metadata = parent_doc.get("metadata", {}) or {}
+                file_metadata = metadata.get("file_metadata", {}) or {}
+                file_name = file_metadata.get("file_name") or metadata.get("source") or "Unknown"
+                preview_text = str(parent_doc.get("page_content", ""))
 
+                # Append a preview of the first parent chunk for each file.
                 summaries.append(
                     {
                         "fileName": file_name,
-                        "preview": ReconstructionService._truncate_preview(preview_text, preview_length),
-                        "totalParentChunks": len(ordered_parent_ids),
+                        "preview": preview_text,
                     }
                 )
 
-            return summaries
+            return sorted(summaries, key=lambda item: str(item.get("fileName", "")).lower()) # Return a sorted list of summaries, based on the filename
         except RuntimeError:
             raise
         except Exception as error:
@@ -281,9 +255,14 @@ class ReconstructionService:
             
             if not parent_doc or "page_content" not in parent_doc:
                 return None
+
+            metadata = parent_doc.get("metadata", {}) or {}
+            file_metadata = metadata.get("file_metadata", {}) or {}
+            file_name = file_metadata.get("file_name") or metadata.get("source") or "Unknown"
             
             return {
                 "id": parent_id,
+                "fileName": file_name,
                 "content": parent_doc["page_content"],
                 "size": len(parent_doc["page_content"]),
             }
@@ -348,8 +327,11 @@ class ReconstructionService:
             )
 
             print(f"✅ Document {file_name} updated successfully!")
+            new_parent_id = parent_chunks_dicts[0]["parent_chunk_id"]
             return {
-                "id": parent_chunks_dicts[0]["_id"],
+                "id": new_parent_id,
+                "parentId": new_parent_id,
+                "previousParentId": parent_id,
                 "fileName": file_name,
                 "content": new_content,
                 "size": len(new_content),

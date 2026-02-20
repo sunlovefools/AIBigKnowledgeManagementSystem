@@ -28,6 +28,8 @@ class AstraParentDocumentStore:
         Initializes the AstraParentDocumentStore.
         """
         client = DataAPIClient()
+
+        # Storing the collection object for later use
         self.collection = client.get_database(api_endpoint, token=token).get_collection(collection_name)
 
     async def amset(self, key_value_pairs: list[tuple[str, dict]]) -> None:
@@ -91,6 +93,20 @@ class AstraParentDocumentStore:
         keys = await asyncio.to_thread(self._list_keys)
         for key in keys:
             yield key
+
+    async def get_all_files(self) -> list[dict]:
+        """Retrieve all parent-store rows from the collection."""
+        return await asyncio.to_thread(self._get_all_files)
+
+    def _get_all_files(self) -> list[dict]:
+        files: list[dict] = []
+        cursor = self.collection.find(
+            {"value.metadata.parent_chunk_metadata.parent_chunk_number": 0}
+        )
+        for row in cursor:
+            if isinstance(row, dict):
+                files.append(row)
+        return files
 
     def _list_keys(self) -> list[str]:
         keys: list[str] = []

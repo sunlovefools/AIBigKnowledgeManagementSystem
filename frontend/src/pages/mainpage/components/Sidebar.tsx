@@ -128,9 +128,6 @@ export default function Sidebar({
                             >
                                 <div className="sidebar-document-title">{file.fileName}</div>
                                 <div className="sidebar-document-preview">{file.preview || "..."}</div>
-                                <div className="sidebar-document-meta">
-                                    {file.totalParentChunks} parent chunks
-                                </div>
                             </button>
                         ))
                     )}

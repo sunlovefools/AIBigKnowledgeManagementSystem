@@ -97,7 +97,7 @@ async def delete_children_by_parent_id(parent_id: str) -> int:
     print(f"🗑️ Deleting child chunks for parent_id={parent_id}...")
     try:
         collection = VECTOR_STORE.astra_env.async_collection
-        result = await collection.delete_many(filter={"metadata.parent_id": parent_id})
+        result = await collection.delete_many(filter={"metadata.child_chunk_metadata.parent_id": parent_id})
         deleted = result.deleted_count if hasattr(result, 'deleted_count') else 0
         print(f"  ✅ Deleted child chunks for parent_id={parent_id}")
         return deleted

@@ -33,7 +33,6 @@ class FileSummary(BaseModel):
     """Sidebar summary for a merged file item."""
     fileName: str
     preview: str
-    totalParentChunks: int
 
 
 class FileSummaryResponse(BaseModel):
@@ -56,6 +55,22 @@ class FileChunksResponse(BaseModel):
     totalParentChunks: int
     hasMore: bool
     nextCursor: str | None
+
+
+class UpdateParentChunkRequest(BaseModel):
+    """Payload for updating a parent chunk's reconstructed content."""
+    fileName: str
+    content: str
+
+
+class UpdateParentChunkResponse(BaseModel):
+    """Response for updated parent chunk content."""
+    parentId: str
+    previousParentId: str
+    fileName: str
+    content: str
+    size: int
+    chunks: int
 
 
 # --- API Endpoints ---
@@ -121,19 +136,16 @@ async def get_all_documents():
             detail=f"Failed to retrieve documents: {str(e)}"
         )
 
-
-@router.get("/files", response_model=FileSummaryResponse)
-async def get_file_summaries(
-    preview_length: int = Query(default=220, ge=80, le=1000),
-):
+# The endpoint for retrieving all preview files in a summary format for the left sidebar.
+@router.get("/all-preview-files", response_model=FileSummaryResponse)
+async def get_all_preview_files():
     """Return filename-merged summaries for the left sidebar."""
     try:
-        files = await ReconstructionService.get_file_summaries(preview_length=preview_length)
+        files = await ReconstructionService.get_all_preview_files()
         response_files = [
             FileSummary(
                 fileName=file_item["fileName"],
                 preview=file_item["preview"],
-                totalParentChunks=file_item["totalParentChunks"],
             )
             for file_item in files
         ]
@@ -230,4 +242,61 @@ async def get_document_content(document_id: str):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to retrieve document: {str(e)}"
+        )
+
+
+@router.put("/parent-chunks/{parent_id}", response_model=UpdateParentChunkResponse)
+async def update_parent_chunk(parent_id: str, payload: UpdateParentChunkRequest):
+    """Update one parent chunk by replacing its content and re-ingesting chunks."""
+    try:
+        incoming_content = payload.content.strip()
+        if not incoming_content:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="content must not be empty",
+            )
+
+        existing_doc = await ReconstructionService.get_document_by_id(parent_id)
+        if not existing_doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Document with parent ID '{parent_id}' not found",
+            )
+
+        existing_file_name = str(existing_doc.get("fileName") or "Unknown")
+        if existing_file_name != payload.fileName:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    f"parent ID '{parent_id}' belongs to '{existing_file_name}', "
+                    f"not '{payload.fileName}'"
+                ),
+            )
+
+        updated = await ReconstructionService.update_document(
+            parent_id=parent_id,
+            new_content=payload.content,
+            file_name=payload.fileName,
+        )
+
+        return UpdateParentChunkResponse(
+            parentId=updated["parentId"],
+            previousParentId=updated["previousParentId"],
+            fileName=updated["fileName"],
+            content=updated["content"],
+            size=updated["size"],
+            chunks=updated["chunks"],
+        )
+    except HTTPException:
+        raise
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database service error: {str(e)}",
+        )
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to update document: {str(e)}",
         )

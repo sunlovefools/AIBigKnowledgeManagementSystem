@@ -5,6 +5,15 @@ import type { FileTabState, ParentChunkContent, SidebarFileSummary } from "../ty
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 const PAGE_SIZE = 7;
 
+type UpdateParentChunkResponse = {
+    parentId: string;
+    previousParentId: string;
+    fileName: string;
+    content: string;
+    size: number;
+    chunks: number;
+};
+
 function createEmptyTabState(): FileTabState {
     return {
         chunks: [],
@@ -26,12 +35,17 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const [openTabs, setOpenTabs] = useState<string[]>([]);
     const [activeTab, setActiveTab] = useState<string | null>(null);
     const [tabStates, setTabStates] = useState<Record<string, FileTabState>>({});
+    const [selectedParentByTab, setSelectedParentByTab] = useState<Record<string, string | null>>({});
+    const [editingParentId, setEditingParentId] = useState<string | null>(null);
+    const [editingDraftByParentId, setEditingDraftByParentId] = useState<Record<string, string>>({});
+    const [savingParentId, setSavingParentId] = useState<string | null>(null);
+    const [saveError, setSaveError] = useState<string | null>(null);
 
     const fetchFiles = useCallback(async () => {
         setIsLoadingFiles(true);
         setFileListError(null);
         try {
-            const response = await axios.get(`${API_BASE}/api/modifications/files`);
+            const response = await axios.get(`${API_BASE}/api/modifications/all-preview-files`);
             const incomingFiles = (response.data.files ?? []) as SidebarFileSummary[];
             setFiles(incomingFiles);
             setIsDocsCached(true);
@@ -39,6 +53,15 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             const validNames = new Set(incomingFiles.map((item) => item.fileName));
 
             setOpenTabs((previousTabs) => previousTabs.filter((fileName) => validNames.has(fileName)));
+            setSelectedParentByTab((previousSelections) => {
+                const nextSelections: Record<string, string | null> = {};
+                Object.entries(previousSelections).forEach(([fileName, parentId]) => {
+                    if (validNames.has(fileName)) {
+                        nextSelections[fileName] = parentId;
+                    }
+                });
+                return nextSelections;
+            });
             setTabStates((previousStates) => {
                 const nextStates: Record<string, FileTabState> = {};
                 Object.entries(previousStates).forEach(([fileName, state]) => {
@@ -131,6 +154,20 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                         },
                     };
                 });
+
+                setSelectedParentByTab((previousSelections) => {
+                    const previousSelected = previousSelections[fileName] ?? null;
+                    const containsPrevious = incomingChunks.some((chunk) => chunk.parentId === previousSelected);
+                    const nextSelected =
+                        previousSelected && (containsPrevious || !reset)
+                            ? previousSelected
+                            : (incomingChunks[0]?.parentId ?? previousSelected ?? null);
+
+                    return {
+                        ...previousSelections,
+                        [fileName]: nextSelected,
+                    };
+                });
             } catch (error) {
                 console.error(`Error loading chunks for ${fileName}:`, error);
                 setTabStates((previousStates) => {
@@ -150,8 +187,73 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         [tabStates]
     );
 
+    const getChunkContentByParentId = useCallback(
+        (parentId: string | null) => {
+            if (!parentId) {
+                return null;
+            }
+
+            for (const tabState of Object.values(tabStates)) {
+                const matchedChunk = tabState.chunks.find((chunk) => chunk.parentId === parentId);
+                if (matchedChunk) {
+                    return matchedChunk.content;
+                }
+            }
+
+            return null;
+        },
+        [tabStates]
+    );
+
+    const clearEditingState = useCallback(() => {
+        setEditingParentId((previousEditingParentId) => {
+            if (!previousEditingParentId) {
+                return null;
+            }
+
+            setEditingDraftByParentId((previousDrafts) => {
+                if (!(previousEditingParentId in previousDrafts)) {
+                    return previousDrafts;
+                }
+
+                const { [previousEditingParentId]: _removedDraft, ...nextDrafts } = previousDrafts;
+                return nextDrafts;
+            });
+
+            return null;
+        });
+        setSaveError(null);
+    }, []);
+
+    const confirmDiscardUnsavedChanges = useCallback(() => {
+        if (!editingParentId) {
+            return true;
+        }
+
+        const originalContent = getChunkContentByParentId(editingParentId) ?? "";
+        const draftContent = editingDraftByParentId[editingParentId] ?? originalContent;
+        const hasUnsavedChanges = draftContent !== originalContent;
+
+        if (!hasUnsavedChanges) {
+            clearEditingState();
+            return true;
+        }
+
+        const shouldDiscard = window.confirm("You have unsaved changes. Discard them?");
+        if (!shouldDiscard) {
+            return false;
+        }
+
+        clearEditingState();
+        return true;
+    }, [clearEditingState, editingDraftByParentId, editingParentId, getChunkContentByParentId]);
+
     const openDocumentTab = useCallback(
         async (fileName: string) => {
+            if (!confirmDiscardUnsavedChanges()) {
+                return;
+            }
+
             setOpenTabs((previousTabs) =>
                 previousTabs.includes(fileName) ? previousTabs : [...previousTabs, fileName]
             );
@@ -162,10 +264,14 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                 await loadFileChunks(fileName, false);
             }
         },
-        [loadFileChunks, tabStates]
+        [confirmDiscardUnsavedChanges, loadFileChunks, tabStates]
     );
 
     const closeDocumentTab = useCallback((fileName: string) => {
+        if (!confirmDiscardUnsavedChanges()) {
+            return;
+        }
+
         setOpenTabs((previousTabs) => {
             const index = previousTabs.indexOf(fileName);
             if (index < 0) {
@@ -189,17 +295,30 @@ export function useDocuments(isModificationPanelOpen: boolean) {
 
             return nextTabs;
         });
-    }, []);
+
+        setSelectedParentByTab((previousSelections) => {
+            if (!(fileName in previousSelections)) {
+                return previousSelections;
+            }
+
+            const { [fileName]: _removedSelection, ...nextSelections } = previousSelections;
+            return nextSelections;
+        });
+    }, [confirmDiscardUnsavedChanges]);
 
     const setActiveDocumentTab = useCallback(
         async (fileName: string) => {
+            if (!confirmDiscardUnsavedChanges()) {
+                return;
+            }
+
             setActiveTab(fileName);
             const state = tabStates[fileName];
             if (!state || !state.isInitialized) {
                 await loadFileChunks(fileName, false);
             }
         },
-        [loadFileChunks, tabStates]
+        [confirmDiscardUnsavedChanges, loadFileChunks, tabStates]
     );
 
     const loadMoreActiveTab = useCallback(async () => {
@@ -210,8 +329,12 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     }, [activeTab, loadFileChunks]);
 
     const handleRefreshDocuments = useCallback(async () => {
+        if (!confirmDiscardUnsavedChanges()) {
+            return;
+        }
+
         await fetchFiles();
-    }, [fetchFiles]);
+    }, [confirmDiscardUnsavedChanges, fetchFiles]);
 
     const invalidateDocumentCache = useCallback(() => {
         setIsDocsCached(false);
@@ -221,6 +344,149 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         () => (activeTab ? tabStates[activeTab] ?? createEmptyTabState() : null),
         [activeTab, tabStates]
     );
+
+    const activeSelectedParentId = useMemo(
+        () => (activeTab ? selectedParentByTab[activeTab] ?? null : null),
+        [activeTab, selectedParentByTab]
+    );
+
+    const activeSelectedChunk = useMemo(
+        () => activeTabState?.chunks.find((chunk) => chunk.parentId === activeSelectedParentId) ?? null,
+        [activeSelectedParentId, activeTabState]
+    );
+
+    const editingContent = useMemo(() => {
+        if (!editingParentId) {
+            return "";
+        }
+        const fallbackContent = getChunkContentByParentId(editingParentId) ?? "";
+        return editingDraftByParentId[editingParentId] ?? fallbackContent;
+    }, [editingDraftByParentId, editingParentId, getChunkContentByParentId]);
+
+    const isEditingActiveChunk = Boolean(
+        activeSelectedParentId && editingParentId && activeSelectedParentId === editingParentId
+    );
+
+    const isSavingActiveChunk = Boolean(
+        activeSelectedParentId && savingParentId && activeSelectedParentId === savingParentId
+    );
+
+    const isActiveChunkDirty = useMemo(() => {
+        if (!activeSelectedParentId || !isEditingActiveChunk) {
+            return false;
+        }
+
+        const originalContent = activeSelectedChunk?.content ?? "";
+        const draftContent = editingDraftByParentId[activeSelectedParentId] ?? originalContent;
+        return draftContent !== originalContent;
+    }, [activeSelectedChunk, activeSelectedParentId, editingDraftByParentId, isEditingActiveChunk]);
+
+    const selectActiveTabChunk = useCallback(
+        (parentId: string) => {
+            if (!activeTab) {
+                return;
+            }
+
+            if (editingParentId && parentId !== editingParentId && !confirmDiscardUnsavedChanges()) {
+                return;
+            }
+
+            setSelectedParentByTab((previousSelections) => ({
+                ...previousSelections,
+                [activeTab]: parentId,
+            }));
+            setSaveError(null);
+        },
+        [activeTab, confirmDiscardUnsavedChanges, editingParentId]
+    );
+
+    const startEditingActiveChunk = useCallback(() => {
+        if (!activeSelectedChunk) {
+            return;
+        }
+
+        setEditingParentId(activeSelectedChunk.parentId);
+        setEditingDraftByParentId((previousDrafts) => ({
+            ...previousDrafts,
+            [activeSelectedChunk.parentId]: previousDrafts[activeSelectedChunk.parentId] ?? activeSelectedChunk.content,
+        }));
+        setSaveError(null);
+    }, [activeSelectedChunk]);
+
+    const setActiveEditingContent = useCallback(
+        (nextContent: string) => {
+            if (!editingParentId) {
+                return;
+            }
+
+            setEditingDraftByParentId((previousDrafts) => ({
+                ...previousDrafts,
+                [editingParentId]: nextContent,
+            }));
+        },
+        [editingParentId]
+    );
+
+    const cancelEditingActiveChunk = useCallback(() => {
+        clearEditingState();
+    }, [clearEditingState]);
+
+    const saveEditingActiveChunk = useCallback(async () => {
+        if (!activeTab || !editingParentId || savingParentId) {
+            return false;
+        }
+
+        const originalContent = getChunkContentByParentId(editingParentId) ?? "";
+        const draftContent = editingDraftByParentId[editingParentId] ?? originalContent;
+        const trimmedDraftContent = draftContent.trim();
+
+        if (!trimmedDraftContent) {
+            setSaveError("Content cannot be empty.");
+            return false;
+        }
+
+        if (draftContent === originalContent) {
+            clearEditingState();
+            return true;
+        }
+
+        setSavingParentId(editingParentId);
+        setSaveError(null);
+
+        try {
+            const response = await axios.put<UpdateParentChunkResponse>(
+                `${API_BASE}/api/modifications/parent-chunks/${editingParentId}`,
+                {
+                    fileName: activeTab,
+                    content: draftContent,
+                }
+            );
+
+            const updatedParentId = response.data.parentId;
+            await loadFileChunks(activeTab, true);
+
+            setSelectedParentByTab((previousSelections) => ({
+                ...previousSelections,
+                [activeTab]: updatedParentId,
+            }));
+            clearEditingState();
+            return true;
+        } catch (error) {
+            console.error("Error saving parent chunk:", error);
+            setSaveError("Failed to save document changes. Please try again.");
+            return false;
+        } finally {
+            setSavingParentId(null);
+        }
+    }, [
+        activeTab,
+        clearEditingState,
+        editingDraftByParentId,
+        editingParentId,
+        getChunkContentByParentId,
+        loadFileChunks,
+        savingParentId,
+    ]);
 
     return {
         files,
@@ -237,5 +503,16 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         closeDocumentTab,
         setActiveDocumentTab,
         loadMoreActiveTab,
+        activeSelectedParentId,
+        editingContent,
+        isEditingActiveChunk,
+        isSavingActiveChunk,
+        isActiveChunkDirty,
+        saveError,
+        selectActiveTabChunk,
+        startEditingActiveChunk,
+        setActiveEditingContent,
+        cancelEditingActiveChunk,
+        saveEditingActiveChunk,
     };
 }

@@ -12,7 +12,6 @@ export type ChatMessage = {
 export type SidebarFileSummary = {
     fileName: string;
     preview: string;
-    totalParentChunks: number;
 };
 
 // Type for one parent chunk payload in full-view mode.

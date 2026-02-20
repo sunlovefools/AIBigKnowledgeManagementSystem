@@ -941,6 +941,12 @@ html,
     border-radius: 6px;
     background-color: #f8faff;
     margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.mod-panel-chunk.selected {
+    border-color: var(--accent-color);
+    background-color: #eef2ff;
 }
 
 .mod-panel-chunk-header {
@@ -967,6 +973,30 @@ html,
     font-size: 0.78rem;
     color: var(--text-secondary);
     padding: 10px 0 2px;
+}
+
+.mod-panel-document-window {
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    background-color: #f8faff;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.mod-panel-document-text {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--text-primary);
+    word-break: break-word;
+    white-space: pre-wrap;
+    font-family: inherit;
+}
+
+.mod-panel-save-error {
+    color: var(--danger-color);
+    font-size: 0.78rem;
+    margin-top: 8px;
 }
 
 /* --- Edit Mode Styles --- */

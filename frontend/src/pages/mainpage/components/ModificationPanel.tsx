@@ -27,6 +27,11 @@ export default function ModificationPanel({
 }: ModificationPanelProps) {
     const contentRef = useRef<HTMLDivElement | null>(null);
 
+    const fullDocumentContent = (activeTabState?.chunks ?? [])
+        .map((chunk) => chunk.content)
+        .join("\n\n")
+        .trim();
+
     const handleContentScroll = () => {
         if (!contentRef.current || !activeTabState || activeTabState.isLoading || !activeTabState.hasMore) {
             return;
@@ -113,14 +118,9 @@ export default function ModificationPanel({
                     <div className="mod-panel-empty">{activeTabState.error}</div>
                 ) : activeTabState?.chunks.length ? (
                     <>
-                        {activeTabState.chunks.map((chunk, index) => (
-                            <section key={chunk.parentId} className="mod-panel-chunk">
-                                <div className="mod-panel-chunk-header">
-                                    Parent chunk {index + 1}
-                                </div>
-                                <pre className="mod-panel-chunk-text">{chunk.content}</pre>
-                            </section>
-                        ))}
+                        <section className="mod-panel-document-window">
+                            <pre className="mod-panel-document-text">{fullDocumentContent}</pre>
+                        </section>
                         {activeTabState.isLoading && (
                             <div className="mod-panel-loading">Loading more chunks...</div>
                         )}
