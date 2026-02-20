@@ -6,57 +6,13 @@ from their stored chunks via the Parent-Child RAG pattern.
 
 import traceback
 import asyncio
-import json
-from datetime import datetime, timezone
-from pathlib import Path
 from app.vectordb.vectordb import (
     PARENT_STORE,
     delete_children_by_parent_id, delete_parent_document, upsert_documents
 )
 from app.service.rag.ingestion.chunker import split_parent_child_chunks
 from app.service.rag.ingestion.chunk_polisher import polish_chunks
-
-
-_VECTOR_DB_PARENT_CHUNKS_LOG_FILE = "vector_database_parent_chunks_log.txt"
-
-
-def _resolve_vector_db_log_path() -> Path:
-    """Resolve a consistent log file path for logging vector database operations."""
-    cwd = Path.cwd()
-    if (cwd / "backend").is_dir():
-        backend_dir = cwd / "backend"
-    elif cwd.name == "backend":
-        backend_dir = cwd
-    else:
-        backend_dir = Path(__file__).resolve().parents[2]
-
-    logs_dir = backend_dir / "debug" / "logs"
-    logs_dir.mkdir(parents=True, exist_ok=True)
-    return logs_dir / _VECTOR_DB_PARENT_CHUNKS_LOG_FILE
-
-
-def _log_vector_db_result(function_name: str, retrieved: dict | list, context: dict | None = None) -> None:
-    """Log the results of vector DB retrieval operations for debugging and auditing."""
-    try:
-        timestamp = datetime.now(timezone.utc).isoformat()
-        lines = [
-            "=" * 80,
-            f"Function: {function_name}",
-            f"Timestamp: {timestamp}",
-        ]
-
-        if context:
-            lines.append("Context:")
-            lines.append(json.dumps(context, ensure_ascii=False, indent=2))
-
-        lines.append("Retrieved:")
-        lines.append(json.dumps(retrieved, ensure_ascii=False, indent=2))
-
-        log_path = _resolve_vector_db_log_path()
-        with log_path.open("a", encoding="utf-8") as file_handle:
-            file_handle.write("\n".join(lines) + "\n")
-    except Exception as log_error:
-        print(f"⚠️ Failed to write vector DB debug log: {log_error}")
+from debug.debug_logger import log_vector_db_result
 
 
 class ReconstructionService:
@@ -211,7 +167,7 @@ class ReconstructionService:
                 )
 
             sorted_summaries = sorted(summaries, key=lambda item: str(item.get("fileName", "")).lower())
-            _log_vector_db_result(
+            log_vector_db_result(
                 function_name="get_all_preview_files",
                 context={"totalRows": len(rows), "returnedSummaries": len(sorted_summaries)},
                 retrieved=sorted_summaries,
@@ -251,8 +207,9 @@ class ReconstructionService:
                 "hasMore": has_more,
                 "nextCursor": next_cursor,
             }
+            
             # Persist exact output and retrieval context for debugging/auditing.
-            _log_vector_db_result(
+            log_vector_db_result(
                 function_name="get_file_parent_chunks",
                 context={
                     "fileId": file_id,
