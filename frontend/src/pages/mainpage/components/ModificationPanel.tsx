@@ -7,11 +7,20 @@ type ModificationPanelProps = {
     activeTabState: FileTabState | null;
     openTabs: string[];
     isLoadingFiles: boolean;
+    editingContent: string;
+    isEditing: boolean;
+    isSaving: boolean;
+    isDirty: boolean;
+    saveError: string | null;
     onRefreshDocuments: () => void;
     onClose: () => void;
     onTabSelect: (fileName: string) => void;
     onTabClose: (fileName: string) => void;
     onLoadMoreActiveTab: () => void;
+    onStartEditing: () => void;
+    onEditingContentChange: (nextContent: string) => void;
+    onCancelEditing: () => void;
+    onSaveEditing: () => void;
 };
 
 export default function ModificationPanel({
@@ -19,11 +28,20 @@ export default function ModificationPanel({
     activeTabState,
     openTabs,
     isLoadingFiles,
+    editingContent,
+    isEditing,
+    isSaving,
+    isDirty,
+    saveError,
     onRefreshDocuments,
     onClose,
     onTabSelect,
     onTabClose,
     onLoadMoreActiveTab,
+    onStartEditing,
+    onEditingContentChange,
+    onCancelEditing,
+    onSaveEditing,
 }: ModificationPanelProps) {
     const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -119,7 +137,53 @@ export default function ModificationPanel({
                 ) : activeTabState?.chunks.length ? (
                     <>
                         <section className="mod-panel-document-window">
-                            <pre className="mod-panel-document-text">{fullDocumentContent}</pre>
+                            <div className="preview-header">
+                                <h4>Full Text</h4>
+                                {!isEditing && (
+                                    <button
+                                        className="edit-btn"
+                                        type="button"
+                                        onClick={onStartEditing}
+                                        disabled={isSaving || activeTabState.isLoading}
+                                    >
+                                        Edit
+                                    </button>
+                                )}
+                            </div>
+
+                            {isEditing ? (
+                                <>
+                                    <textarea
+                                        className="edit-textarea"
+                                        value={editingContent}
+                                        onChange={(event) => onEditingContentChange(event.target.value)}
+                                        disabled={isSaving}
+                                        rows={20}
+                                    />
+                                    <div className="edit-actions">
+                                        <button
+                                            className="save-btn"
+                                            type="button"
+                                            onClick={onSaveEditing}
+                                            disabled={isSaving || !isDirty}
+                                        >
+                                            {isSaving ? "Saving..." : "Save"}
+                                        </button>
+                                        <button
+                                            className="cancel-btn"
+                                            type="button"
+                                            onClick={onCancelEditing}
+                                            disabled={isSaving}
+                                        >
+                                            Cancel
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <pre className="mod-panel-document-text">{fullDocumentContent}</pre>
+                            )}
+
+                            {saveError && <div className="mod-panel-save-error">{saveError}</div>}
                         </section>
                         {activeTabState.isLoading && (
                             <div className="mod-panel-loading">Loading more chunks...</div>

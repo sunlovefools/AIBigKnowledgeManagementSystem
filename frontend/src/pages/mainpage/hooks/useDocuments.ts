@@ -14,6 +14,20 @@ type UpdateParentChunkResponse = {
     chunks: number;
 };
 
+type UpdateFileResponse = {
+    fileId: string;
+    previousFileId: string;
+    fileName: string;
+    content: string;
+    size: number;
+    parentChunks: number;
+    chunks: number;
+};
+
+function buildPreviewText(content: string): string {
+    return content.replace(/\s+/g, " ").trim().slice(0, 160);
+}
+
 function createEmptyTabState(): FileTabState {
     return {
         chunks: [],
@@ -39,6 +53,9 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const [editingDraftByParentId, setEditingDraftByParentId] = useState<Record<string, string>>({});
     const [savingParentId, setSavingParentId] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
+    const [editingFileName, setEditingFileName] = useState<string | null>(null);
+    const [editingDraftByFileName, setEditingDraftByFileName] = useState<Record<string, string>>({});
+    const [savingFileName, setSavingFileName] = useState<string | null>(null);
 
     const getFileIdByName = useCallback(
         (fileName: string) => files.find((item) => item.fileName === fileName)?.fileId ?? null,
@@ -225,6 +242,21 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         [tabStates]
     );
 
+    const getFullDocumentContentByFileName = useCallback(
+        (fileName: string | null) => {
+            if (!fileName) {
+                return "";
+            }
+
+            const fileState = tabStates[fileName] ?? createEmptyTabState();
+            return fileState.chunks
+                .map((chunk) => chunk.content)
+                .join("\n\n")
+                .trim();
+        },
+        [tabStates]
+    );
+
     const clearEditingState = useCallback(() => {
         setEditingParentId((previousEditingParentId) => {
             if (!previousEditingParentId) {
@@ -242,17 +274,44 @@ export function useDocuments(isModificationPanelOpen: boolean) {
 
             return null;
         });
+
+        setEditingFileName((previousEditingFileName) => {
+            if (!previousEditingFileName) {
+                return null;
+            }
+
+            setEditingDraftByFileName((previousDrafts) => {
+                if (!(previousEditingFileName in previousDrafts)) {
+                    return previousDrafts;
+                }
+
+                const { [previousEditingFileName]: _removedDraft, ...nextDrafts } = previousDrafts;
+                return nextDrafts;
+            });
+
+            return null;
+        });
         setSaveError(null);
     }, []);
 
     const confirmDiscardUnsavedChanges = useCallback(() => {
-        if (!editingParentId) {
+        if (!editingParentId && !editingFileName) {
             return true;
         }
 
-        const originalContent = getChunkContentByParentId(editingParentId) ?? "";
-        const draftContent = editingDraftByParentId[editingParentId] ?? originalContent;
-        const hasUnsavedChanges = draftContent !== originalContent;
+        let hasUnsavedChanges = false;
+
+        if (editingParentId) {
+            const originalContent = getChunkContentByParentId(editingParentId) ?? "";
+            const draftContent = editingDraftByParentId[editingParentId] ?? originalContent;
+            hasUnsavedChanges = draftContent !== originalContent;
+        }
+
+        if (!hasUnsavedChanges && editingFileName) {
+            const originalContent = getFullDocumentContentByFileName(editingFileName);
+            const draftContent = editingDraftByFileName[editingFileName] ?? originalContent;
+            hasUnsavedChanges = draftContent !== originalContent;
+        }
 
         if (!hasUnsavedChanges) {
             clearEditingState();
@@ -266,7 +325,15 @@ export function useDocuments(isModificationPanelOpen: boolean) {
 
         clearEditingState();
         return true;
-    }, [clearEditingState, editingDraftByParentId, editingParentId, getChunkContentByParentId]);
+    }, [
+        clearEditingState,
+        editingDraftByFileName,
+        editingDraftByParentId,
+        editingFileName,
+        editingParentId,
+        getChunkContentByParentId,
+        getFullDocumentContentByFileName,
+    ]);
 
     const openDocumentTab = useCallback(
         async (fileName: string) => {
@@ -508,6 +575,158 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         savingParentId,
     ]);
 
+    const editingDocumentContent = useMemo(() => {
+        if (!editingFileName) {
+            return "";
+        }
+        const fallbackContent = getFullDocumentContentByFileName(editingFileName);
+        return editingDraftByFileName[editingFileName] ?? fallbackContent;
+    }, [editingDraftByFileName, editingFileName, getFullDocumentContentByFileName]);
+
+    const isEditingActiveDocument = Boolean(activeTab && editingFileName && activeTab === editingFileName);
+
+    const isSavingActiveDocument = Boolean(activeTab && savingFileName && activeTab === savingFileName);
+
+    const isActiveDocumentDirty = useMemo(() => {
+        if (!activeTab || !isEditingActiveDocument) {
+            return false;
+        }
+
+        const originalContent = getFullDocumentContentByFileName(activeTab);
+        const draftContent = editingDraftByFileName[activeTab] ?? originalContent;
+        return draftContent !== originalContent;
+    }, [activeTab, editingDraftByFileName, getFullDocumentContentByFileName, isEditingActiveDocument]);
+
+    const startEditingActiveDocument = useCallback(() => {
+        if (!activeTab || !activeTabState?.chunks.length) {
+            return;
+        }
+
+        const fullContent = getFullDocumentContentByFileName(activeTab);
+        setEditingFileName(activeTab);
+        setEditingDraftByFileName((previousDrafts) => ({
+            ...previousDrafts,
+            [activeTab]: previousDrafts[activeTab] ?? fullContent,
+        }));
+        setSaveError(null);
+    }, [activeTab, activeTabState?.chunks.length, getFullDocumentContentByFileName]);
+
+    const setActiveEditingDocumentContent = useCallback(
+        (nextContent: string) => {
+            if (!editingFileName) {
+                return;
+            }
+
+            setEditingDraftByFileName((previousDrafts) => ({
+                ...previousDrafts,
+                [editingFileName]: nextContent,
+            }));
+        },
+        [editingFileName]
+    );
+
+    const cancelEditingActiveDocument = useCallback(() => {
+        clearEditingState();
+    }, [clearEditingState]);
+
+    const saveEditingActiveDocument = useCallback(async () => {
+        if (!activeTab || !editingFileName || activeTab !== editingFileName || savingFileName) {
+            return false;
+        }
+
+        const fileId = getFileIdByName(activeTab);
+        if (!fileId) {
+            setSaveError(`Missing file ID for ${activeTab}. Please refresh documents.`);
+            return false;
+        }
+
+        const originalContent = getFullDocumentContentByFileName(activeTab);
+        const draftContent = editingDraftByFileName[activeTab] ?? originalContent;
+        const trimmedDraftContent = draftContent.trim();
+
+        if (!trimmedDraftContent) {
+            setSaveError("Content cannot be empty.");
+            return false;
+        }
+
+        if (draftContent === originalContent) {
+            clearEditingState();
+            return true;
+        }
+
+        setSavingFileName(activeTab);
+        setSaveError(null);
+
+        try {
+            const response = await axios.put<UpdateFileResponse>(`${API_BASE}/api/modifications/files/${fileId}`, {
+                fileName: activeTab,
+                content: draftContent,
+            });
+
+            const updated = response.data;
+            const localParentId =
+                tabStates[activeTab]?.chunks[0]?.parentId ?? `local-${updated.fileId || activeTab}`;
+
+            setFiles((previousFiles) =>
+                previousFiles.map((file) =>
+                    file.fileName === activeTab || file.fileId === updated.previousFileId
+                        ? {
+                              ...file,
+                              fileId: updated.fileId,
+                              fileName: updated.fileName,
+                              previewTexts: buildPreviewText(updated.content),
+                          }
+                        : file
+                )
+            );
+
+            setTabStates((previousStates) => {
+                const current = previousStates[activeTab] ?? createEmptyTabState();
+                return {
+                    ...previousStates,
+                    [activeTab]: {
+                        ...current,
+                        chunks: [
+                            {
+                                parentId: localParentId,
+                                content: updated.content,
+                                size: updated.size,
+                            },
+                        ],
+                        hasMore: false,
+                        nextCursor: null,
+                        isLoading: false,
+                        isInitialized: true,
+                        error: null,
+                    },
+                };
+            });
+
+            setSelectedParentByTab((previousSelections) => ({
+                ...previousSelections,
+                [activeTab]: localParentId,
+            }));
+
+            clearEditingState();
+            return true;
+        } catch (error) {
+            console.error("Error saving full document:", error);
+            setSaveError("Failed to save document changes. Please try again.");
+            return false;
+        } finally {
+            setSavingFileName(null);
+        }
+    }, [
+        activeTab,
+        clearEditingState,
+        editingDraftByFileName,
+        editingFileName,
+        getFileIdByName,
+        getFullDocumentContentByFileName,
+        savingFileName,
+        tabStates,
+    ]);
+
     return {
         files,
         isLoadingFiles,
@@ -534,5 +753,13 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         setActiveEditingContent,
         cancelEditingActiveChunk,
         saveEditingActiveChunk,
+        editingDocumentContent,
+        isEditingActiveDocument,
+        isSavingActiveDocument,
+        isActiveDocumentDirty,
+        startEditingActiveDocument,
+        setActiveEditingDocumentContent,
+        cancelEditingActiveDocument,
+        saveEditingActiveDocument,
     };
 }

@@ -7,6 +7,7 @@ Initialize two Astra DB collections:
    - Selective indexing on:
        - file_metadata.file_id
        - child_chunk_metadata.child_chunk_number
+       - child_chunk_metadata.parent_id (to maintain Parent-Child relationship)
 
 2) Default_Parent_Collection
    - Non-vector collection
@@ -79,11 +80,12 @@ def main() -> int:
         ),
         indexing={
             "allow": [
+                "metadata.file_metadata.file_name",
                 "metadata.file_metadata.file_id",
+                "metadata.child_chunk_metadata.parent_id",
                 "metadata.child_chunk_metadata.child_chunk_number",
             ]
         },
-        # Optional: if you ever insert docs WITHOUT "_id", Astra will generate UUIDv6 IDs.
         default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
     )
 
@@ -91,6 +93,7 @@ def main() -> int:
     parent_definition = CollectionDefinition(
         indexing={
             "allow": [
+                "value.metadata.file_metadata.file_name",
                 "value.metadata.file_metadata.file_id",
                 "value.metadata.parent_chunk_metadata.parent_chunk_number",
             ]

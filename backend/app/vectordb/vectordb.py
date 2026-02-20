@@ -1,3 +1,4 @@
+import asyncio
 from typing import List, Dict, Any, Tuple
 
 from langchain_core.documents import Document
@@ -16,7 +17,6 @@ RAG_STORES = init_vector_db()  # A dictionary with 'vector_store' and 'parent_st
 VECTOR_STORE = RAG_STORES['vector_store']  # LangChain AstraDBVectorStore for Child Chunks
 PARENT_STORE = RAG_STORES['parent_store']  # LangChain AstraDBStore for Parent Documents
 _RERANKER_SERVICE = ZeRankerService(model_name="BAAI/bge-reranker-v2-m3")
-
 
 # --- Ingestion / Upsertion Operations ---
 async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
@@ -83,7 +83,6 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
 
 
 # --- Deletion Operations (for document updates) ---
-
 async def delete_children_by_parent_id(parent_id: str) -> int:
     """
     Deletes all child chunks belonging to a specific parent document.
@@ -96,9 +95,11 @@ async def delete_children_by_parent_id(parent_id: str) -> int:
     """
     print(f"🗑️ Deleting child chunks for parent_id={parent_id}...")
     try:
-        collection = VECTOR_STORE.astra_env.async_collection
-        result = await collection.delete_many(filter={"metadata.child_chunk_metadata.parent_id": parent_id})
-        deleted = result.deleted_count if hasattr(result, 'deleted_count') else 0
+        deleted = await VECTOR_STORE.adelete_by_metadata_filter(
+            {
+                "child_chunk_metadata.parent_id": parent_id,
+            }
+        )
         print(f"  ✅ Deleted child chunks for parent_id={parent_id}")
         return deleted
     except Exception as e:
@@ -115,8 +116,8 @@ async def delete_parent_document(parent_id: str) -> None:
     """
     print(f"🗑️ Deleting parent document {parent_id}...")
     try:
-        collection = PARENT_STORE.astra_env.async_collection
-        await collection.delete_one(filter={"_id": parent_id})
+        collection = PARENT_STORE.collection
+        await asyncio.to_thread(collection.delete_one, {"_id": parent_id})
         print(f"  ✅ Deleted parent document {parent_id}")
     except Exception as e:
         print(f"  ❌ Failed to delete parent document: {e}")

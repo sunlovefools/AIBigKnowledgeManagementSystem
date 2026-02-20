@@ -10,7 +10,7 @@ import json
 from datetime import datetime, timezone
 from pathlib import Path
 from app.vectordb.vectordb import (
-    VECTOR_STORE, PARENT_STORE,
+    PARENT_STORE,
     delete_children_by_parent_id, delete_parent_document, upsert_documents
 )
 from app.service.rag.ingestion.chunker import split_parent_child_chunks
@@ -65,7 +65,12 @@ class ReconstructionService:
         """Find parent chunks by file_id and parent_chunk_number range using collection.find."""
 
         def _query_rows() -> list[dict]:
+            # Access the raw Astra collection for direct metadata filtering.
             collection = PARENT_STORE.collection
+
+            # Fetch only rows for this file and only chunk numbers within the current cursor window:
+            # current_chunk_number < x < current_chunk_number + limit
+            # This keeps pagination deterministic and bounded per request.
             cursor = collection.find(
                 {
                     "value.metadata.file_metadata.file_id": file_id,
@@ -75,15 +80,21 @@ class ReconstructionService:
                     },
                 }
             )
+
+            # Materialize cursor results into a plain list for async handoff.
             rows: list[dict] = []
             for row in cursor:
                 if isinstance(row, dict):
                     rows.append(row)
             return rows
 
+        # Run blocking DB iteration off the event loop thread.
         rows = await asyncio.to_thread(_query_rows)
 
-        normalized_rows: list[tuple[int, str, str]] = []
+        # Build an internal sortable structure that retains chunkNumber.
+        # chunkNumber is required for ordering and next cursor computation,
+        # while the public response only returns parentId/content/size.
+        sorted_rows: list[dict] = []
         for row in rows:
             parent_id = str(row.get("_id", ""))
             value = row.get("value")
@@ -100,22 +111,35 @@ class ReconstructionService:
                 continue
 
             content = str(value.get("page_content", ""))
-            normalized_rows.append((int(chunk_number_raw), parent_id, content))
+            sorted_rows.append(
+                {
+                    "chunkNumber": int(chunk_number_raw),
+                    "parentId": parent_id,
+                    "content": content,
+                    "size": len(content),
+                }
+            )
 
-        normalized_rows.sort(key=lambda item: (item[0], item[1]))
+        # Stable ordering guarantees predictable pagination and cursor progression.
+        sorted_rows.sort(key=lambda item: (item["chunkNumber"], item["parentId"]))
 
+        # Keep the current strict-range behavior where at most (limit - 1) items are returned.
         window_size = max(limit - 1, 1)
-        page_rows = normalized_rows[:window_size]
-        has_more = len(page_rows) == window_size
-        next_cursor = str(page_rows[-1][0]) if has_more and page_rows else None
+        page_rows = sorted_rows[:window_size]
 
+        # If the current page is full, caller can continue by using next_cursor.
+        has_more = len(page_rows) == window_size
+        # Cursor uses the last emitted chunk number to continue from that position.
+        next_cursor = str(page_rows[-1]["chunkNumber"]) if has_more and page_rows else None
+
+        # Public payload intentionally excludes chunkNumber.
         chunks = [
             {
-                "parentId": parent_id,
-                "content": content,
-                "size": len(content),
+                "parentId": row["parentId"],
+                "content": row["content"],
+                "size": row["size"],
             }
-            for _chunk_number, parent_id, content in page_rows
+            for row in page_rows
         ]
 
         return chunks, has_more, next_cursor
@@ -204,11 +228,13 @@ class ReconstructionService:
         print(f"🔄 Retrieving paginated parent chunks for file_id: {file_id}")
 
         try:
+            # Cursor is the previously returned chunkNumber; default -1 starts from the beginning.
             current_chunk_number = -1
             if cursor:
                 try:
                     current_chunk_number = int(cursor)
                 except ValueError:
+                    # Invalid cursor falls back to first page behavior.
                     current_chunk_number = -1
 
             chunks, has_more, next_cursor = await ReconstructionService._find_parent_chunks_in_range(
@@ -223,6 +249,7 @@ class ReconstructionService:
                 "hasMore": has_more,
                 "nextCursor": next_cursor,
             }
+            # Persist exact output and retrieval context for debugging/auditing.
             _log_vector_db_result(
                 function_name="get_file_parent_chunks",
                 context={
@@ -422,3 +449,90 @@ class ReconstructionService:
             print(f"❌ Failed to update document {parent_id}: {e}")
             traceback.print_exc()
             raise RuntimeError(f"Document update failed: {str(e)}")
+
+    @staticmethod
+    async def update_file(file_id: str, new_content: str, file_name: str) -> dict:
+        """
+        Updates all parent chunks of one merged file by file_id, then re-chunks and re-ingests.
+
+        Args:
+            file_id: The file identifier that groups parent chunks.
+            new_content: The full edited text content.
+            file_name: The filename used for metadata.
+
+        Returns:
+            dict: Updated file metadata.
+        """
+        print(f"📝 Updating full file, file_id: {file_id} ({file_name})...")
+
+        try:
+            parent_collection = PARENT_STORE.collection
+
+            # Search for all parent chunks with this file_id to find their parent IDs.
+            def _find_parent_ids_for_file() -> list[str]:
+                cursor = parent_collection.find({"value.metadata.file_metadata.file_id": file_id})
+                parent_ids: list[str] = []
+                for row in cursor:
+                    if isinstance(row, dict):
+                        parent_id = str(row.get("_id", "")).strip()
+                        if parent_id:
+                            parent_ids.append(parent_id)
+                # Return the parent chunk IDs of all parent chunks that belong to this file_id 
+                return parent_ids
+
+            parent_ids = await asyncio.to_thread(_find_parent_ids_for_file)
+
+            if not parent_ids:
+                raise RuntimeError(f"No parent chunks found for file_id={file_id}")
+
+            # 1. Delete all child chunks and parent chunks for this file.
+            for parent_id in parent_ids:
+                await delete_children_by_parent_id(parent_id)
+                await delete_parent_document(parent_id)
+
+            # 2. Re-chunk full edited content.
+            print("Chunking new content")
+            parent_chunks_models, child_chunks_models = split_parent_child_chunks(
+                new_content,
+                file_name=file_name,
+                parent_target_chars=1500,
+                child_max_chars=600,
+            )
+
+            if not parent_chunks_models:
+                raise ValueError("New content produced no chunks — content may be empty.")
+
+            # 3. Polish child chunks.
+            print("Polishing child chunks")
+            child_chunks_dicts = [chunk.model_dump(by_alias=False) for chunk in child_chunks_models]
+            polished_child_chunks = polish_chunks(child_chunks_dicts)
+
+            # 4. Persist parent + child chunks.
+            print("Storing new chunks in database")
+            parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
+            await upsert_documents(
+                parent_chunks=parent_chunks_dicts,
+                child_chunks=polished_child_chunks,
+            )
+
+            first_parent = parent_chunks_dicts[0]
+            resulting_file_id = (
+                ((first_parent.get("file_metadata") or {}).get("file_id"))
+                or file_id
+            )
+
+            print(f"✅ File {file_name} updated successfully!")
+            return {
+                "fileId": resulting_file_id,
+                "previousFileId": file_id,
+                "fileName": file_name,
+                "content": new_content,
+                "size": len(new_content),
+                "parentChunks": len(parent_chunks_dicts),
+                "chunks": len(child_chunks_dicts),
+            }
+
+        except Exception as e:
+            print(f"❌ Failed to update file {file_id}: {e}")
+            traceback.print_exc()
+            raise RuntimeError(f"File update failed: {str(e)}")

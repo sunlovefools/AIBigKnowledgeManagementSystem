@@ -46,6 +46,15 @@ export default function MainPage() {
         setActiveDocumentTab,
         loadMoreActiveTab,
         invalidateDocumentCache,
+        editingDocumentContent,
+        isEditingActiveDocument,
+        isSavingActiveDocument,
+        isActiveDocumentDirty,
+        saveError,
+        startEditingActiveDocument,
+        setActiveEditingDocumentContent,
+        cancelEditingActiveDocument,
+        saveEditingActiveDocument,
     } = useDocuments(isModificationPanelOpen); // run the useDocuments hook to get document-related state and handlers
 
     const { selectedFile, isUploading, handleFileSelect, handleUpload, clearFile } = useFileUpload({
@@ -184,6 +193,11 @@ export default function MainPage() {
                     activeTab={activeTab}
                     activeTabState={activeTabState}
                     isLoadingFiles={isLoadingFiles}
+                    editingContent={editingDocumentContent}
+                    isEditing={isEditingActiveDocument}
+                    isSaving={isSavingActiveDocument}
+                    isDirty={isActiveDocumentDirty}
+                    saveError={saveError}
                     onRefreshDocuments={handleRefreshDocuments}
                     onClose={() => setIsModificationPanelOpen(false)}
                     onTabSelect={(fileName) => {
@@ -191,6 +205,12 @@ export default function MainPage() {
                     }}
                     onTabClose={closeDocumentTab}
                     onLoadMoreActiveTab={loadMoreActiveTab}
+                    onStartEditing={startEditingActiveDocument}
+                    onEditingContentChange={setActiveEditingDocumentContent}
+                    onCancelEditing={cancelEditingActiveDocument}
+                    onSaveEditing={() => {
+                        void saveEditingActiveDocument();
+                    }}
                 />
             </div>
 
