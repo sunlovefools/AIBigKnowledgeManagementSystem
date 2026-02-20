@@ -42,22 +42,7 @@ async def query_documents(request: QueryRequest):
     3. Generate an answer from the context using the Answer Generator LLM.
     """
 
-    # As of now, we are skipping query refinement as experiment.
-    # --- Step 1: Query Refinement using LLM ---
-    # print(f"📝 Original Query: {request.query}")
-
-    # try:
-    #     # Get the LLM to refine the query
-    #     refined_query = await refine_query(request.query)
-    #     print(f"✨ Refined Query: {refined_query}")
-    # except Exception as error:
-    #     print(f"❌ Query refinement failed: {error}")
-    #     raise HTTPException(
-    #         status_code=500,
-    #         detail=f"Query refinement failed: {str(error)}"
-    #     )
-
-    # --- Step 2: Retrieval of Parent Documents (Full Context) ---
+    # --- Step 1: Retrieval of Parent Documents (Full Context) ---
     try:
         # search_and_retrieve_context performs vector search on child chunks 
         # and looks up the full content from the parent documents.
@@ -77,7 +62,7 @@ async def query_documents(request: QueryRequest):
         )
 
 
-    # ---- Step 3: Send to LLM for Answer Generation ----
+    # ---- Step 2: Send to LLM for Answer Generation ----
     try:
         answer = await generate_answer(rag_docs, request.query)
         print("🧠 LLM Answer Generated!")

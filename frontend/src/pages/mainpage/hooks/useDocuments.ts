@@ -66,7 +66,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         setIsLoadingFiles(true);
         setFileListError(null);
         try {
-            const response = await axios.get(`${API_BASE}/api/modifications/all-preview-files`);
+            const response = await axios.get(`${API_BASE}/api/retrieve/all-preview-files`);
             const incomingFiles = (response.data.files ?? []) as SidebarFileSummary[];
             setFiles(incomingFiles);
             setIsDocsCached(true);
@@ -161,7 +161,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             const cursor = reset ? null : currentState.nextCursor;
 
             try {
-                const response = await axios.get(`${API_BASE}/api/modifications/file-chunks`, {
+                const response = await axios.get(`${API_BASE}/api/retrieve/file-chunks`, {
                     params: {
                         fileId,
                         limit: PAGE_SIZE,
@@ -658,7 +658,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         setSaveError(null);
 
         try {
-            const response = await axios.put<UpdateFileResponse>(`${API_BASE}/api/modifications/files/${fileId}`, {
+            const response = await axios.put<UpdateFileResponse>(`${API_BASE}/api/modifications/update-file/${fileId}`, {
                 fileName: activeTab,
                 content: draftContent,
             });
