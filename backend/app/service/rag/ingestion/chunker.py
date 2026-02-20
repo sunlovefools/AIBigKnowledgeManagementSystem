@@ -1,27 +1,25 @@
 from typing import List, Tuple
+from datetime import datetime, timezone
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
-from pydantic import BaseModel, Field
-from uuid import uuid4 
+from pydantic import BaseModel
+
+from app.core.id_utils import generate_uuid_v6
 
 # Define Schema for Parent and Child chunks
 class ParentChunkModel(BaseModel):
     """Schema for the large, context-rich Parent Documents (Document Store)."""
-    # Uses Field(..., alias="_id") and by_alias=True config for AstraDB compatibility
-    # The MongoDB driver prefers '_id', but we use 'parent_id' internally.
-    db_id: str = Field(..., alias="_id")
-    content: str                    # The large text segment (full context for LLM)
-    document_name: str
-    
-    class Config:
-        populate_by_name = True     # Allows initialization by field alias (_id)
+    parent_chunk_id: str
+    content: str
+    file_metadata: dict
+    parent_chunk_metadata: dict
         
 class ChildChunkModel(BaseModel):
     """Schema for the small, embedded Child Chunks (Vector Store)."""
-    index: int                       # Global sequential index
-    text: str                        # The small text segment (embedded for vector search)
-    parent_id: str                   # Foreign key linking back to the ParentChunkModel._id
-    file_name: str                   # Original file name
+    child_chunk_id: str
+    content: str
+    file_metadata: dict
+    child_chunk_metadata: dict
 
 # --- Helper function ---
 def _create_initial_child_chunks(text: str, file_name: str, chunk_size: int) -> List[Document]:
@@ -29,13 +27,16 @@ def _create_initial_child_chunks(text: str, file_name: str, chunk_size: int) -> 
     Step 1: Raw Splitting.
     Splits text into raw child chunks using LangChain's recursive splitter.
     """
+    # Initialise the RecursiveCharacterTextSplitter with the desired chunk size and overlap.
     splitter = RecursiveCharacterTextSplitter(
         chunk_size=chunk_size,
         chunk_overlap=int(chunk_size * 0.1),  # 10% overlap
         separators=["\n\n", "\n", ".", " ", ""]
     )
-    base_doc = Document(page_content=text, metadata={"document_name": file_name})
-    return splitter.split_documents([base_doc])
+
+    # Initialise a document type with the content and basic metadata (filename) for splitting.
+    base_doc = Document(page_content=text, metadata={"file_name": file_name})
+    return splitter.split_documents([base_doc]) # Returns a list of LangChain Document objects with 'page_content' and 'metadata' (including file_name).
 
 def _merge_small_chunks(docs: List[Document], min_chars: int) -> List[Document]:
     """
@@ -91,7 +92,7 @@ def _group_children_into_parents(
 
         # Check if adding this child exceeds the parent target
         if current_length + child_len > target_parent_size:
-            if current_group:
+            if current_group: # Only append if there are already child chunks in the current group
                 parent_groups.append(current_group)
             
             # Reset for new group
@@ -170,34 +171,55 @@ def split_parent_child_chunks(
     final_parent_chunks = []
     final_child_chunks = []
     child_global_index = 0
+    file_id = generate_uuid_v6() # Generate a UUID for the file to link all chunks together in metadata
 
-    for group in parent_groups:
+    for parent_chunk_number, group in enumerate(parent_groups):
         # Assign a unique ID to the Parent (To link Children later)
-        parent_id = str(uuid4())
+        parent_id = generate_uuid_v6()
+        parent_child_ids: List[str] = []
+        parent_ingested_at = datetime.now(timezone.utc).isoformat()
 
         # Join children with newlines to reconstruct the Parent Text
         parent_content = " ".join([doc.page_content for doc in group])
 
-        # A. Create Parent Model (The Context)
-        final_parent_chunks.append(
-            ParentChunkModel(
-                db_id=parent_id,
-                content=parent_content,
-                document_name=file_name,
-            )
-        )
-
-        # B. Create Child Models (The Vectors)
+        # A. Create Child Models (The Vectors)
         # Each child stores the 'parent_id' so the LLM can find the full context later
         for child_doc in group:
+            child_id = generate_uuid_v6()
+            parent_child_ids.append(child_id)
+            child_ingested_at = datetime.now(timezone.utc).isoformat()
             final_child_chunks.append(
                 ChildChunkModel(
-                    index=child_global_index,
-                    text=child_doc.page_content.strip(),
-                    parent_id=parent_id, 
-                    file_name=file_name,
+                    child_chunk_id=child_id,
+                    content=child_doc.page_content.strip(),
+                    file_metadata={
+                        "file_name": file_name,
+                        "file_id": file_id,
+                    },
+                    child_chunk_metadata={
+                        "parent_id": parent_id,
+                        "child_chunk_number": child_global_index,
+                        "ingested_at": child_ingested_at,
+                    },
                 )
             )
             child_global_index += 1
+
+        # B. Create Parent Model (The Context)
+        final_parent_chunks.append(
+            ParentChunkModel(
+                parent_chunk_id=parent_id,
+                content=parent_content,
+                file_metadata={
+                    "file_name": file_name,
+                    "file_id": file_id,
+                },
+                parent_chunk_metadata={
+                    "child_chunks_ids": parent_child_ids,
+                    "parent_chunk_number": parent_chunk_number,
+                    "ingested_at": parent_ingested_at,
+                },
+            )
+        )
             
     return final_parent_chunks, final_child_chunks

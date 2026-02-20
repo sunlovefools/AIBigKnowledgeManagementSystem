@@ -1,4 +1,4 @@
-# This script is used to reset (clear) the vector database collections.
+# This script is used to reset (clear) all the vector database collections.
 # Delete the existing collections used for RAG storage in Astra DB.
 # On next backend startup, the collections will be recreated empty.
 # So after running this script, restart the backend server.
@@ -15,8 +15,8 @@ ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
 
 # 2. Define the collection names used in your app
 # These match the constants in app/vectordb/vectordb_init.py
-CHILD_COLLECTION_NAME = "rag_child_vectors"       # Stores the vector embeddings
-PARENT_COLLECTION_NAME = "rag_parent_documents"   # Stores the full text content
+CHILD_COLLECTION_NAME = "Default_Child_Collection"     # Stores the vector embeddings
+PARENT_COLLECTION_NAME = "Default_Parent_Collection"   # Stores the full text content
 
 def reset_database():
     """

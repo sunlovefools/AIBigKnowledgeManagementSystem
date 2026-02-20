@@ -1,55 +1,130 @@
 ==================================================
-DEBUG: Child chunk with query of: "What is the human climate niche and how is it estimated?"
-Timestamp: 2026-02-10T21:47:05.555023+00:00
-Top-K Requested: 5
+DEBUG: Child chunk with query of: When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+Timestamp: 2026-02-14T19:44:39.789491+00:00
+Top-K Requested: 10
 --------------------------------------------------
-[Child Chunk 1 | Linked to Parent ID: 12b0b039-be9d-4d6e-a209-df8c354cbd9e | Score: 0.844572]
-Content: The human climate niche is the ensemble of climate conditions that have sustained human life and human activities, like agriculture, on the globe for the last millennia. The human climate niche is estimated by calculating the human population density with respect to mean annual temperature. The human population distrib... [truncated, total_len=563]
+[Child Chunk 1 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.886120]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
 
-[Child Chunk 2 | Linked to Parent ID: 12b0b039-be9d-4d6e-a209-df8c354cbd9e | Score: 0.783886]
-Content: Given the rise in mean global temperatures, the human population is projected to experience climate conditions beyond the human climate niche. Some projections show that considering temperature and demographic changes, 2.0 and 3.7 billion people will live in out of the niche by 2030 and 2090, respectively.
+[Child Chunk 2 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.743790]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
 
-[Child Chunk 3 | Linked to Parent ID: 12b0b039-be9d-4d6e-a209-df8c354cbd9e | Score: 0.685562]
-Content: Climate change adaptation is the process of adjusting to the effects of climate change. These can be both current or expected impacts.[1] Adaptation aims to moderate or avoid harm for people. It also aims to exploit opportunities. Humans may also intervene to help adjustment for natural systems.[1] There are many adapt... [truncated, total_len=408]
+[Child Chunk 3 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.702018]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
 
-[Child Chunk 4 | Linked to Parent ID: 4c9aaf0e-5127-459f-a921-56141d52cfb5 | Score: 0.637072]
-Content: Measures Infrastructure and international development
+[Child Chunk 4 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.690269]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
 
-[Child Chunk 5 | Linked to Parent ID: 202815cb-1e25-4ec7-be4f-077c58aba750 | Score: 0.628638]
-Content: Rumors claim that GPT-4 has 1.76 trillion parameters, which was first estimated by the speed it was running and by George Hotz.
+[Child Chunk 5 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.666964]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
 
-[Child Chunk 6 | Linked to Parent ID: 4013e317-71ff-44c9-9d80-0a4f5fc3066b | Score: 0.626933]
-Content: ### **Introduction to Human Computer Interaction** This module is part of the Human Computer Interaction theme in The School of Computer Science. This module aims to teach an understanding of people's interactions with technology and how to apply this knowledge in the design of usable interactive computer systems.
+[Child Chunk 6 | Linked to Parent ID: 3b95e310-7643-4ca7-bb69-328e7757b177 | Score: 0.655810]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
 
-[Child Chunk 7 | Linked to Parent ID: 98342c60-5ad6-4ca5-b31e-34ed35d3a96a | Score: 0.620737]
-Content: Topographical, geological and compositional mapping of the surface Study of the physical properties of the icy crusts Characterisation of the internal mass distribution, dynamics and evolution of the interiors Investigation of Ganymede's tenuous atmosphere
+[Child Chunk 7 | Linked to Parent ID: 6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35 | Score: 0.655214]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
 
-[Child Chunk 8 | Linked to Parent ID: c62740df-52f8-4977-a9e7-b92f2244e5eb | Score: 0.619150]
+[Child Chunk 8 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.654015]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 9 | Linked to Parent ID: ff94c463-09ca-4731-b8cd-69d6168dac99 | Score: 0.653553]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Child Chunk 10 | Linked to Parent ID: dee511cb-982e-48f7-965e-f1296e3b1338 | Score: 0.652591]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+[Child Chunk 11 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.650940]
+Content: JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success.
+
+[Child Chunk 12 | Linked to Parent ID: bb0f4cfc-62f6-4932-8ec0-71dde4d15130 | Score: 0.647322]
+Content: Trajectory Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include: Interplanetary transfer (Earth, Venus, Earth, Earth) Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists
+
+[Child Chunk 13 | Linked to Parent ID: 99bf64f2-cfcc-4120-9379-3355eca6e99a | Score: 0.646329]
+Content: More distant spatially resolved observations will also be carried out for several minor irregular satellites and the volcanically active moon Io.
+
+[Child Chunk 14 | Linked to Parent ID: 98342c60-5ad6-4ca5-b31e-34ed35d3a96a | Score: 0.645066]
+Content: Orbital insertion on Ganymede In December 2034, JUICE will enter an elliptical orbit around Ganymede. The first orbit will be at a distance of 5,000 km (3,100 mi). In 2035, JUICE will enter a circular orbit 500 km (310 mi) above the surface of Ganymede. JUICE will study Ganymede's composition and magnetosphere among other things. Planned deorbit on Ganymede When the spacecraft consumes its remaining propellant, JUICE is planned to be deorbited and impact Ganymede at the end of 2035.
+
+[Child Chunk 15 | Linked to Parent ID: 0c8ff673-c8b9-4041-823c-30310a277df9 | Score: 0.640960]
+Content: Starship vehicles in low Earth orbit are planned to be refilled with propellant launched in tanker Starships to enable transit to higher energy destinations such as geosynchronous orbit, the Moon, and Mars.Plans for a heavy-lift vehicle at SpaceX date to 2005, with the earliest concept resembling the modern vehicle announced in 2016. SpaceX's Starship development follows an iterative and incremental approach involving frequent, and often destructive, test flights of prototype vehicles
+
+[Child Chunk 16 | Linked to Parent ID: 36323cfc-c153-404f-9288-b018621bb655 | Score: 0.637157]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Child Chunk 17 | Linked to Parent ID: 0c8ff673-c8b9-4041-823c-30310a277df9 | Score: 0.635520]
+Content: Starship is a super heavy-lift launch vehicle under development by SpaceX. At 120 metres (394 feet) in height and with a liftoff mass of 5,000 metric tons (11,000,000 pounds), Starship is the largest and most powerful rocket ever flown, surpassing the thrust of NASA's Space Launch System and Saturn V, as well as the Soviet N1, which had previously held the record.The two-stage-to-orbit launch vehicle consists of the first-stage Super Heavy booster and the second-stage spacecraft also named Starship
+
+[Child Chunk 18 | Linked to Parent ID: c62740df-52f8-4977-a9e7-b92f2244e5eb | Score: 0.634784]
 Content: Background History and development of reconnaissance balloons
 
-[Child Chunk 9 | Linked to Parent ID: ed17783c-2aed-4238-82c5-f48cda22a29f | Score: 0.618932]
-Content: == References ==
+[Child Chunk 19 | Linked to Parent ID: b90bb096-3c0e-4245-984c-f38351967961 | Score: 0.631836]
+Content: SpaceX has since been applying the iterative design methodology, using intensive tests on a series of rocket prototypes. The first prototype, Starhopper, performed several static fires and low-altitude flights. Seven of Starship's upper-stage prototypes were flight tested between August 2020 and May 2021. The last of the seven, a full-size Starship SN15, successfully landed after reaching an altitude of 10 kilometers (6.2 mi). A full-scale orbital test flight of the rocket took place on April 20, 2023.
 
-[Child Chunk 10 | Linked to Parent ID: 6e98ab42-506d-4ee3-8cd8-eb712ba7ac45 | Score: 0.618052]
-Content: Venus has an atmosphere rich in carbon dioxide, with a density that is 90 times that of Earth's atmosphere.
+[Child Chunk 20 | Linked to Parent ID: ff2a44c5-b2fc-41e5-90b8-2a8e2f752691 | Score: 0.630199]
+Content: SpaceX COO Gwynne Shotwell gave a potential payload range between 150-200 tonnes to low Earth orbit for the planned rocket. According to SpaceX, the MCT was to be "going to be much bigger [than Falcon 9]". In February 2014, the planned principal payload for the MCT was announced to be a large interplanetary spacecraft, designed to carry up to 100 tonnes (220,000 lb) of passengers and cargo. According to SpaceX engine development head Tom Mueller, SpaceX could use nine Raptor engines on a single spacecraft
 
 --------------------------------------------------
 --------------------------------------------------
-⚖️  RERANKER RESULTS (Top 5 Selected)
+⚖️  RERANKER RESULTS (Top 10 Selected)
 --------------------------------------------------
-[Rank 1 | BGE Score: 0.998209]
-Content: N/A
+[Rank 1 | BGE Score: 0.999367]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
 
-[Rank 2 | BGE Score: 0.735898]
-Content: N/A
+[Rank 2 | BGE Score: 0.886187]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
 
-[Rank 3 | BGE Score: 0.004702]
-Content: N/A
+[Rank 3 | BGE Score: 0.236675]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
 
-[Rank 4 | BGE Score: 0.000311]
-Content: N/A
+[Rank 4 | BGE Score: 0.034499]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
 
-[Rank 5 | BGE Score: 0.000115]
-Content: N/A
+[Rank 5 | BGE Score: 0.028563]
+Content: The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces. After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard "mishap investigation"
+
+[Rank 6 | BGE Score: 0.021413]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+[Rank 7 | BGE Score: 0.007792]
+Content: Trajectory Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include: Interplanetary transfer (Earth, Venus, Earth, Earth) Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists
+
+[Rank 8 | BGE Score: 0.007544]
+Content: SpaceX has since been applying the iterative design methodology, using intensive tests on a series of rocket prototypes. The first prototype, Starhopper, performed several static fires and low-altitude flights. Seven of Starship's upper-stage prototypes were flight tested between August 2020 and May 2021. The last of the seven, a full-size Starship SN15, successfully landed after reaching an altitude of 10 kilometers (6.2 mi). A full-scale orbital test flight of the rocket took place on April 20, 2023.
+
+[Rank 9 | BGE Score: 0.006742]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Rank 10 | BGE Score: 0.005700]
+Content: SpaceX COO Gwynne Shotwell gave a potential payload range between 150-200 tonnes to low Earth orbit for the planned rocket. According to SpaceX, the MCT was to be "going to be much bigger [than Falcon 9]". In February 2014, the planned principal payload for the MCT was announced to be a large interplanetary spacecraft, designed to carry up to 100 tonnes (220,000 lb) of passengers and cargo. According to SpaceX engine development head Tom Mueller, SpaceX could use nine Raptor engines on a single spacecraft
+
+[Rank 11 | BGE Score: 0.004977]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Rank 12 | BGE Score: 0.003380]
+Content: Starship vehicles in low Earth orbit are planned to be refilled with propellant launched in tanker Starships to enable transit to higher energy destinations such as geosynchronous orbit, the Moon, and Mars.Plans for a heavy-lift vehicle at SpaceX date to 2005, with the earliest concept resembling the modern vehicle announced in 2016. SpaceX's Starship development follows an iterative and incremental approach involving frequent, and often destructive, test flights of prototype vehicles
+
+[Rank 13 | BGE Score: 0.001435]
+Content: SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program.
+
+[Rank 14 | BGE Score: 0.001166]
+Content: Starship is a super heavy-lift launch vehicle under development by SpaceX. At 120 metres (394 feet) in height and with a liftoff mass of 5,000 metric tons (11,000,000 pounds), Starship is the largest and most powerful rocket ever flown, surpassing the thrust of NASA's Space Launch System and Saturn V, as well as the Soviet N1, which had previously held the record.The two-stage-to-orbit launch vehicle consists of the first-stage Super Heavy booster and the second-stage spacecraft also named Starship
+
+[Rank 15 | BGE Score: 0.001152]
+Content: Orbital insertion on Ganymede In December 2034, JUICE will enter an elliptical orbit around Ganymede. The first orbit will be at a distance of 5,000 km (3,100 mi). In 2035, JUICE will enter a circular orbit 500 km (310 mi) above the surface of Ganymede. JUICE will study Ganymede's composition and magnetosphere among other things. Planned deorbit on Ganymede When the spacecraft consumes its remaining propellant, JUICE is planned to be deorbited and impact Ganymede at the end of 2035.
+
+[Rank 16 | BGE Score: 0.000945]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Rank 17 | BGE Score: 0.000216]
+Content: More distant spatially resolved observations will also be carried out for several minor irregular satellites and the volcanically active moon Io.
+
+[Rank 18 | BGE Score: 0.000080]
+Content: JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success.
+
+[Rank 19 | BGE Score: 0.000028]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Rank 20 | BGE Score: 0.000026]
+Content: Background History and development of reconnaissance balloons
 
 --------------------------------------------------

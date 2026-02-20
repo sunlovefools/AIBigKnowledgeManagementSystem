@@ -10,6 +10,8 @@ app = FastAPI()
 # Local imports
 import app.api.router_ingest as ingest_router
 import app.api.router_query as query_router
+import app.api.router_modifications as modifications_router
+import app.api.router_retrieve as retrieve_router
 # import app.api.router_auth as auth_router # Uncomment when auth is implemented
 
 
@@ -48,6 +50,20 @@ app.include_router(
     query_router.router, 
     prefix="/api", 
     tags=["Query"])
+
+# Modifications router
+app.include_router(
+    modifications_router.router,
+    prefix="/api/modifications",
+    tags=["Modifications"]
+)
+
+# Retrieve router
+app.include_router(
+    retrieve_router.router,
+    prefix="/api/retrieve",
+    tags=["Retrieve"]
+)
 
 # --- Data Models ---
 # TEST FOR SENDINGQUERY TO BACKEND

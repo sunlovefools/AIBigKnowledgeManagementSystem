@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -7,6 +8,7 @@ from typing import Any
 # Specifying the txt file names where debug logs will be stored. These files will be created in backend/debug/logs/
 _RETRIEVAL_RERANK_FILE = "retrieval_rerank_debug.txt"
 _ANSWER_FILE = "answer_generation_debug.txt"
+_VECTOR_DB_PARENT_CHUNKS_FILE = "vector_database_parent_chunks_log.txt"
 
 
 def _resolve_debug_dir() -> Path:
@@ -35,6 +37,34 @@ def _append(file_name: str, lines: list[str]) -> None:
     path = _resolve_debug_dir() / file_name # Resolve the full path to the debug log file
     with path.open("a", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
+
+
+def log_vector_db_result(function_name: str, retrieved: dict | list, context: dict | None = None) -> None:
+    """
+    Append vector DB retrieval/debug results into backend/debug/logs/vector_database_parent_chunks_log.txt.
+
+    Args:
+        function_name: Name of the function producing the output.
+        retrieved: The payload/result object to persist.
+        context: Optional metadata/context for the retrieval operation.
+    """
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        lines = [
+            "=" * 80,
+            f"Function: {function_name}",
+            f"Timestamp: {timestamp}",
+        ]
+
+        if context:
+            lines.append("Context:")
+            lines.append(json.dumps(context, ensure_ascii=False, indent=2))
+
+        lines.append("Retrieved:")
+        lines.append(json.dumps(retrieved, ensure_ascii=False, indent=2))
+        _append(_VECTOR_DB_PARENT_CHUNKS_FILE, lines)
+    except Exception as exc:
+        print(f"Warning: failed to write vector DB debug log: {exc}")
 
 
 def _extract_doc_and_score(item: Any) -> tuple[Any, float | None]:
@@ -158,8 +188,7 @@ def log_reranker_results(reranked_docs: list, *, top_k: int = 5) -> None:
             lines.append("No reranker results.")
 
         for index, item in enumerate(reranked_docs, start=1):
-            doc, score = _extract_doc_and_score(item)
-            content = _extract_content(doc)
+            content, score = _extract_doc_and_score(item)
             score_str = f"{score:.6f}" if isinstance(score, float) else "N/A"
 
             lines.append(f"[Rank {index} | BGE Score: {score_str}]")

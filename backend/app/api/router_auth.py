@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from datetime import datetime
 
 # Import the service and its custom error
-from app.service.auth_service import AuthService, AuthenticationError
+from app.service.auth.auth_service import AuthService, AuthenticationError
 
 # --- Pydantic Models (Data Schemas) ---
 # These models define the exact shape of the data you expect.
