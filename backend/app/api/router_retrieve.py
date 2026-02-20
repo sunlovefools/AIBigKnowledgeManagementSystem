@@ -9,7 +9,7 @@ from typing import List
 from fastapi import APIRouter, HTTPException, Query, status
 from pydantic import BaseModel
 
-from app.service.modification_service import ReconstructionService
+from app.service.modification.reconstruction_service import ReconstructionService
 
 
 router = APIRouter()

@@ -7,7 +7,7 @@ import traceback
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
-from app.service.modification_service import ReconstructionService
+from app.service.modification.reconstruction_service import ReconstructionService
 
 # Setup the API router
 router = APIRouter()

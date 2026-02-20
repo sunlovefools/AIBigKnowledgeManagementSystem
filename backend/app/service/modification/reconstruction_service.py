@@ -21,6 +21,7 @@ _VECTOR_DB_PARENT_CHUNKS_LOG_FILE = "vector_database_parent_chunks_log.txt"
 
 
 def _resolve_vector_db_log_path() -> Path:
+    """Resolve a consistent log file path for logging vector database operations."""
     cwd = Path.cwd()
     if (cwd / "backend").is_dir():
         backend_dir = cwd / "backend"
@@ -35,6 +36,7 @@ def _resolve_vector_db_log_path() -> Path:
 
 
 def _log_vector_db_result(function_name: str, retrieved: dict | list, context: dict | None = None) -> None:
+    """Log the results of vector DB retrieval operations for debugging and auditing."""
     try:
         timestamp = datetime.now(timezone.utc).isoformat()
         lines = [
@@ -58,7 +60,7 @@ def _log_vector_db_result(function_name: str, retrieved: dict | list, context: d
 
 
 class ReconstructionService:
-    """Service for reconstructing files from stored chunks."""
+    """A wrapper service for reconstructing files from stored chunks."""
 
     @staticmethod
     async def _find_parent_chunks_in_range(file_id: str, current_chunk_number: int, limit: int) -> tuple[list[dict], bool, str | None]:
