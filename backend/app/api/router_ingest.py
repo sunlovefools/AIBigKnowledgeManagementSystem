@@ -60,18 +60,18 @@ async def ingest_webhook(file: FileUpload):
     parent_chunks_models, child_chunks_models = split_parent_child_chunks(
         text, 
         file_name=file.fileName,
-        parent_max_chars=1500,
+        parent_target_chars=1500,
         child_max_chars=600    
     )
 
     # 3. Preparation for Polishing: Convert Child Models to raw dictionaries
     # The polisher expects a List[Dict[str, Any]]. We use .model_dump() for conversion.
-    child_chunks_dicts = [chunk.model_dump(by_alias=False) for chunk in child_chunks_models]
+    child_chunks_dicts = [chunk.model_dump() for chunk in child_chunks_models]
     
     # 4. Polishing: Applied only to the embeddable child chunks' text
     polished_child_chunks = polish_chunks(child_chunks_dicts)
 
-    parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
+    parent_chunks_dicts = [chunk.model_dump() for chunk in parent_chunks_models]
     
     # 5. Upsert both Parent and Child chunks into their respective stores
     try:

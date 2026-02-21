@@ -6,6 +6,7 @@ import warnings # Import warnings to silence deprecation logs
 import pandas as pd
 from datasets import Dataset
 from dotenv import load_dotenv
+from typing import Any
 
 # 1. FIX: Use Legacy Imports (Lowercase)
 # These allow custom/local embeddings without strict "Modern" checks
@@ -39,11 +40,16 @@ sys.path.append(backend_dir)
 
 # Local imports
 from app.vectordb.vectordb import search_and_retrieve_context
-from app.service.rag.retrieval.answer_generator import generate_answer
+from app.service.rag.retrieval.answer_generator import generate_answer_api
 from app.embedding.local_embedding_client import LocalGemmaEmbeddings 
 
 # Filter warnings for cleaner output
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+
+def _extract_page_contents(rag_docs: list[dict[str, Any]]) -> list[str]:
+    """Convert retrieved parent doc dicts into plain context strings for RAGAS contexts."""
+    return [str(doc.get("page_content", "")) for doc in rag_docs if isinstance(doc, dict)]
 
 def clean_text(text):
     """Helper to remove newlines and flatten text for cleaner CSVs"""
@@ -81,14 +87,14 @@ async def generate_rag_responses(dataset_path: str):
         print(f"🔹 [{i+1}/{len(golden_data)}] Processing: {question[:50]}...")
 
         try:
-            rag_contents = await search_and_retrieve_context(query=question, top_k=5)
-            print(rag_contents)
-            answer = await generate_answer(rag_contents, question)
+            rag_docs = await search_and_retrieve_context(query=question, top_k=5)
+            print(rag_docs)
+            answer = await generate_answer_api(rag_docs, question)
 
             questions.append(question)
             ground_truths.append(ground_truth) 
             generated_answers.append(answer)
-            retrieved_contexts.append(rag_contents)
+            retrieved_contexts.append(_extract_page_contents(rag_docs))
 
         except Exception as e:
             print(f"❌ Error processing row {i}: {e}")

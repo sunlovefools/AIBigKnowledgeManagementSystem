@@ -1,32 +1,49 @@
 """
 API router for file modification and reconstruction operations.
-Handles retrieving document lists and reconstructing files from chunks.
+Handles file update operations.
 """
 
 import traceback
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
-from typing import List
 
-from app.service.modification_service import ReconstructionService
+from app.service.modification.reconstruction_service import ReconstructionService
 
 # Setup the API router
 router = APIRouter()
 
 # --- Data Models ---
-class DocumentInfo(BaseModel):
-    """Information about a reconstructed document."""
-    id: str                    # Parent document ID
-    fileName: str             # Original file name
-    content: str              # Full reconstructed document content
-    size: int                 # Character count
-    chunks: int               # Number of chunks this document contains
+class UpdateParentChunkRequest(BaseModel):
+    """Payload for updating a parent chunk's reconstructed content."""
+    fileName: str
+    content: str
 
 
-class ModificationsResponse(BaseModel):
-    """Response containing list of available documents for modification."""
-    documents: List[DocumentInfo]
-    total: int
+class UpdateParentChunkResponse(BaseModel):
+    """Response for updated parent chunk content."""
+    parentId: str
+    previousParentId: str
+    fileName: str
+    content: str
+    size: int
+    chunks: int
+
+
+class UpdateFileRequest(BaseModel):
+    """Payload for updating full merged file content by file ID."""
+    fileName: str
+    content: str
+
+
+class UpdateFileResponse(BaseModel):
+    """Response for updated full-file content."""
+    fileId: str
+    previousFileId: str
+    fileName: str
+    content: str
+    size: int
+    parentChunks: int
+    chunks: int
 
 
 # --- API Endpoints ---
@@ -36,99 +53,100 @@ def modifications_health():
     """Health check endpoint for modifications module."""
     return {"modifications": "ok"}
 
-
-@router.get("/list", response_model=ModificationsResponse)
-async def get_modifiable_documents():
-    """
-    Retrieves all documents that have been ingested into the system.
-    
-    Returns a list of documents with their reconstructed content for modification.
-    Each document is reconstructed from its parent chunks stored in the database.
-    
-    Returns:
-        ModificationsResponse: List of documents with their metadata
-    
-    Raises:
-        HTTPException: If document retrieval fails
-    """
-    
-    print("📋 API: GET /api/modifications/list called")
-    
+# Endpoint that is yet to be implemented in the frontend
+@router.put("/parent-chunks/{parent_id}", response_model=UpdateParentChunkResponse)
+async def update_parent_chunk(parent_id: str, payload: UpdateParentChunkRequest):
+    """Update one parent chunk by replacing its content and re-ingesting chunks."""
     try:
-        print("  → Calling ReconstructionService.get_all_documents()...")
-        documents = await ReconstructionService.get_all_documents()
-        
-        print(f"  ✓ Retrieved {len(documents)} documents from service")
-        
-        # Convert to DocumentInfo models
-        doc_list = [
-            DocumentInfo(
-                id=doc["id"],
-                fileName=doc["fileName"],
-                content=doc["content"],
-                size=doc["size"],
-                chunks=doc["chunks"],
+        incoming_content = payload.content.strip()
+        if not incoming_content:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="content must not be empty",
             )
-            for doc in documents
-        ]
-        
-        print(f"  ✓ Successfully returning {len(doc_list)} DocumentInfo objects")
-        return ModificationsResponse(
-            documents=doc_list,
-            total=len(doc_list)
+
+        existing_doc = await ReconstructionService.get_document_by_id(parent_id)
+        if not existing_doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Document with parent ID '{parent_id}' not found",
+            )
+
+        existing_file_name = str(existing_doc.get("fileName") or "Unknown")
+        if existing_file_name != payload.fileName:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    f"parent ID '{parent_id}' belongs to '{existing_file_name}', "
+                    f"not '{payload.fileName}'"
+                ),
+            )
+
+        updated = await ReconstructionService.update_document(
+            parent_id=parent_id,
+            new_content=payload.content,
+            file_name=payload.fileName,
         )
-        
+
+        return UpdateParentChunkResponse(
+            parentId=updated["parentId"],
+            previousParentId=updated["previousParentId"],
+            fileName=updated["fileName"],
+            content=updated["content"],
+            size=updated["size"],
+            chunks=updated["chunks"],
+        )
+    except HTTPException:
+        raise
     except RuntimeError as e:
-        print(f"  ❌ RuntimeError from service: {e}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Database service error: {str(e)}"
+            detail=f"Database service error: {str(e)}",
         )
     except Exception as e:
-        print(f"  ❌ Unexpected error: {e}")
         traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve documents: {str(e)}"
+            detail=f"Failed to update document: {str(e)}",
         )
 
-
-@router.get("/document/{document_id}", response_model=DocumentInfo)
-async def get_document_content(document_id: str):
-    """
-    Retrieves the full content of a specific document by ID.
-    
-    Args:
-        document_id (str): The parent document ID
-    
-    Returns:
-        DocumentInfo: The document with its full reconstructed content
-    
-    Raises:
-        HTTPException: If document not found or retrieval fails
-    """
-    
+# Endpoint to update the full merged file content by file ID.
+@router.put("/update-file/{file_id}", response_model=UpdateFileResponse)
+async def update_file(file_id: str, payload: UpdateFileRequest):
+    """Update one merged file by replacing full content and re-ingesting chunks."""
     try:
-        doc = await ReconstructionService.get_document_by_id(document_id)
-        
-        if not doc:
+        incoming_content = payload.content.strip()
+        if not incoming_content:
             raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Document with ID '{document_id}' not found"
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="content must not be empty",
             )
-        
-        return DocumentInfo(
-            id=document_id,
-            fileName="document",  # Not stored for individual retrieval
-            content=doc["content"],
-            size=doc["size"],
-            chunks=0,
+
+        updated = await ReconstructionService.update_file(
+            file_id=file_id,
+            new_content=payload.content,
+            file_name=payload.fileName,
         )
-        
+
+        return UpdateFileResponse(
+            fileId=updated["fileId"],
+            previousFileId=updated["previousFileId"],
+            fileName=updated["fileName"],
+            content=updated["content"],
+            size=updated["size"],
+            parentChunks=updated["parentChunks"],
+            chunks=updated["chunks"],
+        )
     except HTTPException:
         raise
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database service error: {str(e)}",
+        )
     except Exception as e:
+        traceback.print_exc()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Failed to retrieve document: {str(e)}"
+            detail=f"Failed to update file: {str(e)}",
         )

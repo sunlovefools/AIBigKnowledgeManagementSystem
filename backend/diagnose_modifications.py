@@ -112,7 +112,7 @@ async def test_reconstruction_service():
     print("\n=== Testing ReconstructionService ===")
     
     try:
-        from app.service.modification_service import ReconstructionService
+        from app.service.modification.reconstruction_service import ReconstructionService
         
         print("  → Calling get_all_documents()...")
         documents = await ReconstructionService.get_all_documents()

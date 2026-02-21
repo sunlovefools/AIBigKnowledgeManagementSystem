@@ -1,0 +1,113 @@
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-02-14T19:44:40.919521+00:00
+Provider: OPENROUTER
+Model: deepseek/deepseek-r1-0528:free
+Context Length: 20611
+
+<QUERY>
+When is the scheduled launch date and time for the PSLV-C56 mission, and where will it be launched from?
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "98342c60-5ad6-4ca5-b31e-34ed35d3a96a",
+    "metadata": {
+      "document_name": "wikieval_row_49.txt"
+    },
+    "page_content": "Arrival at the Jovian system\nWhen it arrives in Jupiter's system in July 2031, JUICE will first perform a flyby of Ganymede in preparation for Jupiter orbital insertion about 7.5 hours later. The first orbit will be elongated, with subsequent orbits gradually lowered over time, resulting in a circular orbit around Jupiter.The first Europa flyby will take place in July 2032. JUICE will enter a high inclination orbit to allow exploration of Jupiter's polar regions and to study Jupiter's magnetosphere. Orbital insertion on Ganymede\nIn December 2034, JUICE will enter an elliptical orbit around Ganymede. The first orbit will be at a distance of 5,000 km (3,100 mi). In 2035, JUICE will enter a circular orbit 500 km (310 mi) above the surface of Ganymede. JUICE will study Ganymede's composition and magnetosphere among other things.\n\nPlanned deorbit on Ganymede\nWhen the spacecraft consumes its remaining propellant, JUICE is planned to be deorbited and impact Ganymede at the end of 2035. Science objectives\nThe JUICE orbiter will perform detailed investigations on Ganymede and evaluate its potential to support life. Investigations of Europa and Callisto will complete a comparative picture of these Galilean moons. The three moons are thought to harbour internal liquid water oceans, and so are central to understanding the habitability of icy worlds.\nThe main science objectives for Ganymede, and to a lesser extent for Callisto, are:\nCharacterisation of the ocean layers and detection of putative subsurface water reservoirs Topographical, geological and compositional mapping of the surface\nStudy of the physical properties of the icy crusts\nCharacterisation of the internal mass distribution, dynamics and evolution of the interiors\nInvestigation of Ganymede's tenuous atmosphere",
+    "type": "Document"
+  },
+  {
+    "id": "bb0f4cfc-62f6-4932-8ec0-71dde4d15130",
+    "metadata": {
+      "document_name": "wikieval_row_49.txt"
+    },
+    "page_content": "Timeline\nLaunch\nJUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC . JUICE's solar arrays were deployed about half an hour later, prompting ESA to deem the launch a success. Trajectory\nFollowing the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include:\nInterplanetary transfer (Earth, Venus, Earth, Earth)\nJupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists Reduction of velocity with Ganymede–Callisto assists\nIncrease inclination with 10–12 Callisto gravity assists",
+    "type": "Document"
+  },
+  {
+    "id": "ff2a44c5-b2fc-41e5-90b8-2a8e2f752691",
+    "metadata": {
+      "document_name": "wikieval_row_17.txt"
+    },
+    "page_content": ". SpaceX COO Gwynne Shotwell gave a potential payload range between 150-200 tonnes to low Earth orbit for the planned rocket. According to SpaceX, the MCT was to be \"going to be much bigger [than Falcon 9]\". In February 2014, the planned principal payload for the MCT was announced to be a large interplanetary spacecraft, designed to carry up to 100 tonnes (220,000 lb) of passengers and cargo. According to SpaceX engine development head Tom Mueller, SpaceX could use nine Raptor engines on a single spacecraft . The preliminary rocket design was to be at least 10 meters (33 ft) in diameter and was expected to have up to three cores totaling at least 27 booster engines. Interplanetary Transport System\nIn 2016, Musk changed the name of the Mars Colonial Transporter system to the Interplanetary Transport System  (ITS), as he intended for the system to be capable of traveling beyond Mars. That same year he provided more details about the space mission architecture, launch vehicle, spacecraft, and Raptor engines. The first test firing of a Raptor engine on a test stand took place in September 2016. In October 2016, Musk indicated that the initial tank test article, made out of carbon-fiber pre-preg, and built with no sealing liner, had performed well in cryogenic fluid testing . A pressure test at about 2/3 of the design burst pressure was completed in November 2016. In July 2017, Musk indicated that the architecture design had evolved since 2016 in order to support commercial transport via Earth-orbit and cislunar launches.The ITS stack was to be composed of two stages, both powered by Raptor engines. A first stage booster, and a second stage that was to be either an \"Interplanetary Spaceship\" for crewed transport or an \"ITS tanker\" for orbital refueling",
+    "type": "Document"
+  },
+  {
+    "id": "dee511cb-982e-48f7-965e-f1296e3b1338",
+    "metadata": {
+      "document_name": "wikieval_row_49.txt"
+    },
+    "page_content": "The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments .The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024. Background\nThe mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO)) .In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.",
+    "type": "Document"
+  },
+  {
+    "id": "b90bb096-3c0e-4245-984c-f38351967961",
+    "metadata": {
+      "document_name": "wikieval_row_17.txt"
+    },
+    "page_content": ". SpaceX has since been applying the iterative design methodology, using intensive tests on a series of rocket prototypes. The first prototype, Starhopper, performed several static fires and low-altitude flights. Seven of Starship's upper-stage prototypes were flight tested between August 2020 and May 2021. The last of the seven, a full-size Starship SN15, successfully landed after reaching an altitude of 10 kilometers (6.2 mi). A full-scale orbital test flight of the rocket took place on April 20, 2023. Early design proposals\nIn 2007, Elon Musk publicly stated that he hopes to enable the exploration and settlement of Mars through SpaceX. SpaceX began developing the Raptor rocket engine before 2014. From 2011 to 2014, Musk made various statements expressing his hope that SpaceX would send humans to Mars in the 2020s to 2030s. Mars Colonial Transporter\nIn October 2012, Musk made the first public articulation of plans to develop a fully reusable rocket system with substantially greater capabilities than SpaceX's existing Falcon 9. This new launch vehicle was intended to be part of the company's Mars system architecture, then known as the Mars Colonial Transporter/Mass Cargo Transport (MCT). According to SpaceX, the MCT system would include reusable rocket engines, launch vehicles and space capsules that would enable transportation of humans to Mars and back to Earth",
+    "type": "Document"
+  },
+  {
+    "id": "c62740df-52f8-4977-a9e7-b92f2244e5eb",
+    "metadata": {
+      "document_name": "wikieval_row_39.txt"
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  },
+  {
+    "id": "0c8ff673-c8b9-4041-823c-30310a277df9",
+    "metadata": {
+      "document_name": "wikieval_row_17.txt"
+    },
+    "page_content": "Starship is a super heavy-lift launch vehicle under development by SpaceX. At 120 metres (394 feet) in height and with a liftoff mass of 5,000 metric tons (11,000,000 pounds), Starship is the largest and most powerful rocket ever flown, surpassing the thrust of NASA's Space Launch System and Saturn V, as well as the Soviet N1, which had previously held the record.The two-stage-to-orbit launch vehicle consists of the first-stage Super Heavy booster and the second-stage spacecraft also named Starship . Both stages are powered by Raptor rocket engines, which burn liquid methane and liquid oxygen, operating in a full-flow staged combustion power cycle. Both are designed to be fully reusable, performing controlled landings on the arms of the launch tower used to lift the vehicles and, eventually, reflown within hours. Starship is designed to have a payload capacity of 150 tonnes (330,000 lb) to low Earth orbit in a fully reusable configuration and 250 t (550,000 lb) when expended . Starship vehicles in low Earth orbit are planned to be refilled with propellant launched in tanker Starships to enable transit to higher energy destinations such as geosynchronous orbit, the Moon, and Mars.Plans for a heavy-lift vehicle at SpaceX date to 2005, with the earliest concept resembling the modern vehicle announced in 2016. SpaceX's Starship development follows an iterative and incremental approach involving frequent, and often destructive, test flights of prototype vehicles",
+    "type": "Document"
+  },
+  {
+    "id": "6a898f93-e5e2-4f3f-8cd1-1bc7cb54bf35",
+    "metadata": {
+      "document_name": "wikieval_row_0.txt"
+    },
+    "page_content": "The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ). Launch\nIt is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.",
+    "type": "Document"
+  },
+  {
+    "id": "ff94c463-09ca-4731-b8cd-69d6168dac99",
+    "metadata": {
+      "document_name": "wikieval_row_17.txt"
+    },
+    "page_content": ". The first and so far only orbital test flight was attempted on 20 April 2023, when an anomaly caused the vehicle to tumble out of control four minutes after launch. SpaceX activated the flight termination system, which fired the explosive charges but did not destroy the vehicle. Approximately 40 seconds later both stages were destroyed due to increased aerodynamic forces.  After the test, the Federal Aviation Administration (FAA) grounded the launch program pending results of a standard \"mishap investigation\" .SpaceX intends Starship to become its primary launch vehicle, superseding the Falcon 9 and Falcon Heavy launch vehicles as well as the Dragon 2 spacecraft currently used as part of NASA's commercial crew program to the International Space Station. Starship is often coupled with the company's Mars ambitions. Planned Starship flights include the development of SpaceX's Starlink internet constellation, crewed flights under the Polaris and dearMoon programs, and two crewed lunar landings with a modified Starship spacecraft under the Artemis program. History\nStarting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship",
+    "type": "Document"
+  },
+  {
+    "id": "36323cfc-c153-404f-9288-b018621bb655",
+    "metadata": {
+      "document_name": "wikieval_row_39.txt"
+    },
+    "page_content": "From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S .S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S . According to U.S. officials, the balloon carried antennas and other equipment capable of geolocating communications signals, and similar balloons from China have flown over more than 40 nations. Analysts said that its flight path and structural characteristics were dissimilar from those of a typical weather balloon. American officials later disclosed that they had been tracking the balloon since it was launched from Hainan and its original destinations were likely Guam and Hawaii, but prevailing winds blew it off course and across North America.The incident increased U.S.–China tensions",
+    "type": "Document"
+  },
+  {
+    "id": "3b95e310-7643-4ca7-bb69-328e7757b177",
+    "metadata": {
+      "document_name": "wikieval_row_17.txt"
+    },
+    "page_content": ". By that point, Raptor was a rocket engine in a full flow staged combustion cycle, with liquid methane fuel and liquid oxygen oxidizer. Both propellants enter the combustion chamber completely in the gas phase. A bleed-off of the high-pressure gas would provide autogenous pressurization of the propellant tanks, eliminating the Falcon 9's problematic high-pressure helium pressurization system.The overall launch vehicle height, (first and second stages), was to be 122 m (400 ft) . Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode. The ITS booster was to be a 12 m-diameter (39 ft), 77.5 m-high (254 ft), reusable first stage powered by 42 engines, each producing 3,024 kilonewtons (680,000 lbf) of thrust. Total booster thrust would have been about 128 MN (29,000,000 lbf) at liftoff, several times the 36 MN (8,000,000 lbf) thrust of the Saturn V. The engine configuration included 21 engines in an outer ring and 14 in an inner ring. The center cluster of seven engines was to be gimbaled for directional control, although some directional control  was to be performed via differential thrust on the fixed engines.",
+    "type": "Document"
+  },
+  {
+    "id": "99bf64f2-cfcc-4120-9379-3355eca6e99a",
+    "metadata": {
+      "document_name": "wikieval_row_49.txt"
+    },
+    "page_content": "Investigation of Ganymede's tenuous atmosphere\nStudy of Ganymede's intrinsic magnetic field and its interactions with the Jovian magnetosphere.For Europa, the focus is on the chemistry essential to life, including organic molecules, and on understanding the formation of surface features and the composition of the non-water-ice material. Furthermore, JUICE will provide the first subsurface sounding of the moon, including the first determination of the minimal thickness of the icy crust over the most recently volcanically active regions. More distant spatially resolved observations will also be carried out for several minor irregular satellites and the volcanically active moon Io. Science instruments\nOn 21 February 2013, after a competition, 11 science instruments were selected by ESA, which were developed by science and engineering teams from all over Europe, with participation from the US. Japan also contributed several components for SWI, RPWI, GALA, PEP, JANUS and J-MAG instruments, and will facilitate testing. Jovis, Amorum ac Natorum Undique Scrutator (JANUS)The name is Latin for \"comprehensive observation of Jupiter, his love affairs and descendants.\" A camera system to image Ganymede and interesting parts of the surface of Callisto at better than 400 m/pixel (resolution limited by mission data volume). Selected targets will be investigated in high-resolution with a spatial resolution from 25 m/pixel down to 2.4 m/pixel with a 1.3° field of view. The camera system has 13 panchromatic, broad and narrow-band filters in the 0.36 µm to 1.1 µm range, and provides stereo imaging capabilities .1 µm range, and provides stereo imaging capabilities. JANUS will also allow relating spectral, laser a",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
