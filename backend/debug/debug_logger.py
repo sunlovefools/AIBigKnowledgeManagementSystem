@@ -250,6 +250,99 @@ def log_answer_generation_response(answer: str) -> None:
 
 
 _TOKEN_USAGE_FILE = "token_usage.txt"
+_TOKEN_USAGE_SUMMARY_FILE = "token_usage_summary.txt"
+
+
+def _update_token_summary(
+    prompt_tokens: int,
+    completion_tokens: int,
+    total_tokens: int,
+    estimated_cost_usd: float,
+) -> None:
+    """
+    Rewrite token_usage_summary.txt with updated cumulative stats and averages.
+
+    Reads the existing summary to get previous totals, adds the new call's data,
+    then overwrites the file with fresh aggregated numbers.
+
+    Summary file format:
+        Total Queries, Total Prompt Tokens, Total Completion Tokens,
+        Total Tokens, Total Cost — all as plain integers/floats on separate lines,
+        followed by a human-readable display block.
+    """
+    debug_dir = _resolve_debug_dir()
+    summary_path = debug_dir / _TOKEN_USAGE_SUMMARY_FILE
+
+    # --- Read existing totals (if file exists) ---
+    prev_queries = 0
+    prev_prompt = 0
+    prev_completion = 0
+    prev_total = 0
+    prev_cost = 0.0
+
+    if summary_path.exists():
+        try:
+            content = summary_path.read_text(encoding="utf-8")
+            for line in content.splitlines():
+                if line.startswith("TOTAL_QUERIES:"):
+                    prev_queries = int(line.split(":")[1].strip())
+                elif line.startswith("TOTAL_PROMPT_TOKENS:"):
+                    prev_prompt = int(line.split(":")[1].strip())
+                elif line.startswith("TOTAL_COMPLETION_TOKENS:"):
+                    prev_completion = int(line.split(":")[1].strip())
+                elif line.startswith("TOTAL_TOKENS:"):
+                    prev_total = int(line.split(":")[1].strip())
+                elif line.startswith("TOTAL_COST_USD:"):
+                    prev_cost = float(line.split(":")[1].strip())
+        except Exception:
+            pass  # If parsing fails, start fresh
+
+    # --- Compute new cumulative totals ---
+    new_queries = prev_queries + 1
+    new_prompt = prev_prompt + prompt_tokens
+    new_completion = prev_completion + completion_tokens
+    new_total = prev_total + total_tokens
+    new_cost = prev_cost + estimated_cost_usd
+
+    avg_prompt = new_prompt / new_queries
+    avg_completion = new_completion / new_queries
+    avg_total = new_total / new_queries
+    avg_cost = new_cost / new_queries
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    # --- Overwrite the summary file ---
+    lines = [
+        # Machine-readable lines (used for parsing on next update)
+        f"TOTAL_QUERIES:            {new_queries}",
+        f"TOTAL_PROMPT_TOKENS:      {new_prompt}",
+        f"TOTAL_COMPLETION_TOKENS:  {new_completion}",
+        f"TOTAL_TOKENS:             {new_total}",
+        f"TOTAL_COST_USD:           {new_cost:.6f}",
+        "",
+        # Human-readable display block
+        "=" * 50,
+        "TOKEN USAGE SUMMARY",
+        "-" * 50,
+        f"Last Updated:             {timestamp}",
+        "-" * 50,
+        f"Total Queries:            {new_queries}",
+        f"Total Prompt Tokens:      {new_prompt:,}",
+        f"Total Completion Tokens:  {new_completion:,}",
+        f"Total Tokens Used:        {new_total:,}",
+        f"Total Est. Cost (USD):    ${new_cost:.6f}",
+        "-" * 50,
+        f"Avg Prompt Tokens/Query:      {avg_prompt:,.1f}",
+        f"Avg Completion Tokens/Query:  {avg_completion:,.1f}",
+        f"Avg Total Tokens/Query:       {avg_total:,.1f}",
+        f"Avg Est. Cost/Query (USD):    ${avg_cost:.6f}",
+        "=" * 50,
+    ]
+
+    try:
+        summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    except Exception as exc:
+        print(f"Warning: failed to update token usage summary: {exc}")
 
 
 def log_token_usage(
@@ -261,7 +354,8 @@ def log_token_usage(
     estimated_cost_usd: float,
 ) -> None:
     """
-    Append token usage stats for a single LLM call to backend/debug/logs/token_usage.txt.
+    Append token usage stats for a single LLM call to backend/debug/logs/token_usage.txt,
+    and update the cumulative summary in token_usage_summary.txt.
 
     Token data is NOT returned to the frontend — logged here and printed to terminal only.
 
@@ -292,3 +386,13 @@ def log_token_usage(
         _append(_TOKEN_USAGE_FILE, lines)
     except Exception as exc:
         print(f"Warning: failed to write token usage log: {exc}")
+
+    # Only update summary for queries that actually consumed tokens
+    # (skips failed/empty responses from rate-limited free models)
+    if total_tokens > 0:
+        _update_token_summary(
+            prompt_tokens=prompt_tokens,
+            completion_tokens=completion_tokens,
+            total_tokens=total_tokens,
+            estimated_cost_usd=estimated_cost_usd,
+        )
