@@ -128,3 +128,393 @@ Content: ISRO has achieved several significant milestones over the years. It suc
 Content: Background History and development of reconnaissance balloons
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is啊
+Timestamp: 2026-02-21T13:39:04.811725+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.735194]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.657699]
+Content: References External links Official website
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.654012]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.647831]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.639728]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.639365]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.628023]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.621323]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.619742]
+Content: Where protests are part of a systematic and peaceful nonviolent campaign to achieve a particular objective, and involve the use of pressure as well as persuasion, they go beyond mere protest and may be better described as a type of protest called civil resistance or nonviolent resistance.Various forms of self-expression and protest a
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.618318]
+Content: S. cities by day and neighborhood, by correlating late-night and next-day trips. The blog posting coined the term "ride of glory" for the Uber equivalent of a walk of shame.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.616269]
+Content: Gallery References External links Myosotis angustata occurrence data from Australasian Virtual Herbarium Myosotis ( MY-ə-SOH-tiss) is a genus of flowering plants in the family Boraginaceae. The name comes from the Ancient Greek μυοσωτίς "mouse's ear", which the foliage is thought to resemble. In the Northern Hemisphere, they are colloquially known as forget-me-nots or scorpion grasses. Myosotis alpestris is the official flower of Alaska and Dalsland, Sweden. Plants of the genus are commonly confused with Chatham Islands' forget-me-nots, which belong to the related genus Myosotidium.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.612102]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.611414]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.611158]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.609990]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.609144]
+Content: Arachnoids are so named because they resemble a spider's web, featuring several concentric ovals surrounded by a complex network of radial fractures similar to those of a nova. It is not known whether the 250 or so features identified as arachnoids actually share a common origin, or are the result of different geological processes.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.607494]
+Content: OpenAI has declined to reveal technical information such as the size of the GPT-4 model.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.607347]
+Content: Slogans Demonstrators used slogans and banners that directly criticized the government of the Islamic Republic of Iran and Khamenei. Protesters showed strong opposition to human rights violations perpetrated by Iran's Guidance Patrol. "Wo A protest (also called a demonstration, remonstration or remonstrance) is a public expression of objection, disapproval or dissent towards an idea or action, typically a political one. Protests can be thought of as acts of cooperation in which numerous people cooperate by attending, and share the potential costs and risks of doing so.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.607126]
+Content: The chromosome number of M. angustata is unknown. Flowering and fruiting in January.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.606519]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.041673]
+Content: Arachnoids are so named because they resemble a spider's web, featuring several concentric ovals surrounded by a complex network of radial fractures similar to those of a nova. It is not known whether the 250 or so features identified as arachnoids actually share a common origin, or are the result of different geological processes.
+
+[Rank 2 | BGE Score: 0.024159]
+Content: Slogans Demonstrators used slogans and banners that directly criticized the government of the Islamic Republic of Iran and Khamenei. Protesters showed strong opposition to human rights violations perpetrated by Iran's Guidance Patrol. "Wo A protest (also called a demonstration, remonstration or remonstrance) is a public expression of objection, disapproval or dissent towards an idea or action, typically a political one. Protests can be thought of as acts of cooperation in which numerous people cooperate by attending, and share the potential costs and risks of doing so.
+
+[Rank 3 | BGE Score: 0.019984]
+Content: Measures Infrastructure and international development
+
+[Rank 4 | BGE Score: 0.013501]
+Content: Gallery References External links Myosotis angustata occurrence data from Australasian Virtual Herbarium Myosotis ( MY-ə-SOH-tiss) is a genus of flowering plants in the family Boraginaceae. The name comes from the Ancient Greek μυοσωτίς "mouse's ear", which the foliage is thought to resemble. In the Northern Hemisphere, they are colloquially known as forget-me-nots or scorpion grasses. Myosotis alpestris is the official flower of Alaska and Dalsland, Sweden. Plants of the genus are commonly confused with Chatham Islands' forget-me-nots, which belong to the related genus Myosotidium.
+
+[Rank 5 | BGE Score: 0.010597]
+Content: == References ==
+
+[Rank 6 | BGE Score: 0.008713]
+Content: Where protests are part of a systematic and peaceful nonviolent campaign to achieve a particular objective, and involve the use of pressure as well as persuasion, they go beyond mere protest and may be better described as a type of protest called civil resistance or nonviolent resistance.Various forms of self-expression and protest a
+
+[Rank 7 | BGE Score: 0.004182]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 8 | BGE Score: 0.003577]
+Content: References External links Official website
+
+[Rank 9 | BGE Score: 0.000703]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 10 | BGE Score: 0.000619]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 11 | BGE Score: 0.000394]
+Content: S. cities by day and neighborhood, by correlating late-night and next-day trips. The blog posting coined the term "ride of glory" for the Uber equivalent of a walk of shame.
+
+[Rank 12 | BGE Score: 0.000169]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 13 | BGE Score: 0.000051]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 14 | BGE Score: 0.000049]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 15 | BGE Score: 0.000048]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 16 | BGE Score: 0.000041]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 17 | BGE Score: 0.000040]
+Content: OpenAI has declined to reveal technical information such as the size of the GPT-4 model.
+
+[Rank 18 | BGE Score: 0.000039]
+Content: The chromosome number of M. angustata is unknown. Flowering and fruiting in January.
+
+[Rank 19 | BGE Score: 0.000037]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 20 | BGE Score: 0.000029]
+Content: Background History and development of reconnaissance balloons
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Rainbow Plaque
+Timestamp: 2026-02-21T13:44:44.895882+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.797431]
+Content: The Rainbow Plaque programme is a UK scheme installing commemorative plaques to highlight significant people, places and moments in LGBTQIA+ history. Emulating established UK blue plaque programmes run by English Heritage, local authorities and other bodies, the first permanent rainbow plaque (a blue circular plaque with six rainbow colours around the circumference) was unveiled in York in July 2018. Some UK LGBT locations are denoted by pink plaques, an idea that predated rainbow plaques. History
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.761549]
+Content: The permanent plaque initiative then extended nationally through the Wandsworth LGBTQ+ Forum and Studio Voltaire, unveiling permanent plaques for Oscar Wilde at Clapham Junction railway station on 24 July 2019, and for the 1980s film My Beautiful Laundrette on Wilcox Road in South Lambeth on 10 September 2021.In 2023, five further rainbow plaques were announced for London, supported by the Mayor of London's Untold Stories Fund and Wandsworth Oasis.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.758699]
+Content: The rainbow plaque programme was initiated in 2018 by York Civic Trust and the York LGBT Forum to honour lesbian diarist Anne Lister (1791–1840) and her partner Ann Walker, with the first version of a plaque unveiled on 24 July 2018, replaced with amended wording including the word 'lesbian' in February 2019. Temporary cardboard plaques were also placed on key sites during LGBT pride campaigns in York in 2018 and Leeds in 2019
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.741735]
+Content: Predating rainbow plaques, pink triangle plaque memorials have memorialised gay people killed in the Holocaust and victims of anti-gay violence. In the UK, the idea of pink plaques to more generally commemorate and celebrate LGBT heritage was promoted in a 1986 book, The Pink Plaque Guide to London, written by Michael Elliman and Frederick Roll and published by Gay Men's Press. Pink plaques were also discussed in Brighton in 2006, and a mobile phone app was later (2020) created to guide users to Brighton pink plaque locations
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.728704]
+Content: Pink plaques have been unveiled in some UK locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow. == References ==
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.708441]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.701382]
+Content: The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term "blue plaque" is often used informally to encompass all such schemes. The "official" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.662702]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.659761]
+Content: The pancakes are thought to be formed by highly viscous, silica-rich lava erupting under Venus's high atmospheric pressure.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.658039]
+Content: == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.657257]
+Content: London Lighthouse - Founded in 1986 and based in Ladbroke Grove, the London Lighthouse was a centre and hospice for people with HIV/AIDS. Haringey Council - Haringey was a pioneer in the LGBTQIA+ rights movement in the 1980s, establishing a Lesbian and Gay Unit in 1986, while the local Positive Images group - formed to increase lesbian and gay visibility - was established in the same year. Pink plaques
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.651652]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.647725]
+Content: Activism Goba is one of the founding members of UK Black Pride, a black gay pride event in London that has taken place since 2005. She is currently the chair of their board of directors.Goba works as a project manager for Micro Rainbow International, a charity that supports homeless LGBTIQ+ people seeking asylum. Goba works to help refugees on employability skills as well as leads MRI's safe housing project, which houses 25,000 homeless LGBTIQ+ people every year. Goba focuses on refugees arriving to the UK from Afghanistan
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.638613]
+Content: Greenwich Tavern - Then a well-known gay bar, the Gloucester Arms (today the Greenwich Tavern) in Greenwich was the location of a key scene in the 1996 film Beautiful Thing which was set and filmed in Thamesmead and Greenwich in southeast London. The plaque was unveiled at the Greenwich Tavern on 23 July 2023.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.632758]
+Content: Awards and honors In 2015, The Independent named Goba as one of the top 100 most influential LGBTIQ+ people in the UK for her experience working with LGBTIQ+ refugees.In 2017, the LGBT magazine Attitude recognized Goba's help to other refugees by honoring her with an Attitude Pride Award.In 2022, Goba was listed as one of the BBC's 100 Women, recognizing her contributions to LGBTIQ+ asylum seekers and refugees.In 2023, Goba received BET International's Global Good Award for "fostering LGBTQ+ safe spaces and refugee integration in society".
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.630963]
+Content: These dikes form a symmetrical network around the central point where the lava emerged, where there may also be a depression caused by the collapse of the magma chamber.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.630491]
+Content: Goba's work has been instrumental in raising awareness about the unique challenges faced by LGBTIQ+ asylum seekers and refugees, who often face discrimination, violence, and persecution in their home countries. Through her organization, she has provided support, resources, and legal assistance to help these individuals navigate the complex asylum process and rebuild their lives in a new country.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.630007]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.627748]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.625132]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999595]
+Content: The Rainbow Plaque programme is a UK scheme installing commemorative plaques to highlight significant people, places and moments in LGBTQIA+ history. Emulating established UK blue plaque programmes run by English Heritage, local authorities and other bodies, the first permanent rainbow plaque (a blue circular plaque with six rainbow colours around the circumference) was unveiled in York in July 2018. Some UK LGBT locations are denoted by pink plaques, an idea that predated rainbow plaques. History
+
+[Rank 2 | BGE Score: 0.614664]
+Content: The rainbow plaque programme was initiated in 2018 by York Civic Trust and the York LGBT Forum to honour lesbian diarist Anne Lister (1791–1840) and her partner Ann Walker, with the first version of a plaque unveiled on 24 July 2018, replaced with amended wording including the word 'lesbian' in February 2019. Temporary cardboard plaques were also placed on key sites during LGBT pride campaigns in York in 2018 and Leeds in 2019
+
+[Rank 3 | BGE Score: 0.127363]
+Content: The permanent plaque initiative then extended nationally through the Wandsworth LGBTQ+ Forum and Studio Voltaire, unveiling permanent plaques for Oscar Wilde at Clapham Junction railway station on 24 July 2019, and for the 1980s film My Beautiful Laundrette on Wilcox Road in South Lambeth on 10 September 2021.In 2023, five further rainbow plaques were announced for London, supported by the Mayor of London's Untold Stories Fund and Wandsworth Oasis.
+
+[Rank 4 | BGE Score: 0.117657]
+Content: Predating rainbow plaques, pink triangle plaque memorials have memorialised gay people killed in the Holocaust and victims of anti-gay violence. In the UK, the idea of pink plaques to more generally commemorate and celebrate LGBT heritage was promoted in a 1986 book, The Pink Plaque Guide to London, written by Michael Elliman and Frederick Roll and published by Gay Men's Press. Pink plaques were also discussed in Brighton in 2006, and a mobile phone app was later (2020) created to guide users to Brighton pink plaque locations
+
+[Rank 5 | BGE Score: 0.009731]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK
+
+[Rank 6 | BGE Score: 0.003149]
+Content: The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term "blue plaque" is often used informally to encompass all such schemes. The "official" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe
+
+[Rank 7 | BGE Score: 0.002406]
+Content: Pink plaques have been unveiled in some UK locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow. == References ==
+
+[Rank 8 | BGE Score: 0.001003]
+Content: London Lighthouse - Founded in 1986 and based in Ladbroke Grove, the London Lighthouse was a centre and hospice for people with HIV/AIDS. Haringey Council - Haringey was a pioneer in the LGBTQIA+ rights movement in the 1980s, establishing a Lesbian and Gay Unit in 1986, while the local Positive Images group - formed to increase lesbian and gay visibility - was established in the same year. Pink plaques
+
+[Rank 9 | BGE Score: 0.000338]
+Content: The pancakes are thought to be formed by highly viscous, silica-rich lava erupting under Venus's high atmospheric pressure.
+
+[Rank 10 | BGE Score: 0.000300]
+Content: Activism Goba is one of the founding members of UK Black Pride, a black gay pride event in London that has taken place since 2005. She is currently the chair of their board of directors.Goba works as a project manager for Micro Rainbow International, a charity that supports homeless LGBTIQ+ people seeking asylum. Goba works to help refugees on employability skills as well as leads MRI's safe housing project, which houses 25,000 homeless LGBTIQ+ people every year. Goba focuses on refugees arriving to the UK from Afghanistan
+
+[Rank 11 | BGE Score: 0.000283]
+Content: Greenwich Tavern - Then a well-known gay bar, the Gloucester Arms (today the Greenwich Tavern) in Greenwich was the location of a key scene in the 1996 film Beautiful Thing which was set and filmed in Thamesmead and Greenwich in southeast London. The plaque was unveiled at the Greenwich Tavern on 23 July 2023.
+
+[Rank 12 | BGE Score: 0.000082]
+Content: These dikes form a symmetrical network around the central point where the lava emerged, where there may also be a depression caused by the collapse of the magma chamber.
+
+[Rank 13 | BGE Score: 0.000074]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+[Rank 14 | BGE Score: 0.000073]
+Content: Awards and honors In 2015, The Independent named Goba as one of the top 100 most influential LGBTIQ+ people in the UK for her experience working with LGBTIQ+ refugees.In 2017, the LGBT magazine Attitude recognized Goba's help to other refugees by honoring her with an Attitude Pride Award.In 2022, Goba was listed as one of the BBC's 100 Women, recognizing her contributions to LGBTIQ+ asylum seekers and refugees.In 2023, Goba received BET International's Global Good Award for "fostering LGBTQ+ safe spaces and refugee integration in society".
+
+[Rank 15 | BGE Score: 0.000055]
+Content: Goba's work has been instrumental in raising awareness about the unique challenges faced by LGBTIQ+ asylum seekers and refugees, who often face discrimination, violence, and persecution in their home countries. Through her organization, she has provided support, resources, and legal assistance to help these individuals navigate the complex asylum process and rebuild their lives in a new country.
+
+[Rank 16 | BGE Score: 0.000052]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Rank 17 | BGE Score: 0.000027]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Rank 18 | BGE Score: 0.000021]
+Content: == References ==
+
+[Rank 19 | BGE Score: 0.000017]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 20 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Rainbow Plaque
+Timestamp: 2026-02-21T13:48:52.066184+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.797431]
+Content: The Rainbow Plaque programme is a UK scheme installing commemorative plaques to highlight significant people, places and moments in LGBTQIA+ history. Emulating established UK blue plaque programmes run by English Heritage, local authorities and other bodies, the first permanent rainbow plaque (a blue circular plaque with six rainbow colours around the circumference) was unveiled in York in July 2018. Some UK LGBT locations are denoted by pink plaques, an idea that predated rainbow plaques. History
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.761549]
+Content: The permanent plaque initiative then extended nationally through the Wandsworth LGBTQ+ Forum and Studio Voltaire, unveiling permanent plaques for Oscar Wilde at Clapham Junction railway station on 24 July 2019, and for the 1980s film My Beautiful Laundrette on Wilcox Road in South Lambeth on 10 September 2021.In 2023, five further rainbow plaques were announced for London, supported by the Mayor of London's Untold Stories Fund and Wandsworth Oasis.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.758699]
+Content: The rainbow plaque programme was initiated in 2018 by York Civic Trust and the York LGBT Forum to honour lesbian diarist Anne Lister (1791–1840) and her partner Ann Walker, with the first version of a plaque unveiled on 24 July 2018, replaced with amended wording including the word 'lesbian' in February 2019. Temporary cardboard plaques were also placed on key sites during LGBT pride campaigns in York in 2018 and Leeds in 2019
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.741735]
+Content: Predating rainbow plaques, pink triangle plaque memorials have memorialised gay people killed in the Holocaust and victims of anti-gay violence. In the UK, the idea of pink plaques to more generally commemorate and celebrate LGBT heritage was promoted in a 1986 book, The Pink Plaque Guide to London, written by Michael Elliman and Frederick Roll and published by Gay Men's Press. Pink plaques were also discussed in Brighton in 2006, and a mobile phone app was later (2020) created to guide users to Brighton pink plaque locations
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.728704]
+Content: Pink plaques have been unveiled in some UK locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow. == References ==
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.708441]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.701382]
+Content: The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term "blue plaque" is often used informally to encompass all such schemes. The "official" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.662702]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.659761]
+Content: The pancakes are thought to be formed by highly viscous, silica-rich lava erupting under Venus's high atmospheric pressure.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.658039]
+Content: == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.657257]
+Content: London Lighthouse - Founded in 1986 and based in Ladbroke Grove, the London Lighthouse was a centre and hospice for people with HIV/AIDS. Haringey Council - Haringey was a pioneer in the LGBTQIA+ rights movement in the 1980s, establishing a Lesbian and Gay Unit in 1986, while the local Positive Images group - formed to increase lesbian and gay visibility - was established in the same year. Pink plaques
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.651652]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.647725]
+Content: Activism Goba is one of the founding members of UK Black Pride, a black gay pride event in London that has taken place since 2005. She is currently the chair of their board of directors.Goba works as a project manager for Micro Rainbow International, a charity that supports homeless LGBTIQ+ people seeking asylum. Goba works to help refugees on employability skills as well as leads MRI's safe housing project, which houses 25,000 homeless LGBTIQ+ people every year. Goba focuses on refugees arriving to the UK from Afghanistan
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.638613]
+Content: Greenwich Tavern - Then a well-known gay bar, the Gloucester Arms (today the Greenwich Tavern) in Greenwich was the location of a key scene in the 1996 film Beautiful Thing which was set and filmed in Thamesmead and Greenwich in southeast London. The plaque was unveiled at the Greenwich Tavern on 23 July 2023.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.632758]
+Content: Awards and honors In 2015, The Independent named Goba as one of the top 100 most influential LGBTIQ+ people in the UK for her experience working with LGBTIQ+ refugees.In 2017, the LGBT magazine Attitude recognized Goba's help to other refugees by honoring her with an Attitude Pride Award.In 2022, Goba was listed as one of the BBC's 100 Women, recognizing her contributions to LGBTIQ+ asylum seekers and refugees.In 2023, Goba received BET International's Global Good Award for "fostering LGBTQ+ safe spaces and refugee integration in society".
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.630963]
+Content: These dikes form a symmetrical network around the central point where the lava emerged, where there may also be a depression caused by the collapse of the magma chamber.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.630491]
+Content: Goba's work has been instrumental in raising awareness about the unique challenges faced by LGBTIQ+ asylum seekers and refugees, who often face discrimination, violence, and persecution in their home countries. Through her organization, she has provided support, resources, and legal assistance to help these individuals navigate the complex asylum process and rebuild their lives in a new country.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.630007]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.627748]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.625132]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999595]
+Content: The Rainbow Plaque programme is a UK scheme installing commemorative plaques to highlight significant people, places and moments in LGBTQIA+ history. Emulating established UK blue plaque programmes run by English Heritage, local authorities and other bodies, the first permanent rainbow plaque (a blue circular plaque with six rainbow colours around the circumference) was unveiled in York in July 2018. Some UK LGBT locations are denoted by pink plaques, an idea that predated rainbow plaques. History
+
+[Rank 2 | BGE Score: 0.614664]
+Content: The rainbow plaque programme was initiated in 2018 by York Civic Trust and the York LGBT Forum to honour lesbian diarist Anne Lister (1791–1840) and her partner Ann Walker, with the first version of a plaque unveiled on 24 July 2018, replaced with amended wording including the word 'lesbian' in February 2019. Temporary cardboard plaques were also placed on key sites during LGBT pride campaigns in York in 2018 and Leeds in 2019
+
+[Rank 3 | BGE Score: 0.127363]
+Content: The permanent plaque initiative then extended nationally through the Wandsworth LGBTQ+ Forum and Studio Voltaire, unveiling permanent plaques for Oscar Wilde at Clapham Junction railway station on 24 July 2019, and for the 1980s film My Beautiful Laundrette on Wilcox Road in South Lambeth on 10 September 2021.In 2023, five further rainbow plaques were announced for London, supported by the Mayor of London's Untold Stories Fund and Wandsworth Oasis.
+
+[Rank 4 | BGE Score: 0.117657]
+Content: Predating rainbow plaques, pink triangle plaque memorials have memorialised gay people killed in the Holocaust and victims of anti-gay violence. In the UK, the idea of pink plaques to more generally commemorate and celebrate LGBT heritage was promoted in a 1986 book, The Pink Plaque Guide to London, written by Michael Elliman and Frederick Roll and published by Gay Men's Press. Pink plaques were also discussed in Brighton in 2006, and a mobile phone app was later (2020) created to guide users to Brighton pink plaque locations
+
+[Rank 5 | BGE Score: 0.009731]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK
+
+[Rank 6 | BGE Score: 0.003149]
+Content: The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term "blue plaque" is often used informally to encompass all such schemes. The "official" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe
+
+[Rank 7 | BGE Score: 0.002406]
+Content: Pink plaques have been unveiled in some UK locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow. == References ==
+
+[Rank 8 | BGE Score: 0.001003]
+Content: London Lighthouse - Founded in 1986 and based in Ladbroke Grove, the London Lighthouse was a centre and hospice for people with HIV/AIDS. Haringey Council - Haringey was a pioneer in the LGBTQIA+ rights movement in the 1980s, establishing a Lesbian and Gay Unit in 1986, while the local Positive Images group - formed to increase lesbian and gay visibility - was established in the same year. Pink plaques
+
+[Rank 9 | BGE Score: 0.000338]
+Content: The pancakes are thought to be formed by highly viscous, silica-rich lava erupting under Venus's high atmospheric pressure.
+
+[Rank 10 | BGE Score: 0.000300]
+Content: Activism Goba is one of the founding members of UK Black Pride, a black gay pride event in London that has taken place since 2005. She is currently the chair of their board of directors.Goba works as a project manager for Micro Rainbow International, a charity that supports homeless LGBTIQ+ people seeking asylum. Goba works to help refugees on employability skills as well as leads MRI's safe housing project, which houses 25,000 homeless LGBTIQ+ people every year. Goba focuses on refugees arriving to the UK from Afghanistan
+
+[Rank 11 | BGE Score: 0.000283]
+Content: Greenwich Tavern - Then a well-known gay bar, the Gloucester Arms (today the Greenwich Tavern) in Greenwich was the location of a key scene in the 1996 film Beautiful Thing which was set and filmed in Thamesmead and Greenwich in southeast London. The plaque was unveiled at the Greenwich Tavern on 23 July 2023.
+
+[Rank 12 | BGE Score: 0.000082]
+Content: These dikes form a symmetrical network around the central point where the lava emerged, where there may also be a depression caused by the collapse of the magma chamber.
+
+[Rank 13 | BGE Score: 0.000074]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+[Rank 14 | BGE Score: 0.000073]
+Content: Awards and honors In 2015, The Independent named Goba as one of the top 100 most influential LGBTIQ+ people in the UK for her experience working with LGBTIQ+ refugees.In 2017, the LGBT magazine Attitude recognized Goba's help to other refugees by honoring her with an Attitude Pride Award.In 2022, Goba was listed as one of the BBC's 100 Women, recognizing her contributions to LGBTIQ+ asylum seekers and refugees.In 2023, Goba received BET International's Global Good Award for "fostering LGBTQ+ safe spaces and refugee integration in society".
+
+[Rank 15 | BGE Score: 0.000055]
+Content: Goba's work has been instrumental in raising awareness about the unique challenges faced by LGBTIQ+ asylum seekers and refugees, who often face discrimination, violence, and persecution in their home countries. Through her organization, she has provided support, resources, and legal assistance to help these individuals navigate the complex asylum process and rebuild their lives in a new country.
+
+[Rank 16 | BGE Score: 0.000052]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Rank 17 | BGE Score: 0.000027]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Rank 18 | BGE Score: 0.000021]
+Content: == References ==
+
+[Rank 19 | BGE Score: 0.000017]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 20 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+--------------------------------------------------

@@ -741,48 +741,6 @@ html,
 }
 /* --- Modification Panel --- */
 .modification-panel {
-<<<<<<< HEAD
-  width: 320px;
-  background-color: var(--panel);
-  border-left: 1px solid var(--border-color);
-  display: flex;
-  flex-direction: column;
-  padding: 20px 12px;
-  flex-shrink: 0;
-  overflow: hidden;
-  box-shadow: -2px 0 8px rgba(0, 0, 0, 0.04);
-}
-
-.mod-panel-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-  padding-bottom: 12px;
-  padding-right: 0;
-  border-bottom: 1px solid var(--border-color);
-  gap: 12px;
-}
-
-.mod-panel-header h3 {
-  margin: 0;
-  font-size: 0.95rem;
-  color: var(--text-primary);
-  font-weight: 600;
-  flex-shrink: 1;
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.mod-panel-header-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-  margin-right: 15px;  /* 向左移动 10px */
-=======
     width: 100%;
     background-color: var(--panel);
     border-left: 1px solid var(--border-color);
@@ -894,7 +852,6 @@ html,
     display: flex;
     align-items: center;
     gap: 8px;
->>>>>>> 39a6de5aeabb627c68f8620bc5670f4dfe122397
 }
 
 .mod-panel-refresh-btn {
