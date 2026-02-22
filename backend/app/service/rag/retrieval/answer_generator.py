@@ -154,6 +154,25 @@ class _AnswerGeneratorConfig:
     openrouter_model: str
 
 
+def _normalize_chat_completions_url(raw_url: str) -> str:
+    """Normalize provider URL to a Chat Completions endpoint."""
+    url = (raw_url or "").strip()
+    if not url:
+        return _OPENROUTER_URL
+
+    normalized = url.rstrip("/")
+    lowered = normalized.lower()
+
+    if lowered.endswith("/chat/completions"):
+        return normalized
+    if lowered.endswith("/v1"):
+        return f"{normalized}/chat/completions"
+    if lowered.endswith("/api"):
+        return f"{normalized}/v1/chat/completions"
+
+    return f"{normalized}/chat/completions"
+
+
 def _load_config() -> _AnswerGeneratorConfig:
     """Load environment-based config at call time."""
     provider = os.getenv("ANSWER_GENERATOR_LLM_PROVIDER", "BEAM").strip().upper()
@@ -175,7 +194,8 @@ def _load_config() -> _AnswerGeneratorConfig:
     beam_url = os.getenv("BEAM_ANSWER_GENERATOR_LLM_URL") or os.getenv("LOCAL_ANSWER_GENERATOR_LLM_URL")
     beam_key = os.getenv("BEAM_ANSWER_GENERATOR_LLM_KEY") or os.getenv("LOCAL_ANSWER_GENERATOR_LLM_KEY")
 
-    openrouter_url = os.getenv("OPENROUTER_URL", _OPENROUTER_URL).strip() or _OPENROUTER_URL
+    openrouter_url_raw = (os.getenv("OPENROUTER_URL") or "").strip() or _OPENROUTER_URL
+    openrouter_url = _normalize_chat_completions_url(openrouter_url_raw)
     openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
     openrouter_model = os.getenv("OPENROUTER_MODEL", "deepseek/deepseek-r1:free").strip()
 

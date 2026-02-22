@@ -56,7 +56,14 @@ export default function MainPage() {
         cancelEditingActiveDocument,
         saveEditingActiveDocument,
         isAiEditGenerating,
+        aiEditSummary,
+        aiEditWarnings,
+        aiEditDiffSegments,
+        aiEditError,
+        hasAiEditProposal,
         requestAiEditPreview,
+        acceptAiEditProposal,
+        rejectAiEditProposal,
     } = useDocuments(isModificationPanelOpen); // run the useDocuments hook to get document-related state and handlers
 
     const isAiDocumentEditMode = isModificationPanelOpen && Boolean(activeTab);
@@ -248,6 +255,14 @@ export default function MainPage() {
                     onSaveEditing={() => {
                         void saveEditingActiveDocument();
                     }}
+                    aiEditSummary={aiEditSummary}
+                    aiEditWarnings={aiEditWarnings}
+                    aiEditDiffSegments={aiEditDiffSegments}
+                    aiEditError={aiEditError}
+                    hasAiEditProposal={hasAiEditProposal}
+                    isAiEditGenerating={isAiEditGenerating}
+                    onAcceptAiEdit={acceptAiEditProposal}
+                    onRejectAiEdit={rejectAiEditProposal}
                 />
             </div>
 

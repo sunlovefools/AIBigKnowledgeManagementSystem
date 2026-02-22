@@ -32,6 +32,25 @@ class _LlmEditorConfig:
     openrouter_model: str
 
 
+def _normalize_chat_completions_url(raw_url: str) -> str:
+    """Normalize provider URL to a Chat Completions endpoint."""
+    url = (raw_url or "").strip()
+    if not url:
+        return _OPENROUTER_DEFAULT_URL
+
+    normalized = url.rstrip("/")
+    lowered = normalized.lower()
+
+    if lowered.endswith("/chat/completions"):
+        return normalized
+    if lowered.endswith("/v1"):
+        return f"{normalized}/chat/completions"
+    if lowered.endswith("/api"):
+        return f"{normalized}/v1/chat/completions"
+
+    return f"{normalized}/chat/completions"
+
+
 def _load_config() -> _LlmEditorConfig:
     provider = os.getenv("LLM_EDITOR_PROVIDER", "OPENROUTER").strip().upper()
     timeout_raw = (os.getenv("LLM_EDITOR_TIMEOUT_S") or str(_DEFAULT_TIMEOUT_S)).strip()
@@ -47,7 +66,8 @@ def _load_config() -> _LlmEditorConfig:
     beam_url = os.getenv("LLM_EDITOR_BEAM_URL") or os.getenv("BEAM_LLM_URL")
     beam_key = os.getenv("LLM_EDITOR_BEAM_KEY") or os.getenv("BEAM_LLM_KEY")
 
-    openrouter_url = os.getenv("OPENROUTER_URL", _OPENROUTER_DEFAULT_URL).strip() or _OPENROUTER_DEFAULT_URL
+    openrouter_url_raw = (os.getenv("OPENROUTER_URL") or "").strip() or _OPENROUTER_DEFAULT_URL
+    openrouter_url = _normalize_chat_completions_url(openrouter_url_raw)
     openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
     openrouter_model = os.getenv("LLM_EDITOR_OPENROUTER_MODEL") or os.getenv("OPENROUTER_MODEL") or "deepseek/deepseek-r1:free"
     openrouter_model = openrouter_model.strip()

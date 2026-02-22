@@ -288,6 +288,67 @@ html,
     cursor: not-allowed;
 }
 
+.mod-panel-ai-preview-window {
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--panel);
+    padding: 12px;
+    margin-top: 12px;
+}
+
+.ai-preview-summary {
+    font-size: 0.83rem;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+}
+
+.ai-preview-warnings {
+    margin: 0 0 8px;
+    padding-left: 18px;
+    color: var(--danger-color);
+    font-size: 0.8rem;
+}
+
+.ai-diff-view {
+    margin: 0;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-main);
+    max-height: 260px;
+    overflow: auto;
+    padding: 8px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.ai-diff-line {
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 2px 6px;
+    border-left: 3px solid transparent;
+}
+
+.ai-diff-add {
+    color: var(--accent-color);
+    border-left-color: var(--accent-color);
+}
+
+.ai-diff-del {
+    color: var(--danger-color);
+    border-left-color: var(--danger-color);
+}
+
+.ai-diff-equal {
+    color: var(--text-secondary);
+}
+
+.ai-preview-actions {
+    margin-top: 10px;
+    display: flex;
+    gap: 8px;
+}
+
 .sidebar-documents-list {
     margin-top: 4px;
     flex: 1;

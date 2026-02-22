@@ -1,5 +1,5 @@
 import { useRef } from "react";
-import type { FileTabState } from "../types";
+import type { DiffSegment, FileTabState } from "../types";
 
 // Type definitions for the ModificationPanel component props
 type ModificationPanelProps = {
@@ -12,6 +12,12 @@ type ModificationPanelProps = {
     isSaving: boolean;
     isDirty: boolean;
     saveError: string | null;
+    aiEditSummary: string | null;
+    aiEditWarnings: string[];
+    aiEditDiffSegments: DiffSegment[];
+    aiEditError: string | null;
+    hasAiEditProposal: boolean;
+    isAiEditGenerating: boolean;
     onRefreshDocuments: () => void;
     onClose: () => void;
     onTabSelect: (fileName: string) => void;
@@ -21,6 +27,8 @@ type ModificationPanelProps = {
     onEditingContentChange: (nextContent: string) => void;
     onCancelEditing: () => void;
     onSaveEditing: () => void;
+    onAcceptAiEdit: () => boolean;
+    onRejectAiEdit: () => void;
 };
 
 export default function ModificationPanel({
@@ -33,6 +41,12 @@ export default function ModificationPanel({
     isSaving,
     isDirty,
     saveError,
+    aiEditSummary,
+    aiEditWarnings,
+    aiEditDiffSegments,
+    aiEditError,
+    hasAiEditProposal,
+    isAiEditGenerating,
     onRefreshDocuments,
     onClose,
     onTabSelect,
@@ -42,6 +56,8 @@ export default function ModificationPanel({
     onEditingContentChange,
     onCancelEditing,
     onSaveEditing,
+    onAcceptAiEdit,
+    onRejectAiEdit,
 }: ModificationPanelProps) {
     const contentRef = useRef<HTMLDivElement | null>(null);
 
@@ -185,6 +201,68 @@ export default function ModificationPanel({
 
                             {saveError && <div className="mod-panel-save-error">{saveError}</div>}
                         </section>
+
+                        <section className="mod-panel-ai-preview-window">
+                            <div className="preview-header">
+                                <h4>AI Edit Preview</h4>
+                            </div>
+
+                            {isAiEditGenerating && (
+                                <div className="mod-panel-loading">Generating AI preview...</div>
+                            )}
+
+                            {aiEditError && <div className="mod-panel-save-error">{aiEditError}</div>}
+
+                            {hasAiEditProposal && aiEditSummary && (
+                                <div className="ai-preview-summary">{aiEditSummary}</div>
+                            )}
+
+                            {hasAiEditProposal && aiEditWarnings.length > 0 && (
+                                <ul className="ai-preview-warnings">
+                                    {aiEditWarnings.map((warning, index) => (
+                                        <li key={`${warning}-${index}`}>{warning}</li>
+                                    ))}
+                                </ul>
+                            )}
+
+                            {hasAiEditProposal ? (
+                                <pre className="ai-diff-view">
+                                    {aiEditDiffSegments.map((segment, index) => (
+                                        <div
+                                            key={`${segment.type}-${index}-${segment.text.slice(0, 12)}`}
+                                            className={`ai-diff-line ai-diff-${segment.type}`}
+                                        >
+                                            {segment.type === "add" ? "+ " : segment.type === "del" ? "- " : "  "}
+                                            {segment.text}
+                                        </div>
+                                    ))}
+                                </pre>
+                            ) : (
+                                <div className="mod-panel-empty">
+                                    Submit an instruction in chat to generate a preview.
+                                </div>
+                            )}
+
+                            <div className="ai-preview-actions">
+                                <button
+                                    className="save-btn"
+                                    type="button"
+                                    onClick={onAcceptAiEdit}
+                                    disabled={!hasAiEditProposal || isSaving}
+                                >
+                                    Accept
+                                </button>
+                                <button
+                                    className="cancel-btn"
+                                    type="button"
+                                    onClick={onRejectAiEdit}
+                                    disabled={!hasAiEditProposal || isSaving}
+                                >
+                                    Reject
+                                </button>
+                            </div>
+                        </section>
+
                         {activeTabState.isLoading && (
                             <div className="mod-panel-loading">Loading more chunks...</div>
                         )}

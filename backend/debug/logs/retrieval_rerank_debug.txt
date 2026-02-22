@@ -1558,3 +1558,1585 @@ Content: Internal tensions during the invasion of Ukraine Order to integrate Wag
 Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan
+Timestamp: 2026-02-22T13:29:47.343636+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.753929]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.718683]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.700860]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.664538]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.660951]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.660229]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.652571]
+Content: The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi).
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.652414]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.651269]
+Content: == References ==
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.633674]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.633589]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.633575]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.628803]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.627383]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.625596]
+Content: Intensity The earthquakes had a maximum intensity of VII (Very strong). The strongest shaking was reported in the provinces of Hormozgan and Fars. The earthquake was felt throughout the Middle East in countries such as the United Arab Emirates, Oman, Saudi Arabia, Bahrain and Qatar, as well as parts of Pakistan and Afghanistan, which were severely affected by a more deadly earthquake 10 days earlier.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.624529]
+Content: Relief The cold came while Afghanistan was experiencing a famine that affected more than half of the Afghan population. The country had become a pariah state following the 2021 Taliban offensive and the reestablishment of the Islamic Emirate of Afghanistan, leading to limited foreign aid.Humanitarian relief efforts provided aid that included heating and relief funds. Foreign relief efforts were complicated by a ban on women providing humanitarian aid
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.623978]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.622898]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.621144]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.619643]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999218]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.893891]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.011123]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 4 | BGE Score: 0.006054]
+Content: The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi).
+
+[Rank 5 | BGE Score: 0.001402]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 6 | BGE Score: 0.000417]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 7 | BGE Score: 0.000401]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 8 | BGE Score: 0.000285]
+Content: == References ==
+
+[Rank 9 | BGE Score: 0.000245]
+Content: Relief The cold came while Afghanistan was experiencing a famine that affected more than half of the Afghan population. The country had become a pariah state following the 2021 Taliban offensive and the reestablishment of the Islamic Emirate of Afghanistan, leading to limited foreign aid.Humanitarian relief efforts provided aid that included heating and relief funds. Foreign relief efforts were complicated by a ban on women providing humanitarian aid
+
+[Rank 10 | BGE Score: 0.000203]
+Content: Measures Infrastructure and international development
+
+[Rank 11 | BGE Score: 0.000062]
+Content: Intensity The earthquakes had a maximum intensity of VII (Very strong). The strongest shaking was reported in the provinces of Hormozgan and Fars. The earthquake was felt throughout the Middle East in countries such as the United Arab Emirates, Oman, Saudi Arabia, Bahrain and Qatar, as well as parts of Pakistan and Afghanistan, which were severely affected by a more deadly earthquake 10 days earlier.
+
+[Rank 12 | BGE Score: 0.000033]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 13 | BGE Score: 0.000021]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 14 | BGE Score: 0.000021]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 15 | BGE Score: 0.000018]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 16 | BGE Score: 0.000018]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan
+Timestamp: 2026-02-22T13:30:59.573155+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.753929]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.718683]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.700860]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.664538]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.660951]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.660229]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.652571]
+Content: The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi).
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.652414]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.651269]
+Content: == References ==
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.633674]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.633589]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.633575]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.628803]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.627383]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.625596]
+Content: Intensity The earthquakes had a maximum intensity of VII (Very strong). The strongest shaking was reported in the provinces of Hormozgan and Fars. The earthquake was felt throughout the Middle East in countries such as the United Arab Emirates, Oman, Saudi Arabia, Bahrain and Qatar, as well as parts of Pakistan and Afghanistan, which were severely affected by a more deadly earthquake 10 days earlier.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.624529]
+Content: Relief The cold came while Afghanistan was experiencing a famine that affected more than half of the Afghan population. The country had become a pariah state following the 2021 Taliban offensive and the reestablishment of the Islamic Emirate of Afghanistan, leading to limited foreign aid.Humanitarian relief efforts provided aid that included heating and relief funds. Foreign relief efforts were complicated by a ban on women providing humanitarian aid
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.623978]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.622898]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.621144]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.619643]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999218]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.893891]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.011123]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 4 | BGE Score: 0.006054]
+Content: The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi).
+
+[Rank 5 | BGE Score: 0.001402]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 6 | BGE Score: 0.000417]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 7 | BGE Score: 0.000401]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 8 | BGE Score: 0.000285]
+Content: == References ==
+
+[Rank 9 | BGE Score: 0.000245]
+Content: Relief The cold came while Afghanistan was experiencing a famine that affected more than half of the Afghan population. The country had become a pariah state following the 2021 Taliban offensive and the reestablishment of the Islamic Emirate of Afghanistan, leading to limited foreign aid.Humanitarian relief efforts provided aid that included heating and relief funds. Foreign relief efforts were complicated by a ban on women providing humanitarian aid
+
+[Rank 10 | BGE Score: 0.000203]
+Content: Measures Infrastructure and international development
+
+[Rank 11 | BGE Score: 0.000062]
+Content: Intensity The earthquakes had a maximum intensity of VII (Very strong). The strongest shaking was reported in the provinces of Hormozgan and Fars. The earthquake was felt throughout the Middle East in countries such as the United Arab Emirates, Oman, Saudi Arabia, Bahrain and Qatar, as well as parts of Pakistan and Afghanistan, which were severely affected by a more deadly earthquake 10 days earlier.
+
+[Rank 12 | BGE Score: 0.000033]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 13 | BGE Score: 0.000021]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 14 | BGE Score: 0.000021]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 15 | BGE Score: 0.000018]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 16 | BGE Score: 0.000018]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan
+Timestamp: 2026-02-22T13:33:17.880814+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.753929]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.718683]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.700860]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.664538]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.660951]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.660229]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.652571]
+Content: The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi).
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.652414]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.651269]
+Content: == References ==
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.633674]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.633589]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.633575]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.628803]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.627383]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.625596]
+Content: Intensity The earthquakes had a maximum intensity of VII (Very strong). The strongest shaking was reported in the provinces of Hormozgan and Fars. The earthquake was felt throughout the Middle East in countries such as the United Arab Emirates, Oman, Saudi Arabia, Bahrain and Qatar, as well as parts of Pakistan and Afghanistan, which were severely affected by a more deadly earthquake 10 days earlier.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.624529]
+Content: Relief The cold came while Afghanistan was experiencing a famine that affected more than half of the Afghan population. The country had become a pariah state following the 2021 Taliban offensive and the reestablishment of the Islamic Emirate of Afghanistan, leading to limited foreign aid.Humanitarian relief efforts provided aid that included heating and relief funds. Foreign relief efforts were complicated by a ban on women providing humanitarian aid
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.623978]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.622898]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.621144]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.619643]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999218]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.893891]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.011123]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 4 | BGE Score: 0.006054]
+Content: The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi).
+
+[Rank 5 | BGE Score: 0.001402]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 6 | BGE Score: 0.000417]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 7 | BGE Score: 0.000401]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 8 | BGE Score: 0.000285]
+Content: == References ==
+
+[Rank 9 | BGE Score: 0.000245]
+Content: Relief The cold came while Afghanistan was experiencing a famine that affected more than half of the Afghan population. The country had become a pariah state following the 2021 Taliban offensive and the reestablishment of the Islamic Emirate of Afghanistan, leading to limited foreign aid.Humanitarian relief efforts provided aid that included heating and relief funds. Foreign relief efforts were complicated by a ban on women providing humanitarian aid
+
+[Rank 10 | BGE Score: 0.000203]
+Content: Measures Infrastructure and international development
+
+[Rank 11 | BGE Score: 0.000062]
+Content: Intensity The earthquakes had a maximum intensity of VII (Very strong). The strongest shaking was reported in the provinces of Hormozgan and Fars. The earthquake was felt throughout the Middle East in countries such as the United Arab Emirates, Oman, Saudi Arabia, Bahrain and Qatar, as well as parts of Pakistan and Afghanistan, which were severely affected by a more deadly earthquake 10 days earlier.
+
+[Rank 12 | BGE Score: 0.000033]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 13 | BGE Score: 0.000021]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 14 | BGE Score: 0.000021]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 15 | BGE Score: 0.000018]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 16 | BGE Score: 0.000018]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan Railway Project
+Timestamp: 2026-02-22T13:34:44.027404+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.856353]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.821289]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.725491]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.706249]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680121]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.662219]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.658987]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.651632]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.649744]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.648734]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.648732]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.643805]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.642378]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.639171]
+Content: == References ==
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.637730]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.637702]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.637608]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.635326]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.631003]
+Content: References External links Official website
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624657]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999946]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986748]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.082632]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Rank 4 | BGE Score: 0.011454]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 5 | BGE Score: 0.001052]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000683]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+[Rank 7 | BGE Score: 0.000680]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.000240]
+Content: References External links Official website
+
+[Rank 9 | BGE Score: 0.000211]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 10 | BGE Score: 0.000161]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 11 | BGE Score: 0.000058]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 12 | BGE Score: 0.000035]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 13 | BGE Score: 0.000031]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 14 | BGE Score: 0.000023]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 15 | BGE Score: 0.000021]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 16 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan Railway Project
+Timestamp: 2026-02-22T13:44:53.220704+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.856353]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.821289]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.725491]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.706249]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680121]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.662219]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.658987]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.651632]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.649744]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.648734]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.648732]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.643805]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.642378]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.639171]
+Content: == References ==
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.637730]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.637702]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.637608]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.635326]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.631003]
+Content: References External links Official website
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624657]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999946]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986748]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.082632]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Rank 4 | BGE Score: 0.011454]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 5 | BGE Score: 0.001052]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000683]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+[Rank 7 | BGE Score: 0.000680]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.000240]
+Content: References External links Official website
+
+[Rank 9 | BGE Score: 0.000211]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 10 | BGE Score: 0.000161]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 11 | BGE Score: 0.000058]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 12 | BGE Score: 0.000035]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 13 | BGE Score: 0.000031]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 14 | BGE Score: 0.000023]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 15 | BGE Score: 0.000021]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 16 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan Railway Project
+Timestamp: 2026-02-22T13:47:28.056497+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.856353]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.821289]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.725491]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.706249]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680121]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.662219]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.658987]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.651632]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.649744]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.648734]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.648732]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.643805]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.642378]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.639171]
+Content: == References ==
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.637730]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.637702]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.637608]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.635326]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.631003]
+Content: References External links Official website
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624657]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999946]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986748]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.082632]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Rank 4 | BGE Score: 0.011454]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 5 | BGE Score: 0.001052]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000683]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+[Rank 7 | BGE Score: 0.000680]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.000240]
+Content: References External links Official website
+
+[Rank 9 | BGE Score: 0.000211]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 10 | BGE Score: 0.000161]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 11 | BGE Score: 0.000058]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 12 | BGE Score: 0.000035]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 13 | BGE Score: 0.000031]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 14 | BGE Score: 0.000023]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 15 | BGE Score: 0.000021]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 16 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan Railway Project
+Timestamp: 2026-02-22T13:51:47.417908+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.856353]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.821289]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.725491]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.706249]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680121]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.662219]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.658987]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.651632]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.649744]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.648734]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.648732]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.643805]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.642378]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.639171]
+Content: == References ==
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.637730]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.637702]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.637608]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.635326]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.631003]
+Content: References External links Official website
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624657]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999946]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986748]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.082632]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Rank 4 | BGE Score: 0.011454]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 5 | BGE Score: 0.001052]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000683]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+[Rank 7 | BGE Score: 0.000680]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.000240]
+Content: References External links Official website
+
+[Rank 9 | BGE Score: 0.000211]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 10 | BGE Score: 0.000161]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 11 | BGE Score: 0.000058]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 12 | BGE Score: 0.000035]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 13 | BGE Score: 0.000031]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 14 | BGE Score: 0.000023]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 15 | BGE Score: 0.000021]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 16 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan-Afghanistan-Pakistan Railway Project
+Timestamp: 2026-02-22T13:52:40.278010+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.866090]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.818599]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.730724]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.707665]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.672103]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.668865]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.657034]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.655340]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.647637]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.645049]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.644998]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.640790]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.639589]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.636569]
+Content: The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture "Zarafshan-Newmont". The centres of the gas-production industry are Gazli and Mubarek.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.636027]
+Content: Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.633293]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.632913]
+Content: == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.632497]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.630155]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.627326]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999936]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986831]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.074542]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Rank 4 | BGE Score: 0.012101]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 5 | BGE Score: 0.001354]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000671]
+Content: == References ==
+
+[Rank 7 | BGE Score: 0.000220]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 8 | BGE Score: 0.000181]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 9 | BGE Score: 0.000049]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 10 | BGE Score: 0.000037]
+Content: The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture "Zarafshan-Newmont". The centres of the gas-production industry are Gazli and Mubarek.
+
+[Rank 11 | BGE Score: 0.000035]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 12 | BGE Score: 0.000032]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 13 | BGE Score: 0.000022]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 14 | BGE Score: 0.000020]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 15 | BGE Score: 0.000019]
+Content: Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).
+
+[Rank 16 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan-Afghanistan-Pakistan Railway Project
+Timestamp: 2026-02-22T13:54:20.060199+00:00
+Top-K Requested: 1
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.866090]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.818599]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 1 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999936]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986831]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan Railway Project
+Timestamp: 2026-02-22T13:54:43.155173+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.856353]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.821289]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.725491]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.706249]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680121]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.662219]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.658987]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.651632]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.649744]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.648734]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.648732]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.643805]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.642378]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.639171]
+Content: == References ==
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.637730]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.637702]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.637608]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.635326]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.631003]
+Content: References External links Official website
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624657]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999946]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986748]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.082632]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Rank 4 | BGE Score: 0.011454]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 5 | BGE Score: 0.001052]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000683]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+[Rank 7 | BGE Score: 0.000680]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.000240]
+Content: References External links Official website
+
+[Rank 9 | BGE Score: 0.000211]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 10 | BGE Score: 0.000161]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 11 | BGE Score: 0.000058]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 12 | BGE Score: 0.000035]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 13 | BGE Score: 0.000031]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 14 | BGE Score: 0.000023]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 15 | BGE Score: 0.000021]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 16 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan Railway Project
+Timestamp: 2026-02-22T14:01:26.879091+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.856353]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.821289]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.725491]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.706249]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680121]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.662219]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.658987]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.651632]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.649744]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.648734]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.648732]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.643805]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.642378]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.639171]
+Content: == References ==
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.637730]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.637702]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.637608]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.635326]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.631003]
+Content: References External links Official website
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624657]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999946]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986748]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.082632]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Rank 4 | BGE Score: 0.011454]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 5 | BGE Score: 0.001052]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000683]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+[Rank 7 | BGE Score: 0.000680]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.000240]
+Content: References External links Official website
+
+[Rank 9 | BGE Score: 0.000211]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 10 | BGE Score: 0.000161]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 11 | BGE Score: 0.000058]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 12 | BGE Score: 0.000035]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 13 | BGE Score: 0.000031]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 14 | BGE Score: 0.000023]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 15 | BGE Score: 0.000021]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 16 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is a Uzbekistan–Afghanistan–Pakistan Railway Project
+Timestamp: 2026-02-22T14:06:08.118538+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.856353]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.821289]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.725491]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.706249]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680121]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.662219]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.658987]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.651632]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.649744]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.648734]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.648732]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.643805]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.642378]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.639171]
+Content: == References ==
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.637730]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.637702]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.637608]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.635326]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.631003]
+Content: References External links Official website
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624657]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999946]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.986748]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.082632]
+Content: Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region
+
+[Rank 4 | BGE Score: 0.011454]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 5 | BGE Score: 0.001052]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000683]
+Content: During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established
+
+[Rank 7 | BGE Score: 0.000680]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.000240]
+Content: References External links Official website
+
+[Rank 9 | BGE Score: 0.000211]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 10 | BGE Score: 0.000161]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 11 | BGE Score: 0.000058]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 12 | BGE Score: 0.000035]
+Content: The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 13 | BGE Score: 0.000031]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 14 | BGE Score: 0.000023]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 15 | BGE Score: 0.000021]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 16 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 17 | BGE Score: 0.000017]
+Content: Horizons (Orizzonti) The lineup of films selected for the Horizons section is as follows:
+
+[Rank 18 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000017]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: 彩虹牌匾计划是什么
+Timestamp: 2026-02-22T14:15:32.092996+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.772321]
+Content: “彩虹牌匾计划”是英国的一项计划，旨在通过安装纪念牌匾来彰显LGBTQIA+历史上的重要人物、地点和时刻。该计划效仿了由英格兰遗产委员会、地方当局及其他机构运营的成熟的英国蓝色牌匾计划，第一块永久性彩虹牌匾（一块蓝色圆形牌匾，周边环绕六色彩虹）于2018年7月在约克揭幕。英国一些LGBT地点则以粉色牌匾标示，这一想法早于彩虹牌匾。历史：彩虹牌匾计划于2018年由约克公民信托基金和约克LGBT论坛发起，旨在纪念女同性恋日记作家安妮·李斯特（1791-1840）及其伴侣安·沃克。第一版牌匾于2018年7月24日揭幕，后于2019年2月更换为包含“女同性恋”一词的修订版本。在2018年的约克和2019年的利兹的LGBT骄傲运动期间，临时纸板牌匾也被放置在关键地点。随后，这项永久性牌匾计划通过旺兹沃思LGBTQ+论坛和伏尔泰工作室扩展到全国，分别于2019年7月24日在克拉珀姆交汇火车站为奥斯卡·王尔德揭幕了永久性牌匾，并于2021年9月10日在南兰贝斯的威尔科克斯路为1980年代的电影《我美丽的洗衣店》揭幕了牌匾。2023年，在伦敦市长“未被讲述的故事基金”和旺兹沃思绿洲的支持下，伦敦宣布将再增设五块彩虹牌匾。
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.690957]
+Content: Pink plaques have been unveiled in some UK locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow. == References ==
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.687660]
+Content: Predating rainbow plaques, pink triangle plaque memorials have memorialised gay people killed in the Holocaust and victims of anti-gay violence. In the UK, the idea of pink plaques to more generally commemorate and celebrate LGBT heritage was promoted in a 1986 book, The Pink Plaque Guide to London, written by Michael Elliman and Frederick Roll and published by Gay Men's Press. Pink plaques were also discussed in Brighton in 2006, and a mobile phone app was later (2020) created to guide users to Brighton pink plaque locations
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.668838]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.666289]
+Content: Haringey Council - Haringey was a pioneer in the LGBTQIA+ rights movement in the 1980s, establishing a Lesbian and Gay Unit in 1986, while the local Positive Images group - formed to increase lesbian and gay visibility - was established in the same year. Pink plaques
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.659760]
+Content: The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term "blue plaque" is often used informally to encompass all such schemes. The "official" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.655017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.651096]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.648288]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.648224]
+Content: The money consists of three separate $25,000 rewards, offered by the State of North Carolina, Duke Energy, and Moore County.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.645317]
+Content: == References ==
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.641095]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.638020]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.635691]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.627081]
+Content: References External links Official website
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.626233]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.625828]
+Content: Activism Goba is one of the founding members of UK Black Pride, a black gay pride event in London that has taken place since 2005. She is currently the chair of their board of directors.Goba works as a project manager for Micro Rainbow International, a charity that supports homeless LGBTIQ+ people seeking asylum. Goba works to help refugees on employability skills as well as leads MRI's safe housing project, which houses 25,000 homeless LGBTIQ+ people every year. Goba focuses on refugees arriving to the UK from Afghanistan
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.624745]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.624192]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.621730]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999766]
+Content: “彩虹牌匾计划”是英国的一项计划，旨在通过安装纪念牌匾来彰显LGBTQIA+历史上的重要人物、地点和时刻。该计划效仿了由英格兰遗产委员会、地方当局及其他机构运营的成熟的英国蓝色牌匾计划，第一块永久性彩虹牌匾（一块蓝色圆形牌匾，周边环绕六色彩虹）于2018年7月在约克揭幕。英国一些LGBT地点则以粉色牌匾标示，这一想法早于彩虹牌匾。历史：彩虹牌匾计划于2018年由约克公民信托基金和约克LGBT论坛发起，旨在纪念女同性恋日记作家安妮·李斯特（1791-1840）及其伴侣安·沃克。第一版牌匾于2018年7月24日揭幕，后于2019年2月更换为包含“女同性恋”一词的修订版本。在2018年的约克和2019年的利兹的LGBT骄傲运动期间，临时纸板牌匾也被放置在关键地点。随后，这项永久性牌匾计划通过旺兹沃思LGBTQ+论坛和伏尔泰工作室扩展到全国，分别于2019年7月24日在克拉珀姆交汇火车站为奥斯卡·王尔德揭幕了永久性牌匾，并于2021年9月10日在南兰贝斯的威尔科克斯路为1980年代的电影《我美丽的洗衣店》揭幕了牌匾。2023年，在伦敦市长“未被讲述的故事基金”和旺兹沃思绿洲的支持下，伦敦宣布将再增设五块彩虹牌匾。
+
+[Rank 2 | BGE Score: 0.023318]
+Content: The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term "blue plaque" is often used informally to encompass all such schemes. The "official" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe
+
+[Rank 3 | BGE Score: 0.017330]
+Content: Predating rainbow plaques, pink triangle plaque memorials have memorialised gay people killed in the Holocaust and victims of anti-gay violence. In the UK, the idea of pink plaques to more generally commemorate and celebrate LGBT heritage was promoted in a 1986 book, The Pink Plaque Guide to London, written by Michael Elliman and Frederick Roll and published by Gay Men's Press. Pink plaques were also discussed in Brighton in 2006, and a mobile phone app was later (2020) created to guide users to Brighton pink plaque locations
+
+[Rank 4 | BGE Score: 0.014069]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK
+
+[Rank 5 | BGE Score: 0.007959]
+Content: Pink plaques have been unveiled in some UK locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow. == References ==
+
+[Rank 6 | BGE Score: 0.001955]
+Content: Haringey Council - Haringey was a pioneer in the LGBTQIA+ rights movement in the 1980s, establishing a Lesbian and Gay Unit in 1986, while the local Positive Images group - formed to increase lesbian and gay visibility - was established in the same year. Pink plaques
+
+[Rank 7 | BGE Score: 0.001809]
+Content: Activism Goba is one of the founding members of UK Black Pride, a black gay pride event in London that has taken place since 2005. She is currently the chair of their board of directors.Goba works as a project manager for Micro Rainbow International, a charity that supports homeless LGBTIQ+ people seeking asylum. Goba works to help refugees on employability skills as well as leads MRI's safe housing project, which houses 25,000 homeless LGBTIQ+ people every year. Goba focuses on refugees arriving to the UK from Afghanistan
+
+[Rank 8 | BGE Score: 0.000208]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 9 | BGE Score: 0.000181]
+Content: Measures Infrastructure and international development
+
+[Rank 10 | BGE Score: 0.000063]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 11 | BGE Score: 0.000043]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 12 | BGE Score: 0.000039]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 13 | BGE Score: 0.000032]
+Content: The money consists of three separate $25,000 rewards, offered by the State of North Carolina, Duke Energy, and Moore County.
+
+[Rank 14 | BGE Score: 0.000032]
+Content: == References ==
+
+[Rank 15 | BGE Score: 0.000022]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Rank 16 | BGE Score: 0.000020]
+Content: References External links Official website
+
+[Rank 17 | BGE Score: 0.000018]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 18 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 19 | BGE Score: 0.000016]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 20 | BGE Score: 0.000016]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+--------------------------------------------------
