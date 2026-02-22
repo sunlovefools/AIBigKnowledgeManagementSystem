@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
@@ -29,7 +29,7 @@ export default function MainPage() {
         startModPanelResize,
     } = useResizableLayout(); // Run the useResizableLayout hook to get layout-related state and handlers
 
-    const { messages, input, isQuerying, setInput, appendMessage, handleQuery, handleKeyDown } =
+    const { messages, input, isQuerying, setInput, appendMessage, handleQuery } =
         useChat(); // Run the useChat hook to get chat-related state and handlers
     
     // Document management state and handlers
@@ -55,7 +55,42 @@ export default function MainPage() {
         setActiveEditingDocumentContent,
         cancelEditingActiveDocument,
         saveEditingActiveDocument,
+        isAiEditGenerating,
+        requestAiEditPreview,
     } = useDocuments(isModificationPanelOpen); // run the useDocuments hook to get document-related state and handlers
+
+    const isAiDocumentEditMode = isModificationPanelOpen && Boolean(activeTab);
+
+    const handleComposerSend = async () => {
+        const textInput = input.trim();
+
+        if (!textInput) {
+            return;
+        }
+
+        if (isAiDocumentEditMode) {
+            appendMessage({ role: "user", text: textInput });
+            setInput("");
+
+            const result = await requestAiEditPreview(textInput);
+            appendMessage({
+                role: "ai",
+                text: result.ok
+                    ? `AI edit preview generated. ${result.summary ?? "Review changes in the edit panel."}`
+                    : `AI edit preview failed: ${result.error ?? "Unknown error"}`,
+            });
+            return;
+        }
+
+        await handleQuery();
+    };
+
+    const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            void handleComposerSend();
+        }
+    };
 
     const { selectedFile, isUploading, handleFileSelect, handleUpload, clearFile } = useFileUpload({
         onUploadMessage: (message) => appendMessage({ role: "ai", text: message }),
@@ -167,12 +202,14 @@ export default function MainPage() {
                 {/* Chat input area of the app */}
                 <ChatInput
                     input={input}
-                    isQuerying={isQuerying}
+                    isQuerying={isQuerying || isAiEditGenerating}
                     isModificationPanelOpen={isModificationPanelOpen}
                     onInputChange={setInput}
-                    onInputKeyDown={handleKeyDown}
+                    onInputKeyDown={handleComposerKeyDown}
                     onToggleModificationPanel={handleToggleModificationPanel}
-                    onSend={handleQuery}
+                    onSend={() => {
+                        void handleComposerSend();
+                    }}
                 />
             </main>
 

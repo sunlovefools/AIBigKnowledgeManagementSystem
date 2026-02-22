@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import type { FileTabState, ParentChunkContent, SidebarFileSummary } from "../types";
+import type { FileTabState, ParentChunkContent, SidebarFileSummary, DiffSegment } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 const PAGE_SIZE = 7;
@@ -24,6 +24,18 @@ type UpdateFileResponse = {
     chunks: number;
 };
 
+type LlmEditPreviewResponse = {
+    editedContent: string;
+    summary: string;
+    warnings?: string[];
+};
+
+type RequestAiPreviewResult = {
+    ok: boolean;
+    summary?: string;
+    error?: string;
+};
+
 function buildPreviewText(content: string): string {
     return content.replace(/\s+/g, " ").trim().slice(0, 160);
 }
@@ -37,6 +49,35 @@ function createEmptyTabState(): FileTabState {
         isInitialized: false,
         error: null,
     };
+}
+
+// Simple line-level diff calculation for visualizing changes
+function calculateDiffSegments(original: string, edited: string): DiffSegment[] {
+    const originalLines = original.split(/\r?\n/);
+    const editedLines = edited.split(/\r?\n/);
+    
+    const segments: DiffSegment[] = [];
+    const maxLines = Math.max(originalLines.length, editedLines.length);
+    
+    for (let i = 0; i < maxLines; i++) {
+        const origLine = originalLines[i] ?? "";
+        const editedLine = editedLines[i] ?? "";
+        
+        if (origLine === editedLine) {
+            if (origLine.length > 0) {
+                segments.push({ type: "equal", text: origLine });
+            }
+        } else {
+            if (origLine.length > 0) {
+                segments.push({ type: "del", text: origLine });
+            }
+            if (editedLine.length > 0) {
+                segments.push({ type: "add", text: editedLine });
+            }
+        }
+    }
+    
+    return segments.length > 0 ? segments : [{ type: "equal", text: original }];
 }
 
 // Custom hook to manage sidebar files and tabbed full-view state.
@@ -56,6 +97,12 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const [editingFileName, setEditingFileName] = useState<string | null>(null);
     const [editingDraftByFileName, setEditingDraftByFileName] = useState<Record<string, string>>({});
     const [savingFileName, setSavingFileName] = useState<string | null>(null);
+    const [isAiEditGenerating, setIsAiEditGenerating] = useState(false);
+    const [aiEditSummary, setAiEditSummary] = useState<string | null>(null);
+    const [aiEditWarnings, setAiEditWarnings] = useState<string[]>([]);
+    const [aiEditProposedContent, setAiEditProposedContent] = useState<string | null>(null);
+    const [aiEditDiffSegments, setAiEditDiffSegments] = useState<DiffSegment[]>([]);
+    const [aiEditError, setAiEditError] = useState<string | null>(null);
 
     const getFileIdByName = useCallback(
         (fileName: string) => files.find((item) => item.fileName === fileName)?.fileId ?? null,
@@ -292,6 +339,19 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             return null;
         });
         setSaveError(null);
+        setIsAiEditGenerating(false);
+        setAiEditSummary(null);
+        setAiEditWarnings([]);
+        setAiEditProposedContent(null);
+        setAiEditError(null);
+    }, []);
+
+    const clearAiEditProposal = useCallback(() => {
+        setAiEditSummary(null);
+        setAiEditWarnings([]);
+        setAiEditProposedContent(null);
+        setAiEditDiffSegments([]);
+        setAiEditError(null);
     }, []);
 
     const confirmDiscardUnsavedChanges = useCallback(() => {
@@ -621,6 +681,11 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                 ...previousDrafts,
                 [editingFileName]: nextContent,
             }));
+
+            setAiEditSummary(null);
+            setAiEditWarnings([]);
+            setAiEditProposedContent(null);
+            setAiEditError(null);
         },
         [editingFileName]
     );
@@ -628,6 +693,103 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const cancelEditingActiveDocument = useCallback(() => {
         clearEditingState();
     }, [clearEditingState]);
+
+    const requestAiEditPreview = useCallback(
+        async (instruction: string): Promise<RequestAiPreviewResult> => {
+            const trimmedInstruction = instruction.trim();
+
+            if (!activeTab) {
+                const error = "Please open and select a document before using AI edit.";
+                setAiEditError(error);
+                return { ok: false, error };
+            }
+
+            if (isAiEditGenerating) {
+                return { ok: false, error: "AI edit preview is already generating." };
+            }
+
+            if (!trimmedInstruction) {
+                const error = "Instruction cannot be empty.";
+                setAiEditError(error);
+                return { ok: false, error };
+            }
+
+            const sourceContent =
+                (editingFileName && editingFileName === activeTab
+                    ? editingDraftByFileName[activeTab]
+                    : undefined) ?? getFullDocumentContentByFileName(activeTab);
+            if (!sourceContent.trim()) {
+                const error = "Document content is empty.";
+                setAiEditError(error);
+                return { ok: false, error };
+            }
+
+            setIsAiEditGenerating(true);
+            setAiEditError(null);
+            setAiEditSummary(null);
+            setAiEditWarnings([]);
+            setAiEditProposedContent(null);
+
+            try {
+                const response = await axios.post<LlmEditPreviewResponse>(
+                    `${API_BASE}/api/modifications/llm-edit-preview`,
+                    {
+                        fileName: activeTab,
+                        originalContent: sourceContent,
+                        instruction: trimmedInstruction,
+                    }
+                );
+
+                const preview = response.data;
+                const editedContent = typeof preview.editedContent === "string" ? preview.editedContent : sourceContent;
+                const summary = (preview.summary || "AI edit preview generated.").trim();
+                const warnings = Array.isArray(preview.warnings)
+                    ? preview.warnings.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+                    : [];
+
+                // Calculate diff segments for visualization
+                const diffSegments = calculateDiffSegments(sourceContent, editedContent);
+
+                setAiEditProposedContent(editedContent);
+                setAiEditSummary(summary);
+                setAiEditWarnings(warnings);
+                setAiEditDiffSegments(diffSegments);
+
+                return { ok: true, summary };
+            } catch (error) {
+                console.error("Error requesting AI edit preview:", error);
+                const errorMessage = "Failed to generate AI edit preview. Please try again.";
+                setAiEditError(errorMessage);
+                return { ok: false, error: errorMessage };
+            } finally {
+                setIsAiEditGenerating(false);
+            }
+        },
+        [
+            activeTab,
+            editingDraftByFileName,
+            getFullDocumentContentByFileName,
+            isAiEditGenerating,
+        ]
+    );
+
+    const acceptAiEditProposal = useCallback(() => {
+        if (!activeTab || aiEditProposedContent === null) {
+            return false;
+        }
+
+        setEditingFileName(activeTab);
+        setEditingDraftByFileName((previousDrafts) => ({
+            ...previousDrafts,
+            [activeTab]: aiEditProposedContent,
+        }));
+        clearAiEditProposal();
+        return true;
+    }, [activeTab, aiEditProposedContent, clearAiEditProposal]);
+
+    const rejectAiEditProposal = useCallback(() => {
+        clearAiEditProposal();
+    }, [clearAiEditProposal]);
 
     const saveEditingActiveDocument = useCallback(async () => {
         if (!activeTab || !editingFileName || activeTab !== editingFileName || savingFileName) {
@@ -761,5 +923,15 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         setActiveEditingDocumentContent,
         cancelEditingActiveDocument,
         saveEditingActiveDocument,
+        isAiEditGenerating,
+        aiEditSummary,
+        aiEditWarnings,
+        aiEditDiffSegments,
+        aiEditProposedContent,
+        aiEditError,
+        hasAiEditProposal: aiEditProposedContent !== null,
+        requestAiEditPreview,
+        acceptAiEditProposal,
+        rejectAiEditProposal,
     };
 }

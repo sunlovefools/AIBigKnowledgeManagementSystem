@@ -31,3 +31,19 @@ export type FileTabState = {
     isInitialized: boolean;
     error: string | null;
 };
+
+// Type for a single diff segment in a unified diff display.
+export type DiffSegment = {
+    type: "equal" | "add" | "del";
+    text: string;
+};
+
+// Type for AI edit proposal with diff information.
+export type AiEditProposal = {
+    instruction: string;
+    originalContent: string;
+    editedContent: string;
+    summary: string;
+    warnings: string[];
+    diffSegments: DiffSegment[];
+};

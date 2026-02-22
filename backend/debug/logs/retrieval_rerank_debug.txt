@@ -518,3 +518,1043 @@ Content: References External links Media related to Miss Grand Dominican Republi
 Content: Background History and development of reconnaissance balloons
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: hello
+Timestamp: 2026-02-21T13:56:01.106834+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.731966]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.692997]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.686367]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.673930]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.671626]
+Content: References External links Official website
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.671001]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.645720]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.633948]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.631799]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.628818]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.628180]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.623201]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.620316]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.615283]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.611494]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.607464]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.606235]
+Content: The government's response to the protests has been widely condemned.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.604994]
+Content: The 80th annual Venice International Film Festival will be held from 30 August to 9 September 2023.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.604655]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.025004]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Rank 2 | BGE Score: 0.016112]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Rank 3 | BGE Score: 0.011208]
+Content: The government's response to the protests has been widely condemned.
+
+[Rank 4 | BGE Score: 0.008126]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 5 | BGE Score: 0.007164]
+Content: References External links Official website
+
+[Rank 6 | BGE Score: 0.006715]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.005737]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.004123]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 9 | BGE Score: 0.003023]
+Content: The 80th annual Venice International Film Festival will be held from 30 August to 9 September 2023.
+
+[Rank 10 | BGE Score: 0.002720]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 11 | BGE Score: 0.002272]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 12 | BGE Score: 0.001641]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Rank 13 | BGE Score: 0.000496]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 14 | BGE Score: 0.000206]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 15 | BGE Score: 0.000190]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 16 | BGE Score: 0.000178]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 17 | BGE Score: 0.000161]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 18 | BGE Score: 0.000029]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 19 | BGE Score: 0.000026]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 20 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: hello
+Timestamp: 2026-02-21T14:09:52.043760+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.731966]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.692997]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.686367]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.673930]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.671626]
+Content: References External links Official website
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.671001]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.645720]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.633948]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.631799]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.628818]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.628180]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.623201]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.620316]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.615283]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.611494]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.607464]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.606235]
+Content: The government's response to the protests has been widely condemned.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.604994]
+Content: The 80th annual Venice International Film Festival will be held from 30 August to 9 September 2023.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.604655]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.025004]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Rank 2 | BGE Score: 0.016112]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Rank 3 | BGE Score: 0.011208]
+Content: The government's response to the protests has been widely condemned.
+
+[Rank 4 | BGE Score: 0.008126]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 5 | BGE Score: 0.007164]
+Content: References External links Official website
+
+[Rank 6 | BGE Score: 0.006715]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.005737]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.004123]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 9 | BGE Score: 0.003023]
+Content: The 80th annual Venice International Film Festival will be held from 30 August to 9 September 2023.
+
+[Rank 10 | BGE Score: 0.002720]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 11 | BGE Score: 0.002272]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 12 | BGE Score: 0.001641]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Rank 13 | BGE Score: 0.000496]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 14 | BGE Score: 0.000206]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 15 | BGE Score: 0.000190]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 16 | BGE Score: 0.000178]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 17 | BGE Score: 0.000161]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 18 | BGE Score: 0.000029]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 19 | BGE Score: 0.000026]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 20 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is
+Timestamp: 2026-02-21T14:19:05.919036+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.744158]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.676287]
+Content: References External links Official website
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.675768]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.668328]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.634670]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.633928]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.633568]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.631788]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.629721]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.628122]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623414]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622841]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.622167]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.621218]
+Content: Therapeutic approaches Theranostics encompasses a range of therapeutic approaches that are designed to target and treat diseases with enhanced precision.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.619481]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.619370]
+Content: The money consists of three separate $25,000 rewards, offered by the State of North Carolina, Duke Energy, and Moore County.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.618982]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.612353]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.612115]
+Content: Sanctions are not punitive, but designed to bring about a change in policy or activity by the target country, entities or individuals. Measures are therefore always targeted at such policie
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.611466]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.142181]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK
+
+[Rank 2 | BGE Score: 0.063998]
+Content: Measures Infrastructure and international development
+
+[Rank 3 | BGE Score: 0.059353]
+Content: Therapeutic approaches Theranostics encompasses a range of therapeutic approaches that are designed to target and treat diseases with enhanced precision.
+
+[Rank 4 | BGE Score: 0.008758]
+Content: Sanctions are not punitive, but designed to bring about a change in policy or activity by the target country, entities or individuals. Measures are therefore always targeted at such policie
+
+[Rank 5 | BGE Score: 0.003361]
+Content: == References ==
+
+[Rank 6 | BGE Score: 0.003129]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 7 | BGE Score: 0.002343]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 8 | BGE Score: 0.001982]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 9 | BGE Score: 0.001439]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+[Rank 10 | BGE Score: 0.001438]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 11 | BGE Score: 0.001316]
+Content: References External links Official website
+
+[Rank 12 | BGE Score: 0.000923]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 13 | BGE Score: 0.000355]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 14 | BGE Score: 0.000196]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 15 | BGE Score: 0.000172]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 16 | BGE Score: 0.000094]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 17 | BGE Score: 0.000064]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 18 | BGE Score: 0.000038]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 19 | BGE Score: 0.000034]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 20 | BGE Score: 0.000026]
+Content: The money consists of three separate $25,000 rewards, offered by the State of North Carolina, Duke Energy, and Moore County.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: what is Uzbekistan–Afghanistan–Pakistan
+Timestamp: 2026-02-21T14:21:06.906074+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.755977]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.720765]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.697748]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.662459]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.654999]
+Content: The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi).
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.654615]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.649192]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.643886]
+Content: == References ==
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.642985]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.637701]
+Content: Relief The cold came while Afghanistan was experiencing a famine that affected more than half of the Afghan population. The country had become a pariah state following the 2021 Taliban offensive and the reestablishment of the Islamic Emirate of Afghanistan, leading to limited foreign aid.Humanitarian relief efforts provided aid that included heating and relief funds. Foreign relief efforts were complicated by a ban on women providing humanitarian aid
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.633207]
+Content: Intensity The earthquakes had a maximum intensity of VII (Very strong). The strongest shaking was reported in the provinces of Hormozgan and Fars. The earthquake was felt throughout the Middle East in countries such as the United Arab Emirates, Oman, Saudi Arabia, Bahrain and Qatar, as well as parts of Pakistan and Afghanistan, which were severely affected by a more deadly earthquake 10 days earlier.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.632195]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.625984]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.625028]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.623828]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.622738]
+Content: Omar Ali is a young man living in South London during the mid-1980s. His father, Hussein, once a famous left-wing journalist in Pakistan, lives in London but dislikes Britain's society. Hey
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.621504]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.620134]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.620094]
+Content: Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.616363]
+Content: Paleontology The Kyzylkum Desert has exposed rock formations that have yielded a number of fossils. Of particular interest is the Bissekty Formation of Uzbekistan, from the early Late Cretaceous, which has produced several species of early birds: Incolornis martini, Explorornis walkeri, Kizylkumavis cretacea, Kuszholia mengi, Lenesornis kaskarovi, Sazavis prisca, Zhyraornis kaskarovi and Z. logunovi are recognized as valid species. Tyrannosaurid, therizinosaurid, ornithomimosaur, oviraptorosaurian, troodontid, ankylosaur, hadrosaur, and ceratopsian dinosaurs are also known from this rock unit
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.998969]
+Content: The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4. Project Details The estimated cost of the project is US$4
+
+[Rank 2 | BGE Score: 0.911305]
+Content: Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district
+
+[Rank 3 | BGE Score: 0.012427]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 4 | BGE Score: 0.007074]
+Content: The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi).
+
+[Rank 5 | BGE Score: 0.001460]
+Content: The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries. Its construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE).
+
+[Rank 6 | BGE Score: 0.001044]
+Content: It is mainly located in Uzbekistan. Fauna Desert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert.
+
+[Rank 7 | BGE Score: 0.000809]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.000792]
+Content: Gallery See also Andronovo culture Aydar Lake, large artificial lake Central Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert Karakum Desert, another desert of Central Asia List of deserts by area Sarmishsay, ancient monuments of anthropogenic activity References External links Media related to Kyzyl Kum at Wikimedia Commons Slideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert
+
+[Rank 9 | BGE Score: 0.000471]
+Content: Paleontology The Kyzylkum Desert has exposed rock formations that have yielded a number of fossils. Of particular interest is the Bissekty Formation of Uzbekistan, from the early Late Cretaceous, which has produced several species of early birds: Incolornis martini, Explorornis walkeri, Kizylkumavis cretacea, Kuszholia mengi, Lenesornis kaskarovi, Sazavis prisca, Zhyraornis kaskarovi and Z. logunovi are recognized as valid species. Tyrannosaurid, therizinosaurid, ornithomimosaur, oviraptorosaurian, troodontid, ankylosaur, hadrosaur, and ceratopsian dinosaurs are also known from this rock unit
+
+[Rank 10 | BGE Score: 0.000396]
+Content: Relief The cold came while Afghanistan was experiencing a famine that affected more than half of the Afghan population. The country had become a pariah state following the 2021 Taliban offensive and the reestablishment of the Islamic Emirate of Afghanistan, leading to limited foreign aid.Humanitarian relief efforts provided aid that included heating and relief funds. Foreign relief efforts were complicated by a ban on women providing humanitarian aid
+
+[Rank 11 | BGE Score: 0.000377]
+Content: Measures Infrastructure and international development
+
+[Rank 12 | BGE Score: 0.000143]
+Content: Intensity The earthquakes had a maximum intensity of VII (Very strong). The strongest shaking was reported in the provinces of Hormozgan and Fars. The earthquake was felt throughout the Middle East in countries such as the United Arab Emirates, Oman, Saudi Arabia, Bahrain and Qatar, as well as parts of Pakistan and Afghanistan, which were severely affected by a more deadly earthquake 10 days earlier.
+
+[Rank 13 | BGE Score: 0.000105]
+Content: Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).
+
+[Rank 14 | BGE Score: 0.000033]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 15 | BGE Score: 0.000029]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 16 | BGE Score: 0.000027]
+Content: Omar Ali is a young man living in South London during the mid-1980s. His father, Hussein, once a famous left-wing journalist in Pakistan, lives in London but dislikes Britain's society. Hey
+
+[Rank 17 | BGE Score: 0.000019]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Rank 18 | BGE Score: 0.000019]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 19 | BGE Score: 0.000019]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: edit wikieval_row_2.txt
+Timestamp: 2026-02-21T14:46:56.214679+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.654867]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.641052]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.621127]
+Content: References External links Official website
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.618653]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.615230]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.610982]
+Content: Later on 2 March, Russian artillery targeted a densely populated neighborhood of Mariupol, shelling it
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.605075]
+Content: Hackers used employees' usernames and passwords that had been compromised in previous breaches (a "creden
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.604716]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.600150]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.599698]
+Content: Fearing a future third offensive into Mariupol, in February Ukrainian forces launched a surprise attack into Shyrokyne, a village located 11 km east of Mariupol with the objective of expelling the separatist forces from the city limits and creating a buffer zone. The separatists withdrew from Shyrokyne four months later. The conflict was frozen when the Minsk II ceasefire agreement was signed in 2015
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.598846]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.593573]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.591464]
+Content: Second round: April 2014 On 10 April, the Council of Europe suspended the voting rights of Russia's delegation.On 28 April, the United States imposed a ban on business transactions within its territory on seven Russian officials, including Igor Sechin, executive chairman of the Russian state oil company Rosneft, and 17 Russian companies.On the same day, the EU issued travel bans against a further 15 individuals. The EU also stated the aims of EU sanctions as:
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.591452]
+Content: Gene therapy Gene therapy is a therapeutic approach that involves modifying or replacing faulty genes to treat or prevent diseases. In theranostics, gene therapy can be com Theranostics is a biweekly peer-reviewed open access medical journal established in January 2011 and published by Ivyspring International Publisher. The editor-in-chief is Xiaoyuan Chen (National Institute of Biomedical Imaging and Bioengineering). It covers biomedical research of interest for theranostics.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.589301]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.588758]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.586966]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.584613]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.582833]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.582214]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.000195]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.000064]
+Content: Gene therapy Gene therapy is a therapeutic approach that involves modifying or replacing faulty genes to treat or prevent diseases. In theranostics, gene therapy can be com Theranostics is a biweekly peer-reviewed open access medical journal established in January 2011 and published by Ivyspring International Publisher. The editor-in-chief is Xiaoyuan Chen (National Institute of Biomedical Imaging and Bioengineering). It covers biomedical research of interest for theranostics.
+
+[Rank 3 | BGE Score: 0.000031]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 4 | BGE Score: 0.000030]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 5 | BGE Score: 0.000027]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Rank 6 | BGE Score: 0.000025]
+Content: Historic stations == References == The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles.
+
+[Rank 7 | BGE Score: 0.000024]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+[Rank 8 | BGE Score: 0.000023]
+Content: Fearing a future third offensive into Mariupol, in February Ukrainian forces launched a surprise attack into Shyrokyne, a village located 11 km east of Mariupol with the objective of expelling the separatist forces from the city limits and creating a buffer zone. The separatists withdrew from Shyrokyne four months later. The conflict was frozen when the Minsk II ceasefire agreement was signed in 2015
+
+[Rank 9 | BGE Score: 0.000022]
+Content: Measures Infrastructure and international development
+
+[Rank 10 | BGE Score: 0.000022]
+Content: Second round: April 2014 On 10 April, the Council of Europe suspended the voting rights of Russia's delegation.On 28 April, the United States imposed a ban on business transactions within its territory on seven Russian officials, including Igor Sechin, executive chairman of the Russian state oil company Rosneft, and 17 Russian companies.On the same day, the EU issued travel bans against a further 15 individuals. The EU also stated the aims of EU sanctions as:
+
+[Rank 11 | BGE Score: 0.000022]
+Content: Hackers used employees' usernames and passwords that had been compromised in previous breaches (a "creden
+
+[Rank 12 | BGE Score: 0.000022]
+Content: References External links Official website
+
+[Rank 13 | BGE Score: 0.000020]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Rank 14 | BGE Score: 0.000019]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 15 | BGE Score: 0.000017]
+Content: Later on 2 March, Russian artillery targeted a densely populated neighborhood of Mariupol, shelling it
+
+[Rank 16 | BGE Score: 0.000017]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 17 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 18 | BGE Score: 0.000016]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 19 | BGE Score: 0.000016]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 20 | BGE Score: 0.000016]
+Content: History Since the first participation of the Dominican Republ
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: 删除第一段
+Timestamp: 2026-02-21T14:57:18.122808+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.705287]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.677636]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.665270]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.649609]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.649078]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.644311]
+Content: References External links Official website
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.629882]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.628713]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.626454]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.624225]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623004]
+Content: The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986. The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.621748]
+Content: Later on 2 March, Russian artillery targeted a densely populated neighborhood of Mariupol, shelling it
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.617702]
+Content: The government's response to the protests has been widely condemned.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.616217]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.613480]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.613438]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.609957]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.609588]
+Content: And disperse the crowd. The violence erupted during a protest march organized by a political group against a recent government decision.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.609354]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.609290]
+Content: S Route 41 and Westleigh Road in Lake Forest, Illinois, and apprehended at approximately 6:30 p.m., more than eight hours after the shooting began.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.000711]
+Content: Measures Infrastructure and international development
+
+[Rank 2 | BGE Score: 0.000443]
+Content: And disperse the crowd. The violence erupted during a protest march organized by a political group against a recent government decision.
+
+[Rank 3 | BGE Score: 0.000223]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 4 | BGE Score: 0.000156]
+Content: Later on 2 March, Russian artillery targeted a densely populated neighborhood of Mariupol, shelling it
+
+[Rank 5 | BGE Score: 0.000132]
+Content: == References ==
+
+[Rank 6 | BGE Score: 0.000077]
+Content: The government's response to the protests has been widely condemned.
+
+[Rank 7 | BGE Score: 0.000029]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 8 | BGE Score: 0.000023]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Rank 9 | BGE Score: 0.000023]
+Content: The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986. The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today.
+
+[Rank 10 | BGE Score: 0.000022]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 11 | BGE Score: 0.000020]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 12 | BGE Score: 0.000018]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Rank 13 | BGE Score: 0.000018]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 14 | BGE Score: 0.000017]
+Content: References External links Official website
+
+[Rank 15 | BGE Score: 0.000017]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 16 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 17 | BGE Score: 0.000016]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 18 | BGE Score: 0.000016]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 19 | BGE Score: 0.000016]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 20 | BGE Score: 0.000016]
+Content: S Route 41 and Westleigh Road in Lake Forest, Illinois, and apprehended at approximately 6:30 p.m., more than eight hours after the shooting began.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: 删除第一段
+Timestamp: 2026-02-21T14:58:16.076652+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.705287]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.677636]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.665270]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.649609]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.649078]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.644311]
+Content: References External links Official website
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.629882]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.628713]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.626454]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.624225]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623004]
+Content: The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986. The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.621748]
+Content: Later on 2 March, Russian artillery targeted a densely populated neighborhood of Mariupol, shelling it
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.617702]
+Content: The government's response to the protests has been widely condemned.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.616217]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.613480]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.613438]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.609957]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.609588]
+Content: And disperse the crowd. The violence erupted during a protest march organized by a political group against a recent government decision.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.609354]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.609290]
+Content: S Route 41 and Westleigh Road in Lake Forest, Illinois, and apprehended at approximately 6:30 p.m., more than eight hours after the shooting began.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.000711]
+Content: Measures Infrastructure and international development
+
+[Rank 2 | BGE Score: 0.000443]
+Content: And disperse the crowd. The violence erupted during a protest march organized by a political group against a recent government decision.
+
+[Rank 3 | BGE Score: 0.000223]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 4 | BGE Score: 0.000156]
+Content: Later on 2 March, Russian artillery targeted a densely populated neighborhood of Mariupol, shelling it
+
+[Rank 5 | BGE Score: 0.000132]
+Content: == References ==
+
+[Rank 6 | BGE Score: 0.000077]
+Content: The government's response to the protests has been widely condemned.
+
+[Rank 7 | BGE Score: 0.000029]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 8 | BGE Score: 0.000023]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Rank 9 | BGE Score: 0.000023]
+Content: The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986. The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today.
+
+[Rank 10 | BGE Score: 0.000022]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 11 | BGE Score: 0.000020]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 12 | BGE Score: 0.000018]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Rank 13 | BGE Score: 0.000018]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 14 | BGE Score: 0.000017]
+Content: References External links Official website
+
+[Rank 15 | BGE Score: 0.000017]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 16 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 17 | BGE Score: 0.000016]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 18 | BGE Score: 0.000016]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 19 | BGE Score: 0.000016]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 20 | BGE Score: 0.000016]
+Content: S Route 41 and Westleigh Road in Lake Forest, Illinois, and apprehended at approximately 6:30 p.m., more than eight hours after the shooting began.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: hello
+Timestamp: 2026-02-21T15:28:04.108332+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.731966]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.692997]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.686367]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.673930]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.671626]
+Content: References External links Official website
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.671001]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.645720]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.633948]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.631799]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.628818]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.628180]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.623201]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.620316]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.615283]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.611494]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.607464]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.606235]
+Content: The government's response to the protests has been widely condemned.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.604994]
+Content: The 80th annual Venice International Film Festival will be held from 30 August to 9 September 2023.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.604655]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.025004]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Rank 2 | BGE Score: 0.016112]
+Content: He also said Russian forces were preventing civilians from exiting.
+
+[Rank 3 | BGE Score: 0.011208]
+Content: The government's response to the protests has been widely condemned.
+
+[Rank 4 | BGE Score: 0.008126]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 5 | BGE Score: 0.007164]
+Content: References External links Official website
+
+[Rank 6 | BGE Score: 0.006715]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.005737]
+Content: == References ==
+
+[Rank 8 | BGE Score: 0.004123]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 9 | BGE Score: 0.003023]
+Content: The 80th annual Venice International Film Festival will be held from 30 August to 9 September 2023.
+
+[Rank 10 | BGE Score: 0.002720]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 11 | BGE Score: 0.002272]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey
+
+[Rank 12 | BGE Score: 0.001641]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Rank 13 | BGE Score: 0.000496]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 14 | BGE Score: 0.000206]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 15 | BGE Score: 0.000190]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 16 | BGE Score: 0.000178]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 17 | BGE Score: 0.000161]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 18 | BGE Score: 0.000029]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 19 | BGE Score: 0.000026]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 20 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+--------------------------------------------------

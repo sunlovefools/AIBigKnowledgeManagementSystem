@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
 from app.service.modification.reconstruction_service import ReconstructionService
+from app.service.modification.llm_editor_service import LlmEditorService
 
 # Setup the API router
 router = APIRouter()
@@ -46,12 +47,78 @@ class UpdateFileResponse(BaseModel):
     chunks: int
 
 
+class LlmEditPreviewRequest(BaseModel):
+    """Payload for requesting an LLM-driven edit preview."""
+    fileName: str
+    originalContent: str
+    instruction: str
+
+
+class LlmEditPreviewResponse(BaseModel):
+    """Response payload for LLM edit preview."""
+    editedContent: str
+    summary: str
+    warnings: list[str] = []
+
+
 # --- API Endpoints ---
 
 @router.get("/health")
 def modifications_health():
     """Health check endpoint for modifications module."""
     return {"modifications": "ok"}
+
+
+@router.post("/llm-edit-preview", response_model=LlmEditPreviewResponse)
+async def llm_edit_preview(payload: LlmEditPreviewRequest):
+    """Generate a non-persistent edit preview from natural-language instruction."""
+    try:
+        file_name = payload.fileName.strip()
+        original_content = payload.originalContent
+        instruction = payload.instruction.strip()
+
+        if not file_name:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="fileName must not be empty",
+            )
+
+        if not original_content.strip():
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="originalContent must not be empty",
+            )
+
+        if not instruction:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="instruction must not be empty",
+            )
+
+        preview = await LlmEditorService.generate_edit_preview(
+            file_name=file_name,
+            original_content=original_content,
+            instruction=instruction,
+        )
+
+        return LlmEditPreviewResponse(
+            editedContent=preview["editedContent"],
+            summary=preview["summary"],
+            warnings=preview.get("warnings", []),
+        )
+    except HTTPException:
+        raise
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"LLM service error: {str(e)}",
+        )
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate LLM edit preview: {str(e)}",
+        )
 
 # Endpoint that is yet to be implemented in the frontend
 @router.put("/parent-chunks/{parent_id}", response_model=UpdateParentChunkResponse)
