@@ -75,6 +75,18 @@ BEAM_ANSWER_GENERATOR_LLM_KEY=<bearer>
 
 # Timeout helpers
 BEAM_TIMEOUT=60
+
+# (Optional) AWS S3 image uploads for Docling preview artifacts
+AWS_S3_UPLOAD_ENABLED=false
+AWS_S3_BUCKET=<bucket-name>
+AWS_REGION=<aws-region>
+AWS_ACCESS_KEY_ID=<access-key>
+AWS_SECRET_ACCESS_KEY=<secret-key>
+
+# Optional S3 settings
+AWS_SESSION_TOKEN=
+AWS_S3_PREFIX=docling-previews
+AWS_S3_PRESIGN_TTL_SECONDS=3600
 ```
 
 Load them via `python-dotenv` (already invoked inside modules) or export them in the hosting environment.
@@ -148,6 +160,9 @@ Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are 
   - extracted `*.png` pictures
   - fallback table images for tables where Docling returns `num_rows == 0` or `num_cols == 0`
   - `manifest.json` summary (stats, warnings, partial chunk failures)
+- If `AWS_S3_UPLOAD_ENABLED=true` and AWS config is valid, extracted images are also uploaded to S3 with UUID-based keys:
+  - `docling-previews/images/<image_uuid>.png`
+- S3 upload failures are recorded as warnings in the manifest/response flow and do **not** fail the preview request.
 - Does **not** chunk, polish, embed, or upsert to vector DB.
 
 ### 2. Query + Retrieval-Augmented Generation (`POST /query`)

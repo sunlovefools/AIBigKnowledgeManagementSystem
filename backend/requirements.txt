@@ -10,6 +10,7 @@ pydantic
 pandas
 astrapy
 bcrypt
+boto3
 email-validator
 requests
 gunicorn

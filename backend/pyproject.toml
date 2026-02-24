@@ -6,6 +6,7 @@ dependencies = [
     "aiohttp",
     "astrapy",
     "bcrypt",
+    "boto3",
     "datasets",
     "docling",
     "email-validator",

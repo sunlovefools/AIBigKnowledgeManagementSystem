@@ -142,8 +142,8 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
     assert len(picture_items) == 2
     assert len({img.file_name for img in picture_items}) == 2
 
-    table_fallbacks = [img for img in result.images if img.kind == "table_fallback"]
-    assert len(table_fallbacks) == 1
+    table_images = [img for img in result.images if img.kind == "table_image"]
+    assert len(table_images) == 1
     assert result.stats.converted_chunks == 2
     assert result.stats.partial_failure_chunks == 1
     assert len(result.partial_failures) == 1
@@ -166,3 +166,107 @@ def test_parse_pdf_with_docling_preview_raises_when_no_successful_chunks(monkeyp
 def test_safe_stem_sanitizes_filename():
     assert extractor._safe_stem("A B/C:*report?.pdf") == "A_B_C_report"
 
+
+def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path):
+    converter = _Converter(
+        [
+            _Result(
+                status=_Status.SUCCESS,
+                items=[_Picture(page_no=1)],
+            ),
+            _Result(status=_Status.FAILURE, items=[]),
+        ]
+    )
+
+    monkeypatch.setattr(extractor, "_load_docling_runtime", _mock_runtime)
+    monkeypatch.setattr(extractor, "_build_converter", lambda _runtime: converter)
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setattr(extractor, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
+    monkeypatch.setattr(
+        extractor,
+        "build_s3_image_key",
+        lambda image_uuid, extension=".png", prefix=None: f"{prefix}/images/{image_uuid}{extension}",
+    )
+
+    class _UploadResult:
+        bucket = "test-bucket"
+        key = "docling-previews/run/images/uuid.png"
+        region = "ap-southeast-1"
+        s3_uri = "s3://test-bucket/docling-previews/run/images/uuid.png"
+
+    monkeypatch.setattr(extractor, "upload_file_to_s3", lambda **kwargs: _UploadResult())
+
+    result = extractor.parse_pdf_with_docling_preview(
+        pdf_bytes=b"%PDF-1.4 fake",
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+    )
+    assert len(result.images) == 1
+    img = result.images[0]
+    assert img.image_uuid
+    assert img.s3_upload_status == "uploaded"
+    assert img.s3_bucket == "test-bucket"
+    assert img.s3_key is not None
+    assert img.s3_uri is not None
+
+
+def test_parse_pdf_with_docling_preview_records_s3_failure_as_warning(monkeypatch, tmp_path):
+    converter = _Converter(
+        [
+            _Result(
+                status=_Status.SUCCESS,
+                items=[_Picture(page_no=1)],
+            ),
+            _Result(status=_Status.FAILURE, items=[]),
+        ]
+    )
+
+    monkeypatch.setattr(extractor, "_load_docling_runtime", _mock_runtime)
+    monkeypatch.setattr(extractor, "_build_converter", lambda _runtime: converter)
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setattr(extractor, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
+    monkeypatch.setattr(
+        extractor,
+        "build_s3_image_key",
+        lambda image_uuid, extension=".png", prefix=None: f"{prefix}/images/{image_uuid}{extension}",
+    )
+    monkeypatch.setattr(
+        extractor,
+        "upload_file_to_s3",
+        lambda **kwargs: (_ for _ in ()).throw(RuntimeError("S3 upload boom")),
+    )
+
+    result = extractor.parse_pdf_with_docling_preview(
+        pdf_bytes=b"%PDF-1.4 fake",
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+    )
+    assert len(result.images) == 1
+    img = result.images[0]
+    assert img.s3_upload_status == "failed"
+    assert "S3 upload boom" in (img.s3_error or "")
+    assert any("Failed to upload picture" in warning for warning in result.warnings)
+
+
+def test_parse_pdf_with_docling_preview_marks_s3_skipped_when_disabled(monkeypatch, tmp_path):
+    converter = _Converter(
+        [
+            _Result(
+                status=_Status.SUCCESS,
+                items=[_Picture(page_no=1)],
+            ),
+            _Result(status=_Status.FAILURE, items=[]),
+        ]
+    )
+
+    monkeypatch.setattr(extractor, "_load_docling_runtime", _mock_runtime)
+    monkeypatch.setattr(extractor, "_build_converter", lambda _runtime: converter)
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
+
+    result = extractor.parse_pdf_with_docling_preview(
+        pdf_bytes=b"%PDF-1.4 fake",
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+    )
+    assert len(result.images) == 1
+    assert result.images[0].s3_upload_status == "skipped"
