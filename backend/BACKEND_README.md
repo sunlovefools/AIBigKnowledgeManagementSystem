@@ -112,6 +112,7 @@ docker run --env-file .env -p 8000:8000 team44-backend
 | `/auth/register` | POST | Creates user in Astra (`AuthService.register_user`) | `router_auth` |
 | `/auth/login` | POST | Validates credentials (bcrypt) | `router_auth` |
 | `/ingest/health` | GET | Ingestion subsystem status | `router_ingest` |
+| `/ingest/webhook/preview` | POST | Parse-only Docling PDF preview; writes markdown + extracted images locally | `router_ingest` |
 | `/ingest/webhook` | POST | Accepts `{fileName, contentType, data(base64)}`; runs ingestion pipeline | `router_ingest` |
 | `/query/health` | GET | Query subsystem status | `router_query` |
 | `/query` | POST | Full RAG pipeline (refine -> embed -> vector search -> answer) | `router_query` |
@@ -130,6 +131,7 @@ Authentication & authorization are still lightweight (no JWT); responses omit pa
    - `application/pdf` → PyMuPDF  
    - `application/msword` / `application/vnd.openxmlformats-officedocument.wordprocessingml.document` → `python-docx`  
    - `text/plain` → UTF-8 decode
+   - Optional PDF strategy switch: set `INGEST_PDF_EXTRACTOR=docling` to use Docling markdown extraction (preview-first rollout; default remains `legacy`)
 3. **Chunking** – `chunker.split_into_chunks()` merges paragraphs into ~1000 char windows; long paragraphs fall back to sentence splits.
 4. **Polishing** – `chunk_polisher.polish_chunks()` removes stray whitespace, bullet characters, and normalizes punctuation/casing.
 5. **Embedding** – Build payload `{"input": ["chunk text", ...]}` and call the Beam embedding endpoint through `embed_text()` (async `aiohttp`).  
@@ -137,6 +139,16 @@ Authentication & authorization are still lightweight (no JWT); responses omit pa
 6. **Vector DB Upsert** – For each chunk attach metadata (`document_name`, `chunk_number`, `uploaded_by`, `timestamp`) and call `vector_store.upsert_chunk()`, which writes to the Astra collection initialized via `vectordb_init.init_vector_db()`.
 
 Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are written to root for troubleshooting. Remove or guard them behind feature flags before production.
+
+### 1A. Docling Parse Preview (`POST /ingest/webhook/preview`)
+
+- PDF-only preview endpoint for validating Docling output before vector ingestion.
+- Persists artifacts under `backend/_local_uploads/docling_previews/<run_id>/`:
+  - `document.md`
+  - extracted `*.png` pictures
+  - fallback table images for tables where Docling returns `num_rows == 0` or `num_cols == 0`
+  - `manifest.json` summary (stats, warnings, partial chunk failures)
+- Does **not** chunk, polish, embed, or upsert to vector DB.
 
 ### 2. Query + Retrieval-Augmented Generation (`POST /query`)
 

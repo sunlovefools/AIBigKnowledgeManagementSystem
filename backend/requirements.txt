@@ -2,6 +2,7 @@
 torch
 torchvision
 FlagEmbedding
+docling
 fastapi
 uvicorn[standard]
 python-dotenv
@@ -16,6 +17,7 @@ langchain
 numpy
 PyMuPDF
 python-docx
+Pillow
 aiohttp
 langchain-core
 langchain-text-splitters
