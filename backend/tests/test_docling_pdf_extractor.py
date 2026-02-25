@@ -147,6 +147,7 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
         server_notes=["retry used"],
     )
     monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=_minimal_pdf_bytes(),
@@ -298,7 +299,7 @@ def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
     monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "true")
     monkeypatch.setattr(beam_extractor, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
     monkeypatch.setattr(
         beam_extractor,
@@ -332,7 +333,7 @@ def test_parse_pdf_with_docling_preview_records_s3_failure_as_warning(monkeypatc
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
     monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "true")
     monkeypatch.setattr(beam_extractor, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
     monkeypatch.setattr(
         beam_extractor,
@@ -361,7 +362,7 @@ def test_parse_pdf_with_docling_preview_marks_s3_skipped_when_disabled(monkeypat
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
     monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
+    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=_minimal_pdf_bytes(),
@@ -375,6 +376,20 @@ def test_parse_pdf_with_docling_preview_marks_s3_skipped_when_disabled(monkeypat
 def test_docling_backend_selector_defaults_to_beam(monkeypatch):
     monkeypatch.delenv("DOCLING_PDF_BACKEND", raising=False)
     assert extractor._get_docling_pdf_backend() == "beam"
+
+
+def test_parse_pdf_with_docling_preview_raises_when_upload_images_to_s3_env_missing(monkeypatch, tmp_path):
+    items = [_Picture(page_no=1)]
+    _patch_endpoint_runtime(monkeypatch, items)
+    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.delenv("UPLOAD_IMAGES_TO_S3", raising=False)
+
+    with pytest.raises(RuntimeError, match="UPLOAD_IMAGES_TO_S3 is required"):
+        extractor.parse_pdf_with_docling_preview(
+            pdf_bytes=_minimal_pdf_bytes(),
+            file_name="sample.pdf",
+            artifact_root=tmp_path,
+        )
 
 
 def test_docling_backend_selector_invalid_falls_back_to_beam(monkeypatch):
@@ -535,7 +550,7 @@ def test_local_backend_processes_in_fixed_chunks_and_serializes(monkeypatch, tmp
 
     fake_converter = _FakeConverter(responses)
 
-    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
+    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
     monkeypatch.setattr(
         local_extractor,
         "_load_local_docling_runtime",

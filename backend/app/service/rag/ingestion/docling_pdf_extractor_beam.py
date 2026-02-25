@@ -170,11 +170,25 @@ def _upload_image_artifact_to_s3(
 
     This function mutates and returns the image artifact with S3 metadata/status.
     """
-    upload_enabled = (os.getenv("AWS_S3_UPLOAD_ENABLED", "false") or "").strip().lower()
-    if upload_enabled != "true":
+    raw_upload_enabled = os.getenv("AWS_S3_UPLOAD_ENABLED")
+    if raw_upload_enabled is None:
+        raise RuntimeError(
+            "AWS_S3_UPLOAD_ENABLED is required and must be set to 'true' or 'false'."
+        )
+
+    upload_enabled = raw_upload_enabled.strip().lower()
+    if upload_enabled not in {"true", "false"}:
+        raise RuntimeError(
+            "AWS_S3_UPLOAD_ENABLED must be set to 'true' or 'false', got: {raw_upload_enabled!r}."
+        )
+
+    if upload_enabled == "false":
         image_artifact.s3_upload_status = "skipped"
-        image_artifact.s3_error = "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
-        print(f"S3 upload skipped for image_uuid={image_artifact.image_uuid} because S3 uploads are disabled.")
+        image_artifact.s3_error = f"S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
+        print(
+            f"S3 upload skipped for image_uuid={image_artifact.image_uuid} "
+            f"because AWS_S3_UPLOAD_ENABLED =false."
+        )
         return image_artifact
 
     try:

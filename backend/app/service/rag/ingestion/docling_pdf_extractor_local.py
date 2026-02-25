@@ -78,7 +78,7 @@ def _build_local_converter() -> Any:
     )
 
     print(
-        f"Docling converter initialized (MARKDOWN_ONLY), chunk_size={LOCAL_DOCLING_CHUNK_SIZE}."
+        f"Docling converter initialized with chunk_size={LOCAL_DOCLING_CHUNK_SIZE}."
     )
     print(
         f"Accelerator device: {pipeline_options.accelerator_options.device}"

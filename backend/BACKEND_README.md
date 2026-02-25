@@ -76,8 +76,8 @@ BEAM_ANSWER_GENERATOR_LLM_KEY=<bearer>
 # Timeout helpers
 BEAM_TIMEOUT=60
 
-# (Optional) AWS S3 image uploads for Docling preview artifacts
-AWS_S3_UPLOAD_ENABLED=false
+# (Optional) AWS S3 image uploads for Docling preview artifacts (required toggle)
+UPLOAD_IMAGES_TO_S3=false
 AWS_S3_BUCKET=<bucket-name>
 AWS_REGION=<aws-region>
 AWS_ACCESS_KEY_ID=<access-key>
@@ -165,7 +165,7 @@ Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are 
   - extracted `*.png` pictures
   - fallback table images for tables where Docling returns `num_rows == 0` or `num_cols == 0`
   - `manifest.json` summary (stats, warnings, partial chunk failures)
-- If `AWS_S3_UPLOAD_ENABLED=true` and AWS config is valid, extracted images are also uploaded to S3 with UUID-based keys:
+- If `UPLOAD_IMAGES_TO_S3=true` and AWS config is valid, extracted images are also uploaded to S3 with UUID-based keys:
   - `docling-previews/images/<image_uuid>.png`
 - S3 upload failures are recorded as warnings in the manifest/response flow and do **not** fail the preview request.
 - Beam endpoint errors do fail the preview request (no local fallback).
