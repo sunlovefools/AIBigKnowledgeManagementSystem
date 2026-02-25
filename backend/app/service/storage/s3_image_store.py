@@ -1,6 +1,7 @@
 import os
 from functools import lru_cache
 from pathlib import Path
+import re
 from typing import Any
 
 from pydantic import BaseModel
@@ -85,14 +86,23 @@ def build_s3_image_key(
     image_uuid: str,
     extension: str = ".png",
     prefix: str | None = None,
+    source_file_name: str | None = None,
 ) -> str:
     """
-    Build the S3 key for an image based on the image UUID, and optional prefix and extension.
-    The key format is: {prefix}/images/{image_uuid}{extension}
+    Build the S3 key for an image.
+
+    If `source_file_name` is provided, the object file name is:
+    `{safe_source_stem}-{image_uuid}{extension}`.
+    Otherwise it falls back to `{image_uuid}{extension}`.
     """
     ext = extension if extension.startswith(".") else f".{extension}"
     root_prefix = (prefix or "docling-previews").strip("/ ")
-    return f"{root_prefix}/images/{image_uuid}{ext}"
+    object_name = f"{image_uuid}{ext}"
+    if source_file_name:
+        source_stem = Path(source_file_name).stem or "document"
+        source_stem = re.sub(r"[^A-Za-z0-9._-]+", "_", source_stem).strip("._-") or "document"
+        object_name = f"{source_stem}-{image_uuid}{ext}"
+    return f"{root_prefix}/images/{object_name}"
 
 
 @lru_cache(maxsize=4)

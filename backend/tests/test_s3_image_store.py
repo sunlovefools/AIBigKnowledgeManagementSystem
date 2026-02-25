@@ -29,13 +29,23 @@ def test_load_s3_config_returns_config_when_values_present(monkeypatch):
     assert cfg.region == "ap-southeast-1"
 
 
-def test_build_s3_image_key_uses_image_uuid_only():
+def test_build_s3_image_key_uses_image_uuid_only_when_no_source_name():
     key = store.build_s3_image_key(
         image_uuid="img-uuid-1",
         extension=".png",
         prefix="docling-previews",
     )
     assert key == "docling-previews/images/img-uuid-1.png"
+
+
+def test_build_s3_image_key_uses_source_filename_and_uuid():
+    key = store.build_s3_image_key(
+        image_uuid="img-uuid-1",
+        extension=".png",
+        prefix="docling-previews",
+        source_file_name="Client Portfolio Analysis Report.pdf",
+    )
+    assert key == "docling-previews/images/Client_Portfolio_Analysis_Report-img-uuid-1.png"
 
 
 def test_s3_uri_format():

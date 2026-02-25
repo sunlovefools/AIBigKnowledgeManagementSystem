@@ -1,10 +1,12 @@
+import base64
 import json
 import os
 import re
-import tempfile
 from pathlib import Path
 from typing import Any, Literal
 
+import fitz
+import requests
 from pydantic import BaseModel
 from uuid6 import uuid6
 from app.service.storage.s3_image_store import (
@@ -15,6 +17,11 @@ from app.service.storage.s3_image_store import (
 
 
 DEFAULT_DOCLING_PAGE_CHUNK_SIZE = 6 # Default number of pages to process in each chunk when parsing PDFs with Docling.
+BEAM_DOCLING_TIMEOUT_SECONDS = 600
+BEAM_DOCLING_CLIENT_MAX_FILE_SIZE_MB = 25
+BEAM_DOCLING_CLIENT_CROP_SCALE = 2.5
+DOCLING_IMAGE_PLACEHOLDER = "<!-- image -->"
+DOCLING_IMAGE_CROP_FAILED_MARKER = "<!-- image-crop-failed -->"
 
 
 class ExtractedImageArtifact(BaseModel):
@@ -85,6 +92,25 @@ def _default_preview_root() -> Path:
     return _backend_root() / "_local_uploads" / "docling_previews"
 
 
+def _prepare_docling_preview_artifact_dir(
+    *,
+    file_name: str,
+    artifact_root: Path | None = None,
+) -> tuple[str, Path, Path]:
+    """
+    Prepare the per-run preview artifact directory and markdown output path.
+    """
+    preview_root = Path(artifact_root) if artifact_root else _default_preview_root()
+    preview_root.mkdir(parents=True, exist_ok=True)
+
+    run_id = str(uuid6())
+    artifact_dir = preview_root / run_id
+    artifact_dir.mkdir(parents=True, exist_ok=True)
+
+    markdown_path = artifact_dir / "document.md"
+    return run_id, artifact_dir, markdown_path
+
+
 def _safe_stem(file_name: str) -> str:
     """
     Generate a safe stem for the given file name by removing unsafe characters and normalizing it.
@@ -108,70 +134,31 @@ def _extract_page_no(doc_item: Any) -> int | None:
     return getattr(prov[0], "page_no", None)
 
 
-def _load_docling_runtime() -> dict[str, Any]:
-    """
-    Lazy import Docling classes and return them in a dictionary for use in the conversion process.
+def _picture_uuid_marker(image_uuid: str) -> str:
+    """Return the markdown comment marker used for extracted picture UUIDs."""
+    return f"<!-- image-uuid: {image_uuid} -->"
 
-    This approach avoids importing Docling at the module level, which can be beneficial for performance and resource usage, 
-    especially if Docling is only needed for specific PDF parsing strategies.
+
+def _table_image_uuid_marker(image_uuid: str) -> str:
+    """Return the markdown comment marker used for fallback table image UUIDs."""
+    return f"<!-- table-image-uuid: {image_uuid} -->"
+
+
+def _load_docling_module_runtime() -> dict[str, Any]:
     """
-    from docling.document_converter import DocumentConverter, PdfFormatOption
-    from docling.datamodel.base_models import ConversionStatus, InputFormat
-    from docling.datamodel.pipeline_options import (
-        AcceleratorOptions,
-        ThreadedPdfPipelineOptions,
-    )
+    Lazy import only the Docling client-side types needed to reconstruct endpoint JSON
+    and serialize markdown locally.
+    """
     from docling_core.transforms.serializer.markdown import MarkdownDocSerializer
+    from docling_core.types.doc import DoclingDocument
     from docling_core.types.doc import PictureItem, TableItem
 
     return {
-        "DocumentConverter": DocumentConverter,
-        "PdfFormatOption": PdfFormatOption,
-        "InputFormat": InputFormat,
-        "ConversionStatus": ConversionStatus,
-        "ThreadedPdfPipelineOptions": ThreadedPdfPipelineOptions,
-        "AcceleratorOptions": AcceleratorOptions,
         "MarkdownDocSerializer": MarkdownDocSerializer,
+        "DoclingDocument": DoclingDocument,
         "PictureItem": PictureItem,
         "TableItem": TableItem,
     }
-
-
-def _build_converter_pipeline(runtime: dict[str, Any]) -> Any:
-    """Build and configure a Docling DocumentConverter with options optimized for preview extraction."""
-    pipeline_options = runtime["ThreadedPdfPipelineOptions"]()
-    pipeline_options.accelerator_options = runtime["AcceleratorOptions"](
-        device="cpu",
-        num_threads=4, # Adjust based on expected workload and environment capabilities
-        cuda_use_flash_attention2=False,
-    )
-
-    pipeline_options.do_ocr = False  # Disable OCR for better performance
-    pipeline_options.do_table_structure = True # Enable table structure extraction to get rows/columns when possible
-    pipeline_options.generate_table_images = True # Enable generation of table images when structure extraction fails
-    pipeline_options.generate_picture_images = True # Enable generation of picture images for better preview quality
-    pipeline_options.images_scale = 2.0
-    pipeline_options.generate_page_images = False
-    pipeline_options.do_chart_extraction = False
-    pipeline_options.do_formula_enrichment = False
-    pipeline_options.layout_batch_size = 4 # Process multiple pages in parallel for layout analysis
-    pipeline_options.table_batch_size = 2 # Process multiple tables in parallel for structure extraction
-
-    # Build the pipeline options into the format options for the PDF converter
-    return runtime["DocumentConverter"](
-        format_options={
-            runtime["InputFormat"].PDF: runtime["PdfFormatOption"](
-                pipeline_options=pipeline_options
-            )
-        }
-    )
-
-
-def _build_converter(runtime: dict[str, Any]) -> Any:
-    """
-    Backward-compatible alias for older tests/call sites.
-    """
-    return _build_converter_pipeline(runtime)
 
 
 def _upload_image_artifact_to_s3(
@@ -204,6 +191,7 @@ def _upload_image_artifact_to_s3(
             image_uuid=image_artifact.image_uuid,
             extension=Path(image_artifact.file_name).suffix or ".png",
             prefix=s3_config.prefix,
+            source_file_name=source_file_name,
         )
 
         # Upload the image file to S3 with metadata for traceability, including the source PDF file name and page number if available.
@@ -243,6 +231,196 @@ def _write_manifest(artifact_dir: Path, payload: dict[str, Any]) -> None:
     )
 
 
+def _load_beam_docling_config() -> dict[str, Any]:
+    """
+    Load required Beam Docling endpoint configuration from environment variables and return it as a dictionary.
+    """
+    endpoint = (os.getenv("BEAM_DOCLING_ENDPOINT") or "").strip()
+    token = (os.getenv("BEAM_DOCLING_ENDPOINT_TOKEN") or "").strip()
+    if not endpoint:
+        raise RuntimeError("BEAM_DOCLING_ENDPOINT is not configured.")
+    if not token:
+        raise RuntimeError("BEAM_DOCLING_ENDPOINT_TOKEN is not configured.")
+    return {
+        "endpoint": endpoint,
+        "token": token,
+        "timeout_seconds": BEAM_DOCLING_TIMEOUT_SECONDS,
+        "max_file_size_mb": BEAM_DOCLING_CLIENT_MAX_FILE_SIZE_MB,
+    }
+
+
+def _call_beam_docling_endpoint(pdf_bytes: bytes, file_name: str) -> dict[str, Any]:
+    """
+    Call the Beam-hosted Docling endpoint and return the parsed JSON response.
+    """
+    config = _load_beam_docling_config() # Get the endpoint configuration for the request
+    payload = {
+        "filename": file_name,
+        "file_b64": base64.b64encode(pdf_bytes).decode("ascii"), # Encode the PDF bytes as a base64 string for transmission in JSON
+        "include_conversion_dump": True, # Include the full conversion result dump in the response for richer debugging and preview generation, at the cost of larger response size.
+        "max_file_size_mb": config["max_file_size_mb"],
+    }
+    headers = {
+        "Authorization": f"Bearer {config['token']}",
+        "Content-Type": "application/json",
+        "Accept": "application/json",
+    }
+
+    try:
+        response = requests.post(
+            config["endpoint"],
+            json=payload,
+            headers=headers,
+            timeout=config["timeout_seconds"],
+        )
+    except requests.RequestException as exc:
+        raise RuntimeError(
+            f"Beam Docling endpoint request failed: {exc}"
+        ) from exc
+
+    raw_body = response.text or ""
+
+    # Raise error if the response status code indicates failure
+    if not response.ok:
+        body_preview = raw_body[:1000]
+        raise RuntimeError(
+            "Beam Docling endpoint returned HTTP error: "
+            f"status={response.status_code}, body_preview={body_preview!r}"
+        )
+
+    # Parse the response body as JSON
+    try:
+        result = response.json()
+    except Exception as exc:
+        body_preview = raw_body[:1000]
+        raise RuntimeError(
+            "Beam Docling endpoint returned non-JSON response. "
+            f"status={response.status_code}, body_preview={body_preview!r}"
+        ) from exc
+
+    conversion_result_dump = result.get("conversion_result_dump")
+    if not isinstance(conversion_result_dump, dict):
+        raise RuntimeError("Beam Docling endpoint response missing conversion_result_dump.")
+
+    # Making sure the conversion result dump contains a document entry, which is essential for the parsing process. If it's missing or not a dict, raise an error.
+    if not isinstance(conversion_result_dump.get("document"), dict):
+        raise RuntimeError("Beam Docling endpoint response missing conversion_result_dump.document.")
+
+    return result
+
+
+def _ordered_items_by_seq(ordered_items: Any) -> dict[int, dict[str, Any]]:
+    """
+    Build a sequence-indexed lookup map for endpoint ordered items.
+    """
+
+    mapped: dict[int, dict[str, Any]] = {}
+    if not isinstance(ordered_items, list):
+        return mapped
+    # Loop through the ordered items from the endpoint response and build a mapping of sequence numbers to the corresponding items. 
+    # This allows for quick lookup of items by their sequence number during the markdown serialization process.
+    for item in ordered_items:
+        if not isinstance(item, dict):
+            continue
+        seq = item.get("seq")
+        if isinstance(seq, int):
+            mapped[seq] = item
+    return mapped
+
+
+def _inject_marker_for_picture(serialized_text: str, marker: str) -> str:
+    """
+    Replace the Docling image placeholder with a marker, or append the marker if no placeholder exists.
+    """
+    text = (serialized_text or "").strip()
+    if not text:
+        return marker
+    if DOCLING_IMAGE_PLACEHOLDER in text:
+        return text.replace(DOCLING_IMAGE_PLACEHOLDER, marker).strip()
+    return f"{text}\n\n{marker}"
+
+
+def _coerce_endpoint_table_shape(endpoint_item: dict[str, Any]) -> tuple[int | None, int | None]:
+    """
+    Extract table row/column counts from endpoint metadata when present.
+    """
+    table_info = endpoint_item.get("table_info")
+    if not isinstance(table_info, dict):
+        return None, None
+    num_rows = table_info.get("num_rows")
+    num_cols = table_info.get("num_cols")
+    return (
+        num_rows if isinstance(num_rows, int) else None,
+        num_cols if isinstance(num_cols, int) else None,
+    )
+
+
+def _crop_image_bytes_from_endpoint_item(
+    endpoint_item: dict[str, Any],
+    pdf_doc: fitz.Document,
+    *,
+    scale: float = BEAM_DOCLING_CLIENT_CROP_SCALE,
+) -> bytes | None:
+    """
+    Crop an image region from the source PDF using endpoint-provided `page_no` + `bbox`.
+    """
+    if not isinstance(endpoint_item, dict):
+        return None
+
+    bbox = endpoint_item.get("bbox")
+    page_no = endpoint_item.get("page_no")
+    if not isinstance(bbox, dict) or not isinstance(page_no, int):
+        return None
+    if page_no <= 0 or page_no > len(pdf_doc):
+        return None
+
+    try:
+        left_raw = float(bbox["l"])
+        top_raw = float(bbox["t"])
+        right_raw = float(bbox["r"])
+        bottom_raw = float(bbox["b"])
+    except Exception:
+        return None
+
+    page = pdf_doc.load_page(page_no - 1)
+    page_rect = page.rect
+    coord_origin = str(bbox.get("coord_origin", "TOPLEFT")).upper()
+
+    if coord_origin == "BOTTOMLEFT":
+        y1 = page_rect.height - top_raw
+        y2 = page_rect.height - bottom_raw
+    else:
+        y1 = top_raw
+        y2 = bottom_raw
+
+    clip = fitz.Rect(
+        min(left_raw, right_raw),
+        min(y1, y2),
+        max(left_raw, right_raw),
+        max(y1, y2),
+    )
+    clip = clip & page_rect
+    if clip.is_empty or clip.width <= 0 or clip.height <= 0:
+        return None
+
+    pix = page.get_pixmap(matrix=fitz.Matrix(scale, scale), clip=clip, alpha=False)
+    if pix.width <= 0 or pix.height <= 0:
+        return None
+    return pix.tobytes("png")
+
+
+def _stringify_endpoint_error(error: Any) -> str:
+    """
+    Convert endpoint error payload entries into readable strings for warnings/manifests.
+    """
+    if isinstance(error, str):
+        return error
+    try:
+        return json.dumps(error, ensure_ascii=False)
+    except Exception:
+        return str(error)
+
+
 def parse_pdf_with_docling_preview(
     pdf_bytes: bytes,
     file_name: str,
@@ -255,22 +433,17 @@ def parse_pdf_with_docling_preview(
     if not pdf_bytes:
         raise ValueError("empty pdf payload")
 
-    runtime = _load_docling_runtime() # Load the runtime classes
-    converter = _build_converter(runtime) # Build the Docling pipeline converter with optimized options for preview extraction
+    endpoint_result = _call_beam_docling_endpoint(pdf_bytes, file_name) # Call the Beam-hosted Docling endpoint and get the conversion result
+    runtime = _load_docling_module_runtime() # Load the runtime mmodules from docling for serialising
 
-    preview_root = Path(artifact_root) if artifact_root else _default_preview_root()
-    preview_root.mkdir(parents=True, exist_ok=True)
-
-    # Each run will have its own unique artifact directory
-    run_id = str(uuid6())
-    artifact_dir = preview_root / run_id
-    artifact_dir.mkdir(parents=True, exist_ok=True)
-
-    # The markdown file that will contain the extracted text content from the PDF, with references to extracted images
+    # Preparation for the preview artifact directory and markdown output path
+    run_id, artifact_dir, markdown_path = _prepare_docling_preview_artifact_dir(
+        file_name=file_name,
+        artifact_root=artifact_root,
+    )
     safe_stem = _safe_stem(file_name)
-    markdown_path = artifact_dir / "document.md"
 
-    markdown_chunks: list[str] = []
+    markdown_parts: list[str] = [] # A list to accumulate serialised markdown text parts
     images: list[ExtractedImageArtifact] = [] # A list to hold metadata about extracted images
     warnings: list[str] = []
     partial_failures: list[DoclingChunkFailure] = []
@@ -278,70 +451,118 @@ def parse_pdf_with_docling_preview(
     s3_upload_uploaded_count = 0
     s3_upload_skipped_count = 0
 
-    converted_chunks = 0
-    current_start = 1 # For tracking the starting page number of each chunk
     picture_counter = 0 # For tracking the number of pictures extracted, used in naming the picture artifacts
     table_counter = 0 # For tracking the number of tables processed, used in naming extracted table image artifacts
     table_image_count = 0 # For tracking the number of extracted table images used in stats and logging
 
-    temp_pdf_path: Path | None = None
-    try:
-        # Writing the PDF bytes to a temporary file because Docling's converter expects a file path.
-        with tempfile.NamedTemporaryFile(
-            suffix=".pdf", delete=False
-        ) as temp_pdf_file:
-            temp_pdf_file.write(pdf_bytes)
-            temp_pdf_path = Path(temp_pdf_file.name)
+    # Extract all the server warnings and add it to warnings list for debugging purpose
+    for note in endpoint_result.get("server_notes") or []:
+        if note:
+            warnings.append(f"Beam: {note}")
 
-        conversion_status = runtime["ConversionStatus"]
-        serializer_cls = runtime["MarkdownDocSerializer"]
-        picture_item_cls = runtime["PictureItem"]
-        table_item_cls = runtime["TableItem"]
-
-        while True:
-            # Loop through the PDF in chunks of pages to avoid processing the entire document at once
-            current_end = current_start + page_chunk_size - 1
-            page_range_label = f"{current_start}-{current_end}"
-            print(f"[docling-preview] Converting pages {page_range_label} ...")
-            result = converter.convert(
-                str(temp_pdf_path),
-                raises_on_error=False,
-                page_range=(current_start, current_end),
+    endpoint_status = str(endpoint_result.get("status") or "")
+    endpoint_errors = endpoint_result.get("errors") or []
+    if endpoint_status == "partial_success" and endpoint_errors:
+        partial_failures.append(
+            DoclingChunkFailure(
+                page_range="full-document",
+                errors=[_stringify_endpoint_error(err) for err in endpoint_errors],
             )
+        )
 
-            if result.status in {conversion_status.FAILURE, conversion_status.SKIPPED}:
-                warnings.append(f"Chunk {page_range_label} conversion failed with status {result.status}.")
-                break
+    # Conversion_result_dump is the object for DoclingDocument but in the form of JSON
+    conversion_result_dump = endpoint_result.get("conversion_result_dump") or {}
+    doc_dump = conversion_result_dump.get("document")
 
-            if getattr(result, "document", None) is None:
-                warnings.append(f"Chunk {page_range_label} produced no document.")
-                current_start += page_chunk_size
-                continue
+    # Reconstruct the DoclingDocument from the conversion result dump for local serialization using the Docling own class.
+    doc = runtime["DoclingDocument"].model_validate(doc_dump)
 
-            converted_chunks += 1
-            serializer = serializer_cls(doc=result.document) # Serializer for converting Docling document items into markdown text
-            chunk_markdown_parts: list[str] = []
+    serializer = runtime["MarkdownDocSerializer"](doc=doc)
+    picture_item_cls = runtime["PictureItem"]
+    table_item_cls = runtime["TableItem"]
+    ordered_by_seq = _ordered_items_by_seq(endpoint_result.get("ordered_items")) # A list of items in the order they were parsed by the endpoint, with sequence numbers for reference.
 
-            for element, _ in result.document.iterate_items():
-                page_no = _extract_page_no(element)
+    # Open the PDF with fitz to enable cropping of image regions for pictures and tables based on endpoint-provided bounding boxes.
+    with fitz.open(stream=pdf_bytes, filetype="pdf") as pdf_doc:
+        for seq, (element, _) in enumerate(doc.iterate_items()):
+            # Loop through each of the elements
+            endpoint_item = ordered_by_seq.get(seq, {})
 
-                # If the element is a PictureItem (pictire_item_cls), extract the image and save it as a PNG file in the artifact directory, 
-                # and add a reference to it in the markdown.
-                if isinstance(element, picture_item_cls):
-                    picture_counter += 1
-                    picture_name = f"{safe_stem}-picture-{picture_counter}.png" # 
-                    picture_path = artifact_dir / picture_name
+            # Get page number for the current element
+            page_no = (
+                endpoint_item.get("page_no")
+                if isinstance(endpoint_item, dict) and isinstance(endpoint_item.get("page_no"), int)
+                else _extract_page_no(element)
+            )
+            picture_uuid_for_markdown: str | None = None
+
+            if isinstance(element, picture_item_cls):
+                picture_counter += 1
+                picture_name = f"{safe_stem}-picture-{picture_counter}.png"
+                picture_path = artifact_dir / picture_name
+                image_uuid = str(uuid6())
+                try:
+                    png_bytes = _crop_image_bytes_from_endpoint_item(endpoint_item, pdf_doc)
+                    if not png_bytes:
+                        raise RuntimeError("missing/invalid bbox or crop produced no pixels")
+                    picture_path.write_bytes(png_bytes)
+                    image_artifact = ExtractedImageArtifact(
+                        kind="picture",
+                        image_uuid=image_uuid,
+                        file_name=picture_name,
+                        file_path=str(picture_path),
+                        page_no=page_no,
+                        picture_index=picture_counter,
+                    )
+                    image_artifact = _upload_image_artifact_to_s3(
+                        image_artifact,
+                        source_file_name=file_name,
+                    )
+                    if image_artifact.s3_upload_status == "failed":
+                        s3_upload_failed_count += 1
+                        warnings.append(
+                            f"Failed to upload picture image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
+                        )
+                    elif image_artifact.s3_upload_status == "uploaded":
+                        s3_upload_uploaded_count += 1
+                    elif image_artifact.s3_upload_status == "skipped":
+                        s3_upload_skipped_count += 1
+                    images.append(image_artifact)
+                    picture_uuid_for_markdown = image_artifact.image_uuid
+                except Exception as exc:
+                    warnings.append(
+                        f"Failed to export picture #{picture_counter} on page {page_no}: {exc}"
+                    )
+
+            if isinstance(element, table_item_cls):
+                table_counter += 1
+                table_index = table_counter
+                table_data = getattr(element, "data", None)
+                num_rows = getattr(table_data, "num_rows", None)
+                num_cols = getattr(table_data, "num_cols", None)
+                if num_rows is None or num_cols is None:
+                    endpoint_rows, endpoint_cols = _coerce_endpoint_table_shape(endpoint_item)
+                    num_rows = endpoint_rows if num_rows is None else num_rows
+                    num_cols = endpoint_cols if num_cols is None else num_cols
+
+                if num_rows == 0 or num_cols == 0:
+                    table_image_count += 1
+                    table_image_name = f"{safe_stem}-table-{table_index}-{uuid6()}.png"
+                    table_image_path = artifact_dir / table_image_name
                     image_uuid = str(uuid6())
                     try:
-                        with picture_path.open("wb") as fp:
-                            element.get_image(result.document).save(fp, "PNG")
+                        png_bytes = _crop_image_bytes_from_endpoint_item(endpoint_item, pdf_doc)
+                        if not png_bytes:
+                            raise RuntimeError("missing/invalid bbox or crop produced no pixels")
+                        table_image_path.write_bytes(png_bytes)
                         image_artifact = ExtractedImageArtifact(
-                            kind="picture",
+                            kind="table_image",
                             image_uuid=image_uuid,
-                            file_name=picture_name,
-                            file_path=str(picture_path),
+                            file_name=table_image_name,
+                            file_path=str(table_image_path),
                             page_no=page_no,
-                            picture_index=picture_counter,
+                            table_index=table_index,
+                            reason="table_rows_cols_zero",
                         )
                         image_artifact = _upload_image_artifact_to_s3(
                             image_artifact,
@@ -350,120 +571,60 @@ def parse_pdf_with_docling_preview(
                         if image_artifact.s3_upload_status == "failed":
                             s3_upload_failed_count += 1
                             warnings.append(
-                                f"Failed to upload picture image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
+                                f"Failed to upload table image image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
                             )
                         elif image_artifact.s3_upload_status == "uploaded":
                             s3_upload_uploaded_count += 1
                         elif image_artifact.s3_upload_status == "skipped":
                             s3_upload_skipped_count += 1
                         images.append(image_artifact)
+                        markdown_parts.extend(
+                            [
+                                "> **Table (image)**: Structure extraction failed (rows/cols = 0).",
+                                f"> {_table_image_uuid_marker(image_artifact.image_uuid)}",
+                                f"> ![{table_image_name}]({table_image_name})",
+                                "",
+                            ]
+                        )
                     except Exception as exc:
                         warnings.append(
-                            f"Failed to export picture #{picture_counter} on page {page_no}: {exc}"
+                            f"Failed to export fallback table image #{table_index} on page {page_no}: {exc}"
                         )
-
-                # If the element is a TableItem (table_item_cls), check if it has valid rows and columns. 
-                # If not, extract a fallback image of the table and save it as a PNG file in the artifact directory, 
-                # and add a reference to it in the markdown with an explanation. If it does have valid rows and columns, 
-                # serialize it as markdown text as usual.
-                if isinstance(element, table_item_cls):
-                    table_counter += 1
-                    table_index = table_counter
-                    table_data = getattr(element, "data", None)
-                    num_rows = getattr(table_data, "num_rows", None)
-                    num_cols = getattr(table_data, "num_cols", None)
-                    if num_rows == 0 or num_cols == 0:
-                        table_image_count += 1
-
-                        # Using a UUID in the table image name to ensure uniqueness.
-                        # It is also a move for future when we want to upload these images to a persistent storage and want to avoid name collisions.
-                        table_image_name = (
-                            f"{safe_stem}-table-{table_index}-{uuid6()}.png"
+                        markdown_parts.extend(
+                            [
+                                "> **Table (image)**: Structure extraction failed (rows/cols = 0).",
+                                "> (Local crop failed: missing/invalid bbox or page_no.)",
+                                "",
+                            ]
                         )
-                        table_image_path = artifact_dir / table_image_name
-                        image_uuid = str(uuid6())
-                        try:
-                            with table_image_path.open("wb") as fp:
-                                element.get_image(result.document).save(fp, "PNG")
-                            image_artifact = ExtractedImageArtifact(
-                                kind="table_image",
-                                image_uuid=image_uuid,
-                                file_name=table_image_name,
-                                file_path=str(table_image_path),
-                                page_no=page_no,
-                                table_index=table_index,
-                                reason="table_rows_cols_zero",
-                            )
-                            image_artifact = _upload_image_artifact_to_s3(
-                                image_artifact,
-                                source_file_name=file_name,
-                            )
-                            if image_artifact.s3_upload_status == "failed":
-                                s3_upload_failed_count += 1
-                                warnings.append(
-                                    f"Failed to upload table image image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
-                                )
-                            elif image_artifact.s3_upload_status == "uploaded":
-                                s3_upload_uploaded_count += 1
-                            elif image_artifact.s3_upload_status == "skipped":
-                                s3_upload_skipped_count += 1
-                            images.append(image_artifact)
-                            # Add a reference to the fallback table image in the markdown.
-                            chunk_markdown_parts.extend(
-                                [
-                                    "> **Table (image)**: Structure extraction failed (rows/cols = 0).",
-                                    f"> ![{table_image_name}]({table_image_name})",
-                                    "",
-                                ]
-                            )
-                        except Exception as exc:
-                            warnings.append(
-                                f"Failed to export fallback table image #{table_index} on page {page_no}: {exc}"
-                            )
-                        continue
-
-                # For each element, it will be serialised into markdown and added to the chunk's markdown content.
-                try:
-                    serialized_text = serializer.serialize(item=element).text.strip()
-                except Exception as exc:
-                    warnings.append(
-                        f"Failed to serialize element on page {page_no} in chunk {page_range_label}: {exc}"
-                    )
                     continue
 
-                if serialized_text:
-                    chunk_markdown_parts.append(serialized_text)
-
-            chunk_markdown = "\n\n".join(chunk_markdown_parts).strip()
-            if chunk_markdown:
-                markdown_chunks.append(chunk_markdown)
-
-            if (
-                result.status == conversion_status.PARTIAL_SUCCESS
-                and getattr(result, "errors", None)
-            ):
-                partial_failures.append(
-                    DoclingChunkFailure(
-                        page_range=page_range_label,
-                        errors=[str(err) for err in result.errors],
-                    )
-                )
-
-            current_start += page_chunk_size
-
-    finally:
-        if temp_pdf_path and temp_pdf_path.exists():
             try:
-                temp_pdf_path.unlink() # Clean up the temporary PDF file after processing
-            except OSError:
-                pass
+                serialized_text = serializer.serialize(item=element).text.strip()
+            except Exception as exc:
+                warnings.append(
+                    f"Failed to serialize element on page {page_no}: {exc}"
+                )
+                continue
 
-    if converted_chunks == 0 or not markdown_chunks:
+            if isinstance(element, picture_item_cls):
+                marker = (
+                    _picture_uuid_marker(picture_uuid_for_markdown)
+                    if picture_uuid_for_markdown
+                    else DOCLING_IMAGE_CROP_FAILED_MARKER
+                )
+                serialized_text = _inject_marker_for_picture(serialized_text, marker)
+
+            if serialized_text:
+                markdown_parts.append(serialized_text)
+
+    if not markdown_parts:
         raise RuntimeError(
-            "No pages converted successfully. Try a smaller page chunk size for constrained environments."
+            "No markdown text serialized from Beam Docling endpoint response."
         )
 
-    markdown_text = "\n\n".join(markdown_chunks)
+    converted_chunks = 1
+    markdown_text = "\n\n".join(markdown_parts)
     markdown_path.write_text(markdown_text, encoding="utf-8") # Write the combined markdown text to the markdown file in the artifact directory
 
     stats = DoclingParseStats(

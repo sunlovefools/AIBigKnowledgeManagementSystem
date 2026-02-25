@@ -143,7 +143,11 @@ Authentication & authorization are still lightweight (no JWT); responses omit pa
    - `application/pdf` → PyMuPDF  
    - `application/msword` / `application/vnd.openxmlformats-officedocument.wordprocessingml.document` → `python-docx`  
    - `text/plain` → UTF-8 decode
-   - Optional PDF strategy switch: set `INGEST_PDF_EXTRACTOR=docling` to use Docling markdown extraction (preview-first rollout; default remains `legacy`)
+   - Optional PDF strategy switch: set `INGEST_PDF_EXTRACTOR=docling` to use the Beam-hosted Docling conversion endpoint for markdown extraction (default remains `legacy`)
+   - Beam Docling endpoint mode requires:
+     - `BEAM_DOCLING_ENDPOINT`
+     - `BEAM_DOCLING_ENDPOINT_TOKEN`
+   - Beam Docling endpoint failures are fail-fast (no automatic fallback to local Docling conversion)
 3. **Chunking** – `chunker.split_into_chunks()` merges paragraphs into ~1000 char windows; long paragraphs fall back to sentence splits.
 4. **Polishing** – `chunk_polisher.polish_chunks()` removes stray whitespace, bullet characters, and normalizes punctuation/casing.
 5. **Embedding** – Build payload `{"input": ["chunk text", ...]}` and call the Beam embedding endpoint through `embed_text()` (async `aiohttp`).  
@@ -155,6 +159,7 @@ Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are 
 ### 1A. Docling Parse Preview (`POST /ingest/webhook/preview`)
 
 - PDF-only preview endpoint for validating Docling output before vector ingestion.
+- In `INGEST_PDF_EXTRACTOR=docling` mode, the backend calls the Beam Docling endpoint and reconstructs markdown/image artifacts locally from the returned JSON (`conversion_result_dump` + ordered item bbox metadata).
 - Persists artifacts under `backend/_local_uploads/docling_previews/<run_id>/`:
   - `document.md`
   - extracted `*.png` pictures
@@ -163,6 +168,7 @@ Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are 
 - If `AWS_S3_UPLOAD_ENABLED=true` and AWS config is valid, extracted images are also uploaded to S3 with UUID-based keys:
   - `docling-previews/images/<image_uuid>.png`
 - S3 upload failures are recorded as warnings in the manifest/response flow and do **not** fail the preview request.
+- Beam endpoint errors do fail the preview request (no local fallback).
 - Does **not** chunk, polish, embed, or upsert to vector DB.
 
 ### 2. Query + Retrieval-Augmented Generation (`POST /query`)
