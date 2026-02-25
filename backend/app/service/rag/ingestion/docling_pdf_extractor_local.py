@@ -1,11 +1,13 @@
 import io
 import threading
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 from uuid6 import uuid6
 
-from app.service.rag.ingestion import docling_pdf_extractor_beam as shared
+from app.service.rag.ingestion import docling_common as shared
+from app.service.rag.ingestion import docling_table_image_vlm as table_image_vlm
 
 # Configuration constants for local Docling processing.
 # These can be tuned for performance, for Yoong Shen's machine, we are using this
@@ -147,10 +149,11 @@ def parse_pdf_with_docling_preview_local(
     )
     safe_stem = shared._safe_stem(file_name)
 
-    markdown_chunks: list[str] = []
+    markdown_parts: list[str] = []
     images: list[shared.ExtractedImageArtifact] = []
     warnings: list[str] = []
     partial_failures: list[shared.DoclingChunkFailure] = []
+    table_image_vlm_jobs: list[table_image_vlm.TableImageVlmJob] = []
 
     s3_upload_failed_count = 0
     s3_upload_uploaded_count = 0
@@ -166,6 +169,16 @@ def parse_pdf_with_docling_preview_local(
     markdown_serializer_cls = runtime["MarkdownDocSerializer"]
     document_stream_cls = runtime["DocumentStream"]
     discovered_total_pages: int | None = None
+    table_image_vlm_runtime = table_image_vlm.build_table_image_vlm_runtime(
+        artifact_dir=artifact_dir,
+        warnings=warnings,
+    )
+    table_image_vlm_executor: ThreadPoolExecutor | None = None
+    if table_image_vlm_runtime is not None:
+        table_image_vlm_executor = ThreadPoolExecutor(
+            max_workers=table_image_vlm_runtime.max_workers,
+            thread_name_prefix="table-vlm",
+        )
 
     current_start = 1
 
@@ -251,7 +264,6 @@ def parse_pdf_with_docling_preview_local(
                 )
             )
 
-        chunk_markdown_parts: list[str] = []
         serializer = markdown_serializer_cls(doc=result.document)
 
         # Loop through all the elements to determine it is a PictureItem or it's a tableItem
@@ -356,25 +368,55 @@ def parse_pdf_with_docling_preview_local(
 
                         images.append(image_artifact)
 
-                        # Add the markdown for the table image with a marker in the markdown text
-                        chunk_markdown_parts.extend(
-                            [
-                                "> **Table (image)**: Table exists in image form.",
-                                f"> {shared._table_image_uuid_marker(image_artifact.image_uuid)}",
-                                f"> ![{table_image_name}]({table_image_name})",
-                                "",
-                            ]
+                        table_markdown_lines = [
+                            "> **Table (image)**: Table exists in image form.",
+                            f"> {shared._table_image_uuid_marker(image_artifact.image_uuid)}",
+                            f"> ![{table_image_name}]({table_image_name})",
+                        ]
+
+                        if table_image_vlm_runtime is not None and table_image_vlm_executor is not None:
+                            summary_placeholder = table_image_vlm.table_image_vlm_summary_placeholder(
+                                image_artifact.image_uuid
+                            )
+                            table_image_vlm_jobs.append(
+                                table_image_vlm.TableImageVlmJob(
+                                    image_artifact=image_artifact,
+                                    table_index=table_index,
+                                    page_no=page_no,
+                                    block_index=len(markdown_parts),
+                                    summary_placeholder=summary_placeholder,
+                                    output_dir=table_image_vlm.table_image_vlm_output_dir(
+                                        artifact_dir,
+                                        table_index=table_index,
+                                        image_uuid=image_artifact.image_uuid,
+                                    ),
+                                    json_rel_path=table_image_vlm.table_image_vlm_json_rel_path(
+                                        table_index=table_index,
+                                        image_uuid=image_artifact.image_uuid,
+                                    ),
+                                )
+                            )
+                            table_markdown_lines.append(f"> {summary_placeholder}")
+
+                        markdown_parts.append("\n".join(table_markdown_lines))
+                        table_image_vlm.submit_ready_table_image_vlm_jobs(
+                            runtime=table_image_vlm_runtime,
+                            executor=table_image_vlm_executor,
+                            jobs=table_image_vlm_jobs,
+                            markdown_parts=markdown_parts,
+                            warnings=warnings,
                         )
                     except Exception as exc:
                         warnings.append(
                             f"Failed to export local fallback table image #{table_index} on page {page_no}: {exc}"
                         )
-                        chunk_markdown_parts.extend(
-                            [
-                                "> **Table (image)**: Table exists in image form.",
-                                "> (Local image export failed.)",
-                                "",
-                            ]
+                        markdown_parts.append(
+                            "\n".join(
+                                [
+                                    "> **Table (image)**: Table exists in image form.",
+                                    "> (Local image export failed.)",
+                                ]
+                            )
                         )
                     continue
 
@@ -397,24 +439,44 @@ def parse_pdf_with_docling_preview_local(
                 serialized_text = shared._inject_marker_for_picture(serialized_text, marker)
 
             if serialized_text:
-                chunk_markdown_parts.append(serialized_text)
-
-        chunk_markdown = "\n\n".join(chunk_markdown_parts).strip()
-        if chunk_markdown:
-            markdown_chunks.append(chunk_markdown)
+                markdown_parts.append(serialized_text)
+                table_image_vlm.submit_ready_table_image_vlm_jobs(
+                    runtime=table_image_vlm_runtime,
+                    executor=table_image_vlm_executor,
+                    jobs=table_image_vlm_jobs,
+                    markdown_parts=markdown_parts,
+                    warnings=warnings,
+                )
 
         if discovered_total_pages is not None and current_end >= discovered_total_pages:
             break
 
         current_start += effective_page_chunk_size
 
-    if not markdown_chunks:
+    if table_image_vlm_executor is not None:
+        table_image_vlm.submit_ready_table_image_vlm_jobs(
+            runtime=table_image_vlm_runtime,
+            executor=table_image_vlm_executor,
+            jobs=table_image_vlm_jobs,
+            markdown_parts=markdown_parts,
+            warnings=warnings,
+            force=True,
+        )
+        table_image_vlm.finalize_table_image_vlm_jobs(
+            artifact_dir=artifact_dir,
+            jobs=table_image_vlm_jobs,
+            markdown_parts=markdown_parts,
+            warnings=warnings,
+        )
+        table_image_vlm_executor.shutdown(wait=True)
+
+    if not markdown_parts:
         raise RuntimeError(
             "No pages converted successfully with local Docling. Try Beam backend or a smaller local chunk size."
         )
 
     print("Successfully converted PDF with local Docling, writing markdown and artifacts")
-    markdown_text = "\n\n".join(markdown_chunks)
+    markdown_text = "\n\n".join(markdown_parts)
     markdown_path.write_text(markdown_text, encoding="utf-8")
 
     # Form the stats for this docling extraction

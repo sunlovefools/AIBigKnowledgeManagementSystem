@@ -1,18 +1,19 @@
 import os
 from pathlib import Path
 
+from app.service.rag.ingestion import docling_common as _common
 from app.service.rag.ingestion import docling_pdf_extractor_beam as _beam
 
 
 # Public constants/types remain importable from this module for compatibility.
-DEFAULT_DOCLING_PAGE_CHUNK_SIZE = _beam.DEFAULT_DOCLING_PAGE_CHUNK_SIZE
-DOCLING_IMAGE_PLACEHOLDER = _beam.DOCLING_IMAGE_PLACEHOLDER
-DOCLING_IMAGE_CROP_FAILED_MARKER = _beam.DOCLING_IMAGE_CROP_FAILED_MARKER
+DEFAULT_DOCLING_PAGE_CHUNK_SIZE = _common.DEFAULT_DOCLING_PAGE_CHUNK_SIZE
+DOCLING_IMAGE_PLACEHOLDER = _common.DOCLING_IMAGE_PLACEHOLDER
+DOCLING_IMAGE_CROP_FAILED_MARKER = _common.DOCLING_IMAGE_CROP_FAILED_MARKER
 
-ExtractedImageArtifact = _beam.ExtractedImageArtifact
-DoclingChunkFailure = _beam.DoclingChunkFailure
-DoclingParseStats = _beam.DoclingParseStats
-DoclingParseResult = _beam.DoclingParseResult
+ExtractedImageArtifact = _common.ExtractedImageArtifact
+DoclingChunkFailure = _common.DoclingChunkFailure
+DoclingParseStats = _common.DoclingParseStats
+DoclingParseResult = _common.DoclingParseResult
 
 def _get_docling_pdf_backend() -> str:
     """

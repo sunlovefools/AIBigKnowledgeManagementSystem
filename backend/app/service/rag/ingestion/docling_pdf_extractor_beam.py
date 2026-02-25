@@ -1,146 +1,50 @@
 import base64
-import json
 import os
-import re
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any
 
 import fitz
 import requests
-from pydantic import BaseModel
 from uuid6 import uuid6
-from app.service.storage.s3_image_store import (
-    build_s3_image_key,
-    _load_s3_config,
-    upload_file_to_s3,
-)
+from app.service.rag.ingestion import docling_common as common
+from app.service.rag.ingestion import docling_table_image_vlm as table_image_vlm
 
 
-DEFAULT_DOCLING_PAGE_CHUNK_SIZE = 6 # Default number of pages to process in each chunk when parsing PDFs with Docling.
+# Re-export shared models/constants/helpers for compatibility while keeping implementations in docling_common.py.
+DEFAULT_DOCLING_PAGE_CHUNK_SIZE = common.DEFAULT_DOCLING_PAGE_CHUNK_SIZE
+DOCLING_IMAGE_PLACEHOLDER = common.DOCLING_IMAGE_PLACEHOLDER
+DOCLING_IMAGE_CROP_FAILED_MARKER = common.DOCLING_IMAGE_CROP_FAILED_MARKER
+
+ExtractedImageArtifact = common.ExtractedImageArtifact
+DoclingChunkFailure = common.DoclingChunkFailure
+DoclingParseStats = common.DoclingParseStats
+DoclingParseResult = common.DoclingParseResult
+
+_backend_root = common._backend_root
+_default_preview_root = common._default_preview_root
+_prepare_docling_preview_artifact_dir = common._prepare_docling_preview_artifact_dir
+_safe_stem = common._safe_stem
+_extract_page_no = common._extract_page_no
+_picture_uuid_marker = common._picture_uuid_marker
+_table_image_uuid_marker = common._table_image_uuid_marker
+_inject_marker_for_picture = common._inject_marker_for_picture
+_stringify_endpoint_error = common._stringify_endpoint_error
+_upload_image_artifact_to_s3 = common._upload_image_artifact_to_s3
+_write_manifest = common._write_manifest
+
+
 BEAM_DOCLING_TIMEOUT_SECONDS = 600
 BEAM_DOCLING_CLIENT_MAX_FILE_SIZE_MB = 25
 BEAM_DOCLING_CLIENT_CROP_SCALE = 2.5
-DOCLING_IMAGE_PLACEHOLDER = "<!-- image -->"
-DOCLING_IMAGE_CROP_FAILED_MARKER = "<!-- image-crop-failed -->"
-
-
-class ExtractedImageArtifact(BaseModel):
-    """
-    Represents an image extracted from a PDF page, either a regular picture or a table image.
-    """
-    kind: Literal["picture", "table_image"]
-    image_uuid: str
-    file_name: str
-    file_path: str
-    page_no: int | None = None
-    table_index: int | None = None
-    picture_index: int | None = None
-    reason: str | None = None
-    s3_bucket: str | None = None
-    s3_key: str | None = None
-    s3_region: str | None = None
-    s3_uri: str | None = None
-    s3_upload_status: Literal["uploaded", "failed", "skipped"] | None = None
-    s3_error: str | None = None
-
-
-class DoclingChunkFailure(BaseModel):
-    """
-    Represents a partial failure in converting a chunk of pages, including the page range and error details.
-    """
-    page_range: str
-    errors: list[str]
-
-
-class DoclingParseStats(BaseModel):
-    """
-    Statistics about the Docling parsing process, including chunking and extraction details.
-    """
-    converted_chunks: int
-    partial_failure_chunks: int
-    pictures_extracted: int
-    table_fallback_images_extracted: int
-
-
-class DoclingParseResult(BaseModel):
-    """
-    Represents the result of parsing a PDF with Docling, including paths to artifacts, extracted images, warnings, and stats.
-    """
-    source_file_name: str
-    artifact_run_id: str
-    artifact_dir: str
-    markdown_path: str
-    markdown_text: str
-    images: list[ExtractedImageArtifact]
-    warnings: list[str]
-    partial_failures: list[DoclingChunkFailure]
-    stats: DoclingParseStats
-
-
-def _backend_root() -> Path:
-    """
-    Get the root directory of the backend project.
-    """
-    return Path(__file__).resolve().parents[4]
-
-
-def _default_preview_root() -> Path:
-    """
-    Get the default directory for storing Docling preview artifacts.
-    """
-    return _backend_root() / "_local_uploads" / "docling_previews"
-
-
-def _prepare_docling_preview_artifact_dir(
-    *,
-    file_name: str,
-    artifact_root: Path | None = None,
-) -> tuple[str, Path, Path]:
-    """
-    Prepare the per-run preview artifact directory and markdown output path.
-    """
-    preview_root = Path(artifact_root) if artifact_root else _default_preview_root()
-    preview_root.mkdir(parents=True, exist_ok=True)
-
-    run_id = str(uuid6())
-    artifact_dir = preview_root / run_id
-    artifact_dir.mkdir(parents=True, exist_ok=True)
-
-    markdown_path = artifact_dir / "document.md"
-    return run_id, artifact_dir, markdown_path
-
-
-def _safe_stem(file_name: str) -> str:
-    """
-    Generate a safe stem for the given file name by removing unsafe characters and normalizing it.
-
-    Stem is a simplified version of the file name without extension, used for naming extracted artifacts.
-    Example of stem is: "my_document" for "my_document.pdf", or "report_2024" for "report 2024 (final).pdf".
-    """
-    stem = Path(file_name or "document.pdf").stem or "document"
-    stem = re.sub(r"[^A-Za-z0-9._-]+", "_", stem).strip("._-")
-    return stem or "document"
-
-
-def _extract_page_no(doc_item: Any) -> int | None:
-    """
-    Extract the page number from a Docling document item, if available.
-    Docling document items may have a 'prov' attribute that contains provenance information, including page numbers.
-    """
-    prov = getattr(doc_item, "prov", None) or []
-    if not prov:
-        return None
-    return getattr(prov[0], "page_no", None)
-
-
-def _picture_uuid_marker(image_uuid: str) -> str:
-    """Return the markdown comment marker used for extracted picture UUIDs."""
-    return f"<!-- image-uuid: {image_uuid} -->"
-
-
-def _table_image_uuid_marker(image_uuid: str) -> str:
-    """Return the markdown comment marker used for fallback table image UUIDs."""
-    return f"<!-- table-image-uuid: {image_uuid} -->"
+TABLE_IMAGE_VLM_OUTPUT_DIRNAME = table_image_vlm.TABLE_IMAGE_VLM_OUTPUT_DIRNAME
+_TableImageVlmJob = table_image_vlm.TableImageVlmJob
+_build_table_image_vlm_runtime = table_image_vlm.build_table_image_vlm_runtime
+_submit_ready_table_image_vlm_jobs = table_image_vlm.submit_ready_table_image_vlm_jobs
+_finalize_table_image_vlm_jobs = table_image_vlm.finalize_table_image_vlm_jobs
+_table_image_vlm_summary_placeholder = table_image_vlm.table_image_vlm_summary_placeholder
+_table_image_vlm_output_dir = table_image_vlm.table_image_vlm_output_dir
+_table_image_vlm_json_rel_path = table_image_vlm.table_image_vlm_json_rel_path
 
 
 def _load_docling_module_runtime() -> dict[str, Any]:
@@ -158,90 +62,6 @@ def _load_docling_module_runtime() -> dict[str, Any]:
         "PictureItem": PictureItem,
         "TableItem": TableItem,
     }
-
-
-def _upload_image_artifact_to_s3(
-    image_artifact: ExtractedImageArtifact,
-    *,
-    source_file_name: str,
-) -> ExtractedImageArtifact:
-    """
-    Best-effort S3 upload for a locally saved image artifact.
-
-    This function mutates and returns the image artifact with S3 metadata/status.
-    """
-    raw_upload_enabled = os.getenv("AWS_S3_UPLOAD_ENABLED")
-    if raw_upload_enabled is None:
-        raise RuntimeError(
-            "AWS_S3_UPLOAD_ENABLED is required and must be set to 'true' or 'false'."
-        )
-
-    upload_enabled = raw_upload_enabled.strip().lower()
-    if upload_enabled not in {"true", "false"}:
-        raise RuntimeError(
-            "AWS_S3_UPLOAD_ENABLED must be set to 'true' or 'false', got: {raw_upload_enabled!r}."
-        )
-
-    if upload_enabled == "false":
-        image_artifact.s3_upload_status = "skipped"
-        image_artifact.s3_error = f"S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
-        print(
-            f"S3 upload skipped for image_uuid={image_artifact.image_uuid} "
-            f"because AWS_S3_UPLOAD_ENABLED =false."
-        )
-        return image_artifact
-
-    try:
-        # Validate and load config at the caller to keep storage module upload functions focused.
-        s3_config = _load_s3_config()
-        if s3_config is None:
-            image_artifact.s3_upload_status = "skipped"
-            image_artifact.s3_error = "S3 upload disabled (missing config)"
-            return image_artifact
-        
-        # Build the S3 key for the image artifact and attempt the upload. Update the artifact with the result.
-        s3_key = build_s3_image_key(
-            image_uuid=image_artifact.image_uuid,
-            extension=Path(image_artifact.file_name).suffix or ".png",
-            prefix=s3_config.prefix,
-            source_file_name=source_file_name,
-        )
-
-        # Upload the image file to S3 with metadata for traceability, including the source PDF file name and page number if available.
-        upload_result = upload_file_to_s3(
-            local_path=image_artifact.file_path,
-            key=s3_key,
-            content_type="image/png",
-            metadata={
-                "image_uuid": image_artifact.image_uuid,
-                "kind": image_artifact.kind,
-                "source_file_name": source_file_name,
-                "page_no": "" if image_artifact.page_no is None else str(image_artifact.page_no),
-            },
-            config=s3_config,
-        )
-        image_artifact.s3_bucket = upload_result.bucket
-        image_artifact.s3_key = upload_result.key
-        image_artifact.s3_region = upload_result.region
-        image_artifact.s3_uri = upload_result.s3_uri
-        image_artifact.s3_upload_status = "uploaded"
-        image_artifact.s3_error = None
-    except Exception as exc:
-        image_artifact.s3_upload_status = "failed"
-        image_artifact.s3_error = str(exc)
-    return image_artifact
-
-
-def _write_manifest(artifact_dir: Path, payload: dict[str, Any]) -> None:
-    """
-    Write a manifest.json file in the artifact directory containing metadata about the Docling parsing result.
-    For the purpose of this is to for debugging and traceability
-    """
-    manifest_path = artifact_dir / "manifest.json"
-    manifest_path.write_text(
-        json.dumps(payload, indent=2, ensure_ascii=False),
-        encoding="utf-8",
-    )
 
 
 def _load_beam_docling_config() -> dict[str, Any]:
@@ -357,18 +177,6 @@ def _ordered_items_by_seq(ordered_items: Any) -> dict[int, dict[str, Any]]:
     return mapped
 
 
-def _inject_marker_for_picture(serialized_text: str, marker: str) -> str:
-    """
-    Replace the Docling image placeholder with a marker, or append the marker if no placeholder exists.
-    """
-    text = (serialized_text or "").strip()
-    if not text:
-        return marker
-    if DOCLING_IMAGE_PLACEHOLDER in text:
-        return text.replace(DOCLING_IMAGE_PLACEHOLDER, marker).strip()
-    return f"{text}\n\n{marker}"
-
-
 def _coerce_endpoint_table_shape(endpoint_item: dict[str, Any]) -> tuple[int | None, int | None]:
     """
     Extract table row/column counts from endpoint metadata when present.
@@ -438,18 +246,6 @@ def _crop_image_bytes_from_endpoint_item(
     return pix.tobytes("png")
 
 
-def _stringify_endpoint_error(error: Any) -> str:
-    """
-    Convert endpoint error payload entries into readable strings for warnings/manifests.
-    """
-    if isinstance(error, str):
-        return error
-    try:
-        return json.dumps(error, ensure_ascii=False)
-    except Exception:
-        return str(error)
-
-
 def parse_pdf_with_docling_preview(
     pdf_bytes: bytes,
     file_name: str,
@@ -478,10 +274,22 @@ def parse_pdf_with_docling_preview(
     s3_upload_failed_count = 0
     s3_upload_uploaded_count = 0
     s3_upload_skipped_count = 0
+    table_image_vlm_jobs: list[_TableImageVlmJob] = []
 
     picture_counter = 0 # For tracking the number of pictures extracted, used in naming the picture artifacts
     table_counter = 0 # For tracking the number of tables processed, used in naming extracted table image artifacts
     table_image_count = 0 # For tracking the number of extracted table images used in stats and logging
+
+    table_image_vlm_runtime = _build_table_image_vlm_runtime(
+        artifact_dir=artifact_dir,
+        warnings=warnings,
+    )
+    table_image_vlm_executor: ThreadPoolExecutor | None = None
+    if table_image_vlm_runtime is not None:
+        table_image_vlm_executor = ThreadPoolExecutor(
+            max_workers=table_image_vlm_runtime.max_workers,
+            thread_name_prefix="table-vlm",
+        )
 
     # Extract all the server warnings and add it to warnings list for debugging purpose
     for note in endpoint_result.get("server_notes") or []:
@@ -512,175 +320,208 @@ def parse_pdf_with_docling_preview(
 
     print("Starting to process the converted Docling document and generate markdown and image artifacts")
     # Open the PDF with fitz to enable cropping of image regions for pictures and tables based on endpoint-provided bounding boxes.
-    with fitz.open(stream=pdf_bytes, filetype="pdf") as pdf_doc:
-        for seq, (element, _) in enumerate(doc.iterate_items()):
-            # Loop through each of the elements
-            endpoint_item = ordered_by_seq.get(seq, {})
+    try:
+        with fitz.open(stream=pdf_bytes, filetype="pdf") as pdf_doc:
+            for seq, (element, _) in enumerate(doc.iterate_items()):
+                # Loop through each of the elements
+                endpoint_item = ordered_by_seq.get(seq, {})
 
-            # Get page number for the current element
-            page_no = (
-                endpoint_item.get("page_no")
-                if isinstance(endpoint_item, dict) and isinstance(endpoint_item.get("page_no"), int)
-                else _extract_page_no(element)
-            )
-            is_picture_item = isinstance(element, picture_item_cls)
-            is_table_item = isinstance(element, table_item_cls)
-            picture_markdown_placeholder: str | None = None
+                # Get page number for the current element
+                page_no = (
+                    endpoint_item.get("page_no")
+                    if isinstance(endpoint_item, dict) and isinstance(endpoint_item.get("page_no"), int)
+                    else _extract_page_no(element)
+                )
+                is_picture_item = isinstance(element, picture_item_cls)
+                is_table_item = isinstance(element, table_item_cls)
+                picture_markdown_placeholder: str | None = None
 
-            # Proces pictureItems by cropping it, upload it to S3, and keep track of the metadata for markdown generation and stats.
-            if is_picture_item:
-                # Decide the markdown placeholder before serialization. If export fails,
-                # we keep the crop-failed marker; if it succeeds, replace with UUID marker.
-                picture_markdown_placeholder = DOCLING_IMAGE_CROP_FAILED_MARKER
-                picture_counter += 1
-                picture_name = f"{safe_stem}-picture-{picture_counter}.png"
-                picture_path = artifact_dir / picture_name
-                image_uuid = str(uuid6())
-                try:
-                    # Crop the image bytes from the source PDF using the bounding box and page number provided.
-                    png_bytes = _crop_image_bytes_from_endpoint_item(endpoint_item, pdf_doc)
-                    if not png_bytes:
-                        raise RuntimeError("missing/invalid bbox or crop produced no pixels")
-                    
-                    # Save the cropped image bytes to a local file in the artifact directory.
-                    picture_path.write_bytes(png_bytes)
-                    
-                    # Forming the image artifact 
-                    image_artifact = ExtractedImageArtifact(
-                        kind="picture",
-                        image_uuid=image_uuid,
-                        file_name=picture_name,
-                        file_path=str(picture_path),
-                        page_no=page_no,
-                        picture_index=picture_counter,
-                    )
-
-                    # Upload the image artifact to S3
-                    image_artifact = _upload_image_artifact_to_s3(
-                        image_artifact,
-                        source_file_name=file_name,
-                    )
-
-                    # Validation on the S3 upload status
-                    if image_artifact.s3_upload_status == "failed":
-                        s3_upload_failed_count += 1
-                        warnings.append(
-                            f"Failed to upload picture image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
-                        )
-                    elif image_artifact.s3_upload_status == "uploaded":
-                        s3_upload_uploaded_count += 1
-                    elif image_artifact.s3_upload_status == "skipped":
-                        s3_upload_skipped_count += 1
-
-                    # Add the image artifact to the list of images for stats and markdown generation.
-                    images.append(image_artifact)
-
-                    # Get the markdown placeholder for the picture which will be injected into the serialised markdown text
-                    picture_markdown_placeholder = _picture_uuid_marker(
-                        image_artifact.image_uuid
-                    )
-
-                except Exception as exc:
-                    warnings.append(
-                        f"Failed to export picture #{picture_counter} on page {page_no}: {exc}"
-                    )
-
-            # Process tableItems by where only process tableItems that exist in the form of Images
-            # We crop it, save it locally as artifact, upload it to s3 and keep track of the metadata for markdown generation and stats. 
-            # The markdown will indicate that it's a table in image form with the corresponding image if crop and upload succeeded, or indicate crop failure if crop failed.
-            if is_table_item:
-                table_counter += 1
-                table_index = table_counter
-                
-                # Get the number of rows and columns for the table to determine if we need to crop it out
-                num_rows, num_cols = _coerce_endpoint_table_shape(endpoint_item)
-
-                # If the table has no row and column, then it exist in the form of image
-                if num_rows == 0 or num_cols == 0:
-                    table_image_count += 1
-                    table_image_name = f"{safe_stem}-table-{table_index}-{uuid6()}.png"
-                    table_image_path = artifact_dir / table_image_name
+                # Process pictureItems by cropping and optionally uploading them.
+                if is_picture_item:
+                    picture_markdown_placeholder = DOCLING_IMAGE_CROP_FAILED_MARKER
+                    picture_counter += 1
+                    picture_name = f"{safe_stem}-picture-{picture_counter}.png"
+                    picture_path = artifact_dir / picture_name
                     image_uuid = str(uuid6())
                     try:
-                        # Crop the table image out based on the bounding box and page number provided
                         png_bytes = _crop_image_bytes_from_endpoint_item(endpoint_item, pdf_doc)
                         if not png_bytes:
                             raise RuntimeError("missing/invalid bbox or crop produced no pixels")
-                        
-                        # Save the cropped table image bytes to a local file in the artifact directory.
-                        table_image_path.write_bytes(png_bytes)
 
-                        # Form the Image Artifact for the cropped table image
+                        picture_path.write_bytes(png_bytes)
+
                         image_artifact = ExtractedImageArtifact(
-                            kind="table_image",
+                            kind="picture",
                             image_uuid=image_uuid,
-                            file_name=table_image_name,
-                            file_path=str(table_image_path),
+                            file_name=picture_name,
+                            file_path=str(picture_path),
                             page_no=page_no,
-                            table_index=table_index,
-                            reason="table_rows_cols_zero",
+                            picture_index=picture_counter,
                         )
 
-                        # Upload the table image artifact to S3
                         image_artifact = _upload_image_artifact_to_s3(
                             image_artifact,
                             source_file_name=file_name,
                         )
 
-                        # Validate the S3 upload status for the table image artifact
                         if image_artifact.s3_upload_status == "failed":
                             s3_upload_failed_count += 1
                             warnings.append(
-                                f"Failed to upload table image image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
+                                f"Failed to upload picture image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
                             )
                         elif image_artifact.s3_upload_status == "uploaded":
                             s3_upload_uploaded_count += 1
                         elif image_artifact.s3_upload_status == "skipped":
                             s3_upload_skipped_count += 1
-                        
-                        # Add the table image artifact to the list of images for stats and markdown generation
-                        images.append(image_artifact)
 
-                        # Add the markdown for the table image with a marker in the markdown text
-                        markdown_parts.extend(
-                            [
-                                "> **Table (image)**: Table exists in image form.",
-                                f"> {_table_image_uuid_marker(image_artifact.image_uuid)}",
-                                f"> ![{table_image_name}]({table_image_name})",
-                                "",
-                            ]
+                        images.append(image_artifact)
+                        picture_markdown_placeholder = _picture_uuid_marker(
+                            image_artifact.image_uuid
                         )
                     except Exception as exc:
                         warnings.append(
-                            f"Failed to export fallback table image #{table_index} on page {page_no}: {exc}"
+                            f"Failed to export picture #{picture_counter} on page {page_no}: {exc}"
                         )
-                        markdown_parts.extend(
-                            [
+
+                # Process table items that only exist as images (Docling table rows/cols == 0).
+                if is_table_item:
+                    table_counter += 1
+                    table_index = table_counter
+
+                    num_rows, num_cols = _coerce_endpoint_table_shape(endpoint_item)
+                    if num_rows == 0 or num_cols == 0:
+                        table_image_count += 1
+                        table_image_name = f"{safe_stem}-table-{table_index}-{uuid6()}.png"
+                        table_image_path = artifact_dir / table_image_name
+                        image_uuid = str(uuid6())
+                        try:
+                            png_bytes = _crop_image_bytes_from_endpoint_item(endpoint_item, pdf_doc)
+                            if not png_bytes:
+                                raise RuntimeError("missing/invalid bbox or crop produced no pixels")
+
+                            table_image_path.write_bytes(png_bytes)
+
+                            image_artifact = ExtractedImageArtifact(
+                                kind="table_image",
+                                image_uuid=image_uuid,
+                                file_name=table_image_name,
+                                file_path=str(table_image_path),
+                                page_no=page_no,
+                                table_index=table_index,
+                                reason="table_rows_cols_zero",
+                            )
+
+                            image_artifact = _upload_image_artifact_to_s3(
+                                image_artifact,
+                                source_file_name=file_name,
+                            )
+
+                            if image_artifact.s3_upload_status == "failed":
+                                s3_upload_failed_count += 1
+                                warnings.append(
+                                    f"Failed to upload table image image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
+                                )
+                            elif image_artifact.s3_upload_status == "uploaded":
+                                s3_upload_uploaded_count += 1
+                            elif image_artifact.s3_upload_status == "skipped":
+                                s3_upload_skipped_count += 1
+
+                            images.append(image_artifact)
+
+                            table_markdown_lines = [
                                 "> **Table (image)**: Table exists in image form.",
-                                "> (Local crop failed: missing/invalid bbox or page_no.)",
-                                "",
+                                f"> {_table_image_uuid_marker(image_artifact.image_uuid)}",
+                                f"> ![{table_image_name}]({table_image_name})",
                             ]
-                        )
+
+                            if table_image_vlm_runtime is not None and table_image_vlm_executor is not None:
+                                summary_placeholder = _table_image_vlm_summary_placeholder(
+                                    image_artifact.image_uuid
+                                )
+                                table_image_vlm_jobs.append(
+                                    _TableImageVlmJob(
+                                        image_artifact=image_artifact,
+                                        table_index=table_index,
+                                        page_no=page_no,
+                                        block_index=len(markdown_parts),
+                                        summary_placeholder=summary_placeholder,
+                                        output_dir=_table_image_vlm_output_dir(
+                                            artifact_dir,
+                                            table_index=table_index,
+                                            image_uuid=image_artifact.image_uuid,
+                                        ),
+                                        json_rel_path=_table_image_vlm_json_rel_path(
+                                            table_index=table_index,
+                                            image_uuid=image_artifact.image_uuid,
+                                        ),
+                                    )
+                                )
+                                table_markdown_lines.append(f"> {summary_placeholder}")
+
+                            markdown_parts.append("\n".join(table_markdown_lines))
+                            _submit_ready_table_image_vlm_jobs(
+                                runtime=table_image_vlm_runtime,
+                                executor=table_image_vlm_executor,
+                                jobs=table_image_vlm_jobs,
+                                markdown_parts=markdown_parts,
+                                warnings=warnings,
+                            )
+                        except Exception as exc:
+                            warnings.append(
+                                f"Failed to export fallback table image #{table_index} on page {page_no}: {exc}"
+                            )
+                            markdown_parts.append(
+                                "\n".join(
+                                    [
+                                        "> **Table (image)**: Table exists in image form.",
+                                        "> (Local crop failed: missing/invalid bbox or page_no.)",
+                                    ]
+                                )
+                            )
+                        continue
+
+                # Serialise everything into markdown text
+                try:
+                    serialized_text = serializer.serialize(item=element).text.strip()
+                except Exception as exc:
+                    warnings.append(
+                        f"Failed to serialize element on page {page_no}: {exc}"
+                    )
                     continue
-            
-            # Serialise everything into markdown text
-            try:
-                serialized_text = serializer.serialize(item=element).text.strip()
-            except Exception as exc:
-                warnings.append(
-                    f"Failed to serialize element on page {page_no}: {exc}"
-                )
-                continue
 
-            # Replace the picture placeholder only after serialization to keep image
-            # extraction/upload logic separate from markdown serialization.
-            if picture_markdown_placeholder is not None:
-                serialized_text = _inject_marker_for_picture(
-                    serialized_text, picture_markdown_placeholder
-                )
+                # Replace the picture placeholder only after serialization to keep image
+                # extraction/upload logic separate from markdown serialization.
+                if picture_markdown_placeholder is not None:
+                    serialized_text = _inject_marker_for_picture(
+                        serialized_text, picture_markdown_placeholder
+                    )
 
-            if serialized_text:
-                markdown_parts.append(serialized_text)
+                if serialized_text:
+                    markdown_parts.append(serialized_text)
+                    _submit_ready_table_image_vlm_jobs(
+                        runtime=table_image_vlm_runtime,
+                        executor=table_image_vlm_executor,
+                        jobs=table_image_vlm_jobs,
+                        markdown_parts=markdown_parts,
+                        warnings=warnings,
+                    )
+    finally:
+        if table_image_vlm_executor is not None:
+            _submit_ready_table_image_vlm_jobs(
+                runtime=table_image_vlm_runtime,
+                executor=table_image_vlm_executor,
+                jobs=table_image_vlm_jobs,
+                markdown_parts=markdown_parts,
+                warnings=warnings,
+                force=True,
+            )
+            _finalize_table_image_vlm_jobs(
+                artifact_dir=artifact_dir,
+                jobs=table_image_vlm_jobs,
+                markdown_parts=markdown_parts,
+                warnings=warnings,
+            )
+            table_image_vlm_executor.shutdown(wait=True)
 
     if not markdown_parts:
         raise RuntimeError(
