@@ -31,7 +31,6 @@ def _fake_docling_result() -> DoclingParseResult:
         warnings=["warning-1"],
         partial_failures=[DoclingChunkFailure(page_range="1-6", errors=["err"])],
         stats=DoclingParseStats(
-            page_chunk_size=6,
             converted_chunks=1,
             partial_failure_chunks=1,
             pictures_extracted=0,
@@ -147,4 +146,3 @@ def test_webhook_non_pdf_stays_legacy_even_when_docling_enabled(monkeypatch):
     )
     asyncio.run(router_ingest.ingest_webhook(file_upload))
     assert captured["text"] == "plain-text"
-
