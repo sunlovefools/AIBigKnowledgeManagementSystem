@@ -1,8 +1,8 @@
 import os
 from pathlib import Path
 
-from app.service.rag.ingestion import docling_common as _common
-from app.service.rag.ingestion import docling_pdf_extractor_beam as _beam
+from app.service.rag.ingestion.docling import common as _common
+from app.service.rag.ingestion.docling import extractor_beam as _beam
 
 
 # Public constants/types remain importable from this module for compatibility.
@@ -35,7 +35,7 @@ def parse_pdf_with_docling_preview(
     backend = _get_docling_pdf_backend() # Select which mode to run (Either local or beam)
     if backend == "local":
         print("Extracting PDF locally")
-        from app.service.rag.ingestion.docling_pdf_extractor_local import (
+        from app.service.rag.ingestion.docling.extractor_local import (
             parse_pdf_with_docling_preview_local,
         )
 

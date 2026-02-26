@@ -19,7 +19,11 @@ import os
 from pathlib import Path
 import traceback
 from typing import Any, Dict
-from dotenv import load_dotenv
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv(*_args, **_kwargs):  # type: ignore[no-redef]
+        return False
 
 load_dotenv()
 
@@ -28,7 +32,7 @@ load_dotenv()
 # =========================
 OPENROUTER_API_KEY = ""  # <-- put your key here (or load from env yourself)
 IMAGE_PATH = "images\\table_screenshot.png"
-MODEL = "qwen/qwen3-vl-30b-a3b-thinking"
+MODEL = os.getenv("VISION_LM_MODEL", "qwen/qwen3-vl-30b-a3b-thinking")
 MAX_TOKENS = 4000
 USE_CACHED_RESULT = False
 
@@ -39,7 +43,10 @@ RAW_TEXT_OUT_PATH = OUTPUT_DIR / "output_raw.txt"
 FULL_RESPONSE_OUT_PATH = OUTPUT_DIR / "openrouter_response.json"
 STATUS_OUT_PATH = OUTPUT_DIR / "status.json"
 ERROR_OUT_PATH = OUTPUT_DIR / "error.txt"
-OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+OPENROUTER_URL = os.getenv(
+    "OPENROUTER_URL",
+    "https://openrouter.ai/api/v1/chat/completions",
+)
 
 
 SYSTEM_PROMPT = """

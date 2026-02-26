@@ -21,8 +21,6 @@ from app.service.storage.s3_image_store import (
 DEFAULT_DOCLING_PAGE_CHUNK_SIZE = 6
 DOCLING_IMAGE_PLACEHOLDER = "<!-- image -->"
 DOCLING_IMAGE_CROP_FAILED_MARKER = "<!-- image-crop-failed -->"
-S3_UPLOAD_ENABLED_ENV = "UPLOAD_IMAGES_TO_S3"
-
 
 class ExtractedImageArtifact(BaseModel):
     """
@@ -85,8 +83,11 @@ def _backend_root() -> Path:
     """
     Get the root directory of the backend project.
     """
-
-    return Path(__file__).resolve().parents[4]
+    current_path = Path(__file__).resolve()
+    for parent in current_path.parents:
+        if parent.name == "backend":
+            return parent
+    raise RuntimeError(f"Could not locate backend root from path: {current_path}")
 
 
 def _default_preview_root() -> Path:
@@ -188,24 +189,24 @@ def _upload_image_artifact_to_s3(
     This function mutates and returns the image artifact with S3 metadata/status.
     """
 
-    raw_upload_enabled = os.getenv(S3_UPLOAD_ENABLED_ENV)
+    raw_upload_enabled = os.getenv("AWS_S3_UPLOAD_ENABLED")
     if raw_upload_enabled is None:
         raise RuntimeError(
-            f"{S3_UPLOAD_ENABLED_ENV} is required and must be set to 'true' or 'false'."
+            "AWS_S3_UPLOAD_ENABLED is required and must be set to 'true' or 'false'."
         )
 
     upload_enabled = raw_upload_enabled.strip().lower()
     if upload_enabled not in {"true", "false"}:
         raise RuntimeError(
-            f"{S3_UPLOAD_ENABLED_ENV} must be set to 'true' or 'false', got: {raw_upload_enabled!r}."
+            "AWS_S3_UPLOAD_ENABLED must be set to 'true' or 'false', got: {raw_upload_enabled!r}."
         )
 
     if upload_enabled == "false":
         image_artifact.s3_upload_status = "skipped"
-        image_artifact.s3_error = f"S3 upload disabled ({S3_UPLOAD_ENABLED_ENV}=false)"
+        image_artifact.s3_error = f"S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
         print(
             f"S3 upload skipped for image_uuid={image_artifact.image_uuid} "
-            f"because {S3_UPLOAD_ENABLED_ENV}=false."
+            f"because AWS_S3_UPLOAD_ENABLED=false."
         )
         return image_artifact
 
@@ -263,7 +264,6 @@ __all__ = [
     "DEFAULT_DOCLING_PAGE_CHUNK_SIZE",
     "DOCLING_IMAGE_PLACEHOLDER",
     "DOCLING_IMAGE_CROP_FAILED_MARKER",
-    "S3_UPLOAD_ENABLED_ENV",
     "ExtractedImageArtifact",
     "DoclingChunkFailure",
     "DoclingParseStats",

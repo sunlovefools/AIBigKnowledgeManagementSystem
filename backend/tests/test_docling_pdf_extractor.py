@@ -1,3 +1,4 @@
+import json
 import sys
 from pathlib import Path
 
@@ -7,8 +8,11 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.service.rag.ingestion import docling_pdf_extractor as extractor
-from app.service.rag.ingestion import docling_pdf_extractor_beam as beam_extractor
-from app.service.rag.ingestion import docling_pdf_extractor_local as local_extractor
+from app.service.rag.ingestion.docling import extractor_beam as beam_extractor
+from app.service.rag.ingestion.docling import common as docling_common
+from app.service.rag.ingestion.docling import extractor_local as local_extractor
+from app.service.rag.ingestion import docling_table_image_vlm as table_image_vlm
+from app.service.rag.ingestion.docling.table_image_vlm import runtime as table_image_vlm_runtime
 
 
 class _Prov:
@@ -131,6 +135,66 @@ def _patch_endpoint_runtime(monkeypatch, items, *, status="success", errors=None
     )
 
 
+def _install_fake_table_image_vlm_helper(
+    monkeypatch,
+    *,
+    summary_text="The table represents key metrics in surrounding context.",
+    fail_json=False,
+    fail_summary=False,
+    captured_contexts=None,
+):
+    class _FakeHelper:
+        MODEL = "fake-model"
+        OPENROUTER_URL = "https://example.test/openrouter"
+
+        @staticmethod
+        def extract_table_json_from_image(*, image_path, api_key=None, output_dir=None, save_artifacts=True):
+            assert image_path
+            assert api_key == "secret"
+            if fail_json:
+                raise RuntimeError("json boom")
+            out_dir = Path(output_dir)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            (out_dir / "output.json").write_text(
+                '{"table_metadata":{},"columns":[],"data":[]}',
+                encoding="utf-8",
+            )
+            return {"table_metadata": {}, "columns": [], "data": []}
+
+        @staticmethod
+        def extract_table_semantic_summary_from_image(
+            *,
+            image_path,
+            context_before,
+            context_after,
+            api_key=None,
+            output_dir=None,
+            save_artifacts=True,
+        ):
+            assert image_path
+            assert api_key == "secret"
+            if captured_contexts is not None:
+                captured_contexts.append(
+                    {
+                        "before": context_before,
+                        "after": context_after,
+                    }
+                )
+            if fail_summary:
+                raise RuntimeError("summary boom")
+            out_dir = Path(output_dir)
+            out_dir.mkdir(parents=True, exist_ok=True)
+            (out_dir / "semantic_summary.txt").write_text(summary_text, encoding="utf-8")
+            return summary_text
+
+    monkeypatch.setattr(table_image_vlm_runtime, "_load_table_image_vlm_helper_module", lambda: _FakeHelper)
+    monkeypatch.setenv("TABLE_IMAGE_VLM_ENABLED", "true")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "secret")
+    monkeypatch.setenv("TABLE_IMAGE_VLM_AFTER_READY_BLOCKS", "1")
+    monkeypatch.setenv("TABLE_IMAGE_VLM_MAX_WORKERS", "1")
+    return _FakeHelper
+
+
 def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monkeypatch, tmp_path):
     items = [
         _Text("Intro paragraph", page_no=1),
@@ -163,7 +227,7 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
     markdown_text = Path(result.markdown_path).read_text(encoding="utf-8")
     assert "Intro paragraph" in markdown_text
     assert "Second chunk text" in markdown_text
-    assert "Table (image): Structure extraction failed" in markdown_text
+    assert "Table (image)**: Table exists in image form." in markdown_text
     assert "<!-- image -->" not in markdown_text
 
     picture_items = [img for img in result.images if img.kind == "picture"]
@@ -211,7 +275,7 @@ def test_parse_pdf_with_docling_preview_picture_crop_failure_keeps_markdown(monk
 
 
 def test_safe_stem_sanitizes_filename():
-    assert beam_extractor._safe_stem("A B/C:*report?.pdf") == "A_B_C_report"
+    assert docling_common._safe_stem("A B/C:*report?.pdf") == "A_B_C_report"
 
 
 class _FakeResponse:
@@ -300,9 +364,9 @@ def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path
     _patch_endpoint_runtime(monkeypatch, items)
     monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "true")
-    monkeypatch.setattr(beam_extractor, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
+    monkeypatch.setattr(docling_common, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
     monkeypatch.setattr(
-        beam_extractor,
+        docling_common,
         "build_s3_image_key",
         lambda image_uuid, extension=".png", prefix=None, source_file_name=None: f"{prefix}/images/{image_uuid}{extension}",
     )
@@ -313,7 +377,7 @@ def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path
         region = "ap-southeast-1"
         s3_uri = "s3://test-bucket/docling-previews/run/images/uuid.png"
 
-    monkeypatch.setattr(beam_extractor, "upload_file_to_s3", lambda **kwargs: _UploadResult())
+    monkeypatch.setattr(docling_common, "upload_file_to_s3", lambda **kwargs: _UploadResult())
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=_minimal_pdf_bytes(),
@@ -334,14 +398,14 @@ def test_parse_pdf_with_docling_preview_records_s3_failure_as_warning(monkeypatc
     _patch_endpoint_runtime(monkeypatch, items)
     monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "true")
-    monkeypatch.setattr(beam_extractor, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
+    monkeypatch.setattr(docling_common, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
     monkeypatch.setattr(
-        beam_extractor,
+        docling_common,
         "build_s3_image_key",
         lambda image_uuid, extension=".png", prefix=None, source_file_name=None: f"{prefix}/images/{image_uuid}{extension}",
     )
     monkeypatch.setattr(
-        beam_extractor,
+        docling_common,
         "upload_file_to_s3",
         lambda **kwargs: (_ for _ in ()).throw(RuntimeError("S3 upload boom")),
     )
@@ -619,3 +683,128 @@ def test_local_backend_raises_when_no_chunks_convert(monkeypatch, tmp_path):
             file_name="sample.pdf",
             artifact_root=tmp_path,
         )
+
+
+def test_beam_table_image_vlm_inserts_summary_and_json_marker(monkeypatch, tmp_path):
+    captured_contexts = []
+    items = [
+        _Text("Context before <!-- internal --> table", page_no=1),
+        _Table(page_no=1, num_rows=0, num_cols=0),
+        _Text("Context after table explains the totals.", page_no=1),
+    ]
+    _patch_endpoint_runtime(monkeypatch, items)
+    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    _install_fake_table_image_vlm_helper(monkeypatch, captured_contexts=captured_contexts)
+
+    result = extractor.parse_pdf_with_docling_preview(
+        pdf_bytes=_minimal_pdf_bytes(),
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+    )
+
+    artifact_dir = Path(result.artifact_dir)
+    markdown = result.markdown_text
+    assert "Table summary (VLM)" in markdown
+    assert "The table represents key metrics" in markdown
+    assert "<!-- table-image-vlm-json-path:" in markdown
+    assert (artifact_dir / "table_image_vlm_results.json").exists()
+
+    output_json_files = list((artifact_dir / "table_image_vlm").glob("*/output.json"))
+    assert len(output_json_files) == 1
+    aggregate = json.loads((artifact_dir / "table_image_vlm_results.json").read_text(encoding="utf-8"))
+    assert aggregate["tables"][0]["json_ok"] is True
+    assert aggregate["tables"][0]["summary_ok"] is True
+
+    assert captured_contexts
+    assert "Context before" in captured_contexts[0]["before"]
+    assert "Context after table" in captured_contexts[0]["after"]
+    assert "<!--" not in captured_contexts[0]["before"]
+
+
+def test_beam_table_image_vlm_summary_failure_keeps_json_marker(monkeypatch, tmp_path):
+    items = [
+        _Text("Before text", page_no=1),
+        _Table(page_no=1, num_rows=0, num_cols=0),
+        _Text("After text", page_no=1),
+    ]
+    _patch_endpoint_runtime(monkeypatch, items)
+    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    _install_fake_table_image_vlm_helper(monkeypatch, fail_summary=True)
+
+    result = extractor.parse_pdf_with_docling_preview(
+        pdf_bytes=_minimal_pdf_bytes(),
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+    )
+
+    assert "Summary unavailable (see VLM artifacts/errors)." in result.markdown_text
+    assert "<!-- table-image-vlm-json-path:" in result.markdown_text
+    assert any("Table-image VLM issue" in w and "Summary extraction failed" in w for w in result.warnings)
+
+
+def test_local_table_image_vlm_force_finalize_inserts_summary(monkeypatch, tmp_path):
+    class _FakePILImage:
+        def save(self, fp, _fmt):
+            fp.write(b"PNG")
+
+    class _LocalTable(_Table):
+        def get_image(self, _doc):
+            return _FakePILImage()
+
+    class _LocalSerializer(_Serializer):
+        def serialize(self, item):
+            if isinstance(item, _LocalTable):
+                return _Serialized("| a | b |")
+            return super().serialize(item)
+
+    class _DocumentStream:
+        def __init__(self, name, stream):
+            self.name = name
+            self.stream = stream
+
+    class _Status:
+        def __init__(self, value):
+            self.value = value
+
+    class _Result:
+        def __init__(self, document, page_count=1):
+            self.status = _Status("success")
+            self.document = document
+            self.errors = []
+            self.input = type("Input", (), {"page_count": page_count})()
+
+    class _FakeConverter:
+        def convert(self, _doc_stream, raises_on_error=False, page_range=None):
+            assert raises_on_error is False
+            return _Result(_Document([_Text("Local intro", page_no=1), _LocalTable(page_no=1, num_rows=0, num_cols=0)]))
+
+    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    _install_fake_table_image_vlm_helper(monkeypatch)
+    monkeypatch.setenv("TABLE_IMAGE_VLM_AFTER_READY_BLOCKS", "99999")
+
+    monkeypatch.setattr(
+        local_extractor,
+        "_load_local_docling_runtime",
+        lambda: {
+            "MarkdownDocSerializer": _LocalSerializer,
+            "PictureItem": _Picture,
+            "TableItem": _LocalTable,
+            "DocumentStream": _DocumentStream,
+        },
+    )
+    monkeypatch.setattr(local_extractor, "_get_or_create_local_converter", lambda: _FakeConverter())
+
+    result = local_extractor.parse_pdf_with_docling_preview_local(
+        pdf_bytes=_pdf_bytes_with_pages(1),
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+        page_chunk_size=1,
+    )
+
+    artifact_dir = Path(result.artifact_dir)
+    assert "Table summary (VLM)" in result.markdown_text
+    assert "<!-- table-image-vlm-json-path:" in result.markdown_text
+    assert (artifact_dir / "table_image_vlm_results.json").exists()
+    assert len(list((artifact_dir / "table_image_vlm").glob("*/output.json"))) == 1

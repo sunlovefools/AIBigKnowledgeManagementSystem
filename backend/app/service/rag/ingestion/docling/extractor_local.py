@@ -6,8 +6,8 @@ from typing import Any
 
 from uuid6 import uuid6
 
-from app.service.rag.ingestion import docling_common as shared
-from app.service.rag.ingestion import docling_table_image_vlm as table_image_vlm
+from app.service.rag.ingestion.docling import common as shared
+from app.service.rag.ingestion.docling import table_image_vlm
 
 # Configuration constants for local Docling processing.
 # These can be tuned for performance, for Yoong Shen's machine, we are using this
@@ -169,11 +169,15 @@ def parse_pdf_with_docling_preview_local(
     markdown_serializer_cls = runtime["MarkdownDocSerializer"]
     document_stream_cls = runtime["DocumentStream"]
     discovered_total_pages: int | None = None
+    
+    # Build the shared VLM runtime if the VLM is enabled for this run
     table_image_vlm_runtime = table_image_vlm.build_table_image_vlm_runtime(
         artifact_dir=artifact_dir,
         warnings=warnings,
     )
     table_image_vlm_executor: ThreadPoolExecutor | None = None
+
+    # ThreadPoolExecutor to process table image VLM jobs in parallel
     if table_image_vlm_runtime is not None:
         table_image_vlm_executor = ThreadPoolExecutor(
             max_workers=table_image_vlm_runtime.max_workers,
@@ -375,9 +379,14 @@ def parse_pdf_with_docling_preview_local(
                         ]
 
                         if table_image_vlm_runtime is not None and table_image_vlm_executor is not None:
+
+                            # Get a summary placeholder for the table image VLM to inject into the markdown while the VLM job is being processed, 
+                            # so that the markdown can be rendered with partial information while waiting for the VLM results
                             summary_placeholder = table_image_vlm.table_image_vlm_summary_placeholder(
                                 image_artifact.image_uuid
                             )
+
+                            # Form a VLM job to process this table image
                             table_image_vlm_jobs.append(
                                 table_image_vlm.TableImageVlmJob(
                                     image_artifact=image_artifact,
@@ -385,11 +394,13 @@ def parse_pdf_with_docling_preview_local(
                                     page_no=page_no,
                                     block_index=len(markdown_parts),
                                     summary_placeholder=summary_placeholder,
+                                    # The output artifact directory for the VLM to write the extracted table structure JSON and the summary
                                     output_dir=table_image_vlm.table_image_vlm_output_dir(
                                         artifact_dir,
                                         table_index=table_index,
                                         image_uuid=image_artifact.image_uuid,
                                     ),
+                                    # A JSON file path for debug
                                     json_rel_path=table_image_vlm.table_image_vlm_json_rel_path(
                                         table_index=table_index,
                                         image_uuid=image_artifact.image_uuid,
@@ -398,7 +409,10 @@ def parse_pdf_with_docling_preview_local(
                             )
                             table_markdown_lines.append(f"> {summary_placeholder}")
 
+                        # Append the markdown for this table item
                         markdown_parts.append("\n".join(table_markdown_lines))
+
+                        # Submit the VLM job
                         table_image_vlm.submit_ready_table_image_vlm_jobs(
                             runtime=table_image_vlm_runtime,
                             executor=table_image_vlm_executor,
@@ -440,6 +454,9 @@ def parse_pdf_with_docling_preview_local(
 
             if serialized_text:
                 markdown_parts.append(serialized_text)
+
+                # After each of the serialised text, we submit the job again
+                # This is such that the after context for the VLM job can be gathered
                 table_image_vlm.submit_ready_table_image_vlm_jobs(
                     runtime=table_image_vlm_runtime,
                     executor=table_image_vlm_executor,
@@ -454,6 +471,8 @@ def parse_pdf_with_docling_preview_local(
         current_start += effective_page_chunk_size
 
     if table_image_vlm_executor is not None:
+        # This is a final submission to process any remaining VLM jobs that have not been submitted
+        # And they will not have any after context as the markdown is fully generated at this point
         table_image_vlm.submit_ready_table_image_vlm_jobs(
             runtime=table_image_vlm_runtime,
             executor=table_image_vlm_executor,

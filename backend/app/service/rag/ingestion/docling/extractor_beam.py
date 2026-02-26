@@ -7,8 +7,8 @@ from typing import Any
 import fitz
 import requests
 from uuid6 import uuid6
-from app.service.rag.ingestion import docling_common as common
-from app.service.rag.ingestion import docling_table_image_vlm as table_image_vlm
+from app.service.rag.ingestion.docling import common
+from app.service.rag.ingestion.docling import table_image_vlm
 
 
 # Re-export shared models/constants/helpers for compatibility while keeping implementations in docling_common.py.
