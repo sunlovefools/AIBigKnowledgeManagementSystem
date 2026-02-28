@@ -230,7 +230,8 @@ def extract_table_semantic_summary_from_image(
 
     summary_out_path = active_output_dir / "semantic_summary.txt"
     raw_text_out_path = active_output_dir / "semantic_raw.txt"
-    full_response_out_path = active_output_dir / "semantic_openrouter_response.json"
+    # Keep filename shorter to reduce Windows path-length pressure for temp writes.
+    full_response_out_path = active_output_dir / "semantic_or_response.json"
     status_out_path = active_output_dir / "semantic_status.json"
     error_out_path = active_output_dir / "semantic_error.txt"
 

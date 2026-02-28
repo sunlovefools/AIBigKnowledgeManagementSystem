@@ -53,14 +53,23 @@ def _load_docling_module_runtime() -> dict[str, Any]:
     and serialize markdown locally.
     """
     from docling_core.transforms.serializer.markdown import MarkdownDocSerializer
-    from docling_core.types.doc import DoclingDocument
-    from docling_core.types.doc import PictureItem, TableItem
+    from docling_core.types.doc import (
+        DoclingDocument,
+        ListItem,
+        PictureItem,
+        SectionHeaderItem,
+        TableItem,
+        TitleItem,
+    )
 
     return {
         "MarkdownDocSerializer": MarkdownDocSerializer,
         "DoclingDocument": DoclingDocument,
+        "ListItem": ListItem,
         "PictureItem": PictureItem,
+        "SectionHeaderItem": SectionHeaderItem,
         "TableItem": TableItem,
+        "TitleItem": TitleItem,
     }
 
 
@@ -268,6 +277,7 @@ def parse_pdf_with_docling_preview(
     safe_stem = _safe_stem(file_name)
 
     markdown_parts: list[str] = [] # A list to accumulate serialised markdown text parts
+    structured_block_metadata: list[dict[str, Any]] = []
     images: list[ExtractedImageArtifact] = [] # A list to hold metadata about extracted images
     warnings: list[str] = []
     partial_failures: list[DoclingChunkFailure] = []
@@ -316,7 +326,48 @@ def parse_pdf_with_docling_preview(
     serializer = runtime["MarkdownDocSerializer"](doc=doc)
     picture_item_cls = runtime["PictureItem"]
     table_item_cls = runtime["TableItem"]
+    list_item_cls = runtime.get("ListItem")
+    section_header_item_cls = runtime.get("SectionHeaderItem")
+    title_item_cls = runtime.get("TitleItem")
     ordered_by_seq = _ordered_items_by_seq(endpoint_result.get("ordered_items")) # A list of items in the order they were parsed by the endpoint, with sequence numbers for reference.
+
+    def _block_type_for_element(element: Any) -> str:
+        """Classify a Docling element into normalized block categories."""
+
+        if title_item_cls is not None and isinstance(element, title_item_cls):
+            return "header"
+        if section_header_item_cls is not None and isinstance(element, section_header_item_cls):
+            return "header"
+        if list_item_cls is not None and isinstance(element, list_item_cls):
+            return "list"
+        if isinstance(element, picture_item_cls):
+            return "picture"
+        if isinstance(element, table_item_cls):
+            return "table"
+        if hasattr(element, "text"):
+            return "text"
+        return "other"
+
+    def _append_markdown_block(
+        *,
+        text: str,
+        block_type: str,
+        page_no: int | None,
+        is_table_image: bool = False,
+        table_image_uuid: str | None = None,
+    ) -> None:
+        """Append markdown text and matching structured metadata in lockstep."""
+
+        markdown_parts.append(text)
+        structured_block_metadata.append(
+            {
+                "block_index": len(markdown_parts) - 1,
+                "block_type": block_type,
+                "page_no": page_no,
+                "is_table_image": is_table_image,
+                "table_image_uuid": table_image_uuid,
+            }
+        )
 
     print("Starting to process the converted Docling document and generate markdown and image artifacts")
     # Open the PDF with fitz to enable cropping of image regions for pictures and tables based on endpoint-provided bounding boxes.
@@ -458,7 +509,13 @@ def parse_pdf_with_docling_preview(
                                 )
                                 table_markdown_lines.append(f"> {summary_placeholder}")
 
-                            markdown_parts.append("\n".join(table_markdown_lines))
+                            _append_markdown_block(
+                                text="\n".join(table_markdown_lines),
+                                block_type="table",
+                                page_no=page_no,
+                                is_table_image=True,
+                                table_image_uuid=image_artifact.image_uuid,
+                            )
                             _submit_ready_table_image_vlm_jobs(
                                 runtime=table_image_vlm_runtime,
                                 executor=table_image_vlm_executor,
@@ -470,13 +527,16 @@ def parse_pdf_with_docling_preview(
                             warnings.append(
                                 f"Failed to export fallback table image #{table_index} on page {page_no}: {exc}"
                             )
-                            markdown_parts.append(
-                                "\n".join(
+                            _append_markdown_block(
+                                text="\n".join(
                                     [
                                         "> **Table (image)**: Table exists in image form.",
                                         "> (Local crop failed: missing/invalid bbox or page_no.)",
                                     ]
-                                )
+                                ),
+                                block_type="table",
+                                page_no=page_no,
+                                is_table_image=True,
                             )
                         continue
 
@@ -497,7 +557,12 @@ def parse_pdf_with_docling_preview(
                     )
 
                 if serialized_text:
-                    markdown_parts.append(serialized_text)
+                    _append_markdown_block(
+                        text=serialized_text,
+                        block_type=_block_type_for_element(element),
+                        page_no=page_no,
+                        is_table_image=False,
+                    )
                     _submit_ready_table_image_vlm_jobs(
                         runtime=table_image_vlm_runtime,
                         executor=table_image_vlm_executor,
@@ -532,6 +597,18 @@ def parse_pdf_with_docling_preview(
     print("Successfully extracted the PDF document using Beam endpoint")
     markdown_text = "\n\n".join(markdown_parts)
     markdown_path.write_text(markdown_text, encoding="utf-8") # Write the combined markdown text to the markdown file in the artifact directory
+    structured_blocks = [
+        common.DoclingStructuredBlock(
+            block_index=metadata["block_index"],
+            block_type=metadata["block_type"],
+            content=markdown_parts[metadata["block_index"]],
+            page_no=metadata["page_no"],
+            is_table_image=metadata["is_table_image"],
+            table_image_uuid=metadata["table_image_uuid"],
+        )
+        for metadata in structured_block_metadata
+        if metadata["block_index"] < len(markdown_parts)
+    ]
 
     # Forming the stats for debugging and traceability
     stats = DoclingParseStats(
@@ -552,6 +629,7 @@ def parse_pdf_with_docling_preview(
         warnings=warnings,
         partial_failures=partial_failures,
         stats=stats,
+        structured_blocks=structured_blocks,
     )
 
     # Write a manifest.json file in the artifact directory containing metadata about the Docling parsing result for debugging and traceability.

@@ -1,6 +1,6 @@
-# This module contains shared utilities, data models and constants for Docling PDF ingestion,
-# which are used by both the "local" and "Beam-based" Docling processing backends. 
-# The public interfaces in this module are intended to be stable and reusable across different Docling processing implementations.
+# Module purpose:
+# Shared Docling ingestion constants, data models, and utility helpers used by both
+# the local and Beam-based Docling extraction backends.
 
 import json
 import os
@@ -8,7 +8,7 @@ import re
 from pathlib import Path
 from typing import Any, Literal
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from uuid6 import uuid6
 
 from app.service.storage.s3_image_store import (
@@ -63,6 +63,19 @@ class DoclingParseStats(BaseModel):
     table_fallback_images_extracted: int
 
 
+class DoclingStructuredBlock(BaseModel):
+    """
+    Normalized Docling markdown block used by structure-aware chunking.
+    """
+
+    block_index: int
+    block_type: Literal["header", "text", "list", "picture", "table", "other"]
+    content: str
+    page_no: int | None = None
+    is_table_image: bool = False
+    table_image_uuid: str | None = None
+
+
 class DoclingParseResult(BaseModel):
     """
     Represents the result of parsing a PDF with Docling, including paths to artifacts, extracted images, warnings, and stats.
@@ -77,6 +90,7 @@ class DoclingParseResult(BaseModel):
     warnings: list[str]
     partial_failures: list[DoclingChunkFailure]
     stats: DoclingParseStats
+    structured_blocks: list[DoclingStructuredBlock] = Field(default_factory=list)
 
 
 def _backend_root() -> Path:
@@ -267,6 +281,7 @@ __all__ = [
     "ExtractedImageArtifact",
     "DoclingChunkFailure",
     "DoclingParseStats",
+    "DoclingStructuredBlock",
     "DoclingParseResult",
     "_backend_root",
     "_default_preview_root",

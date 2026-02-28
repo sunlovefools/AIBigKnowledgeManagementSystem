@@ -54,8 +54,17 @@ def _write_text_file(path: Path, content: str) -> None:
 
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = path.with_suffix(path.suffix + ".tmp")
-    tmp_path.write_text(content, encoding="utf-8")
-    tmp_path.replace(path)
+    try:
+        tmp_path.write_text(content, encoding="utf-8")
+        tmp_path.replace(path)
+    except (FileNotFoundError, OSError):
+        # Windows path-length/path-resolution edge cases can fail for temp-path writes.
+        # Fall back to direct write so summary/json artifacts are still persisted.
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(content, encoding="utf-8")
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
 
 
 def _write_json_file(path: Path, payload: Any) -> None:
@@ -63,8 +72,17 @@ def _write_json_file(path: Path, payload: Any) -> None:
 
     path.parent.mkdir(parents=True, exist_ok=True)
     tmp_path = path.with_suffix(path.suffix + ".tmp")
-    tmp_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
-    tmp_path.replace(path)
+    serialized = json.dumps(payload, indent=2, ensure_ascii=False)
+    try:
+        tmp_path.write_text(serialized, encoding="utf-8")
+        tmp_path.replace(path)
+    except (FileNotFoundError, OSError):
+        # Keep VLM flow resilient when temporary file paths exceed OS constraints.
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(serialized, encoding="utf-8")
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
 
 
 def _prepare_table_image_vlm_worker_paths(job: TableImageVlmJob) -> tuple[Path, Path, Path]:

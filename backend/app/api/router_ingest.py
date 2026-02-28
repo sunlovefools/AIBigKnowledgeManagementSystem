@@ -6,6 +6,9 @@ from pydantic import BaseModel
 # Local imports
 from app.service.rag.ingestion.text_extractor import extract_text
 from app.service.rag.ingestion.chunker import split_parent_child_chunks
+from app.service.rag.ingestion.docling_chunker import (
+    split_parent_child_chunks_from_docling_blocks,
+)
 from app.service.rag.ingestion.chunk_polisher import polish_chunks
 from app.service.rag.ingestion.docling_pdf_extractor import (
     get_pdf_ingestion_strategy,
@@ -114,6 +117,17 @@ async def ingest_webhook_preview(file: FileUpload):
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"docling preview failed: {exc}")
+
+    if parse_result.structured_blocks:
+        try:
+            # Experimental chunking in preview route only.
+            split_parent_child_chunks_from_docling_blocks(
+                blocks=parse_result.structured_blocks,
+                file_name=file.fileName,
+                artifact_dir=parse_result.artifact_dir,
+            )
+        except Exception as exc:
+            raise HTTPException(status_code=500, detail=f"docling preview chunking failed: {exc}")
 
     return DoclingPreviewResponse(
         status="ok",

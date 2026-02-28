@@ -13,6 +13,7 @@ DOCLING_IMAGE_CROP_FAILED_MARKER = _common.DOCLING_IMAGE_CROP_FAILED_MARKER
 ExtractedImageArtifact = _common.ExtractedImageArtifact
 DoclingChunkFailure = _common.DoclingChunkFailure
 DoclingParseStats = _common.DoclingParseStats
+DoclingStructuredBlock = _common.DoclingStructuredBlock
 DoclingParseResult = _common.DoclingParseResult
 
 def _get_docling_pdf_backend() -> str:
@@ -73,6 +74,7 @@ __all__ = [
     "ExtractedImageArtifact",
     "DoclingChunkFailure",
     "DoclingParseStats",
+    "DoclingStructuredBlock",
     "DoclingParseResult",
     "parse_pdf_with_docling_preview",
     "get_pdf_ingestion_strategy",

@@ -30,7 +30,13 @@ def _load_local_docling_runtime() -> dict[str, Any]:
     )
     from docling.document_converter import DocumentConverter, PdfFormatOption
     from docling_core.transforms.serializer.markdown import MarkdownDocSerializer
-    from docling_core.types.doc import PictureItem, TableItem
+    from docling_core.types.doc import (
+        ListItem,
+        PictureItem,
+        SectionHeaderItem,
+        TableItem,
+        TitleItem,
+    )
     from docling_core.types.io import DocumentStream
 
     return {
@@ -40,8 +46,11 @@ def _load_local_docling_runtime() -> dict[str, Any]:
         "DocumentConverter": DocumentConverter,
         "PdfFormatOption": PdfFormatOption,
         "MarkdownDocSerializer": MarkdownDocSerializer,
+        "ListItem": ListItem,
         "PictureItem": PictureItem,
+        "SectionHeaderItem": SectionHeaderItem,
         "TableItem": TableItem,
+        "TitleItem": TitleItem,
         "DocumentStream": DocumentStream,
     }
 
@@ -150,6 +159,7 @@ def parse_pdf_with_docling_preview_local(
     safe_stem = shared._safe_stem(file_name)
 
     markdown_parts: list[str] = []
+    structured_block_metadata: list[dict[str, Any]] = []
     images: list[shared.ExtractedImageArtifact] = []
     warnings: list[str] = []
     partial_failures: list[shared.DoclingChunkFailure] = []
@@ -166,9 +176,50 @@ def parse_pdf_with_docling_preview_local(
 
     picture_item_cls = runtime["PictureItem"]
     table_item_cls = runtime["TableItem"]
+    list_item_cls = runtime.get("ListItem")
+    section_header_item_cls = runtime.get("SectionHeaderItem")
+    title_item_cls = runtime.get("TitleItem")
     markdown_serializer_cls = runtime["MarkdownDocSerializer"]
     document_stream_cls = runtime["DocumentStream"]
     discovered_total_pages: int | None = None
+
+    def _block_type_for_element(element: Any) -> str:
+        """Classify a Docling element into normalized block categories."""
+
+        if title_item_cls is not None and isinstance(element, title_item_cls):
+            return "header"
+        if section_header_item_cls is not None and isinstance(element, section_header_item_cls):
+            return "header"
+        if list_item_cls is not None and isinstance(element, list_item_cls):
+            return "list"
+        if isinstance(element, picture_item_cls):
+            return "picture"
+        if isinstance(element, table_item_cls):
+            return "table"
+        if hasattr(element, "text"):
+            return "text"
+        return "other"
+
+    def _append_markdown_block(
+        *,
+        text: str,
+        block_type: str,
+        page_no: int | None,
+        is_table_image: bool = False,
+        table_image_uuid: str | None = None,
+    ) -> None:
+        """Append markdown text and matching structured metadata in lockstep."""
+
+        markdown_parts.append(text)
+        structured_block_metadata.append(
+            {
+                "block_index": len(markdown_parts) - 1,
+                "block_type": block_type,
+                "page_no": page_no,
+                "is_table_image": is_table_image,
+                "table_image_uuid": table_image_uuid,
+            }
+        )
     
     # Build the shared VLM runtime if the VLM is enabled for this run
     table_image_vlm_runtime = table_image_vlm.build_table_image_vlm_runtime(
@@ -410,7 +461,13 @@ def parse_pdf_with_docling_preview_local(
                             table_markdown_lines.append(f"> {summary_placeholder}")
 
                         # Append the markdown for this table item
-                        markdown_parts.append("\n".join(table_markdown_lines))
+                        _append_markdown_block(
+                            text="\n".join(table_markdown_lines),
+                            block_type="table",
+                            page_no=page_no,
+                            is_table_image=True,
+                            table_image_uuid=image_artifact.image_uuid,
+                        )
 
                         # Submit the VLM job
                         table_image_vlm.submit_ready_table_image_vlm_jobs(
@@ -424,13 +481,16 @@ def parse_pdf_with_docling_preview_local(
                         warnings.append(
                             f"Failed to export local fallback table image #{table_index} on page {page_no}: {exc}"
                         )
-                        markdown_parts.append(
-                            "\n".join(
+                        _append_markdown_block(
+                            text="\n".join(
                                 [
                                     "> **Table (image)**: Table exists in image form.",
                                     "> (Local image export failed.)",
                                 ]
-                            )
+                            ),
+                            block_type="table",
+                            page_no=page_no,
+                            is_table_image=True,
                         )
                     continue
 
@@ -453,7 +513,12 @@ def parse_pdf_with_docling_preview_local(
                 serialized_text = shared._inject_marker_for_picture(serialized_text, marker)
 
             if serialized_text:
-                markdown_parts.append(serialized_text)
+                _append_markdown_block(
+                    text=serialized_text,
+                    block_type=_block_type_for_element(element),
+                    page_no=page_no,
+                    is_table_image=False,
+                )
 
                 # After each of the serialised text, we submit the job again
                 # This is such that the after context for the VLM job can be gathered
@@ -497,6 +562,18 @@ def parse_pdf_with_docling_preview_local(
     print("Successfully converted PDF with local Docling, writing markdown and artifacts")
     markdown_text = "\n\n".join(markdown_parts)
     markdown_path.write_text(markdown_text, encoding="utf-8")
+    structured_blocks = [
+        shared.DoclingStructuredBlock(
+            block_index=metadata["block_index"],
+            block_type=metadata["block_type"],
+            content=markdown_parts[metadata["block_index"]],
+            page_no=metadata["page_no"],
+            is_table_image=metadata["is_table_image"],
+            table_image_uuid=metadata["table_image_uuid"],
+        )
+        for metadata in structured_block_metadata
+        if metadata["block_index"] < len(markdown_parts)
+    ]
 
     # Form the stats for this docling extraction
     stats = shared.DoclingParseStats(
@@ -517,6 +594,7 @@ def parse_pdf_with_docling_preview_local(
         warnings=warnings,
         partial_failures=partial_failures,
         stats=stats,
+        structured_blocks=structured_blocks,
     )
 
     # Write it into a manifest file for traceability, debugging and testing purposes

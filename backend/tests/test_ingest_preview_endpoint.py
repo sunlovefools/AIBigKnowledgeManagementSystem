@@ -9,6 +9,7 @@ from fastapi import HTTPException
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.api import router_ingest
+from app.service.rag.ingestion.docling.common import DoclingStructuredBlock
 from app.service.rag.ingestion.docling_pdf_extractor import (
     DoclingChunkFailure,
     DoclingParseResult,
@@ -20,7 +21,10 @@ def _b64(data: bytes) -> str:
     return base64.b64encode(data).decode("utf-8")
 
 
-def _fake_docling_result() -> DoclingParseResult:
+def _fake_docling_result(
+    *,
+    structured_blocks: list[DoclingStructuredBlock] | None = None,
+) -> DoclingParseResult:
     return DoclingParseResult(
         source_file_name="sample.pdf",
         artifact_run_id="run-1",
@@ -36,6 +40,7 @@ def _fake_docling_result() -> DoclingParseResult:
             pictures_extracted=0,
             table_fallback_images_extracted=0,
         ),
+        structured_blocks=structured_blocks or [],
     )
 
 
@@ -146,3 +151,68 @@ def test_webhook_non_pdf_stays_legacy_even_when_docling_enabled(monkeypatch):
     )
     asyncio.run(router_ingest.ingest_webhook(file_upload))
     assert captured["text"] == "plain-text"
+
+
+def test_preview_uses_docling_block_chunker_when_structured_blocks_present(monkeypatch):
+    captured = {}
+    structured_blocks = [
+        DoclingStructuredBlock(
+            block_index=0,
+            block_type="header",
+            content="Section Header",
+        ),
+        DoclingStructuredBlock(
+            block_index=1,
+            block_type="text",
+            content="Body content for chunking.",
+        ),
+    ]
+
+    monkeypatch.setattr(
+        router_ingest,
+        "parse_pdf_with_docling_preview",
+        lambda **_: _fake_docling_result(structured_blocks=structured_blocks),
+    )
+
+    def _split_docling_blocks(blocks, file_name, artifact_dir):
+        captured["docling_blocks_called"] = True
+        captured["block_count"] = len(blocks)
+        captured["artifact_dir"] = artifact_dir
+        return [], []
+
+    monkeypatch.setattr(router_ingest, "split_parent_child_chunks_from_docling_blocks", _split_docling_blocks)
+
+    file_upload = router_ingest.FileUpload(
+        fileName="sample.pdf",
+        contentType="application/pdf",
+        data=_b64(b"%PDF-1.4 fake"),
+    )
+    asyncio.run(router_ingest.ingest_webhook_preview(file_upload))
+    assert captured["docling_blocks_called"] is True
+    assert captured["block_count"] == 2
+    assert captured["artifact_dir"].endswith("run-1")
+
+
+def test_preview_skips_docling_block_chunker_when_structured_blocks_missing(monkeypatch):
+    captured = {}
+
+    monkeypatch.setattr(
+        router_ingest,
+        "parse_pdf_with_docling_preview",
+        lambda **_: _fake_docling_result(structured_blocks=[]),
+    )
+
+    monkeypatch.setattr(
+        router_ingest,
+        "split_parent_child_chunks_from_docling_blocks",
+        lambda *args, **kwargs: captured.setdefault("docling_blocks_called", True),
+    )
+
+    file_upload = router_ingest.FileUpload(
+        fileName="sample.pdf",
+        contentType="application/pdf",
+        data=_b64(b"%PDF-1.4 fake"),
+    )
+    response = asyncio.run(router_ingest.ingest_webhook_preview(file_upload))
+    assert response.status == "ok"
+    assert "docling_blocks_called" not in captured

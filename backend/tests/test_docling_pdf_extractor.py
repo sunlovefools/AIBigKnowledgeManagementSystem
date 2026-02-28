@@ -229,6 +229,12 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
     assert "Second chunk text" in markdown_text
     assert "Table (image)**: Table exists in image form." in markdown_text
     assert "<!-- image -->" not in markdown_text
+    assert result.structured_blocks
+    assert [block.block_index for block in result.structured_blocks] == list(
+        range(len(result.structured_blocks))
+    )
+    assert any(block.block_type == "picture" for block in result.structured_blocks)
+    assert any(block.block_type == "table" for block in result.structured_blocks)
 
     picture_items = [img for img in result.images if img.kind == "picture"]
     assert len(picture_items) == 2
