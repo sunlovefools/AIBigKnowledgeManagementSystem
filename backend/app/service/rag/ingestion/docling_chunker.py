@@ -420,6 +420,10 @@ def _merge_small_children(children: list[str], min_child_words: int) -> list[str
     """
     Merge tiny children into previous child within the same parent part.
 
+    The word-count threshold applies to body-derived child text only.
+    Section preamble text is injected after this merge step and is therefore
+    excluded from tiny-chunk detection.
+
     If tiny chunk appears first, buffer and prepend to the next non-tiny child.
     """
 
@@ -645,7 +649,7 @@ def split_parent_child_chunks_from_docling_blocks(
     *,
     parent_max_words: int = 500,
     child_max_words: int = 80,
-    min_child_words: int = 10,
+    min_child_words: int = 20,
     context_words: int = 20,
 ) -> tuple[list[ParentChunkModel], list[ChildChunkModel]]:
     """
@@ -715,6 +719,8 @@ def split_parent_child_chunks_from_docling_blocks(
                 )
             )
 
+        # Merge body-derived child chunks before preamble injection so tiny-chunk
+        # detection does not include preamble words.
         merged_children = _merge_small_children(child_candidates, min_child_words)
         if not merged_children and parent_content:
             merged_children = [parent_content]

@@ -1,6 +1,7 @@
 # One-shot local endpoint -> serialize -> output/local_endpoint.md
 from pathlib import Path
 import base64
+import json
 import math
 import time
 
@@ -38,7 +39,9 @@ if not pdf_path.exists():
 payload = {
     "filename": pdf_path.name,
     "file_b64": base64.b64encode(pdf_path.read_bytes()).decode("ascii"),
-    "include_conversion_dump": True,
+    "include_conversion_dump": False,
+    "include_document_dump": True,
+    "include_item_dump": False,
     "max_file_size_mb": 25,
 }
 
@@ -68,28 +71,31 @@ if not raw_body.strip():
     )
 try:
     beam_endpoint_result = response.json()
-except requests.JSONDecodeError as exc:
-    body_preview = raw_body[:1000]
-    raise RuntimeError(
-        "Endpoint returned non-JSON response. "
-        f"url={BEAM_DOCLING_ENDPOINT}, status={response.status_code}, content_type={response.headers.get('Content-Type', '<empty>')!r}, "
-        f"body_preview={body_preview!r}"
-    ) from exc
+except requests.JSONDecodeError:
+    try:
+        beam_endpoint_result = json.loads(raw_body)
+    except json.JSONDecodeError as exc:
+        body_preview = raw_body[:1000]
+        raise RuntimeError(
+            "Endpoint returned non-JSON response. "
+            f"url={BEAM_DOCLING_ENDPOINT}, status={response.status_code}, content_type={response.headers.get('Content-Type', '<empty>')!r}, "
+            f"body_preview={body_preview!r}"
+        ) from exc
 
 if not beam_endpoint_result.get("ok"):
     raise RuntimeError(
         f"Endpoint returned non-ok response: {beam_endpoint_result.get('status')} / {beam_endpoint_result.get('error_code')} / {beam_endpoint_result.get('error_message')}"
     )
 
-conversion_result_dump = beam_endpoint_result.get("conversion_result_dump")
-if not conversion_result_dump:
+doc_dump = beam_endpoint_result.get("document_dump")
+if not isinstance(doc_dump, dict):
+    conversion_result_dump = beam_endpoint_result.get("conversion_result_dump")
+    if isinstance(conversion_result_dump, dict):
+        doc_dump = conversion_result_dump.get("document")
+if not isinstance(doc_dump, dict):
     raise RuntimeError(
-        "Missing conversion_result_dump in endpoint response. Ensure include_conversion_dump=True."
+        "Missing document payload in endpoint response (checked document_dump and conversion_result_dump.document)."
     )
-
-doc_dump = conversion_result_dump.get("document") if isinstance(conversion_result_dump, dict) else None
-if not doc_dump:
-    raise RuntimeError("conversion_result_dump['document'] is missing.")
 
 serialize_started = time.perf_counter()
 doc = DoclingDocument.model_validate(doc_dump)

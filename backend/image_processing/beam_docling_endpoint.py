@@ -66,7 +66,9 @@ class ConvertPdfRequest(BaseModel):
 
     filename: str
     file_b64: str
-    include_conversion_dump: bool = True
+    include_conversion_dump: bool = False
+    include_document_dump: bool = True
+    include_item_dump: bool = False
     max_file_size_mb: int | None = None
     options: dict[str, Any] | None = None
 
@@ -94,6 +96,22 @@ class ConvertPdfRequest(BaseModel):
         """Require an explicit boolean for the conversion dump inclusion flag."""
         if not isinstance(value, bool):
             raise ValueError("include_conversion_dump must be a boolean when provided.")
+        return value
+
+    @field_validator("include_document_dump")
+    @classmethod
+    def _validate_include_document_dump(cls, value: bool) -> bool:
+        """Require an explicit boolean for the document dump inclusion flag."""
+        if not isinstance(value, bool):
+            raise ValueError("include_document_dump must be a boolean when provided.")
+        return value
+
+    @field_validator("include_item_dump")
+    @classmethod
+    def _validate_include_item_dump(cls, value: bool) -> bool:
+        """Require an explicit boolean for the item dump inclusion flag."""
+        if not isinstance(value, bool):
+            raise ValueError("include_item_dump must be a boolean when provided.")
         return value
 
     @field_validator("max_file_size_mb")
@@ -238,6 +256,8 @@ def convert_pdf(**inputs: Any) -> dict[str, Any]:
         )
 
     include_conversion_dump = bool(request.include_conversion_dump)
+    include_document_dump = bool(request.include_document_dump)
+    include_item_dump = bool(request.include_item_dump)
     # Inline image payloads are disabled by design to keep response sizes small.
     # Clients can crop from the source PDF using `page_no` + `bbox`.
     include_item_images = False
@@ -308,11 +328,25 @@ def convert_pdf(**inputs: Any) -> dict[str, Any]:
         except Exception as exc:
             server_notes.append(f"conversion_result_dump unavailable: {exc}")
 
+    document_dump = None
+    if include_document_dump:
+        try:
+            document = getattr(result, "document", None)
+            if document is None:
+                server_notes.append("document_dump unavailable: result.document missing.")
+            elif hasattr(document, "model_dump"):
+                document_dump = _safe_jsonable(document.model_dump(mode="json"))
+            else:
+                document_dump = _safe_jsonable(document)
+        except Exception as exc:
+            server_notes.append(f"document_dump unavailable: {exc}")
+
     # Ordered item extraction preserves iterate_items() sequence so the client can
     # reconstruct markdown/image handling without positional drift.
     ordered_items, image_payload_bytes = _extract_ordered_items(
         result=result,
         include_item_images=include_item_images,
+        include_item_dump=include_item_dump,
         server_notes=server_notes,
     )
 
@@ -336,8 +370,11 @@ def convert_pdf(**inputs: Any) -> dict[str, Any]:
             "retry_count": retry_count,
             "max_num_pages": MAX_NUM_PAGES,
             "include_conversion_dump": include_conversion_dump,
+            "include_document_dump": include_document_dump,
+            "include_item_dump": include_item_dump,
             "include_item_images": False,
         },
+        "document_dump": document_dump,
         "conversion_result_dump": conversion_result_dump,
         "ordered_items": ordered_items,
         "server_notes": server_notes,
@@ -480,6 +517,7 @@ def _extract_ordered_items(
     *,
     result: Any,
     include_item_images: bool,
+    include_item_dump: bool,
     server_notes: list[str],
 ) -> tuple[list[dict[str, Any]], int]:
     """Serialize Docling document items into an ordered, response-friendly list.
@@ -513,7 +551,7 @@ def _extract_ordered_items(
             "table_info": None,
             "image_png_b64": None,
             "image_error": None,
-            "item_dump": _safe_item_dump(element),
+            "item_dump": _safe_item_dump(element) if include_item_dump else None,
         }
 
         if isinstance(element, TableItem):

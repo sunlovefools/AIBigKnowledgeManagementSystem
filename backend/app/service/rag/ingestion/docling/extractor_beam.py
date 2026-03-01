@@ -1,4 +1,5 @@
 import base64
+import json
 import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -91,15 +92,89 @@ def _load_beam_docling_config() -> dict[str, Any]:
     }
 
 
+def _extract_document_dump(result: dict[str, Any]) -> dict[str, Any] | None:
+    """
+    Read Docling document JSON from either the new `document_dump` field or
+    the legacy `conversion_result_dump.document` field.
+    """
+    document_dump = result.get("document_dump")
+    if isinstance(document_dump, dict):
+        return document_dump
+
+    conversion_result_dump = result.get("conversion_result_dump")
+    if isinstance(conversion_result_dump, dict):
+        nested_document = conversion_result_dump.get("document")
+        if isinstance(nested_document, dict):
+            return nested_document
+
+    return None
+
+
+def _parse_beam_response_json(response: requests.Response, raw_body: str) -> dict[str, Any]:
+    """
+    Parse Beam response JSON defensively to tolerate parser differences and
+    occasional trailing non-JSON content in otherwise valid responses.
+    """
+    parse_errors: list[str] = []
+
+    try:
+        parsed = response.json()
+        if isinstance(parsed, dict):
+            return parsed
+        parse_errors.append(
+            f"response.json() returned {type(parsed).__name__}, expected object"
+        )
+    except Exception as exc:
+        parse_errors.append(f"response.json(): {type(exc).__name__}: {exc}")
+
+    try:
+        parsed = json.loads(raw_body)
+        if isinstance(parsed, dict):
+            return parsed
+        parse_errors.append(
+            f"json.loads(raw_body) returned {type(parsed).__name__}, expected object"
+        )
+    except Exception as exc:
+        parse_errors.append(f"json.loads(raw_body): {type(exc).__name__}: {exc}")
+
+    trimmed = raw_body.lstrip("\ufeff\r\n\t ")
+    try:
+        decoder = json.JSONDecoder()
+        parsed, end_idx = decoder.raw_decode(trimmed)
+        trailing = trimmed[end_idx:].strip()
+        if isinstance(parsed, dict):
+            if trailing:
+                print(
+                    "[docling-preview] Beam response contained trailing text after JSON payload; trailing bytes were ignored."
+                )
+            return parsed
+        parse_errors.append(
+            f"JSONDecoder.raw_decode returned {type(parsed).__name__}, expected object"
+        )
+    except Exception as exc:
+        parse_errors.append(f"JSONDecoder.raw_decode(): {type(exc).__name__}: {exc}")
+
+    body_preview = raw_body[:1000]
+    raise RuntimeError(
+        "Beam Docling endpoint returned non-JSON response. "
+        f"status={response.status_code}, content_type={response.headers.get('Content-Type', '<empty>')!r}, "
+        f"decode_errors={' | '.join(parse_errors)}, body_preview={body_preview!r}"
+    )
+
+
 def _call_beam_docling_endpoint(pdf_bytes: bytes, file_name: str) -> dict[str, Any]:
     """
     Call the Beam-hosted Docling endpoint and return the parsed JSON response.
     """
     config = _load_beam_docling_config() # Get the endpoint configuration for the request
+    encoded_pdf = base64.b64encode(pdf_bytes).decode("ascii")
+
     payload = {
         "filename": file_name,
-        "file_b64": base64.b64encode(pdf_bytes).decode("ascii"), # Encode the PDF bytes as a base64 string for transmission in JSON
-        "include_conversion_dump": True, # Include the full conversion result dump in the response for richer debugging and preview generation, at the cost of larger response size.
+        "file_b64": encoded_pdf,
+        "include_conversion_dump": False,
+        "include_document_dump": True,
+        "include_item_dump": False,
         "max_file_size_mb": config["max_file_size_mb"],
     }
     headers = {
@@ -133,17 +208,9 @@ def _call_beam_docling_endpoint(pdf_bytes: bytes, file_name: str) -> dict[str, A
             f"status={response.status_code}, body_preview={body_preview!r}"
         )
 
-    # Parse the response body as JSON
-    try:
-        result = response.json()
-    except Exception as exc:
-        body_preview = raw_body[:1000]
-        raise RuntimeError(
-            "Beam Docling endpoint returned non-JSON response. "
-            f"status={response.status_code}, body_preview={body_preview!r}"
-        ) from exc
+    result = _parse_beam_response_json(response, raw_body)
 
-    if isinstance(result, dict) and result.get("ok") is False:
+    if result.get("ok") is False:
         error_code = result.get("error_code") or "UNKNOWN"
         error_message = result.get("error_message") or "Beam endpoint error"
         raise RuntimeError(
@@ -151,13 +218,11 @@ def _call_beam_docling_endpoint(pdf_bytes: bytes, file_name: str) -> dict[str, A
             f"code={error_code}, message={error_message}"
         )
 
-    conversion_result_dump = result.get("conversion_result_dump")
-    if not isinstance(conversion_result_dump, dict):
-        raise RuntimeError("Beam Docling endpoint response missing conversion_result_dump.")
-
-    # Making sure the conversion result dump contains a document entry, which is essential for the parsing process. If it's missing or not a dict, raise an error.
-    if not isinstance(conversion_result_dump.get("document"), dict):
-        raise RuntimeError("Beam Docling endpoint response missing conversion_result_dump.document.")
+    document_dump = _extract_document_dump(result)
+    if not isinstance(document_dump, dict):
+        raise RuntimeError(
+            "Beam Docling endpoint response missing document_dump (and legacy conversion_result_dump.document fallback)."
+        )
 
     print("Successfully received response from Beam Docling endpoint.")
     return result
@@ -316,9 +381,11 @@ def parse_pdf_with_docling_preview(
             )
         )
 
-    # Conversion_result_dump is the object for DoclingDocument but in the form of JSON
-    conversion_result_dump = endpoint_result.get("conversion_result_dump") or {}
-    doc_dump = conversion_result_dump.get("document")
+    doc_dump = _extract_document_dump(endpoint_result)
+    if not isinstance(doc_dump, dict):
+        raise RuntimeError(
+            "Beam Docling endpoint response missing document_dump (and legacy conversion_result_dump.document fallback)."
+        )
 
     # Reconstruct the DoclingDocument from the conversion result dump for local serialization using the Docling own class.
     doc = runtime["DoclingDocument"].model_validate(doc_dump)

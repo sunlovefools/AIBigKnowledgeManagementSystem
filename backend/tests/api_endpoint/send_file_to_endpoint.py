@@ -15,7 +15,7 @@ import requests
 # ---------------------------
 # Edit these before running
 # ---------------------------
-PDF_FILE_PATH = r"C:\Users\Yoong Shen\Desktop\Docling_test\input\Client Portfolio Analysis Report.pdf"
+PDF_FILE_PATH = r"C:\Users\Yoong Shen\Desktop\Docling_test\input\cgi-2025-annual-report.pdf"
 PREVIEW_ENDPOINT_URL = "http://127.0.0.1:8000/ingest/webhook/preview"
 REQUEST_TIMEOUT_SECONDS = 300
 SAVE_RESPONSE_PATH = None  # Example: r"backend\tests\api_endpoint\last_response.json"
