@@ -12,6 +12,7 @@ import app.api.router_ingest as ingest_router
 import app.api.router_query as query_router
 import app.api.router_modifications as modifications_router
 import app.api.router_retrieve as retrieve_router
+import app.api.router_agent as agent_router
 # import app.api.router_auth as auth_router # Uncomment when auth is implemented
 
 
@@ -63,6 +64,13 @@ app.include_router(
     retrieve_router.router,
     prefix="/api/retrieve",
     tags=["Retrieve"]
+)
+
+# Agent router
+app.include_router(
+    agent_router.router,
+    prefix="/api/agent",
+    tags=["Agent"]
 )
 
 # --- Data Models ---

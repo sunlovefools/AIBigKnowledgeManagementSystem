@@ -8,10 +8,15 @@ type SidebarProps = {
     isLoadingFiles: boolean;
     fileListError: string | null;
     activeTab: string | null;
+    // Edit mode props
+    isEditMode: boolean;
+    selectedFileIds: Set<string>;
+    onToggleFileSelection: (fileId: string) => void;
+    // Handlers
     onFileSelect: ChangeEventHandler<HTMLInputElement>;
     onUpload: () => void;
     onClearFile: () => void;
-    onOpenFile: (fileName: string) => void;
+    onOpenFile: (fileId: string) => void;
     onRefreshFiles: () => void;
 };
 
@@ -22,6 +27,9 @@ export default function Sidebar({
     isLoadingFiles,
     fileListError,
     activeTab,
+    isEditMode,
+    selectedFileIds,
+    onToggleFileSelection,
     onFileSelect,
     onUpload,
     onClearFile,
@@ -68,9 +76,7 @@ export default function Sidebar({
 
                 {!selectedFile && (
                     <button className="add-source-btn" onClick={handleFileSelectClick}>
-                        <span className="plus-icon" aria-hidden>
-                            +
-                        </span>
+                        <span className="plus-icon" aria-hidden>+</span>
                         Select file
                     </button>
                 )}
@@ -100,7 +106,15 @@ export default function Sidebar({
                 )}
 
                 <div className="sidebar-documents-header">
-                    <div className="section-title">Knowledge files ({files.length})</div>
+                    <div className="section-title">
+                        Knowledge files ({files.length})
+                        {/* Show selection count when in edit mode */}
+                        {isEditMode && selectedFileIds.size > 0 && (
+                            <span className="sidebar-selection-badge">
+                                {selectedFileIds.size} selected
+                            </span>
+                        )}
+                    </div>
                     <button
                         className="sidebar-refresh-btn"
                         onClick={onRefreshFiles}
@@ -111,6 +125,13 @@ export default function Sidebar({
                     </button>
                 </div>
 
+                {/* Hint shown in edit mode */}
+                {isEditMode && (
+                    <div className="sidebar-edit-mode-hint">
+                        ✏️ Check files to scope AI edits, or leave unchecked to search all
+                    </div>
+                )}
+
                 <div className="sidebar-documents-list">
                     {isLoadingFiles ? (
                         <div className="sidebar-documents-status">Loading files...</div>
@@ -120,15 +141,34 @@ export default function Sidebar({
                         <div className="sidebar-documents-status">No files found in vector database.</div>
                     ) : (
                         files.map((file) => (
-                            <button
+                            <div
                                 key={file.fileId}
-                                className={`sidebar-document-item ${activeTab === file.fileName ? "active" : ""}`}
-                                onClick={() => onOpenFile(file.fileName)}
-                                type="button"
+                                className={`sidebar-document-item-wrapper ${
+                                    isEditMode && selectedFileIds.has(file.fileId) ? "selected" : ""
+                                }`}
                             >
-                                <div className="sidebar-document-title">{file.fileName}</div>
-                                <div className="sidebar-document-preview">{file.previewTexts || "..."}</div>
-                            </button>
+                                {/* Checkbox shown only in edit mode */}
+                                {isEditMode && (
+                                    <input
+                                        type="checkbox"
+                                        className="sidebar-file-checkbox"
+                                        checked={selectedFileIds.has(file.fileId)}
+                                        onChange={() => onToggleFileSelection(file.fileId)}
+                                        aria-label={`Select ${file.fileName} for editing`}
+                                        onClick={(e) => e.stopPropagation()}
+                                    />
+                                )}
+                                <button
+                                    className={`sidebar-document-item ${activeTab === file.fileId ? "active" : ""}`}
+                                    onClick={() => onOpenFile(file.fileId)}
+                                    type="button"
+                                >
+                                    <div className="sidebar-document-title">{file.fileName}</div>
+                                    <div className="sidebar-document-preview">
+                                        {file.previewTexts || "..."}
+                                    </div>
+                                </button>
+                            </div>
                         ))
                     )}
                 </div>

@@ -21,6 +21,7 @@ langchain-core
 langchain-text-splitters
 langchain-astradb
 langchain-huggingface
+langgraph  
 sentence-transformers
 ragas
 datasets

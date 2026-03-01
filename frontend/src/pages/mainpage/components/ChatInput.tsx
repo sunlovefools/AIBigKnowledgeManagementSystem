@@ -1,10 +1,10 @@
 import { useCallback, useLayoutEffect, useRef, type KeyboardEvent } from "react";
 
-// Type definitions for the ChatInput components props
 type ChatInputProps = {
-    input: string; // The current words in the chat input field
-    isQuerying: boolean; // Whether a query is currently being processed, used to disable input and send button
-    isModificationPanelOpen: boolean; // Whether the modification panel is currently open
+    input: string;
+    isQuerying: boolean;
+    isModificationPanelOpen: boolean;
+    isEditMode: boolean;                 // NEW: changes placeholder text
     onInputChange: (value: string) => void;
     onInputKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
     onToggleModificationPanel: () => void;
@@ -15,6 +15,7 @@ export default function ChatInput({
     input,
     isQuerying,
     isModificationPanelOpen,
+    isEditMode,
     onInputChange,
     onInputKeyDown,
     onToggleModificationPanel,
@@ -22,33 +23,31 @@ export default function ChatInput({
 }: ChatInputProps) {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
-    // A function to adjust the height of the textarea based on its content, ensuring it grows with input up to a maximum height, after which it becomes scrollable.
     const adjustTextareaHeight = useCallback(() => {
         const textarea = textareaRef.current;
         if (!textarea) return;
-
-        textarea.style.height = "0px"; // Reset height to measure scrollHeight correctly
-
-        // Setting the height of the textarea to its scrollHeight but not exceeding the maxHeight defined in CSS
+        textarea.style.height = "0px";
         const maxHeight = Number.parseFloat(window.getComputedStyle(textarea).maxHeight) || 200;
         const nextHeight = Math.min(textarea.scrollHeight, maxHeight);
-
         textarea.style.height = `${nextHeight}px`;
         textarea.style.overflowY = textarea.scrollHeight > maxHeight ? "auto" : "hidden";
     }, []);
 
-    // Adjust the textarea height whenever the input value changes
     useLayoutEffect(() => {
         adjustTextareaHeight();
     }, [input, adjustTextareaHeight]);
 
+    const placeholder = isEditMode
+        ? "Enter edit instruction (e.g. Change X to Y)..."
+        : "Ask something about your files...";
+
     return (
         <div className="input-area-wrapper">
-            <div className="input-container">
+            <div className={`input-container ${isEditMode ? "edit-mode-active" : ""}`}>
                 <textarea
                     ref={textareaRef}
                     className="chat-input"
-                    placeholder="Ask something about your files..."
+                    placeholder={placeholder}
                     rows={1}
                     value={input}
                     onChange={(event) => onInputChange(event.target.value)}
@@ -58,7 +57,7 @@ export default function ChatInput({
                     className={`modification-toggle ${isModificationPanelOpen ? "active" : ""}`}
                     onClick={onToggleModificationPanel}
                     aria-label="Toggle modifications panel"
-                    title="Toggle modifications"
+                    title={isEditMode ? "Exit edit mode" : "Enter edit mode"}
                 >
                     <svg
                         width="20"
@@ -94,7 +93,11 @@ export default function ChatInput({
                     </svg>
                 </button>
             </div>
-            <div className="input-hint">Enter to send | Shift+Enter for a new line</div>
+            <div className="input-hint">
+                {isEditMode
+                    ? "Edit mode — AI will modify documents | Enter to send"
+                    : "Enter to send | Shift+Enter for a new line"}
+            </div>
         </div>
     );
 }

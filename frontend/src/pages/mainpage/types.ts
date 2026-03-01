@@ -47,3 +47,12 @@ export type AiEditProposal = {
     warnings: string[];
     diffSegments: DiffSegment[];
 };
+
+// Type for a single agent modification proposal (multi-file agent flow).
+export type AgentProposal = {
+    fileId: string;
+    fileName: string;
+    parentId: string;
+    original: string;
+    proposed: string;
+};

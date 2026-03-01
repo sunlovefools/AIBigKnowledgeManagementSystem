@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
-import type { FileTabState, ParentChunkContent, SidebarFileSummary, DiffSegment } from "../types";
+import type { AgentProposal, FileTabState, ParentChunkContent, SidebarFileSummary } from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 const PAGE_SIZE = 7;
@@ -24,13 +24,12 @@ type UpdateFileResponse = {
     chunks: number;
 };
 
-type LlmEditPreviewResponse = {
-    editedContent: string;
-    summary: string;
-    warnings?: string[];
+type AgentModifyResponse = {
+    intention: string;
+    proposals: AgentProposal[];
 };
 
-type RequestAiPreviewResult = {
+type RequestAgentResult = {
     ok: boolean;
     summary?: string;
     error?: string;
@@ -51,99 +50,62 @@ function createEmptyTabState(): FileTabState {
     };
 }
 
-// Simple line-level diff calculation for visualizing changes
-function calculateDiffSegments(original: string, edited: string): DiffSegment[] {
-    const originalLines = original.split(/\r?\n/);
-    const editedLines = edited.split(/\r?\n/);
-    
-    const segments: DiffSegment[] = [];
-    const maxLines = Math.max(originalLines.length, editedLines.length);
-    
-    for (let i = 0; i < maxLines; i++) {
-        const origLine = originalLines[i] ?? "";
-        const editedLine = editedLines[i] ?? "";
-        
-        if (origLine === editedLine) {
-            if (origLine.length > 0) {
-                segments.push({ type: "equal", text: origLine });
-            }
-        } else {
-            if (origLine.length > 0) {
-                segments.push({ type: "del", text: origLine });
-            }
-            if (editedLine.length > 0) {
-                segments.push({ type: "add", text: editedLine });
-            }
-        }
-    }
-    
-    return segments.length > 0 ? segments : [{ type: "equal", text: original }];
-}
-
-// Custom hook to manage sidebar files and tabbed full-view state.
 export function useDocuments(isModificationPanelOpen: boolean) {
     const [files, setFiles] = useState<SidebarFileSummary[]>([]);
     const [isLoadingFiles, setIsLoadingFiles] = useState(false);
     const [fileListError, setFileListError] = useState<string | null>(null);
     const [isDocsCached, setIsDocsCached] = useState(false);
-    const [openTabs, setOpenTabs] = useState<string[]>([]);
-    const [activeTab, setActiveTab] = useState<string | null>(null);
-    const [tabStates, setTabStates] = useState<Record<string, FileTabState>>({});
-    const [selectedParentByTab, setSelectedParentByTab] = useState<Record<string, string | null>>({});
-    const [editingParentId, setEditingParentId] = useState<string | null>(null);
-    const [editingDraftByParentId, setEditingDraftByParentId] = useState<Record<string, string>>({});
-    const [savingParentId, setSavingParentId] = useState<string | null>(null);
-    const [saveError, setSaveError] = useState<string | null>(null);
-    const [editingFileName, setEditingFileName] = useState<string | null>(null);
-    const [editingDraftByFileName, setEditingDraftByFileName] = useState<Record<string, string>>({});
-    const [savingFileName, setSavingFileName] = useState<string | null>(null);
-    const [isAiEditGenerating, setIsAiEditGenerating] = useState(false);
-    const [aiEditSummary, setAiEditSummary] = useState<string | null>(null);
-    const [aiEditWarnings, setAiEditWarnings] = useState<string[]>([]);
-    const [aiEditProposedContent, setAiEditProposedContent] = useState<string | null>(null);
-    const [aiEditDiffSegments, setAiEditDiffSegments] = useState<DiffSegment[]>([]);
-    const [aiEditError, setAiEditError] = useState<string | null>(null);
 
-    const getFileIdByName = useCallback(
-        (fileName: string) => files.find((item) => item.fileName === fileName)?.fileId ?? null,
+    // All tab state keyed by fileId (not fileName) to support same-name files.
+    const [openTabs, setOpenTabs] = useState<string[]>([]);          // fileIds
+    const [activeTab, setActiveTab] = useState<string | null>(null);  // fileId
+    const [tabStates, setTabStates] = useState<Record<string, FileTabState>>({}); // fileId → state
+
+    // Editing state, also keyed by fileId
+    const [editingFileId, setEditingFileId] = useState<string | null>(null);
+    const [editingDraftByFileId, setEditingDraftByFileId] = useState<Record<string, string>>({});
+    const [savingFileId, setSavingFileId] = useState<string | null>(null);
+    const [saveError, setSaveError] = useState<string | null>(null);
+
+    // Agent state
+    const [isAgentGenerating, setIsAgentGenerating] = useState(false);
+    const [agentProposals, setAgentProposals] = useState<AgentProposal[]>([]);
+    const [agentAcceptedMap, setAgentAcceptedMap] = useState<Map<string, AgentProposal>>(new Map());
+    const [agentSavedIds, setAgentSavedIds] = useState<Set<string>>(new Set());
+    const [agentRejectedIds, setAgentRejectedIds] = useState<Set<string>>(new Set());
+    const [agentSavingIds, setAgentSavingIds] = useState<Set<string>>(new Set());
+    const [agentError, setAgentError] = useState<string | null>(null);
+    const [agentIntention, setAgentIntention] = useState<string | null>(null);
+
+    // Helpers: resolve between fileId and fileName
+    const getFileNameById = useCallback(
+        (fileId: string) => files.find((f) => f.fileId === fileId)?.fileName ?? fileId,
         [files]
     );
+    const getFileIdByName = useCallback(
+        (fileName: string) => files.find((f) => f.fileName === fileName)?.fileId ?? null,
+        [files]
+    );
+
+    // ── File list ──
 
     const fetchFiles = useCallback(async () => {
         setIsLoadingFiles(true);
         setFileListError(null);
         try {
             const response = await axios.get(`${API_BASE}/api/retrieve/all-preview-files`);
-            const incomingFiles = (response.data.files ?? []) as SidebarFileSummary[];
-            setFiles(incomingFiles);
+            const incoming = (response.data.files ?? []) as SidebarFileSummary[];
+            setFiles(incoming);
             setIsDocsCached(true);
-
-            const validNames = new Set(incomingFiles.map((item) => item.fileName));
-
-            setOpenTabs((previousTabs) => previousTabs.filter((fileName) => validNames.has(fileName)));
-            setSelectedParentByTab((previousSelections) => {
-                const nextSelections: Record<string, string | null> = {};
-                Object.entries(previousSelections).forEach(([fileName, parentId]) => {
-                    if (validNames.has(fileName)) {
-                        nextSelections[fileName] = parentId;
-                    }
-                });
-                return nextSelections;
+            const validIds = new Set(incoming.map((f) => f.fileId));
+            setOpenTabs((prev) => prev.filter((id) => validIds.has(id)));
+            setTabStates((prev) => {
+                const next: Record<string, FileTabState> = {};
+                Object.entries(prev).forEach(([id, s]) => { if (validIds.has(id)) next[id] = s; });
+                return next;
             });
-            setTabStates((previousStates) => {
-                const nextStates: Record<string, FileTabState> = {};
-                Object.entries(previousStates).forEach(([fileName, state]) => {
-                    if (validNames.has(fileName)) {
-                        nextStates[fileName] = state;
-                    }
-                });
-                return nextStates;
-            });
-            setActiveTab((previousActiveTab) =>
-                previousActiveTab && validNames.has(previousActiveTab) ? previousActiveTab : null
-            );
-        } catch (error) {
-            console.error("Error fetching documents:", error);
+            setActiveTab((prev) => (prev && validIds.has(prev) ? prev : null));
+        } catch {
             setFileListError("Failed to load files from vector database.");
         } finally {
             setIsLoadingFiles(false);
@@ -151,85 +113,42 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     }, []);
 
     useEffect(() => {
-        if (isModificationPanelOpen && !isDocsCached) {
-            void fetchFiles();
-        }
+        if (isModificationPanelOpen && !isDocsCached) void fetchFiles();
     }, [isDocsCached, isModificationPanelOpen, fetchFiles]);
 
+    // ── Chunk loading ──
+
     const loadFileChunks = useCallback(
-        async (fileName: string, reset = false) => {
-            const fileId = getFileIdByName(fileName);
-            if (!fileId) {
-                setTabStates((previousStates) => {
-                    const state = previousStates[fileName] ?? createEmptyTabState();
-                    return {
-                        ...previousStates,
-                        [fileName]: {
-                            ...state,
-                            isLoading: false,
-                            isInitialized: true,
-                            error: `Missing file ID for ${fileName}. Please refresh documents.`,
-                        },
-                    };
-                });
-                return;
-            }
+        async (fileId: string, reset = false) => {
+            const current = tabStates[fileId] ?? createEmptyTabState();
+            if (current.isLoading) return;
+            if (!reset && current.isInitialized && !current.hasMore) return;
 
-            const currentState = tabStates[fileName] ?? createEmptyTabState();
+            setTabStates((prev) => ({
+                ...prev,
+                [fileId]: {
+                    ...(prev[fileId] ?? createEmptyTabState()),
+                    ...(reset ? { chunks: [], nextCursor: null, hasMore: true, isInitialized: false } : {}),
+                    isLoading: true,
+                    error: null,
+                },
+            }));
 
-            if (currentState.isLoading) {
-                return;
-            }
-
-            if (!reset && currentState.isInitialized && !currentState.hasMore) {
-                return;
-            }
-
-            setTabStates((previousStates) => {
-                const state = previousStates[fileName] ?? createEmptyTabState();
-                return {
-                    ...previousStates,
-                    [fileName]: {
-                        ...state,
-                        ...(reset
-                            ? {
-                                  chunks: [],
-                                  nextCursor: null,
-                                  hasMore: true,
-                                  isInitialized: false,
-                              }
-                            : {}),
-                        isLoading: true,
-                        error: null,
-                    },
-                };
-            });
-
-            const cursor = reset ? null : currentState.nextCursor;
-
+            const cursor = reset ? null : current.nextCursor;
             try {
                 const response = await axios.get(`${API_BASE}/api/retrieve/file-chunks`, {
-                    params: {
-                        fileId,
-                        limit: PAGE_SIZE,
-                        ...(cursor ? { cursor } : {}),
-                    },
+                    params: { fileId, limit: PAGE_SIZE, ...(cursor ? { cursor } : {}) },
                 });
-
-                const incomingChunks = (response.data.chunks ?? []) as ParentChunkContent[];
-
-                setTabStates((previousStates) => {
-                    const state = previousStates[fileName] ?? createEmptyTabState();
-                    const mergedChunks = reset ? incomingChunks : [...state.chunks, ...incomingChunks];
-                    const dedupedChunks = Array.from(
-                        new Map(mergedChunks.map((chunk) => [chunk.parentId, chunk])).values()
-                    );
-
+                const incoming = (response.data.chunks ?? []) as ParentChunkContent[];
+                setTabStates((prev) => {
+                    const state = prev[fileId] ?? createEmptyTabState();
+                    const merged = reset ? incoming : [...state.chunks, ...incoming];
+                    const deduped = Array.from(new Map(merged.map((c) => [c.parentId, c])).values());
                     return {
-                        ...previousStates,
-                        [fileName]: {
+                        ...prev,
+                        [fileId]: {
                             ...state,
-                            chunks: dedupedChunks,
+                            chunks: deduped,
                             hasMore: Boolean(response.data.hasMore),
                             nextCursor: response.data.nextCursor ?? null,
                             isLoading: false,
@@ -238,656 +157,416 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                         },
                     };
                 });
-
-                setSelectedParentByTab((previousSelections) => {
-                    const previousSelected = previousSelections[fileName] ?? null;
-                    const containsPrevious = incomingChunks.some((chunk) => chunk.parentId === previousSelected);
-                    const nextSelected =
-                        previousSelected && (containsPrevious || !reset)
-                            ? previousSelected
-                            : (incomingChunks[0]?.parentId ?? previousSelected ?? null);
-
-                    return {
-                        ...previousSelections,
-                        [fileName]: nextSelected,
-                    };
-                });
-            } catch (error) {
-                console.error(`Error loading chunks for ${fileName}:`, error);
-                setTabStates((previousStates) => {
-                    const state = previousStates[fileName] ?? createEmptyTabState();
-                    return {
-                        ...previousStates,
-                        [fileName]: {
-                            ...state,
-                            isLoading: false,
-                            isInitialized: true,
-                            error: `Failed to load document content for ${fileName}.`,
-                        },
-                    };
-                });
+            } catch {
+                const fileName = getFileNameById(fileId);
+                setTabStates((prev) => ({
+                    ...prev,
+                    [fileId]: {
+                        ...(prev[fileId] ?? createEmptyTabState()),
+                        isLoading: false,
+                        isInitialized: true,
+                        error: `Failed to load content for ${fileName}.`,
+                    },
+                }));
             }
         },
-        [getFileIdByName, tabStates]
+        [tabStates, getFileNameById]
     );
 
-    const getChunkContentByParentId = useCallback(
-        (parentId: string | null) => {
-            if (!parentId) {
-                return null;
-            }
-
-            for (const tabState of Object.values(tabStates)) {
-                const matchedChunk = tabState.chunks.find((chunk) => chunk.parentId === parentId);
-                if (matchedChunk) {
-                    return matchedChunk.content;
-                }
-            }
-
-            return null;
+    const getFullDocumentContent = useCallback(
+        (fileId: string | null) => {
+            if (!fileId) return "";
+            return (tabStates[fileId] ?? createEmptyTabState()).chunks
+                .map((c) => c.content).join("\n\n").trim();
         },
         [tabStates]
     );
 
-    const getFullDocumentContentByFileName = useCallback(
-        (fileName: string | null) => {
-            if (!fileName) {
-                return "";
-            }
-
-            const fileState = tabStates[fileName] ?? createEmptyTabState();
-            return fileState.chunks
-                .map((chunk) => chunk.content)
-                .join("\n\n")
-                .trim();
-        },
-        [tabStates]
-    );
-
-    const clearEditingState = useCallback(() => {
-        setEditingParentId((previousEditingParentId) => {
-            if (!previousEditingParentId) {
-                return null;
-            }
-
-            setEditingDraftByParentId((previousDrafts) => {
-                if (!(previousEditingParentId in previousDrafts)) {
-                    return previousDrafts;
-                }
-
-                const { [previousEditingParentId]: _removedDraft, ...nextDrafts } = previousDrafts;
-                return nextDrafts;
-            });
-
-            return null;
-        });
-
-        setEditingFileName((previousEditingFileName) => {
-            if (!previousEditingFileName) {
-                return null;
-            }
-
-            setEditingDraftByFileName((previousDrafts) => {
-                if (!(previousEditingFileName in previousDrafts)) {
-                    return previousDrafts;
-                }
-
-                const { [previousEditingFileName]: _removedDraft, ...nextDrafts } = previousDrafts;
-                return nextDrafts;
-            });
-
-            return null;
-        });
-        setSaveError(null);
-        setIsAiEditGenerating(false);
-        setAiEditSummary(null);
-        setAiEditWarnings([]);
-        setAiEditProposedContent(null);
-        setAiEditError(null);
-    }, []);
-
-    const clearAiEditProposal = useCallback(() => {
-        setAiEditSummary(null);
-        setAiEditWarnings([]);
-        setAiEditProposedContent(null);
-        setAiEditDiffSegments([]);
-        setAiEditError(null);
-    }, []);
+    // ── Tab management ──
 
     const confirmDiscardUnsavedChanges = useCallback(() => {
-        if (!editingParentId && !editingFileName) {
-            return true;
-        }
-
-        let hasUnsavedChanges = false;
-
-        if (editingParentId) {
-            const originalContent = getChunkContentByParentId(editingParentId) ?? "";
-            const draftContent = editingDraftByParentId[editingParentId] ?? originalContent;
-            hasUnsavedChanges = draftContent !== originalContent;
-        }
-
-        if (!hasUnsavedChanges && editingFileName) {
-            const originalContent = getFullDocumentContentByFileName(editingFileName);
-            const draftContent = editingDraftByFileName[editingFileName] ?? originalContent;
-            hasUnsavedChanges = draftContent !== originalContent;
-        }
-
-        if (!hasUnsavedChanges) {
-            clearEditingState();
-            return true;
-        }
-
-        const shouldDiscard = window.confirm("You have unsaved changes. Discard them?");
-        if (!shouldDiscard) {
-            return false;
-        }
-
-        clearEditingState();
-        return true;
-    }, [
-        clearEditingState,
-        editingDraftByFileName,
-        editingDraftByParentId,
-        editingFileName,
-        editingParentId,
-        getChunkContentByParentId,
-        getFullDocumentContentByFileName,
-    ]);
+        if (!editingFileId) return true;
+        const original = getFullDocumentContent(editingFileId);
+        const draft = editingDraftByFileId[editingFileId] ?? original;
+        if (draft === original) { setEditingFileId(null); return true; }
+        const ok = window.confirm("You have unsaved changes. Discard them?");
+        if (ok) setEditingFileId(null);
+        return ok;
+    }, [editingDraftByFileId, editingFileId, getFullDocumentContent]);
 
     const openDocumentTab = useCallback(
-        async (fileName: string) => {
-            if (!confirmDiscardUnsavedChanges()) {
-                return;
-            }
-
-            setOpenTabs((previousTabs) =>
-                previousTabs.includes(fileName) ? previousTabs : [...previousTabs, fileName]
-            );
-            setActiveTab(fileName);
-
-            const state = tabStates[fileName];
-            if (!state || !state.isInitialized) {
-                await loadFileChunks(fileName, false);
-            }
+        async (fileId: string) => {
+            if (!confirmDiscardUnsavedChanges()) return;
+            setOpenTabs((prev) => prev.includes(fileId) ? prev : [...prev, fileId]);
+            setActiveTab(fileId);
+            await loadFileChunks(fileId, true);
         },
-        [confirmDiscardUnsavedChanges, loadFileChunks, tabStates]
+        [confirmDiscardUnsavedChanges, loadFileChunks]
     );
 
-    const closeDocumentTab = useCallback((fileName: string) => {
-        if (!confirmDiscardUnsavedChanges()) {
-            return;
-        }
-
-        setOpenTabs((previousTabs) => {
-            const index = previousTabs.indexOf(fileName);
-            if (index < 0) {
-                return previousTabs;
-            }
-
-            const nextTabs = previousTabs.filter((name) => name !== fileName);
-
-            setActiveTab((previousActiveTab) => {
-                if (previousActiveTab !== fileName) {
-                    return previousActiveTab;
-                }
-
-                if (nextTabs.length === 0) {
-                    return null;
-                }
-
-                const nextIndex = Math.min(index, nextTabs.length - 1);
-                return nextTabs[nextIndex];
+    const closeDocumentTab = useCallback((fileId: string) => {
+        if (!confirmDiscardUnsavedChanges()) return;
+        setOpenTabs((prev) => {
+            const idx = prev.indexOf(fileId);
+            if (idx < 0) return prev;
+            const next = prev.filter((id) => id !== fileId);
+            setActiveTab((prevActive) => {
+                if (prevActive !== fileId) return prevActive;
+                return next.length === 0 ? null : next[Math.min(idx, next.length - 1)];
             });
-
-            return nextTabs;
-        });
-
-        setSelectedParentByTab((previousSelections) => {
-            if (!(fileName in previousSelections)) {
-                return previousSelections;
-            }
-
-            const { [fileName]: _removedSelection, ...nextSelections } = previousSelections;
-            return nextSelections;
+            return next;
         });
     }, [confirmDiscardUnsavedChanges]);
 
     const setActiveDocumentTab = useCallback(
-        async (fileName: string) => {
-            if (!confirmDiscardUnsavedChanges()) {
-                return;
-            }
-
-            setActiveTab(fileName);
-            const state = tabStates[fileName];
-            if (!state || !state.isInitialized) {
-                await loadFileChunks(fileName, false);
-            }
+        async (fileId: string) => {
+            if (!confirmDiscardUnsavedChanges()) return;
+            setActiveTab(fileId);
+            const state = tabStates[fileId];
+            if (!state || !state.isInitialized) await loadFileChunks(fileId, false);
         },
         [confirmDiscardUnsavedChanges, loadFileChunks, tabStates]
     );
 
     const loadMoreActiveTab = useCallback(async () => {
-        if (!activeTab) {
-            return;
-        }
+        if (!activeTab) return;
         await loadFileChunks(activeTab, false);
     }, [activeTab, loadFileChunks]);
 
     const handleRefreshDocuments = useCallback(async () => {
-        if (!confirmDiscardUnsavedChanges()) {
-            return;
-        }
-
+        if (!confirmDiscardUnsavedChanges()) return;
         await fetchFiles();
     }, [confirmDiscardUnsavedChanges, fetchFiles]);
 
-    const invalidateDocumentCache = useCallback(() => {
-        setIsDocsCached(false);
-    }, []);
+    const invalidateDocumentCache = useCallback(() => setIsDocsCached(false), []);
 
     const activeTabState = useMemo(
         () => (activeTab ? tabStates[activeTab] ?? createEmptyTabState() : null),
         [activeTab, tabStates]
     );
 
-    const activeSelectedParentId = useMemo(
-        () => (activeTab ? selectedParentByTab[activeTab] ?? null : null),
-        [activeTab, selectedParentByTab]
-    );
-
-    const activeSelectedChunk = useMemo(
-        () => activeTabState?.chunks.find((chunk) => chunk.parentId === activeSelectedParentId) ?? null,
-        [activeSelectedParentId, activeTabState]
-    );
-
-    const editingContent = useMemo(() => {
-        if (!editingParentId) {
-            return "";
-        }
-        const fallbackContent = getChunkContentByParentId(editingParentId) ?? "";
-        return editingDraftByParentId[editingParentId] ?? fallbackContent;
-    }, [editingDraftByParentId, editingParentId, getChunkContentByParentId]);
-
-    const isEditingActiveChunk = Boolean(
-        activeSelectedParentId && editingParentId && activeSelectedParentId === editingParentId
-    );
-
-    const isSavingActiveChunk = Boolean(
-        activeSelectedParentId && savingParentId && activeSelectedParentId === savingParentId
-    );
-
-    const isActiveChunkDirty = useMemo(() => {
-        if (!activeSelectedParentId || !isEditingActiveChunk) {
-            return false;
-        }
-
-        const originalContent = activeSelectedChunk?.content ?? "";
-        const draftContent = editingDraftByParentId[activeSelectedParentId] ?? originalContent;
-        return draftContent !== originalContent;
-    }, [activeSelectedChunk, activeSelectedParentId, editingDraftByParentId, isEditingActiveChunk]);
-
-    const selectActiveTabChunk = useCallback(
-        (parentId: string) => {
-            if (!activeTab) {
-                return;
-            }
-
-            if (editingParentId && parentId !== editingParentId && !confirmDiscardUnsavedChanges()) {
-                return;
-            }
-
-            setSelectedParentByTab((previousSelections) => ({
-                ...previousSelections,
-                [activeTab]: parentId,
-            }));
-            setSaveError(null);
-        },
-        [activeTab, confirmDiscardUnsavedChanges, editingParentId]
-    );
-
-    const startEditingActiveChunk = useCallback(() => {
-        if (!activeSelectedChunk) {
-            return;
-        }
-
-        setEditingParentId(activeSelectedChunk.parentId);
-        setEditingDraftByParentId((previousDrafts) => ({
-            ...previousDrafts,
-            [activeSelectedChunk.parentId]: previousDrafts[activeSelectedChunk.parentId] ?? activeSelectedChunk.content,
-        }));
-        setSaveError(null);
-    }, [activeSelectedChunk]);
-
-    const setActiveEditingContent = useCallback(
-        (nextContent: string) => {
-            if (!editingParentId) {
-                return;
-            }
-
-            setEditingDraftByParentId((previousDrafts) => ({
-                ...previousDrafts,
-                [editingParentId]: nextContent,
-            }));
-        },
-        [editingParentId]
-    );
-
-    const cancelEditingActiveChunk = useCallback(() => {
-        clearEditingState();
-    }, [clearEditingState]);
-
-    const saveEditingActiveChunk = useCallback(async () => {
-        if (!activeTab || !editingParentId || savingParentId) {
-            return false;
-        }
-
-        const originalContent = getChunkContentByParentId(editingParentId) ?? "";
-        const draftContent = editingDraftByParentId[editingParentId] ?? originalContent;
-        const trimmedDraftContent = draftContent.trim();
-
-        if (!trimmedDraftContent) {
-            setSaveError("Content cannot be empty.");
-            return false;
-        }
-
-        if (draftContent === originalContent) {
-            clearEditingState();
-            return true;
-        }
-
-        setSavingParentId(editingParentId);
-        setSaveError(null);
-
-        try {
-            const response = await axios.put<UpdateParentChunkResponse>(
-                `${API_BASE}/api/modifications/parent-chunks/${editingParentId}`,
-                {
-                    fileName: activeTab,
-                    content: draftContent,
-                }
-            );
-
-            const updatedParentId = response.data.parentId;
-            await loadFileChunks(activeTab, true);
-
-            setSelectedParentByTab((previousSelections) => ({
-                ...previousSelections,
-                [activeTab]: updatedParentId,
-            }));
-            clearEditingState();
-            return true;
-        } catch (error) {
-            console.error("Error saving parent chunk:", error);
-            setSaveError("Failed to save document changes. Please try again.");
-            return false;
-        } finally {
-            setSavingParentId(null);
-        }
-    }, [
-        activeTab,
-        clearEditingState,
-        editingDraftByParentId,
-        editingParentId,
-        getChunkContentByParentId,
-        loadFileChunks,
-        savingParentId,
-    ]);
+    // ── Manual document editing ──
 
     const editingDocumentContent = useMemo(() => {
-        if (!editingFileName) {
-            return "";
-        }
-        const fallbackContent = getFullDocumentContentByFileName(editingFileName);
-        return editingDraftByFileName[editingFileName] ?? fallbackContent;
-    }, [editingDraftByFileName, editingFileName, getFullDocumentContentByFileName]);
+        if (!editingFileId) return "";
+        return editingDraftByFileId[editingFileId] ?? getFullDocumentContent(editingFileId);
+    }, [editingDraftByFileId, editingFileId, getFullDocumentContent]);
 
-    const isEditingActiveDocument = Boolean(activeTab && editingFileName && activeTab === editingFileName);
-
-    const isSavingActiveDocument = Boolean(activeTab && savingFileName && activeTab === savingFileName);
+    const isEditingActiveDocument = Boolean(activeTab && editingFileId && activeTab === editingFileId);
+    const isSavingActiveDocument = Boolean(activeTab && savingFileId && activeTab === savingFileId);
 
     const isActiveDocumentDirty = useMemo(() => {
-        if (!activeTab || !isEditingActiveDocument) {
-            return false;
-        }
-
-        const originalContent = getFullDocumentContentByFileName(activeTab);
-        const draftContent = editingDraftByFileName[activeTab] ?? originalContent;
-        return draftContent !== originalContent;
-    }, [activeTab, editingDraftByFileName, getFullDocumentContentByFileName, isEditingActiveDocument]);
+        if (!activeTab || !isEditingActiveDocument) return false;
+        const original = getFullDocumentContent(activeTab);
+        return (editingDraftByFileId[activeTab] ?? original) !== original;
+    }, [activeTab, editingDraftByFileId, getFullDocumentContent, isEditingActiveDocument]);
 
     const startEditingActiveDocument = useCallback(() => {
-        if (!activeTab || !activeTabState?.chunks.length) {
-            return;
-        }
-
-        const fullContent = getFullDocumentContentByFileName(activeTab);
-        setEditingFileName(activeTab);
-        setEditingDraftByFileName((previousDrafts) => ({
-            ...previousDrafts,
-            [activeTab]: previousDrafts[activeTab] ?? fullContent,
-        }));
+        if (!activeTab || !activeTabState?.chunks.length) return;
+        const fullContent = getFullDocumentContent(activeTab);
+        setEditingFileId(activeTab);
+        setEditingDraftByFileId((prev) => ({ ...prev, [activeTab]: prev[activeTab] ?? fullContent }));
         setSaveError(null);
-    }, [activeTab, activeTabState?.chunks.length, getFullDocumentContentByFileName]);
+    }, [activeTab, activeTabState?.chunks.length, getFullDocumentContent]);
 
     const setActiveEditingDocumentContent = useCallback(
         (nextContent: string) => {
-            if (!editingFileName) {
-                return;
-            }
-
-            setEditingDraftByFileName((previousDrafts) => ({
-                ...previousDrafts,
-                [editingFileName]: nextContent,
-            }));
-
-            setAiEditSummary(null);
-            setAiEditWarnings([]);
-            setAiEditProposedContent(null);
-            setAiEditError(null);
+            if (!editingFileId) return;
+            setEditingDraftByFileId((prev) => ({ ...prev, [editingFileId]: nextContent }));
         },
-        [editingFileName]
+        [editingFileId]
     );
 
     const cancelEditingActiveDocument = useCallback(() => {
-        clearEditingState();
-    }, [clearEditingState]);
-
-    const requestAiEditPreview = useCallback(
-        async (instruction: string): Promise<RequestAiPreviewResult> => {
-            const trimmedInstruction = instruction.trim();
-
-            if (!activeTab) {
-                const error = "Please open and select a document before using AI edit.";
-                setAiEditError(error);
-                return { ok: false, error };
-            }
-
-            if (isAiEditGenerating) {
-                return { ok: false, error: "AI edit preview is already generating." };
-            }
-
-            if (!trimmedInstruction) {
-                const error = "Instruction cannot be empty.";
-                setAiEditError(error);
-                return { ok: false, error };
-            }
-
-            const sourceContent =
-                (editingFileName && editingFileName === activeTab
-                    ? editingDraftByFileName[activeTab]
-                    : undefined) ?? getFullDocumentContentByFileName(activeTab);
-            if (!sourceContent.trim()) {
-                const error = "Document content is empty.";
-                setAiEditError(error);
-                return { ok: false, error };
-            }
-
-            setIsAiEditGenerating(true);
-            setAiEditError(null);
-            setAiEditSummary(null);
-            setAiEditWarnings([]);
-            setAiEditProposedContent(null);
-
-            try {
-                const response = await axios.post<LlmEditPreviewResponse>(
-                    `${API_BASE}/api/modifications/llm-edit-preview`,
-                    {
-                        fileName: activeTab,
-                        originalContent: sourceContent,
-                        instruction: trimmedInstruction,
-                    }
-                );
-
-                const preview = response.data;
-                const editedContent = typeof preview.editedContent === "string" ? preview.editedContent : sourceContent;
-                const summary = (preview.summary || "AI edit preview generated.").trim();
-                const warnings = Array.isArray(preview.warnings)
-                    ? preview.warnings.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
-                    : [];
-
-                // Calculate diff segments for visualization
-                const diffSegments = calculateDiffSegments(sourceContent, editedContent);
-
-                setAiEditProposedContent(editedContent);
-                setAiEditSummary(summary);
-                setAiEditWarnings(warnings);
-                setAiEditDiffSegments(diffSegments);
-
-                return { ok: true, summary };
-            } catch (error) {
-                console.error("Error requesting AI edit preview:", error);
-                const errorMessage = "Failed to generate AI edit preview. Please try again.";
-                setAiEditError(errorMessage);
-                return { ok: false, error: errorMessage };
-            } finally {
-                setIsAiEditGenerating(false);
-            }
-        },
-        [
-            activeTab,
-            editingDraftByFileName,
-            getFullDocumentContentByFileName,
-            isAiEditGenerating,
-        ]
-    );
-
-    const acceptAiEditProposal = useCallback(() => {
-        if (!activeTab || aiEditProposedContent === null) {
-            return false;
-        }
-
-        setEditingFileName(activeTab);
-        setEditingDraftByFileName((previousDrafts) => ({
-            ...previousDrafts,
-            [activeTab]: aiEditProposedContent,
-        }));
-        clearAiEditProposal();
-        return true;
-    }, [activeTab, aiEditProposedContent, clearAiEditProposal]);
-
-    const rejectAiEditProposal = useCallback(() => {
-        clearAiEditProposal();
-    }, [clearAiEditProposal]);
+        setEditingFileId(null);
+        setSaveError(null);
+    }, []);
 
     const saveEditingActiveDocument = useCallback(async () => {
-        if (!activeTab || !editingFileName || activeTab !== editingFileName || savingFileName) {
-            return false;
-        }
+        if (!activeTab || !editingFileId || activeTab !== editingFileId || savingFileId) return false;
+        const fileName = getFileNameById(activeTab);
+        if (!fileName) { setSaveError("Missing file name for this tab. Please refresh."); return false; }
+        const original = getFullDocumentContent(activeTab);
+        const draft = editingDraftByFileId[activeTab] ?? original;
+        if (!draft.trim()) { setSaveError("Content cannot be empty."); return false; }
+        if (draft === original) { setEditingFileId(null); return true; }
 
-        const fileId = getFileIdByName(activeTab);
-        if (!fileId) {
-            setSaveError(`Missing file ID for ${activeTab}. Please refresh documents.`);
-            return false;
-        }
-
-        const originalContent = getFullDocumentContentByFileName(activeTab);
-        const draftContent = editingDraftByFileName[activeTab] ?? originalContent;
-        const trimmedDraftContent = draftContent.trim();
-
-        if (!trimmedDraftContent) {
-            setSaveError("Content cannot be empty.");
-            return false;
-        }
-
-        if (draftContent === originalContent) {
-            clearEditingState();
-            return true;
-        }
-
-        setSavingFileName(activeTab);
+        setSavingFileId(activeTab);
         setSaveError(null);
-
         try {
-            const response = await axios.put<UpdateFileResponse>(`${API_BASE}/api/modifications/update-file/${fileId}`, {
-                fileName: activeTab,
-                content: draftContent,
-            });
-
-            const updated = response.data;
-            const localParentId =
-                tabStates[activeTab]?.chunks[0]?.parentId ?? `local-${updated.fileId || activeTab}`;
-
-            setFiles((previousFiles) =>
-                previousFiles.map((file) =>
-                    file.fileName === activeTab || file.fileId === updated.previousFileId
-                        ? {
-                              ...file,
-                              fileId: updated.fileId,
-                              fileName: updated.fileName,
-                              previewTexts: buildPreviewText(updated.content),
-                          }
-                        : file
-                )
+            const response = await axios.put<UpdateFileResponse>(
+                `${API_BASE}/api/modifications/update-file/${activeTab}`,
+                { fileName, content: draft }
             );
+            const updated = response.data;
+            const localParentId = tabStates[activeTab]?.chunks[0]?.parentId ?? `local-${updated.fileId}`;
 
-            setTabStates((previousStates) => {
-                const current = previousStates[activeTab] ?? createEmptyTabState();
-                return {
-                    ...previousStates,
+            setFiles((prev) => prev.map((f) =>
+                f.fileId === updated.previousFileId
+                    ? { ...f, fileId: updated.fileId, fileName: updated.fileName, previewTexts: buildPreviewText(updated.content) }
+                    : f
+            ));
+
+            // Handle the (rare) case where the backend returns a new fileId
+            if (updated.fileId !== updated.previousFileId) {
+                setOpenTabs((prev) => prev.map((id) => id === updated.previousFileId ? updated.fileId : id));
+                setActiveTab(updated.fileId);
+                setTabStates((prev) => {
+                    const { [updated.previousFileId]: _old, ...rest } = prev;
+                    return {
+                        ...rest,
+                        [updated.fileId]: {
+                            ...(_old ?? createEmptyTabState()),
+                            chunks: [{ parentId: localParentId, content: updated.content, size: updated.size }],
+                            hasMore: false, nextCursor: null, isLoading: false, isInitialized: true, error: null,
+                        },
+                    };
+                });
+            } else {
+                setTabStates((prev) => ({
+                    ...prev,
                     [activeTab]: {
-                        ...current,
-                        chunks: [
-                            {
-                                parentId: localParentId,
-                                content: updated.content,
-                                size: updated.size,
-                            },
-                        ],
-                        hasMore: false,
-                        nextCursor: null,
-                        isLoading: false,
-                        isInitialized: true,
-                        error: null,
+                        ...(prev[activeTab] ?? createEmptyTabState()),
+                        chunks: [{ parentId: localParentId, content: updated.content, size: updated.size }],
+                        hasMore: false, nextCursor: null, isLoading: false, isInitialized: true, error: null,
                     },
-                };
+                }));
+            }
+
+            setEditingFileId(null);
+            // Clear stale draft so next edit session starts from the freshly saved content
+            setEditingDraftByFileId((prev) => {
+                const next = { ...prev };
+                delete next[activeTab];
+                return next;
             });
-
-            setSelectedParentByTab((previousSelections) => ({
-                ...previousSelections,
-                [activeTab]: localParentId,
-            }));
-
-            clearEditingState();
             return true;
-        } catch (error) {
-            console.error("Error saving full document:", error);
+        } catch {
             setSaveError("Failed to save document changes. Please try again.");
             return false;
         } finally {
-            setSavingFileName(null);
+            setSavingFileId(null);
         }
-    }, [
-        activeTab,
-        clearEditingState,
-        editingDraftByFileName,
-        editingFileName,
-        getFileIdByName,
-        getFullDocumentContentByFileName,
-        savingFileName,
-        tabStates,
-    ]);
+    }, [activeTab, editingDraftByFileId, editingFileId, getFileNameById, getFullDocumentContent, savingFileId, tabStates]);
+
+    // ── Agent ──
+
+    const clearAgentState = useCallback(() => {
+        setAgentProposals([]);
+        setAgentAcceptedMap(new Map());
+        setAgentSavedIds(new Set());
+        setAgentRejectedIds(new Set());
+        setAgentSavingIds(new Set());
+        setAgentError(null);
+        setAgentIntention(null);
+    }, []);
+
+    const requestAgentEditPreview = useCallback(
+        async (instruction: string, fileIds: string[] | null): Promise<RequestAgentResult> => {
+            const trimmed = instruction.trim();
+            if (!trimmed) return { ok: false, error: "Instruction cannot be empty." };
+            if (isAgentGenerating) return { ok: false, error: "Agent is already running." };
+
+            setIsAgentGenerating(true);
+            setAgentError(null);
+            setAgentProposals([]);
+            setAgentAcceptedMap(new Map());
+            setAgentSavedIds(new Set());
+            setAgentRejectedIds(new Set());
+            setAgentSavingIds(new Set());
+            setAgentIntention(null);
+
+            try {
+                const response = await axios.post<AgentModifyResponse>(
+                    `${API_BASE}/api/agent/modify`,
+                    { instruction: trimmed, fileIds: fileIds && fileIds.length > 0 ? fileIds : null }
+                );
+                const { intention, proposals } = response.data;
+                setAgentIntention(intention);
+                setAgentProposals(proposals);
+                const uniqueFiles = new Set(proposals.map((p) => p.fileId)).size;
+                const summary = proposals.length > 0
+                    ? `Agent found ${proposals.length} change(s) across ${uniqueFiles} file(s).`
+                    : "Agent found no changes to make.";
+                return { ok: true, summary };
+            } catch {
+                const error = "Agent failed to generate proposals. Please try again.";
+                setAgentError(error);
+                return { ok: false, error };
+            } finally {
+                setIsAgentGenerating(false);
+            }
+        },
+        [isAgentGenerating]
+    );
+
+    // Accept: apply partial text replacement locally. Does NOT write to DB yet.
+    const acceptAgentProposal = useCallback((proposal: AgentProposal) => {
+        // Chunk must be loaded before accepting — we need the full surrounding content
+        // to do a safe partial replace. Without it, save would write only the partial
+        // proposed text to DB (Bug 1 variant).
+        const hasChunk = tabStates[proposal.fileId]?.chunks.some(
+            (c) => c.parentId === proposal.parentId
+        );
+        if (!hasChunk) {
+            setSaveError(`Please open "${proposal.fileName}" and wait for it to load before accepting this proposal.`);
+            return;
+        }
+
+        setAgentAcceptedMap((prev) => new Map(prev).set(proposal.parentId, proposal));
+        setOpenTabs((prev) => prev.includes(proposal.fileId) ? prev : [...prev, proposal.fileId]);
+        setActiveTab(proposal.fileId);
+
+        setTabStates((prev) => {
+            const state = prev[proposal.fileId] ?? createEmptyTabState();
+            const updatedChunks = state.chunks.map((chunk) => {
+                if (chunk.parentId !== proposal.parentId) return chunk;
+                // If original text not found, leave the chunk untouched.
+                if (!chunk.content.includes(proposal.original)) return chunk;
+                const patched = chunk.content.replace(proposal.original, proposal.proposed);
+                return { ...chunk, content: patched, size: patched.length };
+            });
+            return {
+                ...prev,
+                [proposal.fileId]: { ...state, chunks: updatedChunks, isInitialized: true, isLoading: false, error: null },
+            };
+        });
+    }, [tabStates]);
+
+    // Save: write accepted proposal to DB.
+    const saveAgentProposal = useCallback(
+        async (proposal: AgentProposal): Promise<boolean> => {
+            setSaveError(null);
+            setAgentSavingIds((prev) => new Set([...prev, proposal.parentId]));
+
+            try {
+                const existingChunk = tabStates[proposal.fileId]?.chunks.find(
+                    (c) => c.parentId === proposal.parentId
+                );
+
+                // Chunk must be loaded — without full content we cannot safely write to DB
+                if (!existingChunk) {
+                    setSaveError(`Cannot save: open "${proposal.fileName}" and load its content first.`);
+                    return false;
+                }
+
+                const resp = await axios.put<UpdateParentChunkResponse>(
+                    `${API_BASE}/api/modifications/parent-chunks/${proposal.parentId}`,
+                    { fileName: proposal.fileName, content: existingChunk.content }
+                );
+
+                const newParentId = resp.data.parentId;
+                const oldParentId = resp.data.previousParentId;
+
+                // Migrate acceptedMap: old→new for saved proposal, clear others for this file
+                // (backend re-splits the entire file, making all other parentIds stale)
+                setAgentAcceptedMap((prev) => {
+                    const next = new Map(prev);
+                    const old = next.get(oldParentId);
+                    if (old) {
+                        next.delete(oldParentId);
+                        next.set(newParentId, { ...old, parentId: newParentId });
+                    }
+                    for (const [k, v] of next.entries()) {
+                        if (v.fileId === proposal.fileId && v.parentId !== newParentId) next.delete(k);
+                    }
+                    return next;
+                });
+
+                // Migrate savedIds
+                setAgentSavedIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(oldParentId);
+                    next.add(newParentId);
+                    return next;
+                });
+
+                // Migrate rejectedIds (old chunk gone; don't auto-add new as rejected)
+                setAgentRejectedIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(oldParentId);
+                    return next;
+                });
+
+                // Fix 2: single setAgentProposals call — migrate old→new then filter stale same-file proposals.
+                // Fix 3: also collect stale parentIds to purge from saved/rejected sets.
+                setAgentProposals((prev) => {
+                    const migrated = prev.map((p) =>
+                        p.parentId === oldParentId ? { ...p, parentId: newParentId } : p
+                    );
+                    const staleIds = migrated
+                        .filter((p) => p.fileId === proposal.fileId && p.parentId !== newParentId)
+                        .map((p) => p.parentId);
+
+                    if (staleIds.length > 0) {
+                        setAgentSavedIds((prev) => {
+                            const next = new Set(prev);
+                            staleIds.forEach((id) => next.delete(id));
+                            return next;
+                        });
+                        setAgentRejectedIds((prev) => {
+                            const next = new Set(prev);
+                            staleIds.forEach((id) => next.delete(id));
+                            return next;
+                        });
+                    }
+
+                    return migrated.filter((p) => p.fileId !== proposal.fileId || p.parentId === newParentId);
+                });
+
+                // Clear savingIds for both old and new parentId
+                setAgentSavingIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(oldParentId);
+                    next.delete(newParentId);
+                    return next;
+                });
+
+                await fetchFiles();
+                await loadFileChunks(proposal.fileId, true);
+
+                return true;
+            } catch {
+                setSaveError(`Failed to save changes for ${proposal.fileName}. Please try again.`);
+                return false;
+            } finally {
+                setAgentSavingIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(proposal.parentId);
+                    return next;
+                });
+            }
+        },
+        [tabStates, fetchFiles, loadFileChunks]
+    );
+
+    const rejectAgentProposal = useCallback((parentId: string) => {
+        setAgentProposals((prev) => {
+            const proposal = prev.find((p) => p.parentId === parentId);
+            if (proposal) {
+                setTabStates((tabPrev) => {
+                    const state = tabPrev[proposal.fileId] ?? createEmptyTabState();
+                    const reverted = state.chunks.map((chunk) => {
+                        if (chunk.parentId !== parentId) return chunk;
+                        // Reverse the partial patch: replace proposed text back to original.
+                        // This mirrors acceptAgentProposal's replace(original, proposed),
+                        // avoiding the bug where content = proposal.original truncates the whole chunk.
+                        if (!chunk.content.includes(proposal.proposed)) return chunk;
+                        const restored = chunk.content.replace(proposal.proposed, proposal.original);
+                        return { ...chunk, content: restored, size: restored.length };
+                    });
+                    return { ...tabPrev, [proposal.fileId]: { ...state, chunks: reverted } };
+                });
+            }
+            return prev;
+        });
+        setAgentAcceptedMap((prev) => {
+            const next = new Map(prev);
+            next.delete(parentId);
+            return next;
+        });
+        setAgentRejectedIds((prev) => new Set([...prev, parentId]));
+    }, []);
 
     return {
         files,
@@ -896,7 +575,6 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         openTabs,
         activeTab,
         activeTabState,
-        tabStates,
         fetchFiles,
         handleRefreshDocuments,
         invalidateDocumentCache,
@@ -904,17 +582,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         closeDocumentTab,
         setActiveDocumentTab,
         loadMoreActiveTab,
-        activeSelectedParentId,
-        editingContent,
-        isEditingActiveChunk,
-        isSavingActiveChunk,
-        isActiveChunkDirty,
         saveError,
-        selectActiveTabChunk,
-        startEditingActiveChunk,
-        setActiveEditingContent,
-        cancelEditingActiveChunk,
-        saveEditingActiveChunk,
         editingDocumentContent,
         isEditingActiveDocument,
         isSavingActiveDocument,
@@ -923,15 +591,20 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         setActiveEditingDocumentContent,
         cancelEditingActiveDocument,
         saveEditingActiveDocument,
-        isAiEditGenerating,
-        aiEditSummary,
-        aiEditWarnings,
-        aiEditDiffSegments,
-        aiEditProposedContent,
-        aiEditError,
-        hasAiEditProposal: aiEditProposedContent !== null,
-        requestAiEditPreview,
-        acceptAiEditProposal,
-        rejectAiEditProposal,
+        getFileNameById,
+        getFileIdByName,
+        isAgentGenerating,
+        agentProposals,
+        agentAcceptedMap,
+        agentSavedIds,
+        agentRejectedIds,
+        agentSavingIds,
+        agentError,
+        agentIntention,
+        requestAgentEditPreview,
+        acceptAgentProposal,
+        saveAgentProposal,
+        rejectAgentProposal,
+        clearAgentState,
     };
 }
