@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from app.service.rag.ingestion.docling import common
+from app.service.rag.ingestion.docling.models import ExtractedImageArtifact
 
 
 @dataclass
@@ -42,7 +42,7 @@ class TableImageVlmJob:
     Tracks one queued fallback table-image block and its async processing state.
     """
 
-    image_artifact: common.ExtractedImageArtifact
+    image_artifact: ExtractedImageArtifact
     table_index: int
     page_no: int | None
     block_index: int

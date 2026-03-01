@@ -8,9 +8,10 @@ import pytest
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.service.rag.ingestion import docling_pdf_extractor as extractor
-from app.service.rag.ingestion.docling import extractor_beam as beam_extractor
-from app.service.rag.ingestion.docling import common as docling_common
-from app.service.rag.ingestion.docling import extractor_local as local_extractor
+from app.service.rag.ingestion.docling.clients import beam_client
+from app.service.rag.ingestion.docling.clients import local_client
+from app.service.rag.ingestion.docling.storage import local_artifacts_store
+from app.service.rag.ingestion.docling.storage import s3_upload
 from app.service.rag.ingestion import docling_table_image_vlm as table_image_vlm
 from app.service.rag.ingestion.docling.table_image_vlm import runtime as table_image_vlm_runtime
 
@@ -121,10 +122,10 @@ def _endpoint_response_for_items(items, *, status="success", errors=None, server
 
 def _patch_endpoint_runtime(monkeypatch, items, *, status="success", errors=None, server_notes=None):
     doc = _Document(items)
-    monkeypatch.setenv("DOCLING_PDF_BACKEND", "beam")
-    monkeypatch.setattr(beam_extractor, "_load_docling_module_runtime", lambda: _mock_runtime_for_doc(doc))
+    monkeypatch.setenv("DOCLING_BACKEND_SELECTION", "beam")
+    monkeypatch.setattr(beam_client, "_load_docling_module_runtime", lambda: _mock_runtime_for_doc(doc))
     monkeypatch.setattr(
-        beam_extractor,
+        beam_client,
         "_call_beam_docling_endpoint",
         lambda pdf_bytes, file_name: _endpoint_response_for_items(
             items,
@@ -210,8 +211,8 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
         errors=["warn-1"],
         server_notes=["retry used"],
     )
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=_minimal_pdf_bytes(),
@@ -248,7 +249,9 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
     table_images = [img for img in result.images if img.kind == "table_image"]
     assert len(table_images) == 1
     assert f"<!-- table-image-uuid: {table_images[0].image_uuid} -->" in markdown_text
-    table_rel_path = docling_common._image_markdown_rel_path_from_uuid(table_images[0].image_uuid)
+    table_rel_path = local_artifacts_store.image_markdown_rel_path_from_uuid(
+        table_images[0].image_uuid
+    )
     assert f"![{table_images[0].file_name}]({table_rel_path})" in markdown_text
     assert table_images[0].file_name == f"{table_images[0].image_uuid}.png"
     assert Path(table_images[0].file_path).parent == artifact_dir / "images"
@@ -271,7 +274,7 @@ def test_parse_pdf_with_docling_preview_skips_all_artifacts_when_disabled_in_bea
         _Table(page_no=1, num_rows=0, num_cols=0),
     ]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("DOCLING_ARTIFACTS_ENABLED", "false")
     monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
 
@@ -310,8 +313,8 @@ def test_parse_pdf_with_docling_preview_defaults_to_artifacts_enabled_when_toggl
 
 
 def test_parse_pdf_with_docling_preview_raises_when_endpoint_fails(monkeypatch, tmp_path):
-    monkeypatch.setenv("DOCLING_PDF_BACKEND", "beam")
-    monkeypatch.setattr(beam_extractor, "_call_beam_docling_endpoint", lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("endpoint boom")))
+    monkeypatch.setenv("DOCLING_BACKEND_SELECTION", "beam")
+    monkeypatch.setattr(beam_client, "_call_beam_docling_endpoint", lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("endpoint boom")))
 
     with pytest.raises(RuntimeError, match="endpoint boom"):
         extractor.parse_pdf_with_docling_preview(
@@ -324,7 +327,7 @@ def test_parse_pdf_with_docling_preview_raises_when_endpoint_fails(monkeypatch, 
 def test_parse_pdf_with_docling_preview_picture_crop_failure_keeps_markdown(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: None)
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: None)
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=_minimal_pdf_bytes(),
@@ -339,7 +342,7 @@ def test_parse_pdf_with_docling_preview_picture_crop_failure_keeps_markdown(monk
 
 
 def test_safe_stem_sanitizes_filename():
-    assert docling_common._safe_stem("A B/C:*report?.pdf") == "A_B_C_report"
+    assert local_artifacts_store.safe_stem("A B/C:*report?.pdf") == "A_B_C_report"
 
 
 class _FakeResponse:
@@ -360,33 +363,33 @@ def test_call_beam_docling_endpoint_raises_on_empty_body(monkeypatch):
     monkeypatch.setenv("BEAM_DOCLING_ENDPOINT", "https://example.test/beam")
     monkeypatch.setenv("BEAM_DOCLING_ENDPOINT_TOKEN", "secret")
     monkeypatch.setattr(
-        beam_extractor.requests,
+        beam_client.requests,
         "post",
         lambda *args, **kwargs: _FakeResponse(ok=True, status_code=200, text="   ", json_data=None),
     )
 
     with pytest.raises(RuntimeError, match="empty response body"):
-        beam_extractor._call_beam_docling_endpoint(b"%PDF", "sample.pdf")
+        beam_client._call_beam_docling_endpoint(b"%PDF", "sample.pdf")
 
 
 def test_call_beam_docling_endpoint_raises_on_non_json(monkeypatch):
     monkeypatch.setenv("BEAM_DOCLING_ENDPOINT", "https://example.test/beam")
     monkeypatch.setenv("BEAM_DOCLING_ENDPOINT_TOKEN", "secret")
     monkeypatch.setattr(
-        beam_extractor.requests,
+        beam_client.requests,
         "post",
         lambda *args, **kwargs: _FakeResponse(ok=True, status_code=200, text="<html>bad</html>", json_exc=ValueError("bad json")),
     )
 
     with pytest.raises(RuntimeError, match="non-JSON"):
-        beam_extractor._call_beam_docling_endpoint(b"%PDF", "sample.pdf")
+        beam_client._call_beam_docling_endpoint(b"%PDF", "sample.pdf")
 
 
 def test_call_beam_docling_endpoint_raises_when_missing_document(monkeypatch):
     monkeypatch.setenv("BEAM_DOCLING_ENDPOINT", "https://example.test/beam")
     monkeypatch.setenv("BEAM_DOCLING_ENDPOINT_TOKEN", "secret")
     monkeypatch.setattr(
-        beam_extractor.requests,
+        beam_client.requests,
         "post",
         lambda *args, **kwargs: _FakeResponse(
             ok=True,
@@ -397,14 +400,14 @@ def test_call_beam_docling_endpoint_raises_when_missing_document(monkeypatch):
     )
 
     with pytest.raises(RuntimeError, match="conversion_result_dump.document"):
-        beam_extractor._call_beam_docling_endpoint(b"%PDF", "sample.pdf")
+        beam_client._call_beam_docling_endpoint(b"%PDF", "sample.pdf")
 
 
 def test_call_beam_docling_endpoint_raises_on_error_envelope(monkeypatch):
     monkeypatch.setenv("BEAM_DOCLING_ENDPOINT", "https://example.test/beam")
     monkeypatch.setenv("BEAM_DOCLING_ENDPOINT_TOKEN", "secret")
     monkeypatch.setattr(
-        beam_extractor.requests,
+        beam_client.requests,
         "post",
         lambda *args, **kwargs: _FakeResponse(
             ok=True,
@@ -420,17 +423,17 @@ def test_call_beam_docling_endpoint_raises_on_error_envelope(monkeypatch):
     )
 
     with pytest.raises(RuntimeError, match="error response"):
-        beam_extractor._call_beam_docling_endpoint(b"%PDF", "sample.pdf")
+        beam_client._call_beam_docling_endpoint(b"%PDF", "sample.pdf")
 
 
 def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "true")
-    monkeypatch.setattr(docling_common, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setattr(s3_upload, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
     monkeypatch.setattr(
-        docling_common,
+        s3_upload,
         "build_s3_image_key",
         lambda image_uuid, extension=".png", prefix=None, source_file_name=None: f"{prefix}/images/{image_uuid}{extension}",
     )
@@ -441,7 +444,7 @@ def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path
         region = "ap-southeast-1"
         s3_uri = "s3://test-bucket/docling-previews/run/images/uuid.png"
 
-    monkeypatch.setattr(docling_common, "upload_file_to_s3", lambda **kwargs: _UploadResult())
+    monkeypatch.setattr(s3_upload, "upload_file_to_s3", lambda **kwargs: _UploadResult())
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=_minimal_pdf_bytes(),
@@ -460,16 +463,16 @@ def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path
 def test_parse_pdf_with_docling_preview_records_s3_failure_as_warning(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "true")
-    monkeypatch.setattr(docling_common, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setattr(s3_upload, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
     monkeypatch.setattr(
-        docling_common,
+        s3_upload,
         "build_s3_image_key",
         lambda image_uuid, extension=".png", prefix=None, source_file_name=None: f"{prefix}/images/{image_uuid}{extension}",
     )
     monkeypatch.setattr(
-        docling_common,
+        s3_upload,
         "upload_file_to_s3",
         lambda **kwargs: (_ for _ in ()).throw(RuntimeError("S3 upload boom")),
     )
@@ -489,8 +492,8 @@ def test_parse_pdf_with_docling_preview_records_s3_failure_as_warning(monkeypatc
 def test_parse_pdf_with_docling_preview_marks_s3_skipped_when_disabled(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=_minimal_pdf_bytes(),
@@ -502,17 +505,17 @@ def test_parse_pdf_with_docling_preview_marks_s3_skipped_when_disabled(monkeypat
 
 
 def test_docling_backend_selector_defaults_to_beam(monkeypatch):
-    monkeypatch.delenv("DOCLING_PDF_BACKEND", raising=False)
+    monkeypatch.delenv("DOCLING_BACKEND_SELECTION", raising=False)
     assert extractor._get_docling_pdf_backend() == "beam"
 
 
-def test_parse_pdf_with_docling_preview_raises_when_upload_images_to_s3_env_missing(monkeypatch, tmp_path):
+def test_parse_pdf_with_docling_preview_raises_when_AWS_S3_UPLOAD_ENABLED_env_missing(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.delenv("UPLOAD_IMAGES_TO_S3", raising=False)
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.delenv("AWS_S3_UPLOAD_ENABLED", raising=False)
 
-    with pytest.raises(RuntimeError, match="UPLOAD_IMAGES_TO_S3 is required"):
+    with pytest.raises(RuntimeError, match="AWS_S3_UPLOAD_ENABLED is required"):
         extractor.parse_pdf_with_docling_preview(
             pdf_bytes=_minimal_pdf_bytes(),
             file_name="sample.pdf",
@@ -521,16 +524,16 @@ def test_parse_pdf_with_docling_preview_raises_when_upload_images_to_s3_env_miss
 
 
 def test_docling_backend_selector_invalid_falls_back_to_beam(monkeypatch):
-    monkeypatch.setenv("DOCLING_PDF_BACKEND", "weird")
+    monkeypatch.setenv("DOCLING_BACKEND_SELECTION", "weird")
     assert extractor._get_docling_pdf_backend() == "beam"
 
 
 def test_parse_pdf_with_docling_preview_dispatches_to_local_backend(monkeypatch, tmp_path):
     sentinel = object()
-    monkeypatch.setenv("DOCLING_PDF_BACKEND", "local")
+    monkeypatch.setenv("DOCLING_BACKEND_SELECTION", "local")
     monkeypatch.setattr(
-        local_extractor,
-        "parse_pdf_with_docling_preview_local",
+        extractor._docling,
+        "parse_pdf_with_docling_preview",
         lambda **kwargs: sentinel,
     )
 
@@ -544,8 +547,8 @@ def test_parse_pdf_with_docling_preview_dispatches_to_local_backend(monkeypatch,
 
 def test_parse_pdf_with_docling_preview_dispatches_to_beam_by_default(monkeypatch, tmp_path):
     sentinel = object()
-    monkeypatch.delenv("DOCLING_PDF_BACKEND", raising=False)
-    monkeypatch.setattr(beam_extractor, "parse_pdf_with_docling_preview", lambda **kwargs: sentinel)
+    monkeypatch.delenv("DOCLING_BACKEND_SELECTION", raising=False)
+    monkeypatch.setattr(extractor._docling, "parse_pdf_with_docling_preview", lambda **kwargs: sentinel)
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=b"%PDF-1.4",
@@ -581,7 +584,7 @@ def test_local_converter_build_uses_requested_pipeline_config(monkeypatch):
             captured["format_options"] = format_options
 
     monkeypatch.setattr(
-        local_extractor,
+        local_client,
         "_load_local_docling_runtime",
         lambda: {
             "InputFormat": _InputFormat,
@@ -596,7 +599,7 @@ def test_local_converter_build_uses_requested_pipeline_config(monkeypatch):
         },
     )
 
-    converter = local_extractor._build_local_converter()
+    converter = local_client._build_local_converter()
     assert isinstance(converter, _DocumentConverter)
 
     pipeline = captured["pipeline_options"]
@@ -607,7 +610,7 @@ def test_local_converter_build_uses_requested_pipeline_config(monkeypatch):
     assert pipeline.do_table_structure is True
     assert pipeline.generate_table_images is True
     assert pipeline.generate_picture_images is True
-    assert pipeline.images_scale == 2.0
+    assert pipeline.images_scale == 2.5
     assert pipeline.generate_page_images is False
     assert pipeline.do_chart_extraction is False
     assert pipeline.do_formula_enrichment is False
@@ -678,9 +681,9 @@ def test_local_backend_processes_in_fixed_chunks_and_serializes(monkeypatch, tmp
 
     fake_converter = _FakeConverter(responses)
 
-    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
     monkeypatch.setattr(
-        local_extractor,
+        local_client,
         "_load_local_docling_runtime",
         lambda: {
             "MarkdownDocSerializer": _LocalSerializer,
@@ -689,9 +692,9 @@ def test_local_backend_processes_in_fixed_chunks_and_serializes(monkeypatch, tmp
             "DocumentStream": _DocumentStream,
         },
     )
-    monkeypatch.setattr(local_extractor, "_get_or_create_local_converter", lambda: fake_converter)
+    monkeypatch.setattr(local_client, "_get_or_create_local_converter", lambda: fake_converter)
 
-    result = local_extractor.parse_pdf_with_docling_preview_local(
+    result = local_client.parse_pdf_with_docling_preview_local(
         pdf_bytes=_pdf_bytes_with_pages(21),
         file_name="sample.pdf",
         artifact_root=tmp_path,
@@ -736,7 +739,7 @@ def test_local_backend_raises_when_no_chunks_convert(monkeypatch, tmp_path):
             return _Result("failure", errors=["boom"])
 
     monkeypatch.setattr(
-        local_extractor,
+        local_client,
         "_load_local_docling_runtime",
         lambda: {
             "MarkdownDocSerializer": _Serializer,
@@ -745,10 +748,10 @@ def test_local_backend_raises_when_no_chunks_convert(monkeypatch, tmp_path):
             "DocumentStream": _DocumentStream,
         },
     )
-    monkeypatch.setattr(local_extractor, "_get_or_create_local_converter", lambda: _FakeConverter())
+    monkeypatch.setattr(local_client, "_get_or_create_local_converter", lambda: _FakeConverter())
 
     with pytest.raises(RuntimeError, match="No pages converted successfully with local Docling"):
-        local_extractor.parse_pdf_with_docling_preview_local(
+        local_client.parse_pdf_with_docling_preview_local(
             pdf_bytes=_minimal_pdf_bytes(),
             file_name="sample.pdf",
             artifact_root=tmp_path,
@@ -803,7 +806,7 @@ def test_local_backend_skips_all_artifacts_when_disabled(monkeypatch, tmp_path):
 
     monkeypatch.setenv("DOCLING_ARTIFACTS_ENABLED", "false")
     monkeypatch.setattr(
-        local_extractor,
+        local_client,
         "_load_local_docling_runtime",
         lambda: {
             "MarkdownDocSerializer": _LocalSerializer,
@@ -812,9 +815,9 @@ def test_local_backend_skips_all_artifacts_when_disabled(monkeypatch, tmp_path):
             "DocumentStream": _DocumentStream,
         },
     )
-    monkeypatch.setattr(local_extractor, "_get_or_create_local_converter", lambda: _FakeConverter())
+    monkeypatch.setattr(local_client, "_get_or_create_local_converter", lambda: _FakeConverter())
 
-    result = local_extractor.parse_pdf_with_docling_preview_local(
+    result = local_client.parse_pdf_with_docling_preview_local(
         pdf_bytes=_pdf_bytes_with_pages(1),
         file_name="sample.pdf",
         artifact_root=tmp_path,
@@ -837,8 +840,8 @@ def test_beam_table_image_vlm_inserts_summary_and_json_marker(monkeypatch, tmp_p
         _Text("Context after table explains the totals.", page_no=1),
     ]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
     _install_fake_table_image_vlm_helper(monkeypatch, captured_contexts=captured_contexts)
 
     result = extractor.parse_pdf_with_docling_preview(
@@ -873,8 +876,8 @@ def test_beam_table_image_vlm_summary_failure_keeps_json_marker(monkeypatch, tmp
         _Text("After text", page_no=1),
     ]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
-    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
     _install_fake_table_image_vlm_helper(monkeypatch, fail_summary=True)
 
     result = extractor.parse_pdf_with_docling_preview(
@@ -924,12 +927,12 @@ def test_local_table_image_vlm_force_finalize_inserts_summary(monkeypatch, tmp_p
             assert raises_on_error is False
             return _Result(_Document([_Text("Local intro", page_no=1), _LocalTable(page_no=1, num_rows=0, num_cols=0)]))
 
-    monkeypatch.setenv("UPLOAD_IMAGES_TO_S3", "false")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
     _install_fake_table_image_vlm_helper(monkeypatch)
     monkeypatch.setenv("TABLE_IMAGE_VLM_AFTER_READY_BLOCKS", "99999")
 
     monkeypatch.setattr(
-        local_extractor,
+        local_client,
         "_load_local_docling_runtime",
         lambda: {
             "MarkdownDocSerializer": _LocalSerializer,
@@ -938,9 +941,9 @@ def test_local_table_image_vlm_force_finalize_inserts_summary(monkeypatch, tmp_p
             "DocumentStream": _DocumentStream,
         },
     )
-    monkeypatch.setattr(local_extractor, "_get_or_create_local_converter", lambda: _FakeConverter())
+    monkeypatch.setattr(local_client, "_get_or_create_local_converter", lambda: _FakeConverter())
 
-    result = local_extractor.parse_pdf_with_docling_preview_local(
+    result = local_client.parse_pdf_with_docling_preview_local(
         pdf_bytes=_pdf_bytes_with_pages(1),
         file_name="sample.pdf",
         artifact_root=tmp_path,

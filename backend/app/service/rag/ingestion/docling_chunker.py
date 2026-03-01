@@ -12,10 +12,8 @@ from typing import Any
 
 from app.core.id_utils import generate_uuid_v6
 from app.service.rag.ingestion.chunker import ChildChunkModel, ParentChunkModel
-from app.service.rag.ingestion.docling.common import (
-    DoclingStructuredBlock,
-    is_docling_artifacts_enabled,
-)
+from app.service.rag.ingestion.docling.config import is_docling_artifacts_enabled
+from app.service.rag.ingestion.docling.models import DoclingStructuredBlock
 
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)

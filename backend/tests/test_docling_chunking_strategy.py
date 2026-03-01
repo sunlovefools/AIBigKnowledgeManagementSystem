@@ -3,7 +3,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.service.rag.ingestion.docling.common import DoclingStructuredBlock
+from app.service.rag.ingestion.docling.models import DoclingStructuredBlock
 from app.service.rag.ingestion.docling_chunker import (
     split_parent_child_chunks_from_docling_blocks,
 )
