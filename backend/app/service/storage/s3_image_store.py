@@ -6,6 +6,7 @@ from typing import Any
 
 from pydantic import BaseModel
 
+
 class S3Config(BaseModel):
     """
     Configuration for S3 image uploads. All fields are required if uploads are enabled.
@@ -35,6 +36,13 @@ def _make_s3_uri(bucket: str, key: str) -> str:
     Construct an S3 URI for the given bucket and key.
     """
     return f"s3://{bucket}/{key}"
+
+
+_DOCLING_ARTIFACT_SUBDIRS = {
+    "image": "images",
+    "table_image": "table_images",
+    "table_data": "table_data",
+}
 
 
 def _load_s3_config() -> S3Config | None:
@@ -87,6 +95,8 @@ def build_s3_image_key(
     extension: str = ".png",
     prefix: str | None = None,
     source_file_name: str | None = None,
+    file_id: str | None = None,
+    artifact_type: str = "image",
 ) -> str:
     """
     Build the S3 key for an image.
@@ -97,12 +107,50 @@ def build_s3_image_key(
     """
     ext = extension if extension.startswith(".") else f".{extension}"
     root_prefix = (prefix or "docling-previews").strip("/ ")
+
+    if file_id:
+        return build_s3_docling_artifact_key(
+            file_id=file_id,
+            artifact_uuid=image_uuid,
+            artifact_type=artifact_type,
+            extension=ext,
+            prefix=root_prefix,
+        )
+
     object_name = f"{image_uuid}{ext}"
     if source_file_name:
         source_stem = Path(source_file_name).stem or "document"
         source_stem = re.sub(r"[^A-Za-z0-9._-]+", "_", source_stem).strip("._-") or "document"
         object_name = f"{source_stem}-{image_uuid}{ext}"
     return f"{root_prefix}/images/{object_name}"
+
+
+def build_s3_docling_artifact_key(
+    *,
+    file_id: str,
+    artifact_uuid: str,
+    artifact_type: str,
+    extension: str = ".png",
+    prefix: str | None = None,
+) -> str:
+    """
+    Build Docling artifact S3 keys using `{prefix}/{file_id}/{subdir}/{uuid}{ext}`.
+    """
+
+    normalized_file_id = (file_id or "").strip()
+    if not normalized_file_id:
+        raise ValueError("file_id is required to build docling artifact key.")
+
+    subdir = _DOCLING_ARTIFACT_SUBDIRS.get((artifact_type or "").strip().lower())
+    if not subdir:
+        raise ValueError(
+            f"Unsupported artifact_type={artifact_type!r}. "
+            f"Expected one of {sorted(_DOCLING_ARTIFACT_SUBDIRS)}."
+        )
+
+    ext = extension if extension.startswith(".") else f".{extension}"
+    root_prefix = (prefix or "docling-previews").strip("/ ")
+    return f"{root_prefix}/{normalized_file_id}/{subdir}/{artifact_uuid}{ext}"
 
 
 @lru_cache(maxsize=4)

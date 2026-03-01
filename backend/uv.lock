@@ -323,6 +323,7 @@ dependencies = [
     { name = "jmespath" },
     { name = "s3transfer" },
 ]
+sdist = { url = "https://files.pythonhosted.org/packages/fe/dc/990222f8c0cd7453c03410bc8b367ccb35ae01d9642ff1f79231cd3f3d8f/boto3-1.42.56.tar.gz", hash = "sha256:8b0779431b349582f4d61b55a2858b943d5295f4b5de62e2d669fdbbcda96bd6", size = 112814, upload-time = "2026-02-24T20:28:51.825Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/59/bb/a7fd6f4f38cf0f6cd91c152442cbe5b5f270275a60a5c7147ae5560f2f25/boto3-1.42.56-py3-none-any.whl", hash = "sha256:e09f91170b19e0ecd5e514321d99323be3e91a58dfa73fd58cf73b7b8b179c84", size = 140556, upload-time = "2026-02-24T20:28:49.815Z" },
 ]
@@ -2476,6 +2477,15 @@ wheels = [
 ]
 
 [[package]]
+name = "py-toon-format"
+version = "0.1.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/7c/6f/0d6b0399c1047e8176aa7c3028160369d34007e7415e0372d8ea6d44a023/py_toon_format-0.1.0.tar.gz", hash = "sha256:b338c30a41c328e4078451d2c0e87c68e9cdf34fae783ffdde60daea7824fd66", size = 21701, upload-time = "2025-11-14T09:12:58.705Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/fb/0c/d6bb9ce61011a5e0aaede19d22ed73c474191d7650e6b82f72633a82fa8e/py_toon_format-0.1.0-py3-none-any.whl", hash = "sha256:52a14061be79d25e3fc0231aac9e5daaff156844c3f1e2232f87b2672922e88b", size = 17657, upload-time = "2025-11-14T09:12:57.527Z" },
+]
+
+[[package]]
 name = "pyarrow"
 version = "23.0.0"
 source = { registry = "https://pypi.org/simple" }
@@ -3781,6 +3791,7 @@ dependencies = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "pillow" },
+    { name = "py-toon-format" },
     { name = "pydantic" },
     { name = "pymupdf" },
     { name = "python-docx" },
@@ -3815,6 +3826,7 @@ requires-dist = [
     { name = "numpy" },
     { name = "pandas" },
     { name = "pillow" },
+    { name = "py-toon-format" },
     { name = "pydantic" },
     { name = "pymupdf" },
     { name = "python-docx" },

@@ -13,6 +13,7 @@ bcrypt
 boto3
 email-validator
 requests
+py-toon-format
 gunicorn
 langchain
 numpy

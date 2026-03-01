@@ -29,6 +29,7 @@ def parse_pdf_with_docling_preview(
     file_name: str,
     artifact_root: Path | None = None,
     page_chunk_size: int = DEFAULT_DOCLING_PAGE_CHUNK_SIZE,
+    file_id: str | None = None,
 ) -> DoclingParseResult:
     """
     Public Docling PDF preview entrypoint that dispatches to Beam or local backend.
@@ -45,6 +46,7 @@ def parse_pdf_with_docling_preview(
             file_name=file_name,
             artifact_root=artifact_root,
             page_chunk_size=page_chunk_size,
+            file_id=file_id,
         )
 
     print("Extracting PDF using Beam endpoint")
@@ -52,6 +54,7 @@ def parse_pdf_with_docling_preview(
         pdf_bytes=pdf_bytes,
         file_name=file_name,
         artifact_root=artifact_root,
+        file_id=file_id,
     )
 
 

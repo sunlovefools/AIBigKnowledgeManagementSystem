@@ -48,6 +48,28 @@ def test_build_s3_image_key_uses_source_filename_and_uuid():
     assert key == "docling-previews/images/Client_Portfolio_Analysis_Report-img-uuid-1.png"
 
 
+def test_build_s3_image_key_uses_file_id_paths_for_docling_artifacts():
+    key = store.build_s3_image_key(
+        image_uuid="img-uuid-1",
+        extension=".png",
+        prefix="docling-previews",
+        file_id="file-uuid-1",
+        artifact_type="image",
+    )
+    assert key == "docling-previews/file-uuid-1/images/img-uuid-1.png"
+
+
+def test_build_s3_docling_artifact_key_for_table_data():
+    key = store.build_s3_docling_artifact_key(
+        file_id="file-uuid-1",
+        artifact_uuid="table-uuid-1",
+        artifact_type="table_data",
+        extension=".json",
+        prefix="docling-previews",
+    )
+    assert key == "docling-previews/file-uuid-1/table_data/table-uuid-1.json"
+
+
 def test_s3_uri_format():
     assert store._make_s3_uri("my-bucket", "a/b/c.png") == "s3://my-bucket/a/b/c.png"
 

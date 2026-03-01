@@ -34,6 +34,9 @@ _table_image_uuid_marker = common._table_image_uuid_marker
 _inject_marker_for_picture = common._inject_marker_for_picture
 _stringify_endpoint_error = common._stringify_endpoint_error
 _upload_image_artifact_to_s3 = common._upload_image_artifact_to_s3
+_table_data_file_path_from_uuid = common._table_data_file_path_from_uuid
+_upload_table_data_json_to_s3 = common._upload_table_data_json_to_s3
+_build_toon_wrapped_table_payload = common._build_toon_wrapped_table_payload
 _write_manifest = common._write_manifest
 
 
@@ -326,6 +329,7 @@ def parse_pdf_with_docling_preview(
     pdf_bytes: bytes,
     file_name: str,
     artifact_root: Path | None = None,
+    file_id: str | None = None,
 ) -> DoclingParseResult:
     """
     Parse a PDF with Docling and persist preview artifacts (markdown + extracted images).
@@ -335,6 +339,7 @@ def parse_pdf_with_docling_preview(
 
     endpoint_result = _call_beam_docling_endpoint(pdf_bytes, file_name) # Call the Beam-hosted Docling endpoint and get the conversion result
     runtime = _load_docling_module_runtime() # Load the runtime mmodules from docling for serialising
+    resolved_file_id = (file_id or str(uuid6())).strip()
 
     # Preparation for the preview artifact directory and markdown output path
     run_id, artifact_dir, markdown_path = _prepare_docling_preview_artifact_dir(
@@ -442,6 +447,62 @@ def parse_pdf_with_docling_preview(
             }
         )
 
+    def _persist_table_data_toon_artifacts() -> None:
+        """
+        Build TOON-wrapped table-data JSON artifacts and upload them to S3 when enabled.
+        """
+
+        if not artifacts_enabled or artifact_dir is None:
+            return
+        if not table_image_vlm_jobs:
+            return
+
+        upload_enabled = (os.getenv("AWS_S3_UPLOAD_ENABLED") or "").strip().lower() == "true"
+
+        for job in table_image_vlm_jobs:
+            extracted_json_path: Path | None = None
+            if job.result is not None and job.result.json_path:
+                extracted_json_path = Path(job.result.json_path)
+            else:
+                extracted_json_path = job.output_dir / "output.json"
+
+            if not extracted_json_path.exists():
+                continue
+
+            try:
+                extracted_payload = json.loads(extracted_json_path.read_text(encoding="utf-8"))
+                wrapped_payload = _build_toon_wrapped_table_payload(
+                    extracted_table_json=extracted_payload,
+                    file_id=resolved_file_id,
+                    page_no=job.page_no,
+                )
+                table_data_path = _table_data_file_path_from_uuid(
+                    artifact_dir,
+                    job.image_artifact.image_uuid,
+                )
+                serialized = json.dumps(wrapped_payload, indent=2, ensure_ascii=False)
+                table_data_path.write_text(serialized, encoding="utf-8")
+
+                if upload_enabled:
+                    try:
+                        _upload_table_data_json_to_s3(
+                            json_bytes=serialized.encode("utf-8"),
+                            file_id=resolved_file_id,
+                            table_image_uuid=job.image_artifact.image_uuid,
+                            source_file_name=file_name,
+                            page_no=job.page_no,
+                        )
+                    except Exception as exc:
+                        warnings.append(
+                            "Failed to upload table-data JSON to S3 "
+                            f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
+                        )
+            except Exception as exc:
+                warnings.append(
+                    "Failed to convert table-image JSON to TOON "
+                    f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
+                )
+
     print("Starting to process the converted Docling document and generate markdown and image artifacts")
     # Open the PDF with fitz to enable cropping of image regions for pictures and tables based on endpoint-provided bounding boxes.
     try:
@@ -487,6 +548,7 @@ def parse_pdf_with_docling_preview(
                             image_artifact = _upload_image_artifact_to_s3(
                                 image_artifact,
                                 source_file_name=file_name,
+                                file_id=resolved_file_id,
                             )
 
                             if image_artifact.s3_upload_status == "failed":
@@ -545,6 +607,7 @@ def parse_pdf_with_docling_preview(
                                 image_artifact = _upload_image_artifact_to_s3(
                                     image_artifact,
                                     source_file_name=file_name,
+                                    file_id=resolved_file_id,
                                 )
 
                                 if image_artifact.s3_upload_status == "failed":
@@ -673,6 +736,7 @@ def parse_pdf_with_docling_preview(
                 markdown_parts=markdown_parts,
                 warnings=warnings,
             )
+            _persist_table_data_toon_artifacts()
             table_image_vlm_executor.shutdown(wait=True)
 
     if not markdown_parts:

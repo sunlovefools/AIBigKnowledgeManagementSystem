@@ -4,6 +4,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 # Local imports
+from app.core.id_utils import generate_uuid_v6
 from app.service.rag.ingestion.text_extractor import extract_text
 from app.service.rag.ingestion.chunker import split_parent_child_chunks
 from app.service.rag.ingestion.docling_chunker import (
@@ -109,22 +110,31 @@ async def ingest_webhook_preview(file: FileUpload):
         )
 
     file_bytes = _decode_base64(file.data)
+    file_id = generate_uuid_v6()
     try:
-        # Parse and write local artifacts (markdown/images/manifest) without chunking or DB writes.
+        # Parse and write local artifacts (markdown/images/manifest).
         parse_result = parse_pdf_with_docling_preview(
             pdf_bytes=file_bytes,
             file_name=file.fileName,
+            file_id=file_id,
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"docling preview failed: {exc}")
 
     if parse_result.structured_blocks:
         try:
-            # Experimental chunking in preview route only.
-            split_parent_child_chunks_from_docling_blocks(
+            # Experimental chunking in preview route, followed by vector upsert.
+            parent_chunks_models, child_chunks_models = split_parent_child_chunks_from_docling_blocks(
                 blocks=parse_result.structured_blocks,
                 file_name=file.fileName,
                 artifact_dir=parse_result.artifact_dir,
+                file_id=file_id,
+            )
+            parent_chunks_dicts = [chunk.model_dump() for chunk in parent_chunks_models]
+            child_chunks_dicts = [chunk.model_dump() for chunk in child_chunks_models]
+            await upsert_documents(
+                parent_chunks=parent_chunks_dicts,
+                child_chunks=child_chunks_dicts,
             )
         except Exception as exc:
             raise HTTPException(status_code=500, detail=f"docling preview chunking failed: {exc}")

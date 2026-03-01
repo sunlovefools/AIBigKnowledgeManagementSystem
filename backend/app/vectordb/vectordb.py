@@ -57,11 +57,22 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         if not child_id:
             raise ValueError("Each child chunk must have 'child_chunk_id'.")
 
+        content_flags = child_chunk_dict.get("content_flags") or {
+            "is_image": False,
+            "is_table_image": False,
+        }
+        artifact_refs = child_chunk_dict.get("artifact_refs") or {
+            "image_uuid": None,
+            "table_image_uuid": None,
+        }
+
         child_doc = Document(
             page_content=child_chunk_dict["content"],
             metadata={
                 "file_metadata": child_chunk_dict["file_metadata"],
                 "child_chunk_metadata": child_chunk_dict["child_chunk_metadata"],
+                "content_flags": content_flags,
+                "artifact_refs": artifact_refs,
             },
         )
         child_docs.append(child_doc)

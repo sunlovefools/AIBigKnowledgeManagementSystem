@@ -26,6 +26,7 @@ dependencies = [
     "pillow",
     "ragas",
     "requests",
+    "py-toon-format",
     "sentence-transformers",
     "torch",
     "torchvision",

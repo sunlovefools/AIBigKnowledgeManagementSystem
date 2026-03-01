@@ -19,6 +19,7 @@ from app.service.rag.ingestion.docling.common import (
 
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
+_IMAGE_UUID_RE = re.compile(r"<!--\s*image-uuid:\s*([^\s]+)\s*-->")
 _TABLE_IMAGE_UUID_RE = re.compile(r"<!--\s*table-image-uuid:\s*([^\s]+)\s*-->")
 _TABLE_IMAGE_JSON_PATH_RE = re.compile(
     r"<!--\s*table-image-vlm-json-path:\s*([^>]+?)\s*-->"
@@ -391,13 +392,47 @@ def _build_table_child_text(
     return "\n\n".join(pieces).strip()
 
 
+def _coerce_page_number(page_no: int | None) -> int:
+    """Normalize nullable page number into a stable integer value."""
+
+    return int(page_no) if isinstance(page_no, int) and page_no > 0 else 0
+
+
+def _empty_content_flags() -> dict[str, bool]:
+    """Return default content flags for non-visual chunks."""
+
+    return {"is_image": False, "is_table_image": False}
+
+
+def _empty_child_artifact_refs() -> dict[str, str | None]:
+    """Return default artifact references for non-visual chunks."""
+
+    return {"image_uuid": None, "table_image_uuid": None}
+
+
+def _extract_picture_uuid(text: str) -> str | None:
+    """Extract image UUID marker from picture markdown block content."""
+
+    match = _IMAGE_UUID_RE.search(text or "")
+    return match.group(1).strip() if match else None
+
+
+def _extract_table_image_uuid(text: str, *, fallback: str | None = None) -> str | None:
+    """Extract table image UUID marker from table markdown block content."""
+
+    match = _TABLE_IMAGE_UUID_RE.search(text or "")
+    if match:
+        return match.group(1).strip()
+    return fallback
+
+
 def _build_child_candidates_for_block(
     blocks: list[DoclingStructuredBlock],
     block_index: int,
     *,
     child_max_words: int,
     context_words: int,
-) -> list[str]:
+) -> list[dict[str, Any]]:
     """Expand one block into one or more child chunk candidates before min-size merging."""
 
     block = blocks[block_index]
@@ -405,21 +440,90 @@ def _build_child_candidates_for_block(
     if not content:
         return []
 
+    page_number = _coerce_page_number(block.page_no)
+
     if block.block_type == "picture":
-        return [_build_picture_child_text(blocks, block_index, context_words=context_words)]
+        child_text = _build_picture_child_text(
+            blocks,
+            block_index,
+            context_words=context_words,
+        )
+        if not child_text:
+            return []
+        image_uuid = _extract_picture_uuid(content)
+        return [
+            {
+                "content": child_text,
+                "page_number": page_number,
+                "content_flags": {
+                    "is_image": True,
+                    "is_table_image": False,
+                },
+                "artifact_refs": {
+                    "image_uuid": image_uuid,
+                    "table_image_uuid": None,
+                },
+            }
+        ]
 
     # Table blocks are always one child chunk and ignore the >80 split rule.
     if block.block_type == "table":
         table_text = _build_table_child_text(blocks, block_index, context_words=context_words)
-        return [table_text] if table_text else []
+        if not table_text:
+            return []
+        table_image_uuid = (
+            _extract_table_image_uuid(content, fallback=block.table_image_uuid)
+            if block.is_table_image
+            else None
+        )
+        return [
+            {
+                "content": table_text,
+                "page_number": page_number,
+                "content_flags": {
+                    "is_image": False,
+                    "is_table_image": bool(block.is_table_image),
+                },
+                "artifact_refs": {
+                    "image_uuid": None,
+                    "table_image_uuid": table_image_uuid,
+                },
+            }
+        ]
 
     if block.block_type in _LONG_TEXT_BLOCK_TYPES and _word_count(content) > child_max_words:
-        return _split_large_text_block(content, child_max_words)
+        return [
+            {
+                "content": chunk,
+                "page_number": page_number,
+                "content_flags": _empty_content_flags(),
+                "artifact_refs": _empty_child_artifact_refs(),
+            }
+            for chunk in _split_large_text_block(content, child_max_words)
+            if chunk.strip()
+        ]
 
-    return [content]
+    return [
+        {
+            "content": content,
+            "page_number": page_number,
+            "content_flags": _empty_content_flags(),
+            "artifact_refs": _empty_child_artifact_refs(),
+        }
+    ]
 
 
-def _merge_small_children(children: list[str], min_child_words: int) -> list[str]:
+def _is_visual_child_candidate(candidate: dict[str, Any]) -> bool:
+    """Return whether a child candidate represents a visual artifact block."""
+
+    flags = candidate.get("content_flags") or {}
+    return bool(flags.get("is_image") or flags.get("is_table_image"))
+
+
+def _merge_small_children(
+    children: list[dict[str, Any]],
+    min_child_words: int,
+) -> list[dict[str, Any]]:
     """
     Merge tiny children into previous child within the same parent part.
 
@@ -430,31 +534,57 @@ def _merge_small_children(children: list[str], min_child_words: int) -> list[str
     If tiny chunk appears first, buffer and prepend to the next non-tiny child.
     """
 
-    merged: list[str] = []
+    merged: list[dict[str, Any]] = []
     leading_buffer = ""
 
     for child in children:
-        chunk = child.strip()
+        chunk = str(child.get("content", "")).strip()
         if not chunk:
             continue
 
+        if _is_visual_child_candidate(child):
+            if leading_buffer:
+                merged.append(
+                    {
+                        "content": leading_buffer,
+                        "page_number": 0,
+                        "content_flags": _empty_content_flags(),
+                        "artifact_refs": _empty_child_artifact_refs(),
+                    }
+                )
+                leading_buffer = ""
+
+            visual_child = dict(child)
+            visual_child["content"] = chunk
+            merged.append(visual_child)
+            continue
+
         if _word_count(chunk) < min_child_words:
-            if merged:
-                merged[-1] = f"{merged[-1]}\n\n{chunk}"
+            if merged and not _is_visual_child_candidate(merged[-1]):
+                merged[-1]["content"] = f"{merged[-1]['content']}\n\n{chunk}"
             else:
                 leading_buffer = f"{leading_buffer}\n\n{chunk}".strip() if leading_buffer else chunk
             continue
 
+        current_child = dict(child)
+        current_child["content"] = chunk
         if leading_buffer:
-            chunk = f"{leading_buffer}\n\n{chunk}"
+            current_child["content"] = f"{leading_buffer}\n\n{chunk}"
             leading_buffer = ""
-        merged.append(chunk)
+        merged.append(current_child)
 
     if leading_buffer:
-        if merged:
-            merged[-1] = f"{merged[-1]}\n\n{leading_buffer}"
+        if merged and not _is_visual_child_candidate(merged[-1]):
+            merged[-1]["content"] = f"{merged[-1]['content']}\n\n{leading_buffer}"
         else:
-            merged.append(leading_buffer)
+            merged.append(
+                {
+                    "content": leading_buffer,
+                    "page_number": 0,
+                    "content_flags": _empty_content_flags(),
+                    "artifact_refs": _empty_child_artifact_refs(),
+                }
+            )
 
     return merged
 
@@ -519,9 +649,9 @@ def _compact_parent_table_blocks_for_artifact(
 
 
 def _prefix_children_with_preamble(
-    children: list[str],
+    children: list[dict[str, Any]],
     preamble_blocks: list[DoclingStructuredBlock],
-) -> list[str]:
+) -> list[dict[str, Any]]:
     """Prefix each child chunk with section preamble text when preamble exists."""
 
     if not children or not preamble_blocks:
@@ -533,7 +663,13 @@ def _prefix_children_with_preamble(
     if not preamble_text:
         return children
 
-    return [f"{preamble_text}\n\n{child}".strip() for child in children]
+    prefixed: list[dict[str, Any]] = []
+    for child in children:
+        new_child = dict(child)
+        content = str(new_child.get("content", "")).strip()
+        new_child["content"] = f"{preamble_text}\n\n{content}".strip()
+        prefixed.append(new_child)
+    return prefixed
 
 
 def _write_parent_chunks_artifact(
@@ -653,6 +789,7 @@ def split_parent_child_chunks_from_docling_blocks(
     file_name: str,
     artifact_dir: str | Path | None,
     *,
+    file_id: str | None = None,
     parent_max_words: int = 500,
     child_max_words: int = 80,
     min_child_words: int = 20,
@@ -702,7 +839,7 @@ def split_parent_child_chunks_from_docling_blocks(
     parent_chunks: list[ParentChunkModel] = []
     child_chunks: list[ChildChunkModel] = []
     child_global_index = 0
-    file_id = generate_uuid_v6()
+    resolved_file_id = file_id or generate_uuid_v6()
 
     for parent_chunk_number, part in enumerate(parent_parts):
         parent_blocks = part["parent_blocks"]
@@ -713,8 +850,13 @@ def split_parent_child_chunks_from_docling_blocks(
             block.content.strip() for block in parent_blocks if block.content.strip()
         ).strip()
         parent_child_ids: list[str] = []
+        parent_page_numbers: set[int] = set()
+        parent_image_uuids: set[str] = set()
+        parent_table_image_uuids: set[str] = set()
+        parent_has_image = False
+        parent_has_table_image = False
 
-        child_candidates: list[str] = []
+        child_candidates: list[dict[str, Any]] = []
         for index in range(len(child_source_blocks)):
             child_candidates.extend(
                 _build_child_candidates_for_block(
@@ -729,31 +871,80 @@ def split_parent_child_chunks_from_docling_blocks(
         # detection does not include preamble words.
         merged_children = _merge_small_children(child_candidates, min_child_words)
         if not merged_children and parent_content:
-            merged_children = [parent_content]
+            merged_children = [
+                {
+                    "content": parent_content,
+                    "page_number": _coerce_page_number(parent_blocks[0].page_no)
+                    if parent_blocks
+                    else 0,
+                    "content_flags": _empty_content_flags(),
+                    "artifact_refs": _empty_child_artifact_refs(),
+                }
+            ]
         merged_children = _prefix_children_with_preamble(
             merged_children,
             child_preamble_blocks,
         )
 
-        for child_text in merged_children:
+        for child_payload in merged_children:
+            child_text = str(child_payload.get("content", "")).strip()
+            if not child_text:
+                continue
+
+            child_page_number = child_payload.get("page_number")
+            if not isinstance(child_page_number, int):
+                child_page_number = 0
+            content_flags = child_payload.get("content_flags") or _empty_content_flags()
+            artifact_refs = child_payload.get("artifact_refs") or _empty_child_artifact_refs()
+
             child_id = generate_uuid_v6()
             parent_child_ids.append(child_id)
+            parent_page_numbers.add(child_page_number)
+
+            if bool(content_flags.get("is_image")):
+                parent_has_image = True
+            if bool(content_flags.get("is_table_image")):
+                parent_has_table_image = True
+
+            image_uuid = artifact_refs.get("image_uuid")
+            if isinstance(image_uuid, str) and image_uuid.strip():
+                parent_image_uuids.add(image_uuid.strip())
+
+            table_image_uuid = artifact_refs.get("table_image_uuid")
+            if isinstance(table_image_uuid, str) and table_image_uuid.strip():
+                parent_table_image_uuids.add(table_image_uuid.strip())
+
             child_chunks.append(
                 ChildChunkModel(
                     child_chunk_id=child_id,
-                    content=child_text.strip(),
+                    content=child_text,
                     file_metadata={
                         "file_name": file_name,
-                        "file_id": file_id,
+                        "file_id": resolved_file_id,
                     },
                     child_chunk_metadata={
                         "parent_id": parent_id,
                         "child_chunk_number": child_global_index,
+                        "page_number": child_page_number,
                         "ingested_at": datetime.now(timezone.utc).isoformat(),
+                    },
+                    content_flags={
+                        "is_image": bool(content_flags.get("is_image")),
+                        "is_table_image": bool(content_flags.get("is_table_image")),
+                    },
+                    artifact_refs={
+                        "image_uuid": image_uuid if isinstance(image_uuid, str) and image_uuid.strip() else None,
+                        "table_image_uuid": table_image_uuid
+                        if isinstance(table_image_uuid, str) and table_image_uuid.strip()
+                        else None,
                     },
                 )
             )
             child_global_index += 1
+
+        if not parent_page_numbers:
+            for block in parent_blocks:
+                parent_page_numbers.add(_coerce_page_number(block.page_no))
 
         parent_chunks.append(
             ParentChunkModel(
@@ -761,12 +952,21 @@ def split_parent_child_chunks_from_docling_blocks(
                 content=parent_content,
                 file_metadata={
                     "file_name": file_name,
-                    "file_id": file_id,
+                    "file_id": resolved_file_id,
                 },
                 parent_chunk_metadata={
                     "child_chunks_ids": parent_child_ids,
                     "parent_chunk_number": parent_chunk_number,
+                    "page_number": sorted(parent_page_numbers),
                     "ingested_at": datetime.now(timezone.utc).isoformat(),
+                },
+                content_flags={
+                    "is_image": parent_has_image,
+                    "is_table_image": parent_has_table_image,
+                },
+                artifact_refs={
+                    "image_uuid": sorted(parent_image_uuids),
+                    "table_image_uuid": sorted(parent_table_image_uuids),
                 },
             )
         )

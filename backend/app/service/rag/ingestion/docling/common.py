@@ -13,7 +13,9 @@ from uuid6 import uuid6
 
 from app.service.storage.s3_image_store import (
     _load_s3_config,
+    build_s3_docling_artifact_key,
     build_s3_image_key,
+    upload_bytes_to_s3,
     upload_file_to_s3,
 )
 
@@ -277,6 +279,7 @@ def _upload_image_artifact_to_s3(
     image_artifact: ExtractedImageArtifact,
     *,
     source_file_name: str,
+    file_id: str | None = None,
 ) -> ExtractedImageArtifact:
     """
     Best-effort S3 upload for a locally saved image artifact.
@@ -312,12 +315,23 @@ def _upload_image_artifact_to_s3(
             image_artifact.s3_error = "S3 upload disabled (missing config)"
             return image_artifact
 
-        s3_key = build_s3_image_key(
-            image_uuid=image_artifact.image_uuid,
-            extension=Path(image_artifact.file_name).suffix or ".png",
-            prefix=s3_config.prefix,
-            source_file_name=source_file_name,
-        )
+        extension = Path(image_artifact.file_name).suffix or ".png"
+        artifact_type = "table_image" if image_artifact.kind == "table_image" else "image"
+        if file_id:
+            s3_key = build_s3_docling_artifact_key(
+                file_id=file_id,
+                artifact_uuid=image_artifact.image_uuid,
+                artifact_type=artifact_type,
+                extension=extension,
+                prefix=s3_config.prefix,
+            )
+        else:
+            s3_key = build_s3_image_key(
+                image_uuid=image_artifact.image_uuid,
+                extension=extension,
+                prefix=s3_config.prefix,
+                source_file_name=source_file_name,
+            )
 
         upload_result = upload_file_to_s3(
             local_path=image_artifact.file_path,
@@ -327,6 +341,7 @@ def _upload_image_artifact_to_s3(
                 "image_uuid": image_artifact.image_uuid,
                 "kind": image_artifact.kind,
                 "source_file_name": source_file_name,
+                "file_id": file_id or "",
                 "page_no": "" if image_artifact.page_no is None else str(image_artifact.page_no),
             },
             config=s3_config,
@@ -341,6 +356,90 @@ def _upload_image_artifact_to_s3(
         image_artifact.s3_upload_status = "failed"
         image_artifact.s3_error = str(exc)
     return image_artifact
+
+
+def _table_data_file_path_from_uuid(
+    artifact_dir: Path,
+    table_image_uuid: str,
+) -> Path:
+    """
+    Return the local table-data JSON path `<artifact_dir>/table_data/<table_image_uuid>.json`.
+    """
+
+    table_data_dir = artifact_dir / "table_data"
+    table_data_dir.mkdir(parents=True, exist_ok=True)
+    return table_data_dir / f"{table_image_uuid}.json"
+
+
+def _upload_table_data_json_to_s3(
+    *,
+    json_bytes: bytes,
+    file_id: str,
+    table_image_uuid: str,
+    source_file_name: str,
+    page_no: int | None,
+) -> dict[str, Any] | None:
+    """
+    Best-effort upload for processed table-data JSON artifacts.
+    """
+
+    s3_config = _load_s3_config()
+    if s3_config is None:
+        return None
+
+    s3_key = build_s3_docling_artifact_key(
+        file_id=file_id,
+        artifact_uuid=table_image_uuid,
+        artifact_type="table_data",
+        extension=".json",
+        prefix=s3_config.prefix,
+    )
+    result = upload_bytes_to_s3(
+        data=json_bytes,
+        key=s3_key,
+        content_type="application/json",
+        metadata={
+            "kind": "table_data",
+            "table_image_uuid": table_image_uuid,
+            "source_file_name": source_file_name,
+            "file_id": file_id,
+            "page_no": "" if page_no is None else str(page_no),
+        },
+        config=s3_config,
+    )
+    return result.model_dump()
+
+
+def _build_toon_wrapped_table_payload(
+    *,
+    extracted_table_json: Any,
+    file_id: str,
+    page_no: int | None,
+) -> dict[str, Any]:
+    """
+    Convert extracted table JSON into TOON and wrap in the required schema.
+    """
+
+    try:
+        from py_toon_format import encode
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "Missing required dependency 'py-toon-format'. "
+            "Install it to enable table-data TOON conversion."
+        ) from exc
+
+    toon_payload = encode(extracted_table_json)
+    return {
+        "data": {
+            "toon": toon_payload,
+        },
+        "metadata": {
+            "source": {
+                "file_id": file_id,
+                "page_number": page_no if isinstance(page_no, int) and page_no > 0 else 0,
+            }
+        },
+    }
 
 
 def _write_manifest(artifact_dir: Path, payload: dict[str, Any]) -> None:
@@ -379,5 +478,8 @@ __all__ = [
     "_inject_marker_for_picture",
     "_stringify_endpoint_error",
     "_upload_image_artifact_to_s3",
+    "_table_data_file_path_from_uuid",
+    "_upload_table_data_json_to_s3",
+    "_build_toon_wrapped_table_payload",
     "_write_manifest",
 ]

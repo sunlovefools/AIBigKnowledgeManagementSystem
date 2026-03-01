@@ -1,4 +1,6 @@
 import io
+import json
+import os
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
@@ -135,6 +137,7 @@ def parse_pdf_with_docling_preview_local(
     file_name: str,
     artifact_root: Path | None = None,
     page_chunk_size: int = shared.DEFAULT_DOCLING_PAGE_CHUNK_SIZE,
+    file_id: str | None = None,
 ) -> shared.DoclingParseResult:
     """
     Local Docling PDF preview pipeline: convert + serialize locally in fixed page chunks.
@@ -150,6 +153,7 @@ def parse_pdf_with_docling_preview_local(
 
     runtime = _load_local_docling_runtime()
     converter = _get_or_create_local_converter()
+    resolved_file_id = (file_id or str(uuid6())).strip()
 
     # Get the artifact directory for storing all the artifacts of the docling run
     run_id, artifact_dir, markdown_path = shared._prepare_docling_preview_artifact_dir(
@@ -238,6 +242,62 @@ def parse_pdf_with_docling_preview_local(
             max_workers=table_image_vlm_runtime.max_workers,
             thread_name_prefix="table-vlm",
         )
+
+    def _persist_table_data_toon_artifacts() -> None:
+        """
+        Build TOON-wrapped table-data JSON artifacts and upload them to S3 when enabled.
+        """
+
+        if not artifacts_enabled or artifact_dir is None:
+            return
+        if not table_image_vlm_jobs:
+            return
+
+        upload_enabled = (os.getenv("AWS_S3_UPLOAD_ENABLED") or "").strip().lower() == "true"
+
+        for job in table_image_vlm_jobs:
+            extracted_json_path: Path | None = None
+            if job.result is not None and job.result.json_path:
+                extracted_json_path = Path(job.result.json_path)
+            else:
+                extracted_json_path = job.output_dir / "output.json"
+
+            if not extracted_json_path.exists():
+                continue
+
+            try:
+                extracted_payload = json.loads(extracted_json_path.read_text(encoding="utf-8"))
+                wrapped_payload = shared._build_toon_wrapped_table_payload(
+                    extracted_table_json=extracted_payload,
+                    file_id=resolved_file_id,
+                    page_no=job.page_no,
+                )
+                table_data_path = shared._table_data_file_path_from_uuid(
+                    artifact_dir,
+                    job.image_artifact.image_uuid,
+                )
+                serialized = json.dumps(wrapped_payload, indent=2, ensure_ascii=False)
+                table_data_path.write_text(serialized, encoding="utf-8")
+
+                if upload_enabled:
+                    try:
+                        shared._upload_table_data_json_to_s3(
+                            json_bytes=serialized.encode("utf-8"),
+                            file_id=resolved_file_id,
+                            table_image_uuid=job.image_artifact.image_uuid,
+                            source_file_name=file_name,
+                            page_no=job.page_no,
+                        )
+                    except Exception as exc:
+                        warnings.append(
+                            "Failed to upload table-data JSON to S3 "
+                            f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
+                        )
+            except Exception as exc:
+                warnings.append(
+                    "Failed to convert table-image JSON to TOON "
+                    f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
+                )
 
     current_start = 1
 
@@ -363,6 +423,7 @@ def parse_pdf_with_docling_preview_local(
                         image_artifact = shared._upload_image_artifact_to_s3(
                             image_artifact,
                             source_file_name=file_name,
+                            file_id=resolved_file_id,
                         )
                         if image_artifact.s3_upload_status == "failed":
                             s3_upload_failed_count += 1
@@ -424,6 +485,7 @@ def parse_pdf_with_docling_preview_local(
                             image_artifact = shared._upload_image_artifact_to_s3(
                                 image_artifact,
                                 source_file_name=file_name,
+                                file_id=resolved_file_id,
                             )
                             if image_artifact.s3_upload_status == "failed":
                                 s3_upload_failed_count += 1
@@ -573,6 +635,7 @@ def parse_pdf_with_docling_preview_local(
             markdown_parts=markdown_parts,
             warnings=warnings,
         )
+        _persist_table_data_toon_artifacts()
         table_image_vlm_executor.shutdown(wait=True)
 
     if not markdown_parts:

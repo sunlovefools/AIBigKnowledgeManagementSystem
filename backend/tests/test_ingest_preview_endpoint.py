@@ -174,13 +174,19 @@ def test_preview_uses_docling_block_chunker_when_structured_blocks_present(monke
         lambda **_: _fake_docling_result(structured_blocks=structured_blocks),
     )
 
-    def _split_docling_blocks(blocks, file_name, artifact_dir):
+    async def _upsert_documents(**kwargs):
+        captured["upsert_called"] = True
+        captured["upsert_kwargs"] = kwargs
+
+    def _split_docling_blocks(blocks, file_name, artifact_dir, file_id=None):
         captured["docling_blocks_called"] = True
         captured["block_count"] = len(blocks)
         captured["artifact_dir"] = artifact_dir
+        captured["file_id"] = file_id
         return [], []
 
     monkeypatch.setattr(router_ingest, "split_parent_child_chunks_from_docling_blocks", _split_docling_blocks)
+    monkeypatch.setattr(router_ingest, "upsert_documents", _upsert_documents)
 
     file_upload = router_ingest.FileUpload(
         fileName="sample.pdf",
@@ -191,6 +197,7 @@ def test_preview_uses_docling_block_chunker_when_structured_blocks_present(monke
     assert captured["docling_blocks_called"] is True
     assert captured["block_count"] == 2
     assert captured["artifact_dir"].endswith("run-1")
+    assert captured["upsert_called"] is True
 
 
 def test_preview_skips_docling_block_chunker_when_structured_blocks_missing(monkeypatch):
