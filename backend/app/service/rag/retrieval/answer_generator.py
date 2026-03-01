@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
+import asyncio
 from dataclasses import dataclass
 import json
 import os
 import re
 from typing import Any
+from urllib.parse import urlparse
 
 import aiohttp
 
@@ -20,7 +22,11 @@ except ImportError:
         log_answer_generation_request,
         log_answer_generation_response,
     )
-from .prompts.answer_generator_prompt import SYSTEM_PROMPT, build_user_message_json_context
+from .prompts.answer_generator_prompt import (
+    SYSTEM_PROMPT,
+    build_user_message_json_context,
+    build_user_message_toon_context,
+)
 
 __all__ = ["generate_answer", "generate_answer_api"]
 
@@ -36,16 +42,40 @@ class _AnswerGeneratorConfig:
 
     provider: str
     timeout_s: float
-    beam_url: str | None
-    beam_key: str | None
+    ollama_url: str | None
+    ollama_model: str | None
     openrouter_url: str
     openrouter_api_key: str | None
     openrouter_model: str
 
 
+def _resolve_ollama_generate_url(raw_url: str) -> str:
+    """Normalize configured Ollama endpoint URL to `/api/generate`."""
+    normalized = raw_url.strip().rstrip("/")
+    if normalized.lower().endswith("/api/generate"):
+        return normalized
+    return f"{normalized}/api/generate"
+
+
+def _is_local_ollama_url(url: str | None) -> bool:
+    """Return True when the configured Ollama URL targets a local daemon."""
+    if not url:
+        return True
+
+    normalized = url.strip()
+    if not normalized:
+        return True
+    if "://" not in normalized:
+        normalized = f"http://{normalized}"
+
+    parsed = urlparse(normalized)
+    host = (parsed.hostname or "").lower()
+    return host in {"localhost", "127.0.0.1", "::1"}
+
+
 def _load_config() -> _AnswerGeneratorConfig:
     """Load environment-based config at call time."""
-    provider = os.getenv("ANSWER_GENERATOR_LLM_PROVIDER", "BEAM").strip().upper()
+    provider = os.getenv("ANSWER_GENERATOR_LLM_PROVIDER", "OLLAMA").strip().upper()
     timeout_raw = (
         os.getenv("ANSWER_GENERATOR_TIMEOUT_S")
         or os.getenv("ANSWER_GENERATOR_TIMEOUT")
@@ -61,8 +91,22 @@ def _load_config() -> _AnswerGeneratorConfig:
     if timeout_s <= 0:
         raise RuntimeError("Answer generator timeout must be > 0.")
 
-    beam_url = os.getenv("BEAM_ANSWER_GENERATOR_LLM_URL") or os.getenv("LOCAL_ANSWER_GENERATOR_LLM_URL")
-    beam_key = os.getenv("BEAM_ANSWER_GENERATOR_LLM_KEY") or os.getenv("LOCAL_ANSWER_GENERATOR_LLM_KEY")
+    ollama_url_raw = (
+        os.getenv("OLLAMA_ANSWER_GENERATOR_LLM_URL")
+        or os.getenv("BEAM_ANSWER_GENERATOR_LLM_URL")
+        or os.getenv("LOCAL_ANSWER_GENERATOR_LLM_URL")
+    )
+    ollama_url = _resolve_ollama_generate_url(ollama_url_raw) if ollama_url_raw else None
+    ollama_model = (
+        os.getenv("OLLAMA_ANSWER_GENERATOR_LLM_MODEL")
+        or os.getenv("LOCAL_ANSWER_GENERATOR_LLM_MODEL")
+        or os.getenv("OLLAMA_MODEL")
+        or ""
+    ).strip() or None
+
+    # Read legacy key env vars for backward compatibility, but intentionally do not use
+    # Authorization for Ollama answer-generation calls.
+    _ = os.getenv("BEAM_ANSWER_GENERATOR_LLM_KEY") or os.getenv("LOCAL_ANSWER_GENERATOR_LLM_KEY")
 
     openrouter_url = os.getenv("OPENROUTER_URL", _OPENROUTER_URL).strip() or _OPENROUTER_URL
     openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
@@ -71,8 +115,8 @@ def _load_config() -> _AnswerGeneratorConfig:
     return _AnswerGeneratorConfig(
         provider=provider,
         timeout_s=timeout_s,
-        beam_url=beam_url,
-        beam_key=beam_key,
+        ollama_url=ollama_url,
+        ollama_model=ollama_model,
         openrouter_url=openrouter_url,
         openrouter_api_key=openrouter_api_key,
         openrouter_model=openrouter_model,
@@ -210,14 +254,14 @@ def _log_llm_request(
     provider: str,
     model: str | None,
     user_query: str,
-    rag_context_json: str,
+    rag_context_payload: str,
 ) -> None:
     """Write safe LLM request debug info."""
     log_answer_generation_request(
         provider=provider,
         model=model,
         user_query=user_query,
-        rag_context=rag_context_json,
+        rag_context=rag_context_payload,
     )
 
 
@@ -226,37 +270,92 @@ def _log_llm_response(answer: str) -> None:
     log_answer_generation_response(answer=answer)
 
 
-async def _generate_via_beam(
+async def _generate_via_ollama(
     session: aiohttp.ClientSession,
     cfg: _AnswerGeneratorConfig,
     rag_docs: list[dict[str, Any]],
     user_query: str,
 ) -> str:
-    """Generate an answer using the BEAM/local endpoint."""
-    if not cfg.beam_url or not cfg.beam_key:
+    """Generate an answer using an Ollama-compatible `/api/generate` endpoint."""
+    if not cfg.ollama_model:
         raise RuntimeError(
-            "BEAM provider configuration missing. Set BEAM_ANSWER_GENERATOR_LLM_URL "
-            "(or LOCAL_ANSWER_GENERATOR_LLM_URL) and BEAM_ANSWER_GENERATOR_LLM_KEY "
-            "(or LOCAL_ANSWER_GENERATOR_LLM_KEY)."
+            "Ollama answer generator model is missing. "
+            "Set OLLAMA_ANSWER_GENERATOR_LLM_MODEL "
+            "(or LOCAL_ANSWER_GENERATOR_LLM_MODEL / OLLAMA_MODEL)."
         )
 
-    rag_context_json = json.dumps(rag_docs, ensure_ascii=False, indent=2)
-    _log_llm_request(provider="BEAM", model=None, user_query=user_query, rag_context_json=rag_context_json)
+    try:
+        from py_toon_format import encode
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "Missing required dependency 'py-toon-format'. "
+            "Install it to enable TOON context formatting for answer generation."
+        ) from exc
 
-    # Send rag_context in JSON doc-list form. Beam handler can keep backward compatibility.
-    payload = {"rag_context": rag_docs, "user_query": user_query}
-    headers = {"Authorization": f"Bearer {cfg.beam_key}", "Content-Type": "application/json"}
-
-    data = await _post_json(
-        session=session,
-        url=cfg.beam_url,
-        payload=payload,
-        headers=headers,
-        timeout_s=cfg.timeout_s,
-        error_prefix="Answer Generator BEAM API error",
+    rag_context_toon = str(encode(rag_docs))
+    prompt_text = build_user_message_toon_context(rag_context_toon, user_query)
+    _log_llm_request(
+        provider="OLLAMA",
+        model=cfg.ollama_model,
+        user_query=user_query,
+        rag_context_payload=rag_context_toon,
     )
 
-    answer = data.get("answer")
+    payload = {
+        "model": cfg.ollama_model,
+        "system": SYSTEM_PROMPT,
+        "prompt": prompt_text,
+        "stream": False,
+    }
+    is_local_ollama = _is_local_ollama_url(cfg.ollama_url)
+
+    if is_local_ollama:
+        try:
+            from ollama import AsyncClient
+        except ModuleNotFoundError as exc:
+            raise RuntimeError(
+                "Missing required dependency 'ollama'. "
+                "Install it to enable local Ollama library integration."
+            ) from exc
+
+        try:
+            client = AsyncClient()
+            data = await asyncio.wait_for(
+                client.generate(
+                    model=cfg.ollama_model,
+                    system=SYSTEM_PROMPT,
+                    prompt=prompt_text,
+                    stream=False,
+                ),
+                timeout=cfg.timeout_s,
+            )
+        except asyncio.TimeoutError as exc:
+            raise RuntimeError(
+                f"Answer Generator Ollama library error: request timed out after {cfg.timeout_s} seconds."
+            ) from exc
+        except Exception as exc:
+            raise RuntimeError(f"Answer Generator Ollama library error: {exc}") from exc
+
+        if not isinstance(data, dict):
+            raise RuntimeError("Answer Generator Ollama library error: expected dict response.")
+    else:
+        if not cfg.ollama_url:
+            raise RuntimeError(
+                "Ollama answer generator URL is missing. Set OLLAMA_ANSWER_GENERATOR_LLM_URL "
+                "(or compatibility aliases BEAM_ANSWER_GENERATOR_LLM_URL / LOCAL_ANSWER_GENERATOR_LLM_URL)."
+            )
+
+        headers = {"Content-Type": "application/json"}
+        data = await _post_json(
+            session=session,
+            url=cfg.ollama_url,
+            payload=payload,
+            headers=headers,
+            timeout_s=cfg.timeout_s,
+            error_prefix="Answer Generator Ollama API error",
+        )
+
+    answer = data.get("response")
     final_answer = answer if isinstance(answer, str) and answer.strip() else _NO_ANSWER_FALLBACK
     _log_llm_response(final_answer)
     return final_answer
@@ -277,7 +376,7 @@ async def _generate_via_openrouter(
         provider="OPENROUTER",
         model=cfg.openrouter_model,
         user_query=user_query,
-        rag_context_json=rag_context_json,
+        rag_context_payload=rag_context_json,
     )
 
     messages = [
@@ -333,13 +432,13 @@ async def generate_answer(rag_docs: list[dict[str, Any]] | list[str], user_query
     normalized_docs = _normalize_rag_docs(rag_docs)
 
     async with aiohttp.ClientSession() as session:
-        if cfg.provider == "BEAM":
-            return await _generate_via_beam(session, cfg, normalized_docs, user_query)
+        if cfg.provider in {"OLLAMA", "BEAM"}:
+            return await _generate_via_ollama(session, cfg, normalized_docs, user_query)
         if cfg.provider == "OPENROUTER":
             return await _generate_via_openrouter(session, cfg, normalized_docs, user_query)
         raise RuntimeError(
             f"Invalid ANSWER_GENERATOR_LLM_PROVIDER: {cfg.provider}. "
-            "Expected 'BEAM' or 'OPENROUTER'."
+            "Expected 'OLLAMA', 'BEAM' (alias), or 'OPENROUTER'."
         )
 
 

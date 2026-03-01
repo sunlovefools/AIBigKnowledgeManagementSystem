@@ -14,6 +14,7 @@ boto3
 email-validator
 requests
 py-toon-format
+ollama
 gunicorn
 langchain
 numpy

@@ -16,10 +16,18 @@ It evaluates the pipeline component-by-component, checking both:
 ## Required Services
 To successfully run this evaluation, several services must be active. If any of these are down, the script will fail.
 - **Embeddings:** used by RAGAS to compute semantic similarity for metrics.
-- **LLM (Judge):** used by RAGAS to grade answer quality and grounding. [Make sure to run Models/Evaluate_Judge_LLM/main.py first]
+- **LLM (Judge):** used by RAGAS to grade answer quality and grounding (served by local Ollama daemon).
 - **Answer Generator LLM:** your RAG pipeline's LLM service that generates answers. [Make sure either Models/Local_Answer_Generator/main.py or the Beam-hosted service is running]
 
-The script uses a **local LLM endpoint** (configured in `evaluate_rag.py`). Ensure the local LLM service is running **before** you start the evaluation.
+The script uses the Python `ollama` library directly (configured in `evaluate_rag.py`) for judge calls. Ensure your local Ollama daemon is running and the configured judge model is available before starting evaluation.
+
+Set the judge model in `.env`:
+
+```env
+OLLAMA_EVAL_JUDGE_MODEL=qwen2.5:14b
+# optional generic fallback:
+# OLLAMA_MODEL=qwen2.5:14b
+```
 
 ## The 5 RAGAS Metrics
 The evaluation uses the following RAGAS metrics:

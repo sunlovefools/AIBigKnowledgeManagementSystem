@@ -18,6 +18,7 @@ dependencies = [
     "langchain-huggingface",
     "langchain-text-splitters",
     "numpy",
+    "ollama",
     "pandas",
     "pydantic",
     "pymupdf",
