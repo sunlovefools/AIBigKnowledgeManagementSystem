@@ -240,10 +240,23 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
     assert len(picture_items) == 2
     for img in picture_items:
         assert f"<!-- image-uuid: {img.image_uuid} -->" in markdown_text
+        assert img.file_name == f"{img.image_uuid}.png"
+        assert Path(img.file_path).name == img.file_name
+        assert Path(img.file_path).parent == artifact_dir / "images"
+        assert Path(img.file_path).exists()
 
     table_images = [img for img in result.images if img.kind == "table_image"]
     assert len(table_images) == 1
     assert f"<!-- table-image-uuid: {table_images[0].image_uuid} -->" in markdown_text
+    table_rel_path = docling_common._image_markdown_rel_path_from_uuid(table_images[0].image_uuid)
+    assert f"![{table_images[0].file_name}]({table_rel_path})" in markdown_text
+    assert table_images[0].file_name == f"{table_images[0].image_uuid}.png"
+    assert Path(table_images[0].file_path).parent == artifact_dir / "images"
+
+    image_files = list((artifact_dir / "images").glob("*.png"))
+    assert len(image_files) == len(result.images)
+    assert not list(artifact_dir.glob("*.png"))
+
     assert result.stats.converted_chunks == 1
     assert result.stats.partial_failure_chunks == 1
     assert len(result.partial_failures) == 1
@@ -649,6 +662,12 @@ def test_local_backend_processes_in_fixed_chunks_and_serializes(monkeypatch, tmp
     assert "<!-- table-image-uuid:" in result.markdown_text
     assert result.stats.pictures_extracted == 1
     assert result.stats.table_fallback_images_extracted == 1
+    assert len(result.images) == 2
+    for img in result.images:
+        assert img.file_name == f"{img.image_uuid}.png"
+        assert Path(img.file_path).parent == Path(result.artifact_dir) / "images"
+        assert Path(img.file_path).exists()
+    assert not list(Path(result.artifact_dir).glob("*.png"))
 
 
 def test_local_backend_raises_when_no_chunks_convert(monkeypatch, tmp_path):

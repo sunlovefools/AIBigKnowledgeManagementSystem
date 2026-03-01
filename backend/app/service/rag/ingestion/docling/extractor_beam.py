@@ -25,7 +25,9 @@ DoclingParseResult = common.DoclingParseResult
 _backend_root = common._backend_root
 _default_preview_root = common._default_preview_root
 _prepare_docling_preview_artifact_dir = common._prepare_docling_preview_artifact_dir
-_safe_stem = common._safe_stem
+_image_file_name_from_uuid = common._image_file_name_from_uuid
+_image_file_path_from_uuid = common._image_file_path_from_uuid
+_image_markdown_rel_path_from_uuid = common._image_markdown_rel_path_from_uuid
 _extract_page_no = common._extract_page_no
 _picture_uuid_marker = common._picture_uuid_marker
 _table_image_uuid_marker = common._table_image_uuid_marker
@@ -339,7 +341,6 @@ def parse_pdf_with_docling_preview(
         file_name=file_name,
         artifact_root=artifact_root,
     )
-    safe_stem = _safe_stem(file_name)
 
     markdown_parts: list[str] = [] # A list to accumulate serialised markdown text parts
     structured_block_metadata: list[dict[str, Any]] = []
@@ -458,9 +459,9 @@ def parse_pdf_with_docling_preview(
                 if is_picture_item:
                     picture_markdown_placeholder = DOCLING_IMAGE_CROP_FAILED_MARKER
                     picture_counter += 1
-                    picture_name = f"{safe_stem}-picture-{picture_counter}.png"
-                    picture_path = artifact_dir / picture_name
                     image_uuid = str(uuid6())
+                    picture_name = _image_file_name_from_uuid(image_uuid)
+                    picture_path = _image_file_path_from_uuid(artifact_dir, image_uuid)
                     try:
                         png_bytes = _crop_image_bytes_from_endpoint_item(endpoint_item, pdf_doc)
                         if not png_bytes:
@@ -509,9 +510,12 @@ def parse_pdf_with_docling_preview(
                     num_rows, num_cols = _coerce_endpoint_table_shape(endpoint_item)
                     if num_rows == 0 or num_cols == 0:
                         table_image_count += 1
-                        table_image_name = f"{safe_stem}-table-{table_index}-{uuid6()}.png"
-                        table_image_path = artifact_dir / table_image_name
                         image_uuid = str(uuid6())
+                        table_image_name = _image_file_name_from_uuid(image_uuid)
+                        table_image_path = _image_file_path_from_uuid(
+                            artifact_dir,
+                            image_uuid,
+                        )
                         try:
                             png_bytes = _crop_image_bytes_from_endpoint_item(endpoint_item, pdf_doc)
                             if not png_bytes:
@@ -549,7 +553,7 @@ def parse_pdf_with_docling_preview(
                             table_markdown_lines = [
                                 "> **Table (image)**: Table exists in image form.",
                                 f"> {_table_image_uuid_marker(image_artifact.image_uuid)}",
-                                f"> ![{table_image_name}]({table_image_name})",
+                                f"> ![{table_image_name}]({_image_markdown_rel_path_from_uuid(image_artifact.image_uuid)})",
                             ]
 
                             if table_image_vlm_runtime is not None and table_image_vlm_executor is not None:

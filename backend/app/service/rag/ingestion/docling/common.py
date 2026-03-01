@@ -143,6 +143,59 @@ def _safe_stem(file_name: str) -> str:
     return stem or "document"
 
 
+def _artifact_images_dir(artifact_dir: Path) -> Path:
+    """
+    Return the per-run image artifact directory and ensure it exists.
+    """
+
+    images_dir = artifact_dir / "images"
+    images_dir.mkdir(parents=True, exist_ok=True)
+    return images_dir
+
+
+def _image_file_name_from_uuid(
+    image_uuid: str,
+    *,
+    extension: str = ".png",
+) -> str:
+    """
+    Build the local image filename from image UUID only.
+    """
+
+    normalized_ext = extension if extension.startswith(".") else f".{extension}"
+    return f"{image_uuid}{normalized_ext}"
+
+
+def _image_file_path_from_uuid(
+    artifact_dir: Path,
+    image_uuid: str,
+    *,
+    extension: str = ".png",
+) -> Path:
+    """
+    Return the local image path under `<artifact_dir>/images/<image_uuid>.png`.
+    """
+
+    return _artifact_images_dir(artifact_dir) / _image_file_name_from_uuid(
+        image_uuid,
+        extension=extension,
+    )
+
+
+def _image_markdown_rel_path_from_uuid(
+    image_uuid: str,
+    *,
+    extension: str = ".png",
+) -> str:
+    """
+    Return markdown-friendly relative path `images/<image_uuid>.png`.
+    """
+
+    return (
+        Path("images") / _image_file_name_from_uuid(image_uuid, extension=extension)
+    ).as_posix()
+
+
 def _extract_page_no(doc_item: Any) -> int | None:
     """
     Extract the page number from a Docling document item, if available.
@@ -287,6 +340,10 @@ __all__ = [
     "_default_preview_root",
     "_prepare_docling_preview_artifact_dir",
     "_safe_stem",
+    "_artifact_images_dir",
+    "_image_file_name_from_uuid",
+    "_image_file_path_from_uuid",
+    "_image_markdown_rel_path_from_uuid",
     "_extract_page_no",
     "_picture_uuid_marker",
     "_table_image_uuid_marker",

@@ -156,7 +156,6 @@ def parse_pdf_with_docling_preview_local(
         file_name=file_name,
         artifact_root=artifact_root,
     )
-    safe_stem = shared._safe_stem(file_name)
 
     markdown_parts: list[str] = []
     structured_block_metadata: list[dict[str, Any]] = []
@@ -329,9 +328,12 @@ def parse_pdf_with_docling_preview_local(
             # If its a pictureItem, then we will need to save it and uplaod it to S3
             if isinstance(element, picture_item_cls):
                 picture_counter += 1
-                picture_name = f"{safe_stem}-picture-{picture_counter}.png"
-                picture_path = artifact_dir / picture_name
                 image_uuid = str(uuid6())
+                picture_name = shared._image_file_name_from_uuid(image_uuid)
+                picture_path = shared._image_file_path_from_uuid(
+                    artifact_dir,
+                    image_uuid,
+                )
                 try:
                     img = element.get_image(result.document)
                     if img is None:
@@ -383,9 +385,12 @@ def parse_pdf_with_docling_preview_local(
 
                 if num_rows == 0 or num_cols == 0:
                     table_image_count += 1
-                    table_image_name = f"{safe_stem}-table-{table_index}-{uuid6()}.png"
-                    table_image_path = artifact_dir / table_image_name
                     image_uuid = str(uuid6())
+                    table_image_name = shared._image_file_name_from_uuid(image_uuid)
+                    table_image_path = shared._image_file_path_from_uuid(
+                        artifact_dir,
+                        image_uuid,
+                    )
                     try:
                         img = element.get_image(result.document)
                         if img is None:
@@ -426,7 +431,7 @@ def parse_pdf_with_docling_preview_local(
                         table_markdown_lines = [
                             "> **Table (image)**: Table exists in image form.",
                             f"> {shared._table_image_uuid_marker(image_artifact.image_uuid)}",
-                            f"> ![{table_image_name}]({table_image_name})",
+                            f"> ![{table_image_name}]({shared._image_markdown_rel_path_from_uuid(image_artifact.image_uuid)})",
                         ]
 
                         if table_image_vlm_runtime is not None and table_image_vlm_executor is not None:
