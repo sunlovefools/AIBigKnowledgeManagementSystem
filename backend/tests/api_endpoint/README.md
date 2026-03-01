@@ -2,7 +2,7 @@
 
 This folder contains manual scripts for testing backend API endpoints that accept file uploads.
 
-## Preview Route Test (`/ingest/webhook/preview`)
+## Upload Route Test (`/ingest/upload`)
 
 Start the backend first:
 
@@ -11,7 +11,7 @@ cd backend
 uvicorn app.main:app --reload
 ```
 
-Send a PDF to the Docling preview endpoint:
+Send a PDF to the unified upload endpoint:
 
 ```bash
 python backend/tests/api_endpoint/send_file_to_endpoint.py --file "C:\path\to\sample.pdf"
@@ -19,12 +19,12 @@ python backend/tests/api_endpoint/send_file_to_endpoint.py --file "C:\path\to\sa
 
 ## Useful Variants
 
-Send to the normal ingestion webhook instead:
+Send to the upload endpoint:
 
 ```bash
 python backend/tests/api_endpoint/send_file_to_endpoint.py ^
   --file "C:\path\to\sample.pdf" ^
-  --endpoint "http://127.0.0.1:8000/ingest/webhook"
+  --endpoint "http://127.0.0.1:8000/ingest/upload"
 ```
 
 Override MIME type manually:
@@ -42,4 +42,3 @@ python backend/tests/api_endpoint/send_file_to_endpoint.py ^
   --file "C:\path\to\sample.pdf" ^
   --save-response "backend\tests\api_endpoint\last_response.json"
 ```
-

@@ -45,7 +45,7 @@ export function useFileUpload({ onUploadMessage, onUploadSuccess }: UseFileUploa
 
         setIsUploading(true);
         try {
-            await axios.post(`${API_BASE}/ingest/webhook`, {
+            await axios.post(`${API_BASE}/ingest/upload`, {
                 fileName: selectedFile.name,
                 contentType: selectedFile.type || "application/octet-stream",
                 data: fileContent,

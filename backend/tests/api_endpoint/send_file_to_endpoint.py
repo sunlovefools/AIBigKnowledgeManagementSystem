@@ -1,6 +1,6 @@
 """
-Manual test helper for the Docling preview endpoint:
-    POST /ingest/webhook/preview
+Manual test helper for the unified upload endpoint:
+    POST /ingest/upload
 
 Edit the configuration variables below, then run:
     python backend/tests/api_endpoint/send_file_to_endpoint.py
@@ -16,7 +16,7 @@ import requests
 # Edit these before running
 # ---------------------------
 PDF_FILE_PATH = r"C:\Users\Yoong Shen\Desktop\Docling_test\input\cgi-2025-annual-report.pdf"
-PREVIEW_ENDPOINT_URL = "http://127.0.0.1:8000/ingest/webhook/preview"
+UPLOAD_ENDPOINT_URL = "http://127.0.0.1:8000/ingest/upload"
 REQUEST_TIMEOUT_SECONDS = 300
 SAVE_RESPONSE_PATH = None  # Example: r"backend\tests\api_endpoint\last_response.json"
 
@@ -25,7 +25,7 @@ def build_payload(file_path: Path) -> dict:
     data = file_path.read_bytes()
     return {
         "fileName": file_path.name,
-        # Preview endpoint is PDF-only, so always send application/pdf.
+        # This helper is primarily used for PDF uploads.
         "contentType": "application/pdf",
         "data": base64.b64encode(data).decode("utf-8"),
     }
@@ -41,12 +41,12 @@ def main() -> int:
     payload = build_payload(file_path)
 
     print(f"Sending: {file_path}")
-    print(f"Endpoint: {PREVIEW_ENDPOINT_URL}")
+    print(f"Endpoint: {UPLOAD_ENDPOINT_URL}")
     print(f"Content-Type: {payload['contentType']}")
 
     try:
         response = requests.post(
-            PREVIEW_ENDPOINT_URL,
+            UPLOAD_ENDPOINT_URL,
             json=payload,
             timeout=REQUEST_TIMEOUT_SECONDS,
         )

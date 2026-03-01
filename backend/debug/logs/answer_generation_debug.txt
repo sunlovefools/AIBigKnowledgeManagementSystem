@@ -111,3 +111,520 @@ When is the scheduled launch date and time for the PSLV-C56 mission, and where w
 ]
 </CONTEXT>
 --------------------------------------------------
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T20:23:47.177963+00:00
+Provider: OPENROUTER
+Model: deepseek/deepseek-r1-0528:free
+Context Length: 20498
+
+<QUERY>
+Tell me more about the CGI AI big knowledge management system project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f1158a9-324c-6de1-9535-d3f32b685550",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 4
+    },
+    "page_content": "## BASIS OF PRESENTATION\n\nThis Management's Discussion and Analysis of the Financial Position and Results of Operations (MD&amp;A) is a responsibility of management and has been reviewed and approved by the Board of Directors. This MD&amp;A has been prepared in accordance with the rules and regulations of the Canadian Securities Administrators. The Board of Directors is ultimately responsible for reviewing and approving the MD&amp;A. The Board of Directors carries out this responsibility through its Audit and Risk Management Committee, which is appointed by the Board of Directors and is comprised entirely of independent and financially literate directors.\n\nThroughout this document, CGI Inc. is referred to as 'CGI', 'we', 'us', 'our' or 'Company'. This MD&amp;A provides information management believes is relevant to an assessment and understanding of the consolidated results of operations and financial condition of the Company. This document should be read in conjunction with the audited consolidated financial statements and the notes thereto for the years ended September 30, 2025 and 2024. CGI's accounting policies are in accordance with International Financial Reporting Standards as issued by the International Accounting Standards Board (IFRS Accounting Standards). All dollar amounts are in Canadian dollars unless otherwise noted.\n\nDuring the first quarter of Fiscal 2025, the Company combined the previously reported items Acquisition-related and integration costs and Cost Optimization Program into one operating expenses line called Restructuring, acquisition and related integration costs. Comparative figures were combined to align with the new presentation. See section 3.6.1. for more details.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-325a-61cf-8049-9094d17ec33e",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 25
+    },
+    "page_content": "## 1.3. COMPETITIVE ENVIRONMENT\n\nAs market dynamics and industry trends continue to increase client demand for ROI-led digitization, CGI is well-positioned to serve as a digital partner and expert of choice. We work with clients across the globe to implement digital strategies, roadmaps and solutions that help clients transform the customer/citizen experience, drive the launch of new products and services, and deliver efficiencies and cost savings.\n\nCGI's competition is comprised of a variety of firms, from local companies providing specialized services and software, government pure-plays to global business consulting and IT services providers. All of these players are competing to deliver some or all of the services we provide.\n\nMany factors distinguish the industry leaders, including the following:\n\n- Depth and breadth of industry and technology expertise;\n\n- Local presence and strength of client relationships;\n\n- Extensive and flexible global delivery network, including onshore, nearshore and offshore options;\n\n- Breadth of digital IP solutions;\n\n- Embedding AI to drive business outcomes across the clients' transformation journey;\n\n- Total cost of services and value delivered;\n\n- Ability to deliver practical innovation for measurable results; and\n\n- Consistent on-time, within-budget delivery everywhere clients operate.\n\nCGI is one of the leaders in the industry with respect to the combination of these factors. CGI is one of few firms with the scale, reach, and capabilities to meet clients' enterprise business and technology needs.\n\n© 2025 CGI Inc.\n\nPage\n\n13\n\nManagement's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3252-6c9d-95ec-09523c4fce66",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 16
+    },
+    "page_content": "## End-to-end services and solutions\n\nCGI delivers end-to-end services that help clients achieve the highest returns on their digital investments. We call this ROI-led digitization. Our insights-driven end-to-end services and solutions work together to help clients design, implement, run and operate the technology critical to achieving their business strategies. Our portfolio encompasses:\n\n- i. Business and strategic IT consulting, and systems integration services: CGI helps clients drive sustainable value in critical consulting areas, including strategy, organization and change management, core operations and technology. Within each of these areas, our consultants also deliver a broad range of business offerings to address client executives' priorities, including designing and advancing strategies for the responsible use of artificial intelligence (AI), sustainable supply chain management, environmental, social and governance (ESG), mergers and acquisitions, and more. In the area of systems integration, we help clients accelerate the enterprise modernization of their legacy systems and adopt new technologies to drive innovation and deliver real-time and insight-driven customer and citizen services.\n\n- ii. Managed IT and business process services: Working as an extension of our clients' organizations, we take on full or partial responsibility for managing their IT functions, freeing them up to focus on their strategic business direction. Our services enable clients to reinvest, alongside CGI, in the successful execution of their digital transformation roadmaps. We help them increase agility, scalability and resilience; deliver operational efficiencies, innovations and reduced costs; and embed security and data privacy controls. Typical services include: application development, modernization and maintenance; holistic enterprise digitization, AI and automation, hybrid and cloud management; and business process services. When clients partner with CGI as part of a managed services engagement, they also benefit from CGI DigiOps, our AI-powered service delivery approach that can deliver sustainable double-digit efficiency improvements.\n\n- iii. Intellectual property (IP) business solutions: CGI's portfolio of IP solutions are highly configurable 'business platforms as a service' that are embedded within our end-to-end service offerings and utilize integrated security, data privacy practices, provider-neutral cloud approaches, and advanced AI capabilities to provide immediate benefits to clients. We invest in, and deliver, market-leading IP to drive business outcomes within each of our target industries. We also collaborate with clients to build and evolve IP-based solutions while enabling a higher degree of flexibility and customization for their unique modernization and digitization needs.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aab-6b4a-89a9-4a8b9bd76b2d",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## Project Background Information\n\nModern AI tools are cool, but do you want to build something cooler?\n\nAll Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).\n\nOne solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aa9-6325-a34c-ede69e5d704c",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 2
+    },
+    "page_content": "## Additional Info\n\n- [ ] Students must sign NDA: ☐\n\n- [ ] Project uses personal data: ☐\n\nCustom hardware required:\n\n☐\n\nIf Applicable: Please provide details\n\nRelevant research areas (if applicable) 1 :\n\nAI and Cloud",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3255-63ae-b914-7a66647ee205",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 17
+    },
+    "page_content": "## Deep industry and technology expertise\n\nCGI has long-standing and focused practices in all of its core industries, providing clients with a partner that is not only an expert in IT, but also an expert in their respective industries. This combination of business knowledge and digital technology expertise allows us to help our clients navigate complex challenges and focus on value creation. In the process, we evolve the services and solutions we deliver within our targeted industries and provide thought leadership and detailed industry blueprints. These blueprints map the structures, processes, data flows, and regulatory frameworks across the full industry ecosystem-including supply chains, partner networks, and other interdependencies-delivering actionable insights to help clients drive growth and resilience.\n\n© 2025 CGI Inc.\n\nPage\n\n10\n\nManagement's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024\n\nOur targeted industries include financial services (including banking and insurance), government (including space), manufacturing, retail and distribution (including consumer services, transportation and logistics), communications and utilities (including energy and media), and health (including life sciences). To help orchestrate our global posture across these industries, our leaders regularly participate in cabinet meetings and councils to advance the strategies, services and solutions we deliver to our clients.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3255-63b2-91f7-f6459f887e5d",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 18
+    },
+    "page_content": "## Helping clients leverage technology to its fullest\n\nMacro trends such as changing political, fiscal and regulatory environments, supply chain reconfiguration, climate change and energy transition, and demographic shifts including aging populations and talent shortages require new business models and ways of working. At the same time, technology is reshaping our future and creating new opportunities.\n\nAccelerating digitization provides the inclusive, economically vibrant, and sustainable future our clients' customers and citizens demand. Leveraging technology to its fullest, including the responsible use of data, AI, and other emerging technologies, helps clients to lead within their industries. Our end-to-end digital services, industry and technology expertise, and operational excellence combine to help clients advance their holistic digital transformation.\n\nThrough our proprietary Voice of Our Clients research, we analyzed the characteristics of leading digital organizations and found these common attributes:\n\n- Strategic alignment and business agility : Digital leaders have highly agile business models to address digitization and are better at aligning and integrating business and IT operations to support and execute strategy.\n\n- Digitization : They have mature strategies to leverage data and digitization to achieve business model resilience, are less challenged by legacy systems, strategically leverage secure cloud-based solutions, and extend their digitization strategy to their external ecosystem.\n\n- Data, automation and AI : They adopt a holistic data strategy for the enterprise and ecosystem and have a higher rate of being in progress with or having implemented both traditional and generative AI.\n\n- Data privacy and protection : They produce greater results from their data privacy and protection strategy, which also extends to their external ecosystem. Their cybersecurity programs are highly mature in terms of connected assets.\n\nDigital leaders across industries seek new ways to evolve their strategy and operational models and use technology and datadriven insights to improve how they operate, deliver products and services, and create value.\n\nCGI helps clients adopt leading digital attributes and design, manage, protect and evolve their digital value chains to accelerate business outcomes.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aa9-6321-9c91-67b89553f6cd",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "## Call for Expressions of Interest\n\nDate of Issue:\n\nSeptember 2025\n\nExpected Completion Date:\n\nMay 2026\n\nProject Title:\n\nAI Big Knowledge Management\n\nCompany:\n\nCGI",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3252-6c9a-a179-7bd783c54a91",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 15
+    },
+    "page_content": "## 1. Corporate Overview\n\n## 1.1. ABOUT CGI\n\nFounded in 1976 and headquartered in Montréal, Canada, CGI is a leading IT and business consulting services firm with approximately 94,000 consultants and professionals worldwide. We use the power of technology to help clients accelerate their holistic digital transformation.\n\nCGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aab-6b4d-a828-5ee9a2ffc291",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 4
+    },
+    "page_content": "## For this we will focus on combining:\n\n1. Front-end user interface\n\n2. Model Context Protocol (MCP) server\n\n3. Vector database\n\n4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)\n\n5. The framework LangChain.\n\n1  An overview of different research areas in the school of computer science can be found here.\n\nA practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.\n\nThis is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!",
+    "type": "Document"
+  },
+  {
+    "id": "1f115abc-b46a-6378-ab86-ad1f60d6e1f2",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 42
+    },
+    "page_content": "3.3.2 “Big picture” Reflection Checklist \nIntellectual property (the Copyright, Designs and Patents Act (1988)) \n• \nHas the work created any intellectual property? E.g. source code, documents, photos or \nrecordings, patentable technologies, trademarks. If so: \no What intellectual property and who owns it? \no Do you have a plan to commercially exploit the work? How? \no Do you plan to distribute or promote the work in other ways, for example using open \nsource/open data/creative commons licenses? How? \n• source/open data/creative commons licenses? How? \n• \nSee also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision \nand Processing of Intellectual Property Rights for Students and Graduates at The University of \nNottingham” \nResearch ethics \n• \nDoes the work involve human participants or data subjects? If so: \no Have you followed the University of Nottingham research ethics requirements?  \no How does the work safeguard participants and data subjects? \no How does the work reflect principles of informed consent and voluntary \nparticipation?",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3387-685e-971c-b15a80c98e25",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 485
+    },
+    "page_content": "## Insights you can act on\n\nFounded in 1976, CGI is among the largest IT and business consulting services firms in the world.\n\nWe are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3387-6860-8cd8-ef1d437df269",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 486
+    },
+    "page_content": "## cgi.com/investors\n\nContact: ir@cgi.com\n\n© 2025 CGI Inc.\n\n<!-- image-uuid: 1f1158a9-303e-6ee8-be52-9d11761502fb -->",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3257-6aca-8e4e-33113c456e37",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 23
+    },
+    "page_content": "## Executing our strategy\n\nCGI's strategy is executed through a business model that combines client proximity with an extensive global delivery network to deliver the following benefits:\n\n· Local relationships and accountability: We live and work near our clients to provide a high level of responsiveness, partnership, and innovation, and invest in the economies, digital talent and infrastructure of the countries and metro markets where we operate. Our local consultants and professionals speak our clients' language, understand their business and industries, and collaborate to meet their goals and advance their business.\n\n· Global reach: Our local presence is complemented by an expansive global delivery network that ensures our clients have 24/7 access to best-fit digital capabilities and resources to meet their end-to-end needs. In addition, clients benefit from our unique combination of industry domain and technology expertise within our global delivery model. We also help clients build and run global capability centers (GCCs) that go beyond cost efficiency to unlock agility, resiliency, and innovation in an AI-first world.\n\n· Committed experts: Two of our key strategic goals are to be our clients' partner and expert of choice. To achieve this, we invest in developing and recruiting professionals with extensive industry, business and in-demand technology expertise and provide comprehensive learning programs and development initiatives to continuously deepen their knowledge, achieve their career aspirations, and deliver tangible business outcomes for our clients. Individually and collectively, each of our experts embody partnership behaviors in all they do by being consultative and building trusted relationships with each other, our clients, shareholders, and within our communities. In addition, a majority of consultants and professionals are also owners through our Share Purchase Plan, which, combined with the Profit Participation Plan, provide an added level of commitment to the success of our clients.\n\n© 2025 CGI Inc.\n\nPage\n\n12\n\nManagement's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024\n\n· Everyday innovation: Our approach to client engagements is to continuously bring forward actionable insights that support clients' ROI-led digitization priorities. Through our client satisfaction program, we regularly assess the degree to which clients find that CGI introduced applicable innovation to the engagements we deliver for them, including through our ideas, processes, tools and offerings. We also scale innovative solutions co-created with clients through a global governance model.\n\n· Comprehensive quality processes: CGI's investment in quality frameworks and rigorous client satisfaction assessments has resulted in a consistent track record of on-time and within-budget project delivery. With regular reviews of engagements and transparency at all levels, the Company ensures that client objectives and its own quality objectives are consistently followed at all times. This thorough process enables CGI to generate continuous improvements for all stakeholders by applying corrective measures as soon as they are required.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T20:27:32.025616+00:00
+Provider: OPENROUTER
+Model: qwen/qwen3-235b-a22b-thinking-2507
+Context Length: 20498
+
+<QUERY>
+Tell me more about the CGI AI big knowledge management system project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f115ac6-3aab-6b4a-89a9-4a8b9bd76b2d",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## Project Background Information\n\nModern AI tools are cool, but do you want to build something cooler?\n\nAll Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).\n\nOne solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3252-6c9a-a179-7bd783c54a91",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 15
+    },
+    "page_content": "## 1. Corporate Overview\n\n## 1.1. ABOUT CGI\n\nFounded in 1976 and headquartered in Montréal, Canada, CGI is a leading IT and business consulting services firm with approximately 94,000 consultants and professionals worldwide. We use the power of technology to help clients accelerate their holistic digital transformation.\n\nCGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3387-685e-971c-b15a80c98e25",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 485
+    },
+    "page_content": "## Insights you can act on\n\nFounded in 1976, CGI is among the largest IT and business consulting services firms in the world.\n\nWe are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aa9-6325-a34c-ede69e5d704c",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 2
+    },
+    "page_content": "## Additional Info\n\n- [ ] Students must sign NDA: ☐\n\n- [ ] Project uses personal data: ☐\n\nCustom hardware required:\n\n☐\n\nIf Applicable: Please provide details\n\nRelevant research areas (if applicable) 1 :\n\nAI and Cloud",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3257-6aca-8e4e-33113c456e37",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 23
+    },
+    "page_content": "## Executing our strategy\n\nCGI's strategy is executed through a business model that combines client proximity with an extensive global delivery network to deliver the following benefits:\n\n· Local relationships and accountability: We live and work near our clients to provide a high level of responsiveness, partnership, and innovation, and invest in the economies, digital talent and infrastructure of the countries and metro markets where we operate. Our local consultants and professionals speak our clients' language, understand their business and industries, and collaborate to meet their goals and advance their business.\n\n· Global reach: Our local presence is complemented by an expansive global delivery network that ensures our clients have 24/7 access to best-fit digital capabilities and resources to meet their end-to-end needs. In addition, clients benefit from our unique combination of industry domain and technology expertise within our global delivery model. We also help clients build and run global capability centers (GCCs) that go beyond cost efficiency to unlock agility, resiliency, and innovation in an AI-first world.\n\n· Committed experts: Two of our key strategic goals are to be our clients' partner and expert of choice. To achieve this, we invest in developing and recruiting professionals with extensive industry, business and in-demand technology expertise and provide comprehensive learning programs and development initiatives to continuously deepen their knowledge, achieve their career aspirations, and deliver tangible business outcomes for our clients. Individually and collectively, each of our experts embody partnership behaviors in all they do by being consultative and building trusted relationships with each other, our clients, shareholders, and within our communities. In addition, a majority of consultants and professionals are also owners through our Share Purchase Plan, which, combined with the Profit Participation Plan, provide an added level of commitment to the success of our clients.\n\n© 2025 CGI Inc.\n\nPage\n\n12\n\nManagement's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024\n\n· Everyday innovation: Our approach to client engagements is to continuously bring forward actionable insights that support clients' ROI-led digitization priorities. Through our client satisfaction program, we regularly assess the degree to which clients find that CGI introduced applicable innovation to the engagements we deliver for them, including through our ideas, processes, tools and offerings. We also scale innovative solutions co-created with clients through a global governance model.\n\n· Comprehensive quality processes: CGI's investment in quality frameworks and rigorous client satisfaction assessments has resulted in a consistent track record of on-time and within-budget project delivery. With regular reviews of engagements and transparency at all levels, the Company ensures that client objectives and its own quality objectives are consistently followed at all times. This thorough process enables CGI to generate continuous improvements for all stakeholders by applying corrective measures as soon as they are required.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aa9-6321-9c91-67b89553f6cd",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "## Call for Expressions of Interest\n\nDate of Issue:\n\nSeptember 2025\n\nExpected Completion Date:\n\nMay 2026\n\nProject Title:\n\nAI Big Knowledge Management\n\nCompany:\n\nCGI",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3387-6860-8cd8-ef1d437df269",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 486
+    },
+    "page_content": "## cgi.com/investors\n\nContact: ir@cgi.com\n\n© 2025 CGI Inc.\n\n<!-- image-uuid: 1f1158a9-303e-6ee8-be52-9d11761502fb -->",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3255-63b2-91f7-f6459f887e5d",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 18
+    },
+    "page_content": "## Helping clients leverage technology to its fullest\n\nMacro trends such as changing political, fiscal and regulatory environments, supply chain reconfiguration, climate change and energy transition, and demographic shifts including aging populations and talent shortages require new business models and ways of working. At the same time, technology is reshaping our future and creating new opportunities.\n\nAccelerating digitization provides the inclusive, economically vibrant, and sustainable future our clients' customers and citizens demand. Leveraging technology to its fullest, including the responsible use of data, AI, and other emerging technologies, helps clients to lead within their industries. Our end-to-end digital services, industry and technology expertise, and operational excellence combine to help clients advance their holistic digital transformation.\n\nThrough our proprietary Voice of Our Clients research, we analyzed the characteristics of leading digital organizations and found these common attributes:\n\n- Strategic alignment and business agility : Digital leaders have highly agile business models to address digitization and are better at aligning and integrating business and IT operations to support and execute strategy.\n\n- Digitization : They have mature strategies to leverage data and digitization to achieve business model resilience, are less challenged by legacy systems, strategically leverage secure cloud-based solutions, and extend their digitization strategy to their external ecosystem.\n\n- Data, automation and AI : They adopt a holistic data strategy for the enterprise and ecosystem and have a higher rate of being in progress with or having implemented both traditional and generative AI.\n\n- Data privacy and protection : They produce greater results from their data privacy and protection strategy, which also extends to their external ecosystem. Their cybersecurity programs are highly mature in terms of connected assets.\n\nDigital leaders across industries seek new ways to evolve their strategy and operational models and use technology and datadriven insights to improve how they operate, deliver products and services, and create value.\n\nCGI helps clients adopt leading digital attributes and design, manage, protect and evolve their digital value chains to accelerate business outcomes.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-325a-61cf-8049-9094d17ec33e",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 25
+    },
+    "page_content": "## 1.3. COMPETITIVE ENVIRONMENT\n\nAs market dynamics and industry trends continue to increase client demand for ROI-led digitization, CGI is well-positioned to serve as a digital partner and expert of choice. We work with clients across the globe to implement digital strategies, roadmaps and solutions that help clients transform the customer/citizen experience, drive the launch of new products and services, and deliver efficiencies and cost savings.\n\nCGI's competition is comprised of a variety of firms, from local companies providing specialized services and software, government pure-plays to global business consulting and IT services providers. All of these players are competing to deliver some or all of the services we provide.\n\nMany factors distinguish the industry leaders, including the following:\n\n- Depth and breadth of industry and technology expertise;\n\n- Local presence and strength of client relationships;\n\n- Extensive and flexible global delivery network, including onshore, nearshore and offshore options;\n\n- Breadth of digital IP solutions;\n\n- Embedding AI to drive business outcomes across the clients' transformation journey;\n\n- Total cost of services and value delivered;\n\n- Ability to deliver practical innovation for measurable results; and\n\n- Consistent on-time, within-budget delivery everywhere clients operate.\n\nCGI is one of the leaders in the industry with respect to the combination of these factors. CGI is one of few firms with the scale, reach, and capabilities to meet clients' enterprise business and technology needs.\n\n© 2025 CGI Inc.\n\nPage\n\n13\n\nManagement's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-324c-6de1-9535-d3f32b685550",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 4
+    },
+    "page_content": "## BASIS OF PRESENTATION\n\nThis Management's Discussion and Analysis of the Financial Position and Results of Operations (MD&amp;A) is a responsibility of management and has been reviewed and approved by the Board of Directors. This MD&amp;A has been prepared in accordance with the rules and regulations of the Canadian Securities Administrators. The Board of Directors is ultimately responsible for reviewing and approving the MD&amp;A. The Board of Directors carries out this responsibility through its Audit and Risk Management Committee, which is appointed by the Board of Directors and is comprised entirely of independent and financially literate directors.\n\nThroughout this document, CGI Inc. is referred to as 'CGI', 'we', 'us', 'our' or 'Company'. This MD&amp;A provides information management believes is relevant to an assessment and understanding of the consolidated results of operations and financial condition of the Company. This document should be read in conjunction with the audited consolidated financial statements and the notes thereto for the years ended September 30, 2025 and 2024. CGI's accounting policies are in accordance with International Financial Reporting Standards as issued by the International Accounting Standards Board (IFRS Accounting Standards). All dollar amounts are in Canadian dollars unless otherwise noted.\n\nDuring the first quarter of Fiscal 2025, the Company combined the previously reported items Acquisition-related and integration costs and Cost Optimization Program into one operating expenses line called Restructuring, acquisition and related integration costs. Comparative figures were combined to align with the new presentation. See section 3.6.1. for more details.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aab-6b4d-a828-5ee9a2ffc291",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 4
+    },
+    "page_content": "## For this we will focus on combining:\n\n1. Front-end user interface\n\n2. Model Context Protocol (MCP) server\n\n3. Vector database\n\n4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)\n\n5. The framework LangChain.\n\n1  An overview of different research areas in the school of computer science can be found here.\n\nA practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.\n\nThis is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3252-6c9d-95ec-09523c4fce66",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 16
+    },
+    "page_content": "## End-to-end services and solutions\n\nCGI delivers end-to-end services that help clients achieve the highest returns on their digital investments. We call this ROI-led digitization. Our insights-driven end-to-end services and solutions work together to help clients design, implement, run and operate the technology critical to achieving their business strategies. Our portfolio encompasses:\n\n- i. Business and strategic IT consulting, and systems integration services: CGI helps clients drive sustainable value in critical consulting areas, including strategy, organization and change management, core operations and technology. Within each of these areas, our consultants also deliver a broad range of business offerings to address client executives' priorities, including designing and advancing strategies for the responsible use of artificial intelligence (AI), sustainable supply chain management, environmental, social and governance (ESG), mergers and acquisitions, and more. In the area of systems integration, we help clients accelerate the enterprise modernization of their legacy systems and adopt new technologies to drive innovation and deliver real-time and insight-driven customer and citizen services.\n\n- ii. Managed IT and business process services: Working as an extension of our clients' organizations, we take on full or partial responsibility for managing their IT functions, freeing them up to focus on their strategic business direction. Our services enable clients to reinvest, alongside CGI, in the successful execution of their digital transformation roadmaps. We help them increase agility, scalability and resilience; deliver operational efficiencies, innovations and reduced costs; and embed security and data privacy controls. Typical services include: application development, modernization and maintenance; holistic enterprise digitization, AI and automation, hybrid and cloud management; and business process services. When clients partner with CGI as part of a managed services engagement, they also benefit from CGI DigiOps, our AI-powered service delivery approach that can deliver sustainable double-digit efficiency improvements.\n\n- iii. Intellectual property (IP) business solutions: CGI's portfolio of IP solutions are highly configurable 'business platforms as a service' that are embedded within our end-to-end service offerings and utilize integrated security, data privacy practices, provider-neutral cloud approaches, and advanced AI capabilities to provide immediate benefits to clients. We invest in, and deliver, market-leading IP to drive business outcomes within each of our target industries. We also collaborate with clients to build and evolve IP-based solutions while enabling a higher degree of flexibility and customization for their unique modernization and digitization needs.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3255-63ae-b914-7a66647ee205",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 17
+    },
+    "page_content": "## Deep industry and technology expertise\n\nCGI has long-standing and focused practices in all of its core industries, providing clients with a partner that is not only an expert in IT, but also an expert in their respective industries. This combination of business knowledge and digital technology expertise allows us to help our clients navigate complex challenges and focus on value creation. In the process, we evolve the services and solutions we deliver within our targeted industries and provide thought leadership and detailed industry blueprints. These blueprints map the structures, processes, data flows, and regulatory frameworks across the full industry ecosystem-including supply chains, partner networks, and other interdependencies-delivering actionable insights to help clients drive growth and resilience.\n\n© 2025 CGI Inc.\n\nPage\n\n10\n\nManagement's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024\n\nOur targeted industries include financial services (including banking and insurance), government (including space), manufacturing, retail and distribution (including consumer services, transportation and logistics), communications and utilities (including energy and media), and health (including life sciences). To help orchestrate our global posture across these industries, our leaders regularly participate in cabinet meetings and councils to advance the strategies, services and solutions we deliver to our clients.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115abc-b46a-6378-ab86-ad1f60d6e1f2",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 42
+    },
+    "page_content": "3.3.2 “Big picture” Reflection Checklist \nIntellectual property (the Copyright, Designs and Patents Act (1988)) \n• \nHas the work created any intellectual property? E.g. source code, documents, photos or \nrecordings, patentable technologies, trademarks. If so: \no What intellectual property and who owns it? \no Do you have a plan to commercially exploit the work? How? \no Do you plan to distribute or promote the work in other ways, for example using open \nsource/open data/creative commons licenses? How? \n• source/open data/creative commons licenses? How? \n• \nSee also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision \nand Processing of Intellectual Property Rights for Students and Graduates at The University of \nNottingham” \nResearch ethics \n• \nDoes the work involve human participants or data subjects? If so: \no Have you followed the University of Nottingham research ethics requirements?  \no How does the work safeguard participants and data subjects? \no How does the work reflect principles of informed consent and voluntary \nparticipation?",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-01T20:28:02.022636+00:00
+Answer Length: 1658
+Answer:
+# CGI AI Big Knowledge Management System Project
+
+## Project Overview
+- **Project Title**: AI Big Knowledge Management  
+- **Issued**: September 2025  
+- **Expected Completion**: May 2026  
+- **Company**: CGI  
+
+## Project Purpose
+The project addresses a fundamental limitation of Large Language Models (LLMs), which can only process a limited amount of text (tokens) at once. When fed excessive information, LLMs tend to "forget" earlier text and begin hallucinating. The solution involves:
+
+- Storing documents in a specialized **vector database** (designed specifically for AI)
+- Creating a server to connect AI tools with this database
+- Enabling information retrieval from documents while maintaining context awareness
+
+## Technical Components
+The project focuses on integrating these key elements:
+1. **Front-end user interface**
+2. **Model Context Protocol (MCP) server**
+3. **Vector database**
+4. **AI techniques** including:
+   - Retrieval Augmented Generation (RAG)
+   - Cache Augmented Generation (CAG)
+5. **LangChain framework**
+
+## Practical Application
+A primary use case involves loading thousands of documents from a knowledge base and enabling an LLM to provide business-specific answers based on these documents rather than its original training data. This represents a technical project at "the cutting edge of practical AI" that "can create tools that are genuinely useful today."
+
+## Additional Information
+- **Relevant Research Areas**: AI and Cloud
+- **NDA Requirement**: Not required for students
+- **Personal Data Usage**: Not involved in the project
+- **Custom Hardware**: Not required
+
+*(Sources: CGI-AIBigKnowledgeManagement.pdf)*
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T20:33:36.155382+00:00
+Provider: OPENROUTER
+Model: qwen/qwen3-235b-a22b-thinking-2507
+Context Length: 12799
+
+<QUERY>
+Who is the contact details for the CGI AI Big KNowledge Project?
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f1158a9-3387-6858-825c-96d628225ed4",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 482
+    },
+    "page_content": "## Transfer Agent and Registrar\n\nComputershare Investor Services Inc. 320 Bay Street, 14 th  Floor Toronto, ON  M5H 4A6 Telephone: 1 800 564-6253 www.investorcentre.com/service",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-32cd-6466-9f51-e3eff245cc29",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 194
+    },
+    "page_content": "## Transfer Agent\n\nComputershare Investor Services Inc. +1(800) 564-6253",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3252-6c9a-a179-7bd783c54a91",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 15
+    },
+    "page_content": "## 1. Corporate Overview\n\n## 1.1. ABOUT CGI\n\nFounded in 1976 and headquartered in Montréal, Canada, CGI is a leading IT and business consulting services firm with approximately 94,000 consultants and professionals worldwide. We use the power of technology to help clients accelerate their holistic digital transformation.\n\nCGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3387-685e-971c-b15a80c98e25",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 485
+    },
+    "page_content": "## Insights you can act on\n\nFounded in 1976, CGI is among the largest IT and business consulting services firms in the world.\n\nWe are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aab-6b4a-89a9-4a8b9bd76b2d",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## Project Background Information\n\nModern AI tools are cool, but do you want to build something cooler?\n\nAll Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).\n\nOne solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aa9-6323-96dc-d92c07dc0142",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 1
+    },
+    "page_content": "## Contact Details\n\nLead Contact:\n\nOliver Hathaway\n\nLead E-mail:\n\noliver.hathaway@cgi.com\n\nAdditional Contact:\n\nSamuel Bryan\n\nE-mail:\n\nsamuel.bryan@cgi.com\n\nAdditional Contact:\n\nDaisy Everard\n\nE-mail:\n\ndaisy.everard@cgi.com\n\nAdditional Contact:\n\nAdditional contact name\n\nE-mail:\n\nAdditional contact e-mail",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aab-6b54-a269-2e5bbb5f9faf",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 7
+    },
+    "page_content": "## Submission / Award information\n\n| Date of Submission:    | September 2025   |\n|------------------------|------------------|\n| Date of Pitch:         | October 2025     |\n| Notification of award: | October 2025     |\n\nFor further information on this proposal, the team representative should in the first instance e-mail the lead contact stated above at the e-mail address provided.",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3387-6860-8cd8-ef1d437df269",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 486
+    },
+    "page_content": "## cgi.com/investors\n\nContact: ir@cgi.com\n\n© 2025 CGI Inc.\n\n<!-- image-uuid: 1f1158a9-303e-6ee8-be52-9d11761502fb -->",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aa9-6321-9c91-67b89553f6cd",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "## Call for Expressions of Interest\n\nDate of Issue:\n\nSeptember 2025\n\nExpected Completion Date:\n\nMay 2026\n\nProject Title:\n\nAI Big Knowledge Management\n\nCompany:\n\nCGI",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-32a9-6d99-8ae7-12a78d3e1d0e",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 153
+    },
+    "page_content": "## We may be unable to protect our intellectual property rights.\n\nOur success depends, in part, on our ability to protect our proprietary methodologies, processes, know-how, tools, techniques and other intellectual property that we use to provide our services. Although CGI takes reasonable steps (e.g. available copyright protection and, in some cases, patent protection) to protect and enforce its intellectual property rights, there is no assurance that such measures will be enforceable or adequate. The cost of enforcing our rights, or our inability to protect against infringement or unauthorized copying or use, can be substantial and, in certain cases, may prove to be uneconomic. In addition, the laws of some countries in which we conduct business may offer only limited intellectual property rights protection. Despite our efforts, the steps taken to protect our intellectual property may not be adequate to prevent or deter infringement or other misappropriation of intellectual property, and we may not be able to detect unauthorized use of our intellectual property, or take appropriate steps to enforce our intellectual property rights.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115abc-b465-6523-b18c-dac1405d1b14",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "©University of Nottingham \n \n \n \n \n \nSoftware Engineering Group Project \nCOMP2002: Project Handbook 2024-2025 P a g e  | 2 \n©University of Nottingham \nTable of Contents \n1 \nIntroduction .................................................................................................................................... 5 \n1.1 \nOverview ................................................................................................................................ 5 \n1.2 \nBCS Accreditation .................................................................................................................. 6 \n1.3 1.3 \nEthics ...................................................................................................................................... 7 \n1.4 \nNon-Disclosure Agreements and Intellectual Property ......................................................... 9 \n1.5 \nWorkload ............................................................................................................................. 10 \n1.6 \nSupporting Lectures ............................................................................................................. 11 \n1.7",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-32cd-6468-8eaa-36c1ccd04d4a",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 195
+    },
+    "page_content": "## Investor Relations\n\nKevin Linder Senior Vice-President, Investor Relations Telephone: +1(905) 973-8363\n\nkevin.linder@cgi.com kevin.linder@cgi.com\n\n1350 René-Lévesque Boulevard West 25 th  Floor Montréal, Quebec H3G 1T4 Canada cgi.com\n\ncgi.com\n\n© 2025 CGI Inc.\n\nPage\n\n73",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aab-6b4d-a828-5ee9a2ffc291",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 4
+    },
+    "page_content": "## For this we will focus on combining:\n\n1. Front-end user interface\n\n2. Model Context Protocol (MCP) server\n\n3. Vector database\n\n4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)\n\n5. The framework LangChain.\n\n1  An overview of different research areas in the school of computer science can be found here.\n\nA practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.\n\nThis is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!",
+    "type": "Document"
+  },
+  {
+    "id": "1f1158a9-3387-685a-a4f5-6c6de88382b5",
+    "metadata": {
+      "file_name": "cgi-2025-annual-report.pdf",
+      "parent_chunk_number": 483
+    },
+    "page_content": "## Investor Relations\n\nFor further information about the Company, additional copies of this report, or other financial information, please contact:\n\nCGI Inc. Investor Relations Email: ir@cgi.com Web: cgi.com/investors 1350 René-Lévesque Blvd West, 25 th floor Montréal, Quebec H3G 1T4 Canada Tel.: 514-841-3200",
+    "type": "Document"
+  },
+  {
+    "id": "1f115abc-b467-6c72-b743-d87a00cd8344",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 26
+    },
+    "page_content": "P a g e  | 19 \n©University of Nottingham \n• \nMotivate why the team is bidding for the project and wants to work with the sponsor. \n• \nDemonstrate some level of understanding of the problem and its context. \n• \nDemonstrate technical understanding and illustrate that the team has the necessary skills to \ncarry out the project. \n• \nGive an understanding of how the project will be managed. \n• \nBe tailored to the project and honest on what the team can offer. \n• \nDiscuss Legal, Social and Ethical aspects of the project. Discuss Legal, Social and Ethical aspects of the project. \nThe team leader is responsible for fairly allocating the workload to write the EoIs to the different team \nmembers, whilst giving every member the chance to provide input and review the different EoIs in the \nprocess. The team administrator is responsible for submitting the EoIs.  \nA lecture will provide additional information on how to write EoIs.  \nThe Pitch \nEvery team will pitch for 3 projects, and 3 pitches will happen for every project. Your pitch should",
+    "type": "Document"
+  },
+  {
+    "id": "1f115ac6-3aa9-6325-a34c-ede69e5d704c",
+    "metadata": {
+      "file_name": "CGI-AIBigKnowledgeManagement.pdf",
+      "parent_chunk_number": 2
+    },
+    "page_content": "## Additional Info\n\n- [ ] Students must sign NDA: ☐\n\n- [ ] Project uses personal data: ☐\n\nCustom hardware required:\n\n☐\n\nIf Applicable: Please provide details\n\nRelevant research areas (if applicable) 1 :\n\nAI and Cloud",
+    "type": "Document"
+  },
+  {
+    "id": "1f115abc-b46a-6378-ab86-ad1f60d6e1f2",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 42
+    },
+    "page_content": "3.3.2 “Big picture” Reflection Checklist \nIntellectual property (the Copyright, Designs and Patents Act (1988)) \n• \nHas the work created any intellectual property? E.g. source code, documents, photos or \nrecordings, patentable technologies, trademarks. If so: \no What intellectual property and who owns it? \no Do you have a plan to commercially exploit the work? How? \no Do you plan to distribute or promote the work in other ways, for example using open \nsource/open data/creative commons licenses? How? \n• source/open data/creative commons licenses? How? \n• \nSee also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision \nand Processing of Intellectual Property Rights for Students and Graduates at The University of \nNottingham” \nResearch ethics \n• \nDoes the work involve human participants or data subjects? If so: \no Have you followed the University of Nottingham research ethics requirements?  \no How does the work safeguard participants and data subjects? \no How does the work reflect principles of informed consent and voluntary \nparticipation?",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-01T20:34:20.811770+00:00
+Answer Length: 339
+Answer:
+## Contact Details for CGI AI Big Knowledge Management Project
+
+- **Lead Contact**: Oliver Hathaway  
+  **Email**: oliver.hathaway@cgi.com
+
+- **Additional Contact**: Samuel Bryan  
+  **Email**: samuel.bryan@cgi.com
+
+- **Additional Contact**: Daisy Everard  
+  **Email**: daisy.everard@cgi.com
+
+*(Sources: CGI-AIBigKnowledgeManagement.pdf)*
+==================================================

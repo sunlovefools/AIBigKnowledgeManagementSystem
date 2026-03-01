@@ -1,0 +1,458 @@
+{
+  "source_file_name": "CGI-AIBigKnowledgeManagement.pdf",
+  "artifact_run_id": "1f115ac5-e3a2-6f79-9ab8-1eea0ee39a63",
+  "artifact_dir": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f115ac5-e3a2-6f79-9ab8-1eea0ee39a63",
+  "markdown_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f115ac5-e3a2-6f79-9ab8-1eea0ee39a63\\document.md",
+  "markdown_text": "## Call for Expressions of Interest\n\nDate of Issue:\n\nSeptember 2025\n\nExpected Completion Date:\n\nMay 2026\n\nProject Title:\n\nAI Big Knowledge Management\n\nCompany:\n\nCGI\n\n## Contact Details\n\nLead Contact:\n\nOliver Hathaway\n\nLead E-mail:\n\noliver.hathaway@cgi.com\n\nAdditional Contact:\n\nSamuel Bryan\n\nE-mail:\n\nsamuel.bryan@cgi.com\n\nAdditional Contact:\n\nDaisy Everard\n\nE-mail:\n\ndaisy.everard@cgi.com\n\nAdditional Contact:\n\nAdditional contact name\n\nE-mail:\n\nAdditional contact e-mail\n\n## Additional Info\n\n- [ ] Students must sign NDA: ☐\n\n- [ ] Project uses personal data: ☐\n\nCustom hardware required:\n\n☐\n\nIf Applicable: Please provide details\n\nRelevant research areas (if applicable) 1 :\n\nAI and Cloud\n\n## Project Background Information\n\nModern AI tools are cool, but do you want to build something cooler?\n\nAll Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).\n\nOne solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.\n\n## For this we will focus on combining:\n\n1. Front-end user interface\n\n2. Model Context Protocol (MCP) server\n\n3. Vector database\n\n4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)\n\n5. The framework LangChain.\n\n1  An overview of different research areas in the school of computer science can be found here.\n\nA practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.\n\nThis is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!\n\n## Requirements\n\n## The group must provide:\n\nA cloud hosted website where a user can upload documents that are also stored in a vector database and can be searched and retrieved by an LLM using a specialist server.\n\n## Skills\n\n| Highly desirable: Python, Typescript   | Desirable: Langchain React or some other frontend technology AWS/GCP/Azure experience   |\n|----------------------------------------|-----------------------------------------------------------------------------------------|\n\n## Submission / Award information\n\n| Date of Submission:    | September 2025   |\n|------------------------|------------------|\n| Date of Pitch:         | October 2025     |\n| Notification of award: | October 2025     |\n\nFor further information on this proposal, the team representative should in the first instance e-mail the lead contact stated above at the e-mail address provided.",
+  "images": [],
+  "warnings": [],
+  "partial_failures": [],
+  "stats": {
+    "converted_chunks": 1,
+    "partial_failure_chunks": 0,
+    "pictures_extracted": 0,
+    "table_fallback_images_extracted": 0
+  },
+  "structured_blocks": [
+    {
+      "block_index": 0,
+      "block_type": "header",
+      "content": "## Call for Expressions of Interest",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 1,
+      "block_type": "text",
+      "content": "Date of Issue:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 2,
+      "block_type": "text",
+      "content": "September 2025",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 3,
+      "block_type": "text",
+      "content": "Expected Completion Date:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 4,
+      "block_type": "text",
+      "content": "May 2026",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 5,
+      "block_type": "text",
+      "content": "Project Title:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 6,
+      "block_type": "text",
+      "content": "AI Big Knowledge Management",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 7,
+      "block_type": "text",
+      "content": "Company:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 8,
+      "block_type": "text",
+      "content": "CGI",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 9,
+      "block_type": "header",
+      "content": "## Contact Details",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 10,
+      "block_type": "text",
+      "content": "Lead Contact:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 11,
+      "block_type": "text",
+      "content": "Oliver Hathaway",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 12,
+      "block_type": "text",
+      "content": "Lead E-mail:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 13,
+      "block_type": "text",
+      "content": "oliver.hathaway@cgi.com",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 14,
+      "block_type": "text",
+      "content": "Additional Contact:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 15,
+      "block_type": "text",
+      "content": "Samuel Bryan",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 16,
+      "block_type": "text",
+      "content": "E-mail:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 17,
+      "block_type": "text",
+      "content": "samuel.bryan@cgi.com",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 18,
+      "block_type": "text",
+      "content": "Additional Contact:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 19,
+      "block_type": "text",
+      "content": "Daisy Everard",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 20,
+      "block_type": "text",
+      "content": "E-mail:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 21,
+      "block_type": "text",
+      "content": "daisy.everard@cgi.com",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 22,
+      "block_type": "text",
+      "content": "Additional Contact:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 23,
+      "block_type": "text",
+      "content": "Additional contact name",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 24,
+      "block_type": "text",
+      "content": "E-mail:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 25,
+      "block_type": "text",
+      "content": "Additional contact e-mail",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 26,
+      "block_type": "header",
+      "content": "## Additional Info",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 27,
+      "block_type": "text",
+      "content": "- [ ] Students must sign NDA: ☐",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 28,
+      "block_type": "text",
+      "content": "- [ ] Project uses personal data: ☐",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 29,
+      "block_type": "text",
+      "content": "Custom hardware required:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 30,
+      "block_type": "text",
+      "content": "☐",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 31,
+      "block_type": "text",
+      "content": "If Applicable: Please provide details",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 32,
+      "block_type": "text",
+      "content": "Relevant research areas (if applicable) 1 :",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 33,
+      "block_type": "text",
+      "content": "AI and Cloud",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 34,
+      "block_type": "header",
+      "content": "## Project Background Information",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 35,
+      "block_type": "text",
+      "content": "Modern AI tools are cool, but do you want to build something cooler?",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 36,
+      "block_type": "text",
+      "content": "All Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 37,
+      "block_type": "text",
+      "content": "One solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 38,
+      "block_type": "header",
+      "content": "## For this we will focus on combining:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 39,
+      "block_type": "list",
+      "content": "1. Front-end user interface",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 40,
+      "block_type": "list",
+      "content": "2. Model Context Protocol (MCP) server",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 41,
+      "block_type": "list",
+      "content": "3. Vector database",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 42,
+      "block_type": "list",
+      "content": "4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 43,
+      "block_type": "list",
+      "content": "5. The framework LangChain.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 44,
+      "block_type": "text",
+      "content": "1  An overview of different research areas in the school of computer science can be found here.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 45,
+      "block_type": "text",
+      "content": "A practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 46,
+      "block_type": "text",
+      "content": "This is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 47,
+      "block_type": "header",
+      "content": "## Requirements",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 48,
+      "block_type": "header",
+      "content": "## The group must provide:",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 49,
+      "block_type": "text",
+      "content": "A cloud hosted website where a user can upload documents that are also stored in a vector database and can be searched and retrieved by an LLM using a specialist server.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 50,
+      "block_type": "header",
+      "content": "## Skills",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 51,
+      "block_type": "table",
+      "content": "| Highly desirable: Python, Typescript   | Desirable: Langchain React or some other frontend technology AWS/GCP/Azure experience   |\n|----------------------------------------|-----------------------------------------------------------------------------------------|",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 52,
+      "block_type": "header",
+      "content": "## Submission / Award information",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 53,
+      "block_type": "table",
+      "content": "| Date of Submission:    | September 2025   |\n|------------------------|------------------|\n| Date of Pitch:         | October 2025     |\n| Notification of award: | October 2025     |",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 54,
+      "block_type": "text",
+      "content": "For further information on this proposal, the team representative should in the first instance e-mail the lead contact stated above at the e-mail address provided.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    }
+  ]
+}

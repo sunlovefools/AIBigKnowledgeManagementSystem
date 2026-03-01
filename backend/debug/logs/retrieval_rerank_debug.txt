@@ -128,3 +128,993 @@ Content: ISRO has achieved several significant milestones over the years. It suc
 Content: Background History and development of reconnaissance balloons
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Tell me more about the CGI AI big knowledge management system project
+Timestamp: 2026-03-01T20:23:46.016842+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.822247]
+Content: ## Call for Expressions of Interest
+
+Date of Issue:
+
+September 2025
+
+Expected Completion Date:
+
+May 2026
+
+Project Title:
+
+AI Big Knowledge Management
+
+Company:
+
+CGI
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.733500]
+Content: ## For this we will focus on combining:
+
+This is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.732310]
+Content: ## Additional Info
+
+- [ ] Students must sign NDA: ☐
+
+- [ ] Project uses personal data: ☐
+
+Custom hardware required:
+
+☐
+
+If Applicable: Please provide details
+
+Relevant research areas (if applicable) 1 :
+
+AI and Cloud
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.728624]
+Content: ## Project Background Information
+
+Modern AI tools are cool, but do you want to build something cooler?
+
+All Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.724621]
+Content: ## End-to-end services and solutions
+
+Typical services include: application development, modernization and maintenance; holistic enterprise digitization, AI and automation, hybrid and cloud management; and business process services. When clients partner with CGI as part of a managed services engagement, they also benefit from CGI DigiOps, our AI-powered service delivery approach that can deliver sustainable double-digit efficiency improvements.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.722641]
+Content: ## End-to-end services and solutions
+
+- i. Business and strategic IT consulting, and systems integration services: CGI helps clients drive sustainable value in critical consulting areas, including strategy, organization and change management, core operations and technology. Within each of these areas, our consultants also deliver a broad range of business offerings to address client executives' priorities, including designing and advancing strategies for the responsible use of artificial intelligence (AI), sustainable supply chain management, environmental, social and governance (ESG), mergers and acquisitions, and more.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.719893]
+Content: ## Helping clients leverage technology to its fullest
+
+CGI helps clients adopt leading digital attributes and design, manage, protect and evolve their digital value chains to accelerate business outcomes.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.717847]
+Content: ## Insights you can act on
+
+Founded in 1976, CGI is among the largest IT and business consulting services firms in the world.
+
+We are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.714846]
+Content: ## End-to-end services and solutions
+
+CGI delivers end-to-end services that help clients achieve the highest returns on their digital investments. We call this ROI-led digitization. Our insights-driven end-to-end services and solutions work together to help clients design, implement, run and operate the technology critical to achieving their business strategies. Our portfolio encompasses:
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.714035]
+Content: ## For this we will focus on combining:
+
+1. Front-end user interface
+
+2. Model Context Protocol (MCP) server
+
+3. Vector database
+
+4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)
+
+5. The framework LangChain.
+
+1  An overview of different research areas in the school of computer science can be found here.
+
+A practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.712379]
+Content: ## cgi.com/investors
+
+Contact: ir@cgi.com
+
+© 2025 CGI Inc.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.711560]
+Content: ## Project Background Information
+
+One solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.708163]
+Content: ## Deep industry and technology expertise
+
+CGI has long-standing and focused practices in all of its core industries, providing clients with a partner that is not only an expert in IT, but also an expert in their respective industries. This combination of business knowledge and digital technology expertise allows us to help our clients navigate complex challenges and focus on value creation. In the process, we evolve the services and solutions we deliver within our targeted industries and provide thought leadership and detailed industry blueprints.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.704077]
+Content: ## Deep industry and technology expertise
+
+These blueprints map the structures, processes, data flows, and regulatory frameworks across the full industry ecosystem-including supply chains, partner networks, and other interdependencies-delivering actionable insights to help clients drive growth and resilience.
+
+© 2025 CGI Inc.
+
+Page
+
+10
+
+Management's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.701905]
+Content: ## 1.3. COMPETITIVE ENVIRONMENT
+
+As market dynamics and industry trends continue to increase client demand for ROI-led digitization, CGI is well-positioned to serve as a digital partner and expert of choice. We work with clients across the globe to implement digital strategies, roadmaps and solutions that help clients transform the customer/citizen experience, drive the launch of new products and services, and deliver efficiencies and cost savings.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.700892]
+Content: ## 1. Corporate Overview
+
+## 1.1. ABOUT CGI
+
+CGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.700582]
+Content: ## End-to-end services and solutions
+
+- iii. Intellectual property (IP) business solutions: CGI's portfolio of IP solutions are highly configurable 'business platforms as a service' that are embedded within our end-to-end service offerings and utilize integrated security, data privacy practices, provider-neutral cloud approaches, and advanced AI capabilities to provide immediate benefits to clients. We invest in, and deliver, market-leading IP to drive business outcomes within each of our target industries.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.699986]
+Content: Source/open data/creative commons licenses? How? - See also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision and Processing of Intellectual Property Rights for Students and Graduates at The University of Nottingham” Research ethics - Does the work involve human participants or data subjects? If so: o Have you followed the University of Nottingham research ethics requirements? o How does the work safeguard participants and data subjects? o How does the work reflect principles of informed consent and voluntary participation?
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.698528]
+Content: ## Executing our strategy
+
+· Everyday innovation: Our approach to client engagements is to continuously bring forward actionable insights that support clients' ROI-led digitization priorities. Through our client satisfaction program, we regularly assess the degree to which clients find that CGI introduced applicable innovation to the engagements we deliver for them, including through our ideas, processes, tools and offerings. We also scale innovative solutions co-created with clients through a global governance model.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.697351]
+Content: ## BASIS OF PRESENTATION
+
+Throughout this document, CGI Inc. is referred to as 'CGI', 'we', 'us', 'our' or 'Company'. This MD&amp;A provides information management believes is relevant to an assessment and understanding of the consolidated results of operations and financial condition of the Company. This document should be read in conjunction with the audited consolidated financial statements and the notes thereto for the years ended September 30, 2025 and 2024.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.685729]
+Content: ## Call for Expressions of Interest
+
+Date of Issue:
+
+September 2025
+
+Expected Completion Date:
+
+May 2026
+
+Project Title:
+
+AI Big Knowledge Management
+
+Company:
+
+CGI
+
+[Rank 2 | BGE Score: 0.004692]
+Content: ## End-to-end services and solutions
+
+Typical services include: application development, modernization and maintenance; holistic enterprise digitization, AI and automation, hybrid and cloud management; and business process services. When clients partner with CGI as part of a managed services engagement, they also benefit from CGI DigiOps, our AI-powered service delivery approach that can deliver sustainable double-digit efficiency improvements.
+
+[Rank 3 | BGE Score: 0.004592]
+Content: ## End-to-end services and solutions
+
+- i. Business and strategic IT consulting, and systems integration services: CGI helps clients drive sustainable value in critical consulting areas, including strategy, organization and change management, core operations and technology. Within each of these areas, our consultants also deliver a broad range of business offerings to address client executives' priorities, including designing and advancing strategies for the responsible use of artificial intelligence (AI), sustainable supply chain management, environmental, social and governance (ESG), mergers and acquisitions, and more.
+
+[Rank 4 | BGE Score: 0.003019]
+Content: ## 1. Corporate Overview
+
+## 1.1. ABOUT CGI
+
+CGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.
+
+[Rank 5 | BGE Score: 0.002863]
+Content: ## End-to-end services and solutions
+
+- iii. Intellectual property (IP) business solutions: CGI's portfolio of IP solutions are highly configurable 'business platforms as a service' that are embedded within our end-to-end service offerings and utilize integrated security, data privacy practices, provider-neutral cloud approaches, and advanced AI capabilities to provide immediate benefits to clients. We invest in, and deliver, market-leading IP to drive business outcomes within each of our target industries.
+
+[Rank 6 | BGE Score: 0.002643]
+Content: ## For this we will focus on combining:
+
+This is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!
+
+[Rank 7 | BGE Score: 0.002092]
+Content: ## Deep industry and technology expertise
+
+CGI has long-standing and focused practices in all of its core industries, providing clients with a partner that is not only an expert in IT, but also an expert in their respective industries. This combination of business knowledge and digital technology expertise allows us to help our clients navigate complex challenges and focus on value creation. In the process, we evolve the services and solutions we deliver within our targeted industries and provide thought leadership and detailed industry blueprints.
+
+[Rank 8 | BGE Score: 0.001493]
+Content: ## Deep industry and technology expertise
+
+These blueprints map the structures, processes, data flows, and regulatory frameworks across the full industry ecosystem-including supply chains, partner networks, and other interdependencies-delivering actionable insights to help clients drive growth and resilience.
+
+© 2025 CGI Inc.
+
+Page
+
+10
+
+Management's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024
+
+[Rank 9 | BGE Score: 0.001434]
+Content: ## Helping clients leverage technology to its fullest
+
+CGI helps clients adopt leading digital attributes and design, manage, protect and evolve their digital value chains to accelerate business outcomes.
+
+[Rank 10 | BGE Score: 0.001380]
+Content: ## Insights you can act on
+
+Founded in 1976, CGI is among the largest IT and business consulting services firms in the world.
+
+We are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.
+
+[Rank 11 | BGE Score: 0.001205]
+Content: ## BASIS OF PRESENTATION
+
+Throughout this document, CGI Inc. is referred to as 'CGI', 'we', 'us', 'our' or 'Company'. This MD&amp;A provides information management believes is relevant to an assessment and understanding of the consolidated results of operations and financial condition of the Company. This document should be read in conjunction with the audited consolidated financial statements and the notes thereto for the years ended September 30, 2025 and 2024.
+
+[Rank 12 | BGE Score: 0.001141]
+Content: ## Project Background Information
+
+One solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.
+
+[Rank 13 | BGE Score: 0.001112]
+Content: ## Additional Info
+
+- [ ] Students must sign NDA: ☐
+
+- [ ] Project uses personal data: ☐
+
+Custom hardware required:
+
+☐
+
+If Applicable: Please provide details
+
+Relevant research areas (if applicable) 1 :
+
+AI and Cloud
+
+[Rank 14 | BGE Score: 0.001081]
+Content: ## 1.3. COMPETITIVE ENVIRONMENT
+
+As market dynamics and industry trends continue to increase client demand for ROI-led digitization, CGI is well-positioned to serve as a digital partner and expert of choice. We work with clients across the globe to implement digital strategies, roadmaps and solutions that help clients transform the customer/citizen experience, drive the launch of new products and services, and deliver efficiencies and cost savings.
+
+[Rank 15 | BGE Score: 0.000901]
+Content: ## Project Background Information
+
+Modern AI tools are cool, but do you want to build something cooler?
+
+All Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).
+
+[Rank 16 | BGE Score: 0.000754]
+Content: ## Executing our strategy
+
+· Everyday innovation: Our approach to client engagements is to continuously bring forward actionable insights that support clients' ROI-led digitization priorities. Through our client satisfaction program, we regularly assess the degree to which clients find that CGI introduced applicable innovation to the engagements we deliver for them, including through our ideas, processes, tools and offerings. We also scale innovative solutions co-created with clients through a global governance model.
+
+[Rank 17 | BGE Score: 0.000715]
+Content: ## For this we will focus on combining:
+
+1. Front-end user interface
+
+2. Model Context Protocol (MCP) server
+
+3. Vector database
+
+4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)
+
+5. The framework LangChain.
+
+1  An overview of different research areas in the school of computer science can be found here.
+
+A practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.
+
+[Rank 18 | BGE Score: 0.000535]
+Content: ## End-to-end services and solutions
+
+CGI delivers end-to-end services that help clients achieve the highest returns on their digital investments. We call this ROI-led digitization. Our insights-driven end-to-end services and solutions work together to help clients design, implement, run and operate the technology critical to achieving their business strategies. Our portfolio encompasses:
+
+[Rank 19 | BGE Score: 0.000474]
+Content: ## cgi.com/investors
+
+Contact: ir@cgi.com
+
+© 2025 CGI Inc.
+
+[Rank 20 | BGE Score: 0.000040]
+Content: Source/open data/creative commons licenses? How? - See also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision and Processing of Intellectual Property Rights for Students and Graduates at The University of Nottingham” Research ethics - Does the work involve human participants or data subjects? If so: o Have you followed the University of Nottingham research ethics requirements? o How does the work safeguard participants and data subjects? o How does the work reflect principles of informed consent and voluntary participation?
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Tell me more about the CGI AI big knowledge management system project
+Timestamp: 2026-03-01T20:27:30.894467+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.822247]
+Content: ## Call for Expressions of Interest
+
+Date of Issue:
+
+September 2025
+
+Expected Completion Date:
+
+May 2026
+
+Project Title:
+
+AI Big Knowledge Management
+
+Company:
+
+CGI
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.733500]
+Content: ## For this we will focus on combining:
+
+This is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.732310]
+Content: ## Additional Info
+
+- [ ] Students must sign NDA: ☐
+
+- [ ] Project uses personal data: ☐
+
+Custom hardware required:
+
+☐
+
+If Applicable: Please provide details
+
+Relevant research areas (if applicable) 1 :
+
+AI and Cloud
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.728624]
+Content: ## Project Background Information
+
+Modern AI tools are cool, but do you want to build something cooler?
+
+All Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.724621]
+Content: ## End-to-end services and solutions
+
+Typical services include: application development, modernization and maintenance; holistic enterprise digitization, AI and automation, hybrid and cloud management; and business process services. When clients partner with CGI as part of a managed services engagement, they also benefit from CGI DigiOps, our AI-powered service delivery approach that can deliver sustainable double-digit efficiency improvements.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.722641]
+Content: ## End-to-end services and solutions
+
+- i. Business and strategic IT consulting, and systems integration services: CGI helps clients drive sustainable value in critical consulting areas, including strategy, organization and change management, core operations and technology. Within each of these areas, our consultants also deliver a broad range of business offerings to address client executives' priorities, including designing and advancing strategies for the responsible use of artificial intelligence (AI), sustainable supply chain management, environmental, social and governance (ESG), mergers and acquisitions, and more.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.719893]
+Content: ## Helping clients leverage technology to its fullest
+
+CGI helps clients adopt leading digital attributes and design, manage, protect and evolve their digital value chains to accelerate business outcomes.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.717847]
+Content: ## Insights you can act on
+
+Founded in 1976, CGI is among the largest IT and business consulting services firms in the world.
+
+We are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.714846]
+Content: ## End-to-end services and solutions
+
+CGI delivers end-to-end services that help clients achieve the highest returns on their digital investments. We call this ROI-led digitization. Our insights-driven end-to-end services and solutions work together to help clients design, implement, run and operate the technology critical to achieving their business strategies. Our portfolio encompasses:
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.714035]
+Content: ## For this we will focus on combining:
+
+1. Front-end user interface
+
+2. Model Context Protocol (MCP) server
+
+3. Vector database
+
+4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)
+
+5. The framework LangChain.
+
+1  An overview of different research areas in the school of computer science can be found here.
+
+A practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.712379]
+Content: ## cgi.com/investors
+
+Contact: ir@cgi.com
+
+© 2025 CGI Inc.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.711560]
+Content: ## Project Background Information
+
+One solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.708163]
+Content: ## Deep industry and technology expertise
+
+CGI has long-standing and focused practices in all of its core industries, providing clients with a partner that is not only an expert in IT, but also an expert in their respective industries. This combination of business knowledge and digital technology expertise allows us to help our clients navigate complex challenges and focus on value creation. In the process, we evolve the services and solutions we deliver within our targeted industries and provide thought leadership and detailed industry blueprints.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.704077]
+Content: ## Deep industry and technology expertise
+
+These blueprints map the structures, processes, data flows, and regulatory frameworks across the full industry ecosystem-including supply chains, partner networks, and other interdependencies-delivering actionable insights to help clients drive growth and resilience.
+
+© 2025 CGI Inc.
+
+Page
+
+10
+
+Management's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.701905]
+Content: ## 1.3. COMPETITIVE ENVIRONMENT
+
+As market dynamics and industry trends continue to increase client demand for ROI-led digitization, CGI is well-positioned to serve as a digital partner and expert of choice. We work with clients across the globe to implement digital strategies, roadmaps and solutions that help clients transform the customer/citizen experience, drive the launch of new products and services, and deliver efficiencies and cost savings.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.700892]
+Content: ## 1. Corporate Overview
+
+## 1.1. ABOUT CGI
+
+CGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.700582]
+Content: ## End-to-end services and solutions
+
+- iii. Intellectual property (IP) business solutions: CGI's portfolio of IP solutions are highly configurable 'business platforms as a service' that are embedded within our end-to-end service offerings and utilize integrated security, data privacy practices, provider-neutral cloud approaches, and advanced AI capabilities to provide immediate benefits to clients. We invest in, and deliver, market-leading IP to drive business outcomes within each of our target industries.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.699986]
+Content: Source/open data/creative commons licenses? How? - See also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision and Processing of Intellectual Property Rights for Students and Graduates at The University of Nottingham” Research ethics - Does the work involve human participants or data subjects? If so: o Have you followed the University of Nottingham research ethics requirements? o How does the work safeguard participants and data subjects? o How does the work reflect principles of informed consent and voluntary participation?
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.698528]
+Content: ## Executing our strategy
+
+· Everyday innovation: Our approach to client engagements is to continuously bring forward actionable insights that support clients' ROI-led digitization priorities. Through our client satisfaction program, we regularly assess the degree to which clients find that CGI introduced applicable innovation to the engagements we deliver for them, including through our ideas, processes, tools and offerings. We also scale innovative solutions co-created with clients through a global governance model.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.697351]
+Content: ## BASIS OF PRESENTATION
+
+Throughout this document, CGI Inc. is referred to as 'CGI', 'we', 'us', 'our' or 'Company'. This MD&amp;A provides information management believes is relevant to an assessment and understanding of the consolidated results of operations and financial condition of the Company. This document should be read in conjunction with the audited consolidated financial statements and the notes thereto for the years ended September 30, 2025 and 2024.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.685729]
+Content: ## Call for Expressions of Interest
+
+Date of Issue:
+
+September 2025
+
+Expected Completion Date:
+
+May 2026
+
+Project Title:
+
+AI Big Knowledge Management
+
+Company:
+
+CGI
+
+[Rank 2 | BGE Score: 0.004692]
+Content: ## End-to-end services and solutions
+
+Typical services include: application development, modernization and maintenance; holistic enterprise digitization, AI and automation, hybrid and cloud management; and business process services. When clients partner with CGI as part of a managed services engagement, they also benefit from CGI DigiOps, our AI-powered service delivery approach that can deliver sustainable double-digit efficiency improvements.
+
+[Rank 3 | BGE Score: 0.004592]
+Content: ## End-to-end services and solutions
+
+- i. Business and strategic IT consulting, and systems integration services: CGI helps clients drive sustainable value in critical consulting areas, including strategy, organization and change management, core operations and technology. Within each of these areas, our consultants also deliver a broad range of business offerings to address client executives' priorities, including designing and advancing strategies for the responsible use of artificial intelligence (AI), sustainable supply chain management, environmental, social and governance (ESG), mergers and acquisitions, and more.
+
+[Rank 4 | BGE Score: 0.003019]
+Content: ## 1. Corporate Overview
+
+## 1.1. ABOUT CGI
+
+CGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.
+
+[Rank 5 | BGE Score: 0.002863]
+Content: ## End-to-end services and solutions
+
+- iii. Intellectual property (IP) business solutions: CGI's portfolio of IP solutions are highly configurable 'business platforms as a service' that are embedded within our end-to-end service offerings and utilize integrated security, data privacy practices, provider-neutral cloud approaches, and advanced AI capabilities to provide immediate benefits to clients. We invest in, and deliver, market-leading IP to drive business outcomes within each of our target industries.
+
+[Rank 6 | BGE Score: 0.002643]
+Content: ## For this we will focus on combining:
+
+This is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!
+
+[Rank 7 | BGE Score: 0.002092]
+Content: ## Deep industry and technology expertise
+
+CGI has long-standing and focused practices in all of its core industries, providing clients with a partner that is not only an expert in IT, but also an expert in their respective industries. This combination of business knowledge and digital technology expertise allows us to help our clients navigate complex challenges and focus on value creation. In the process, we evolve the services and solutions we deliver within our targeted industries and provide thought leadership and detailed industry blueprints.
+
+[Rank 8 | BGE Score: 0.001493]
+Content: ## Deep industry and technology expertise
+
+These blueprints map the structures, processes, data flows, and regulatory frameworks across the full industry ecosystem-including supply chains, partner networks, and other interdependencies-delivering actionable insights to help clients drive growth and resilience.
+
+© 2025 CGI Inc.
+
+Page
+
+10
+
+Management's Discussion and Analysis  |  For the years ended September 30, 2025 and 2024
+
+[Rank 9 | BGE Score: 0.001434]
+Content: ## Helping clients leverage technology to its fullest
+
+CGI helps clients adopt leading digital attributes and design, manage, protect and evolve their digital value chains to accelerate business outcomes.
+
+[Rank 10 | BGE Score: 0.001380]
+Content: ## Insights you can act on
+
+Founded in 1976, CGI is among the largest IT and business consulting services firms in the world.
+
+We are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.
+
+[Rank 11 | BGE Score: 0.001205]
+Content: ## BASIS OF PRESENTATION
+
+Throughout this document, CGI Inc. is referred to as 'CGI', 'we', 'us', 'our' or 'Company'. This MD&amp;A provides information management believes is relevant to an assessment and understanding of the consolidated results of operations and financial condition of the Company. This document should be read in conjunction with the audited consolidated financial statements and the notes thereto for the years ended September 30, 2025 and 2024.
+
+[Rank 12 | BGE Score: 0.001141]
+Content: ## Project Background Information
+
+One solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.
+
+[Rank 13 | BGE Score: 0.001112]
+Content: ## Additional Info
+
+- [ ] Students must sign NDA: ☐
+
+- [ ] Project uses personal data: ☐
+
+Custom hardware required:
+
+☐
+
+If Applicable: Please provide details
+
+Relevant research areas (if applicable) 1 :
+
+AI and Cloud
+
+[Rank 14 | BGE Score: 0.001081]
+Content: ## 1.3. COMPETITIVE ENVIRONMENT
+
+As market dynamics and industry trends continue to increase client demand for ROI-led digitization, CGI is well-positioned to serve as a digital partner and expert of choice. We work with clients across the globe to implement digital strategies, roadmaps and solutions that help clients transform the customer/citizen experience, drive the launch of new products and services, and deliver efficiencies and cost savings.
+
+[Rank 15 | BGE Score: 0.000901]
+Content: ## Project Background Information
+
+Modern AI tools are cool, but do you want to build something cooler?
+
+All Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).
+
+[Rank 16 | BGE Score: 0.000754]
+Content: ## Executing our strategy
+
+· Everyday innovation: Our approach to client engagements is to continuously bring forward actionable insights that support clients' ROI-led digitization priorities. Through our client satisfaction program, we regularly assess the degree to which clients find that CGI introduced applicable innovation to the engagements we deliver for them, including through our ideas, processes, tools and offerings. We also scale innovative solutions co-created with clients through a global governance model.
+
+[Rank 17 | BGE Score: 0.000715]
+Content: ## For this we will focus on combining:
+
+1. Front-end user interface
+
+2. Model Context Protocol (MCP) server
+
+3. Vector database
+
+4. AI techniques like Retrieval Augmented Generation (RAG) and Cache Augmented Generation (CAG)
+
+5. The framework LangChain.
+
+1  An overview of different research areas in the school of computer science can be found here.
+
+A practical and useful application of this would be loading thousands of documents from a knowledgebase and then getting your LLM to give you answers about your business based on the documents rather than its original training data.
+
+[Rank 18 | BGE Score: 0.000535]
+Content: ## End-to-end services and solutions
+
+CGI delivers end-to-end services that help clients achieve the highest returns on their digital investments. We call this ROI-led digitization. Our insights-driven end-to-end services and solutions work together to help clients design, implement, run and operate the technology critical to achieving their business strategies. Our portfolio encompasses:
+
+[Rank 19 | BGE Score: 0.000474]
+Content: ## cgi.com/investors
+
+Contact: ir@cgi.com
+
+© 2025 CGI Inc.
+
+[Rank 20 | BGE Score: 0.000040]
+Content: Source/open data/creative commons licenses? How? - See also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision and Processing of Intellectual Property Rights for Students and Graduates at The University of Nottingham” Research ethics - Does the work involve human participants or data subjects? If so: o Have you followed the University of Nottingham research ethics requirements? o How does the work safeguard participants and data subjects? o How does the work reflect principles of informed consent and voluntary participation?
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Who is the contact details for the CGI AI Big KNowledge Project?
+Timestamp: 2026-03-01T20:33:35.142067+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.786417]
+Content: ## Call for Expressions of Interest
+
+Date of Issue:
+
+September 2025
+
+Expected Completion Date:
+
+May 2026
+
+Project Title:
+
+AI Big Knowledge Management
+
+Company:
+
+CGI
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.783749]
+Content: ## cgi.com/investors
+
+Contact: ir@cgi.com
+
+© 2025 CGI Inc.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.753301]
+Content: ## Investor Relations
+
+For further information about the Company, additional copies of this report, or other financial information, please contact:
+
+CGI Inc. Investor Relations Email: ir@cgi.com Web: cgi.com/investors 1350 René-Lévesque Blvd West, 25 th floor Montréal, Quebec H3G 1T4 Canada Tel.: 514-841-3200
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.734785]
+Content: ## Investor Relations
+
+Kevin Linder Senior Vice-President, Investor Relations Telephone: +1(905) 973-8363
+
+kevin.linder@cgi.com kevin.linder@cgi.com
+
+1350 René-Lévesque Boulevard West 25 th  Floor Montréal, Quebec H3G 1T4 Canada cgi.com
+
+cgi.com
+
+© 2025 CGI Inc.
+
+Page
+
+73
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.728911]
+Content: ## Submission / Award information
+
+For further information on this proposal, the team representative should in the first instance e-mail the lead contact stated above at the e-mail address provided.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.715215]
+Content: ## Contact Details
+
+Lead Contact:
+
+Oliver Hathaway
+
+Lead E-mail:
+
+oliver.hathaway@cgi.com
+
+Additional Contact:
+
+Samuel Bryan
+
+E-mail:
+
+samuel.bryan@cgi.com
+
+Additional Contact:
+
+Daisy Everard
+
+E-mail:
+
+daisy.everard@cgi.com
+
+Additional Contact:
+
+Additional contact name
+
+E-mail:
+
+Additional contact e-mail
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.708889]
+Content: ## Additional Info
+
+- [ ] Students must sign NDA: ☐
+
+- [ ] Project uses personal data: ☐
+
+Custom hardware required:
+
+☐
+
+If Applicable: Please provide details
+
+Relevant research areas (if applicable) 1 :
+
+AI and Cloud
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.699248]
+Content: ## cgi.com/investors
+
+© 2025 CGI Inc.
+
+<!-- image-uuid: 1f1158a9-303e-6ee8-be52-9d11761502fb -->
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.690003]
+Content: ©University of Nottingham Software Engineering Group Project COMP2002: Project Handbook 2024-2025
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.683149]
+Content: ## For this we will focus on combining:
+
+This is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.682869]
+Content: ## Project Background Information
+
+One solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.682792]
+Content: ## Project Background Information
+
+Modern AI tools are cool, but do you want to build something cooler?
+
+All Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.682179]
+Content: ## Insights you can act on
+
+Founded in 1976, CGI is among the largest IT and business consulting services firms in the world.
+
+We are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.681513]
+Content: Source/open data/creative commons licenses? How? - See also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision and Processing of Intellectual Property Rights for Students and Graduates at The University of Nottingham” Research ethics - Does the work involve human participants or data subjects? If so: o Have you followed the University of Nottingham research ethics requirements? o How does the work safeguard participants and data subjects? o How does the work reflect principles of informed consent and voluntary participation?
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.680084]
+Content: ## 1. Corporate Overview
+
+## 1.1. ABOUT CGI
+
+Founded in 1976 and headquartered in Montréal, Canada, CGI is a leading IT and business consulting services firm with approximately 94,000 consultants and professionals worldwide. We use the power of technology to help clients accelerate their holistic digital transformation.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.678382]
+Content: ## Transfer Agent
+
+Computershare Investor Services Inc. +1(800) 564-6253
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.676171]
+Content: ## 1. Corporate Overview
+
+## 1.1. ABOUT CGI
+
+CGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.674707]
+Content: ## We may be unable to protect our intellectual property rights.
+
+Our success depends, in part, on our ability to protect our proprietary methodologies, processes, know-how, tools, techniques and other intellectual property that we use to provide our services. Although CGI takes reasonable steps (e.g. available copyright protection and, in some cases, patent protection) to protect and enforce its intellectual property rights, there is no assurance that such measures will be enforceable or adequate.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.668749]
+Content: P a g e | 19 ©University of Nottingham - Motivate why the team is bidding for the project and wants to work with the sponsor. - Demonstrate some level of understanding of the problem and its context. - Demonstrate technical understanding and illustrate that the team has the necessary skills to carry out the project. - Give an understanding of how the project will be managed. - Be tailored to the project and honest on what the team can offer. - Discuss Legal, Social and Ethical aspects of the project.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.667725]
+Content: ## Transfer Agent and Registrar
+
+Computershare Investor Services Inc. 320 Bay Street, 14 th  Floor Toronto, ON  M5H 4A6 Telephone: 1 800 564-6253 www.investorcentre.com/service
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.199357]
+Content: ## Contact Details
+
+Lead Contact:
+
+Oliver Hathaway
+
+Lead E-mail:
+
+oliver.hathaway@cgi.com
+
+Additional Contact:
+
+Samuel Bryan
+
+E-mail:
+
+samuel.bryan@cgi.com
+
+Additional Contact:
+
+Daisy Everard
+
+E-mail:
+
+daisy.everard@cgi.com
+
+Additional Contact:
+
+Additional contact name
+
+E-mail:
+
+Additional contact e-mail
+
+[Rank 2 | BGE Score: 0.034168]
+Content: ## Call for Expressions of Interest
+
+Date of Issue:
+
+September 2025
+
+Expected Completion Date:
+
+May 2026
+
+Project Title:
+
+AI Big Knowledge Management
+
+Company:
+
+CGI
+
+[Rank 3 | BGE Score: 0.019228]
+Content: ## cgi.com/investors
+
+Contact: ir@cgi.com
+
+© 2025 CGI Inc.
+
+[Rank 4 | BGE Score: 0.018487]
+Content: ## Investor Relations
+
+Kevin Linder Senior Vice-President, Investor Relations Telephone: +1(905) 973-8363
+
+kevin.linder@cgi.com kevin.linder@cgi.com
+
+1350 René-Lévesque Boulevard West 25 th  Floor Montréal, Quebec H3G 1T4 Canada cgi.com
+
+cgi.com
+
+© 2025 CGI Inc.
+
+Page
+
+73
+
+[Rank 5 | BGE Score: 0.002115]
+Content: ## Investor Relations
+
+For further information about the Company, additional copies of this report, or other financial information, please contact:
+
+CGI Inc. Investor Relations Email: ir@cgi.com Web: cgi.com/investors 1350 René-Lévesque Blvd West, 25 th floor Montréal, Quebec H3G 1T4 Canada Tel.: 514-841-3200
+
+[Rank 6 | BGE Score: 0.000234]
+Content: ## 1. Corporate Overview
+
+## 1.1. ABOUT CGI
+
+Founded in 1976 and headquartered in Montréal, Canada, CGI is a leading IT and business consulting services firm with approximately 94,000 consultants and professionals worldwide. We use the power of technology to help clients accelerate their holistic digital transformation.
+
+[Rank 7 | BGE Score: 0.000175]
+Content: ## Insights you can act on
+
+Founded in 1976, CGI is among the largest IT and business consulting services firms in the world.
+
+We are insights-driven and outcomes-focused to help accelerate returns on your investments. Across hundreds of locations worldwide, we provide comprehensive, scalable and sustainable IT and business consulting services that are informed globally and delivered locally.
+
+[Rank 8 | BGE Score: 0.000166]
+Content: ## Submission / Award information
+
+For further information on this proposal, the team representative should in the first instance e-mail the lead contact stated above at the e-mail address provided.
+
+[Rank 9 | BGE Score: 0.000155]
+Content: ## 1. Corporate Overview
+
+## 1.1. ABOUT CGI
+
+CGI has a people-centered culture, operating where our clients live and work to build trusted relationships and to advance our shared communities. Our consultants and professionals are committed to providing actionable insights that help clients achieve their business outcomes. CGI's global delivery centers complement our proximity-based teams, offering clients added options that deliver scale, innovation and delivery excellence in every engagement.
+
+[Rank 10 | BGE Score: 0.000135]
+Content: ## cgi.com/investors
+
+© 2025 CGI Inc.
+
+<!-- image-uuid: 1f1158a9-303e-6ee8-be52-9d11761502fb -->
+
+[Rank 11 | BGE Score: 0.000126]
+Content: ## Additional Info
+
+- [ ] Students must sign NDA: ☐
+
+- [ ] Project uses personal data: ☐
+
+Custom hardware required:
+
+☐
+
+If Applicable: Please provide details
+
+Relevant research areas (if applicable) 1 :
+
+AI and Cloud
+
+[Rank 12 | BGE Score: 0.000052]
+Content: ## Transfer Agent
+
+Computershare Investor Services Inc. +1(800) 564-6253
+
+[Rank 13 | BGE Score: 0.000052]
+Content: ## For this we will focus on combining:
+
+This is a technical project, but it sits at the cutting edge of practical AI -and it can create tools that are genuinely useful today!
+
+[Rank 14 | BGE Score: 0.000046]
+Content: ## Transfer Agent and Registrar
+
+Computershare Investor Services Inc. 320 Bay Street, 14 th  Floor Toronto, ON  M5H 4A6 Telephone: 1 800 564-6253 www.investorcentre.com/service
+
+[Rank 15 | BGE Score: 0.000045]
+Content: ## We may be unable to protect our intellectual property rights.
+
+Our success depends, in part, on our ability to protect our proprietary methodologies, processes, know-how, tools, techniques and other intellectual property that we use to provide our services. Although CGI takes reasonable steps (e.g. available copyright protection and, in some cases, patent protection) to protect and enforce its intellectual property rights, there is no assurance that such measures will be enforceable or adequate.
+
+[Rank 16 | BGE Score: 0.000033]
+Content: ## Project Background Information
+
+One solution to this is to store your documents in a vector database (a database designed for AI), create a server to connect the AI tool with the database, and then use it to search and retrieve information from your documents whilst remembering previous answers and context.
+
+[Rank 17 | BGE Score: 0.000032]
+Content: ## Project Background Information
+
+Modern AI tools are cool, but do you want to build something cooler?
+
+All Large Language Models (LLMs) can only handle a limited amount of text at once, called tokens. If you feed them too much information, like multiple documents, they'll quickly 'forget' earlier text and start making things up (hallucinating).
+
+[Rank 18 | BGE Score: 0.000027]
+Content: P a g e | 19 ©University of Nottingham - Motivate why the team is bidding for the project and wants to work with the sponsor. - Demonstrate some level of understanding of the problem and its context. - Demonstrate technical understanding and illustrate that the team has the necessary skills to carry out the project. - Give an understanding of how the project will be managed. - Be tailored to the project and honest on what the team can offer. - Discuss Legal, Social and Ethical aspects of the project.
+
+[Rank 19 | BGE Score: 0.000018]
+Content: Source/open data/creative commons licenses? How? - See also “Intellectual Property Rights” in the 3rd/4th year project handbook and “Provision and Processing of Intellectual Property Rights for Students and Graduates at The University of Nottingham” Research ethics - Does the work involve human participants or data subjects? If so: o Have you followed the University of Nottingham research ethics requirements? o How does the work safeguard participants and data subjects? o How does the work reflect principles of informed consent and voluntary participation?
+
+[Rank 20 | BGE Score: 0.000016]
+Content: ©University of Nottingham Software Engineering Group Project COMP2002: Project Handbook 2024-2025
+
+--------------------------------------------------

@@ -91,7 +91,7 @@ Responsibilities:
     1. Pushes the user message into local chat state.
     2. Calls `POST {API_BASE}/api/query` with `{ query: <text> }`.
     3. Appends AI response or error placeholder.
-    4. If a file was selected, posts to `POST {API_BASE}/ingest/webhook` with `{ fileName, contentType, data: <base64> }`.
+    4. If a file was selected, posts to `POST {API_BASE}/ingest/upload` with `{ fileName, contentType, data: <base64> }`.
     5. Clears the input + file picker.
 - Additional actions:
     - `handleLogout()` clears `localStorage.token` and redirects to `/register`.
@@ -148,7 +148,7 @@ Artifacts in `dist/` can be deployed to GitHub Pages or any static host. For Git
 | Health check    | `GET /hello`                           | Surfaced through hidden test button on `MainPage`.                                   |
 | Register user   | `POST /auth/register`                  | Expect `{ detail }` error message on failure.                                        |
 | Query LLM       | `POST /api/query` (or `/query`)        | Replace path once backend finalizes route; currently used for placeholder responses. |
-| Upload document | `POST /ingest/webhook`                 | Accepts base64 payload + metadata for ingestion pipeline.                            |
+| Upload document | `POST /ingest/upload`                  | Accepts base64 payload + metadata for ingestion pipeline.                            |
 
 When authentication is implemented, attach `Authorization: Bearer <token>` headers to both query and ingestion requests. Consider centralizing axios configuration in a helper module once login is added.
 

@@ -21,33 +21,33 @@ This document explains the backend located in `backend/`. It covers API architec
 
 ```
 backend/
-├── app/
-│   ├── main.py                 # FastAPI app factory, routers, startup hooks
-│   ├── api/
-│   │   ├── router_auth.py      # /auth endpoints (register/login/health)
-│   │   ├── router_ingest.py    # /ingest/webhook for uploads + chunk pipeline
-│   │   └── router_query.py     # /query endpoints powering the RAG flow
-│   ├── core/
-│   │   ├── password_utils.py   # bcrypt hashing helpers
-│   │   └── validation.py       # email/password validators & sanitizers
-│   └── service/
-│       ├── auth_service.py         # Astra-backed user storage
-│       ├── text_extractor.py       # PDF/DOC/TXT parsing
-│       ├── chunker.py              # Paragraph/sentence chunking
-│       ├── chunk_polisher.py       # Normalizes chunk text
-│       ├── embedder.py             # Calls Beam embeddings endpoint (async)
-│       ├── vector_store.py         # Upserts/searches Astra collection
-│       ├── vectordb_init.py        # Creates `document_chunks_2` collection
-│       ├── beam_client.py          # Legacy HTTP client for LLM + embed services
-│       ├── query_refiner.py        # Hits Beam query-refiner endpoint
-│       ├── answer_generator.py     # Hits Beam RAG answer endpoint
-│       ├── chunker/… utilities     # (future) retrieval logic lives here
-│       └── tmp/                    # Temporary upload artifacts
-├── docs/                       # Feature-specific guides (ingestion, query, vector DB)
-├── tests/                      # Pytest skeleton
-├── requirements.txt            # Runtime deps
-├── Dockerfile                  # FastAPI container for deployment
-└── .env                        # Local secrets (never commit real credentials)
+â”œâ”€â”€ app/
+â”‚   â”œâ”€â”€ main.py                 # FastAPI app factory, routers, startup hooks
+â”‚   â”œâ”€â”€ api/
+â”‚   â”‚   â”œâ”€â”€ router_auth.py      # /auth endpoints (register/login/health)
+â”‚   â”‚   â”œâ”€â”€ router_ingest.py    # /ingest/upload for uploads + chunk pipeline
+â”‚   â”‚   â””â”€â”€ router_query.py     # /query endpoints powering the RAG flow
+â”‚   â”œâ”€â”€ core/
+â”‚   â”‚   â”œâ”€â”€ password_utils.py   # bcrypt hashing helpers
+â”‚   â”‚   â””â”€â”€ validation.py       # email/password validators & sanitizers
+â”‚   â””â”€â”€ service/
+â”‚       â”œâ”€â”€ auth_service.py         # Astra-backed user storage
+â”‚       â”œâ”€â”€ text_extractor.py       # PDF/DOC/TXT parsing
+â”‚       â”œâ”€â”€ chunker.py              # Paragraph/sentence chunking
+â”‚       â”œâ”€â”€ chunk_polisher.py       # Normalizes chunk text
+â”‚       â”œâ”€â”€ embedder.py             # Calls Beam embeddings endpoint (async)
+â”‚       â”œâ”€â”€ vector_store.py         # Upserts/searches Astra collection
+â”‚       â”œâ”€â”€ vectordb_init.py        # Creates `document_chunks_2` collection
+â”‚       â”œâ”€â”€ beam_client.py          # Legacy HTTP client for LLM + embed services
+â”‚       â”œâ”€â”€ query_refiner.py        # Hits Beam query-refiner endpoint
+â”‚       â”œâ”€â”€ answer_generator.py     # Hits Beam RAG answer endpoint
+â”‚       â”œâ”€â”€ chunker/â€¦ utilities     # (future) retrieval logic lives here
+â”‚       â””â”€â”€ tmp/                    # Temporary upload artifacts
+â”œâ”€â”€ docs/                       # Feature-specific guides (ingestion, query, vector DB)
+â”œâ”€â”€ tests/                      # Pytest skeleton
+â”œâ”€â”€ requirements.txt            # Runtime deps
+â”œâ”€â”€ Dockerfile                  # FastAPI container for deployment
+â””â”€â”€ .env                        # Local secrets (never commit real credentials)
 ```
 
 ---
@@ -127,8 +127,7 @@ docker run --env-file .env -p 8000:8000 team44-backend
 | `/auth/register` | POST | Creates user in Astra (`AuthService.register_user`) | `router_auth` |
 | `/auth/login` | POST | Validates credentials (bcrypt) | `router_auth` |
 | `/ingest/health` | GET | Ingestion subsystem status | `router_ingest` |
-| `/ingest/webhook/preview` | POST | Parse-only Docling PDF preview; writes markdown + extracted images locally | `router_ingest` |
-| `/ingest/webhook` | POST | Accepts `{fileName, contentType, data(base64)}`; runs ingestion pipeline | `router_ingest` |
+| `/ingest/upload` | POST | Accepts `{fileName, contentType, data(base64)}`; runs ingestion pipeline | `router_ingest` |
 | `/query/health` | GET | Query subsystem status | `router_query` |
 | `/query` | POST | Full RAG pipeline (refine -> embed -> vector search -> answer) | `router_query` |
 | `/query/direct` | POST | Vector search without refinement (debug) | `router_query` |
@@ -139,48 +138,41 @@ Authentication & authorization are still lightweight (no JWT); responses omit pa
 
 ## Data Pipelines
 
-### 1. Document Ingestion (`POST /ingest/webhook`)
+### 1. Document Ingestion (`POST /ingest/upload`)
 
-1. **Payload intake** – `router_ingest.FileUpload` receives filename, MIME type, and base64 body (temporary stand-in for actual MinIO webhook event).
-2. **Text extraction** – `text_extractor.extract_text()` dispatches by MIME:  
-   - `application/pdf` → PyMuPDF  
-   - `application/msword` / `application/vnd.openxmlformats-officedocument.wordprocessingml.document` → `python-docx`  
-   - `text/plain` → UTF-8 decode
+1. **Payload intake** â€“ `router_ingest.FileUpload` receives filename, MIME type, and base64 body (temporary stand-in for actual MinIO webhook event).
+2. **Text extraction** â€“ `text_extractor.extract_text()` dispatches by MIME:  
+   - `application/pdf` â†’ PyMuPDF  
+   - `application/msword` / `application/vnd.openxmlformats-officedocument.wordprocessingml.document` â†’ `python-docx`  
+   - `text/plain` â†’ UTF-8 decode
    - Optional PDF strategy switch: set `INGEST_PDF_EXTRACTOR=docling` to use the Beam-hosted Docling conversion endpoint for markdown extraction (default remains `legacy`)
    - Beam Docling endpoint mode requires:
      - `BEAM_DOCLING_ENDPOINT`
      - `BEAM_DOCLING_ENDPOINT_TOKEN`
    - Beam Docling endpoint failures are fail-fast (no automatic fallback to local Docling conversion)
-3. **Chunking** – `chunker.split_into_chunks()` merges paragraphs into ~1000 char windows; long paragraphs fall back to sentence splits.
-4. **Polishing** – `chunk_polisher.polish_chunks()` removes stray whitespace, bullet characters, and normalizes punctuation/casing.
-5. **Embedding** – Build payload `{"input": ["chunk text", ...]}` and call the Beam embedding endpoint through `embed_text()` (async `aiohttp`).  
+3. **Chunking** â€“ `chunker.split_into_chunks()` merges paragraphs into ~1000 char windows; long paragraphs fall back to sentence splits.
+4. **Polishing** â€“ `chunk_polisher.polish_chunks()` removes stray whitespace, bullet characters, and normalizes punctuation/casing.
+5. **Embedding** â€“ Build payload `{"input": ["chunk text", ...]}` and call the Beam embedding endpoint through `embed_text()` (async `aiohttp`).  
    The response is expected as `{"embedding": [[float...], ...]}` where vector dimension = 768.
-6. **Vector DB Upsert** – For each chunk attach metadata (`document_name`, `chunk_number`, `uploaded_by`, `timestamp`) and call `vector_store.upsert_chunk()`, which writes to the Astra collection initialized via `vectordb_init.init_vector_db()`.
+6. **Vector DB Upsert** â€“ For each chunk attach metadata (`document_name`, `chunk_number`, `uploaded_by`, `timestamp`) and call `vector_store.upsert_chunk()`, which writes to the Astra collection initialized via `vectordb_init.init_vector_db()`.
 
 Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are written to root for troubleshooting. Remove or guard them behind feature flags before production.
 
-### 1A. Docling Parse Preview (`POST /ingest/webhook/preview`)
+### 1A. PDF Strategy Switching (`INGEST_PDF_EXTRACTOR`)
 
-- PDF-only preview endpoint for validating Docling output before vector ingestion.
-- In `INGEST_PDF_EXTRACTOR=docling` mode, the backend calls the Beam Docling endpoint and reconstructs markdown/image artifacts locally from the returned JSON (`conversion_result_dump` + ordered item bbox metadata).
-- Set `DOCLING_ARTIFACTS_ENABLED=false` to disable all Docling debug artifact writes while keeping parsing/chunking behavior.
-- Persists artifacts under `backend/_local_uploads/docling_previews/<run_id>/`:
-  - `document.md`
-  - extracted images in `images/<image_uuid>.png` (for both pictures and fallback table images)
-  - `manifest.json` summary (stats, warnings, partial chunk failures)
-- If `AWS_S3_UPLOAD_ENABLED=true` and AWS config is valid, extracted images are also uploaded to S3 with UUID-based keys:
-  - `docling-previews/images/<image_uuid>.png`
-- S3 upload failures are recorded as warnings in the manifest/response flow and do **not** fail the preview request.
-- Beam endpoint errors do fail the preview request (no local fallback).
-- Does **not** chunk, polish, embed, or upsert to vector DB.
+- `INGEST_PDF_EXTRACTOR=legacy` (default): PDFs are processed by legacy text extraction + legacy chunking + chunk polishing.
+- `INGEST_PDF_EXTRACTOR=docling`: PDFs are processed through Docling parse + Docling structured-block chunking.
+- Non-PDF files always use the legacy extraction path.
+- Docling errors are fail-fast (no fallback to legacy when strategy is `docling`).
+- Docling chunk outputs preserve visual metadata (`content_flags`, `artifact_refs`) during vector upsert.
 
 ### 2. Query + Retrieval-Augmented Generation (`POST /query`)
 
-1. **Refinement** – `query_refiner.refine_query()` posts the raw question to the Beam Query Refiner (Model_Query_LLM). Returns a single-sentence rephrase optimized for embeddings.
-2. **Query embedding** – `embed_text()` (same as ingestion) converts the refined string to a 768-dim vector.
-3. **Vector search** – `vector_store.search_similar_chunks()` sorts Astra collection by `$vector` similarity (cosine) and returns metadata for `top_k` chunks. `include_similarity=True` is leveraged to read `$similarity`.
-4. **Answer generation** – Extract the textual chunk list and call `answer_generator.generate_answer()` which posts `{"rag_context": "<chunks...>", "user_query": "<original>"}` to the Beam Answer LLM. Result JSON must contain `answer`.
-5. **Response** – Current response schema is simplified to `{"answer": "<LLM output>"}` (can re-enable chunk metadata by uncommenting code in `router_query.py`).
+1. **Refinement** â€“ `query_refiner.refine_query()` posts the raw question to the Beam Query Refiner (Model_Query_LLM). Returns a single-sentence rephrase optimized for embeddings.
+2. **Query embedding** â€“ `embed_text()` (same as ingestion) converts the refined string to a 768-dim vector.
+3. **Vector search** â€“ `vector_store.search_similar_chunks()` sorts Astra collection by `$vector` similarity (cosine) and returns metadata for `top_k` chunks. `include_similarity=True` is leveraged to read `$similarity`.
+4. **Answer generation** â€“ Extract the textual chunk list and call `answer_generator.generate_answer()` which posts `{"rag_context": "<chunks...>", "user_query": "<original>"}` to the Beam Answer LLM. Result JSON must contain `answer`.
+5. **Response** â€“ Current response schema is simplified to `{"answer": "<LLM output>"}` (can re-enable chunk metadata by uncommenting code in `router_query.py`).
 
 `/query/direct` bypasses the refinement stage for debugging embeddings or the vector store.
 
@@ -192,7 +184,7 @@ Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are 
 
 - `register_user(email, password, role)`  
   - Sanitizes + validates email/password.  
-  - Enforces role ∈ {user, admin}.  
+  - Enforces role âˆˆ {user, admin}.  
   - Hashes password with bcrypt (`password_utils`).  
   - Inserts into `users` collection and returns metadata.
 
@@ -208,11 +200,11 @@ Error handling uses custom `AuthenticationError` which `router_auth` translates 
 
 ## Supporting Services
 
-- **`beam_client.py`** – Legacy synchronous helper to call Beam-hosted LLM + embed endpoints directly (`/generate`, `/embed`). Useful for scripts or fallback flows.
-- **`answer_generator.py`** – Async wrapper for the dedicated Beam answer endpoint (Model_AnswerGenerator_LLM). Accepts list of chunk texts + user query.
-- **`query_refiner.py`** – Async call to Model_Query_LLM (Beam) to rewrite user queries prior to embedding.
-- **`vector_store.py`** – Centralized operations on Astra collection (insert + similarity search). Includes manual `cosine_similarity` helper for debugging.
-- **`text_extractor.py`** – Handles PDF/Word/TXT ingestion; writes bytes to `/tmp/_tmp.*` to interop with libraries that read from disk.
+- **`beam_client.py`** â€“ Legacy synchronous helper to call Beam-hosted LLM + embed endpoints directly (`/generate`, `/embed`). Useful for scripts or fallback flows.
+- **`answer_generator.py`** â€“ Async wrapper for the dedicated Beam answer endpoint (Model_AnswerGenerator_LLM). Accepts list of chunk texts + user query.
+- **`query_refiner.py`** â€“ Async call to Model_Query_LLM (Beam) to rewrite user queries prior to embedding.
+- **`vector_store.py`** â€“ Centralized operations on Astra collection (insert + similarity search). Includes manual `cosine_similarity` helper for debugging.
+- **`text_extractor.py`** â€“ Handles PDF/Word/TXT ingestion; writes bytes to `/tmp/_tmp.*` to interop with libraries that read from disk.
 
 ---
 
@@ -225,7 +217,7 @@ Error handling uses custom `AuthenticationError` which `router_auth` translates 
 - Use FastAPI docs UI or `curl`/Postman to reproduce flows. Example ingestion request:
 
 ```bash
-curl -X POST http://127.0.0.1:8000/ingest/webhook ^
+curl -X POST http://127.0.0.1:8000/ingest/upload ^
   -H "Content-Type: application/json" ^
   -d "{\"fileName\":\"demo.pdf\",\"contentType\":\"application/pdf\",\"data\":\"<base64>\"}"
 ```
@@ -246,11 +238,12 @@ curl -X POST http://127.0.0.1:8000/ingest/webhook ^
 
 ## Future Enhancements
 
-- **JWT & RBAC** – Add `/auth/login` token issuance + role-based guards on ingestion/query routes.
-- **MinIO Webhook** – Replace mock `/webhook` payload with actual S3-compatible object storage events.
-- **Observability** – Plug in structured logging + metrics (Prometheus, OpenTelemetry).
-- **Retries** – Wrap Beam/Astra calls with exponential backoff to handle transient failures.
-- **Pagination & Metadata** – Expand query response to include chunk provenance displayed in the frontend.
-- **Testing** – Flesh out `tests/` with unit + integration coverage, especially for chunking and auth.
+- **JWT & RBAC** â€“ Add `/auth/login` token issuance + role-based guards on ingestion/query routes.
+- **MinIO Webhook** â€“ Replace mock upload payload for `/ingest/upload` with actual S3-compatible object storage events.
+- **Observability** â€“ Plug in structured logging + metrics (Prometheus, OpenTelemetry).
+- **Retries** â€“ Wrap Beam/Astra calls with exponential backoff to handle transient failures.
+- **Pagination & Metadata** â€“ Expand query response to include chunk provenance displayed in the frontend.
+- **Testing** â€“ Flesh out `tests/` with unit + integration coverage, especially for chunking and auth.
 
 Use this reference to onboard new backend contributors or to understand how the RAG stack is wired into AstraDB and Beam services.
+
