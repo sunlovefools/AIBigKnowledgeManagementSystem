@@ -12,7 +12,10 @@ from typing import Any
 
 from app.core.id_utils import generate_uuid_v6
 from app.service.rag.ingestion.chunker import ChildChunkModel, ParentChunkModel
-from app.service.rag.ingestion.docling.common import DoclingStructuredBlock
+from app.service.rag.ingestion.docling.common import (
+    DoclingStructuredBlock,
+    is_docling_artifacts_enabled,
+)
 
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
@@ -632,6 +635,9 @@ def _write_trace_artifacts(
     child_chunks: list[ChildChunkModel],
 ) -> None:
     """Write parent/child markdown traces to the Docling artifact directory."""
+
+    if not is_docling_artifacts_enabled():
+        return
 
     if not artifact_dir:
         return

@@ -264,6 +264,51 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
     assert any("Beam: retry used" in w for w in result.warnings)
 
 
+def test_parse_pdf_with_docling_preview_skips_all_artifacts_when_disabled_in_beam(monkeypatch, tmp_path):
+    items = [
+        _Text("Intro paragraph", page_no=1),
+        _Picture(page_no=1),
+        _Table(page_no=1, num_rows=0, num_cols=0),
+    ]
+    _patch_endpoint_runtime(monkeypatch, items)
+    monkeypatch.setattr(beam_extractor, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setenv("DOCLING_ARTIFACTS_ENABLED", "false")
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
+
+    result = extractor.parse_pdf_with_docling_preview(
+        pdf_bytes=_minimal_pdf_bytes(),
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+    )
+
+    assert result.artifact_run_id == ""
+    assert result.artifact_dir == ""
+    assert result.markdown_path == ""
+    assert result.images == []
+    assert "Intro paragraph" in result.markdown_text
+    assert not any(tmp_path.iterdir())
+
+
+def test_parse_pdf_with_docling_preview_defaults_to_artifacts_enabled_when_toggle_missing(monkeypatch, tmp_path):
+    items = [_Text("Only text content", page_no=1)]
+    _patch_endpoint_runtime(monkeypatch, items)
+    monkeypatch.delenv("DOCLING_ARTIFACTS_ENABLED", raising=False)
+
+    result = extractor.parse_pdf_with_docling_preview(
+        pdf_bytes=_minimal_pdf_bytes(),
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+    )
+
+    artifact_dir = Path(result.artifact_dir)
+    assert result.artifact_run_id
+    assert result.artifact_dir
+    assert result.markdown_path
+    assert artifact_dir.exists()
+    assert Path(result.markdown_path).exists()
+    assert (artifact_dir / "manifest.json").exists()
+
+
 def test_parse_pdf_with_docling_preview_raises_when_endpoint_fails(monkeypatch, tmp_path):
     monkeypatch.setenv("DOCLING_PDF_BACKEND", "beam")
     monkeypatch.setattr(beam_extractor, "_call_beam_docling_endpoint", lambda *_args, **_kwargs: (_ for _ in ()).throw(RuntimeError("endpoint boom")))
@@ -708,6 +753,80 @@ def test_local_backend_raises_when_no_chunks_convert(monkeypatch, tmp_path):
             file_name="sample.pdf",
             artifact_root=tmp_path,
         )
+
+
+def test_local_backend_skips_all_artifacts_when_disabled(monkeypatch, tmp_path):
+    class _LocalPicture(_Picture):
+        def get_image(self, _doc):
+            raise AssertionError("image export should be skipped when artifacts are disabled")
+
+    class _LocalTable(_Table):
+        def get_image(self, _doc):
+            raise AssertionError("table image export should be skipped when artifacts are disabled")
+
+    class _LocalSerializer(_Serializer):
+        def serialize(self, item):
+            if isinstance(item, _LocalPicture):
+                return _Serialized("<!-- image -->")
+            if isinstance(item, _LocalTable):
+                return _Serialized("| a | b |")
+            return super().serialize(item)
+
+    class _DocumentStream:
+        def __init__(self, name, stream):
+            self.name = name
+            self.stream = stream
+
+    class _Status:
+        def __init__(self, value):
+            self.value = value
+
+    class _Result:
+        def __init__(self, document):
+            self.status = _Status("success")
+            self.document = document
+            self.errors = []
+            self.input = type("Input", (), {"page_count": 1})()
+
+    class _FakeConverter:
+        def convert(self, _doc_stream, raises_on_error=False, page_range=None):
+            assert raises_on_error is False
+            return _Result(
+                _Document(
+                    [
+                        _Text("Local intro", page_no=1),
+                        _LocalPicture(page_no=1),
+                        _LocalTable(page_no=1, num_rows=0, num_cols=0),
+                    ]
+                )
+            )
+
+    monkeypatch.setenv("DOCLING_ARTIFACTS_ENABLED", "false")
+    monkeypatch.setattr(
+        local_extractor,
+        "_load_local_docling_runtime",
+        lambda: {
+            "MarkdownDocSerializer": _LocalSerializer,
+            "PictureItem": _LocalPicture,
+            "TableItem": _LocalTable,
+            "DocumentStream": _DocumentStream,
+        },
+    )
+    monkeypatch.setattr(local_extractor, "_get_or_create_local_converter", lambda: _FakeConverter())
+
+    result = local_extractor.parse_pdf_with_docling_preview_local(
+        pdf_bytes=_pdf_bytes_with_pages(1),
+        file_name="sample.pdf",
+        artifact_root=tmp_path,
+        page_chunk_size=1,
+    )
+
+    assert result.artifact_run_id == ""
+    assert result.artifact_dir == ""
+    assert result.markdown_path == ""
+    assert result.images == []
+    assert "Local intro" in result.markdown_text
+    assert not any(tmp_path.iterdir())
 
 
 def test_beam_table_image_vlm_inserts_summary_and_json_marker(monkeypatch, tmp_path):

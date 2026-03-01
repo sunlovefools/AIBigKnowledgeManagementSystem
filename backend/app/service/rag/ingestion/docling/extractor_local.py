@@ -156,6 +156,7 @@ def parse_pdf_with_docling_preview_local(
         file_name=file_name,
         artifact_root=artifact_root,
     )
+    artifacts_enabled = artifact_dir is not None and markdown_path is not None
 
     markdown_parts: list[str] = []
     structured_block_metadata: list[dict[str, Any]] = []
@@ -221,9 +222,13 @@ def parse_pdf_with_docling_preview_local(
         )
     
     # Build the shared VLM runtime if the VLM is enabled for this run
-    table_image_vlm_runtime = table_image_vlm.build_table_image_vlm_runtime(
-        artifact_dir=artifact_dir,
-        warnings=warnings,
+    table_image_vlm_runtime = (
+        table_image_vlm.build_table_image_vlm_runtime(
+            artifact_dir=artifact_dir,
+            warnings=warnings,
+        )
+        if artifacts_enabled
+        else None
     )
     table_image_vlm_executor: ThreadPoolExecutor | None = None
 
@@ -328,52 +333,55 @@ def parse_pdf_with_docling_preview_local(
             # If its a pictureItem, then we will need to save it and uplaod it to S3
             if isinstance(element, picture_item_cls):
                 picture_counter += 1
-                image_uuid = str(uuid6())
-                picture_name = shared._image_file_name_from_uuid(image_uuid)
-                picture_path = shared._image_file_path_from_uuid(
-                    artifact_dir,
-                    image_uuid,
-                )
-                try:
-                    img = element.get_image(result.document)
-                    if img is None:
-                        raise RuntimeError("Docling picture image unavailable.")
-                    
-                    # Save the image bytes to a local file in the artifact directory.
-                    with picture_path.open("wb") as fp:
-                        img.save(fp, "PNG")
-
-                    # Form the Image Artifact for the picture item
-                    image_artifact = shared.ExtractedImageArtifact(
-                        kind="picture",
-                        image_uuid=image_uuid,
-                        file_name=picture_name,
-                        file_path=str(picture_path),
-                        page_no=page_no,
-                        picture_index=picture_counter,
+                if artifacts_enabled:
+                    image_uuid = str(uuid6())
+                    picture_name = shared._image_file_name_from_uuid(image_uuid)
+                    picture_path = shared._image_file_path_from_uuid(
+                        artifact_dir,
+                        image_uuid,
                     )
+                    try:
+                        img = element.get_image(result.document)
+                        if img is None:
+                            raise RuntimeError("Docling picture image unavailable.")
+                        
+                        # Save the image bytes to a local file in the artifact directory.
+                        with picture_path.open("wb") as fp:
+                            img.save(fp, "PNG")
 
-                    # Upload the picture image artifact to S3 and validate the upload status
-                    image_artifact = shared._upload_image_artifact_to_s3(
-                        image_artifact,
-                        source_file_name=file_name,
-                    )
-                    if image_artifact.s3_upload_status == "failed":
-                        s3_upload_failed_count += 1
-                        warnings.append(
-                            f"Failed to upload picture image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
+                        # Form the Image Artifact for the picture item
+                        image_artifact = shared.ExtractedImageArtifact(
+                            kind="picture",
+                            image_uuid=image_uuid,
+                            file_name=picture_name,
+                            file_path=str(picture_path),
+                            page_no=page_no,
+                            picture_index=picture_counter,
                         )
-                    elif image_artifact.s3_upload_status == "uploaded":
-                        s3_upload_uploaded_count += 1
-                    elif image_artifact.s3_upload_status == "skipped":
-                        s3_upload_skipped_count += 1
 
-                    images.append(image_artifact)
-                    picture_uuid_for_markdown = image_artifact.image_uuid
-                except Exception as exc:
-                    warnings.append(
-                        f"Failed to export local picture #{picture_counter} on page {page_no}: {exc}"
-                    )
+                        # Upload the picture image artifact to S3 and validate the upload status
+                        image_artifact = shared._upload_image_artifact_to_s3(
+                            image_artifact,
+                            source_file_name=file_name,
+                        )
+                        if image_artifact.s3_upload_status == "failed":
+                            s3_upload_failed_count += 1
+                            warnings.append(
+                                f"Failed to upload picture image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
+                            )
+                        elif image_artifact.s3_upload_status == "uploaded":
+                            s3_upload_uploaded_count += 1
+                        elif image_artifact.s3_upload_status == "skipped":
+                            s3_upload_skipped_count += 1
+
+                        images.append(image_artifact)
+                        picture_uuid_for_markdown = image_artifact.image_uuid
+                    except Exception as exc:
+                        warnings.append(
+                            f"Failed to export local picture #{picture_counter} on page {page_no}: {exc}"
+                        )
+                else:
+                    picture_uuid_for_markdown = str(uuid6())
 
             # If the element is a table we will perform the action below
             if isinstance(element, table_item_cls):
@@ -385,114 +393,122 @@ def parse_pdf_with_docling_preview_local(
 
                 if num_rows == 0 or num_cols == 0:
                     table_image_count += 1
-                    image_uuid = str(uuid6())
-                    table_image_name = shared._image_file_name_from_uuid(image_uuid)
-                    table_image_path = shared._image_file_path_from_uuid(
-                        artifact_dir,
-                        image_uuid,
-                    )
-                    try:
-                        img = element.get_image(result.document)
-                        if img is None:
-                            raise RuntimeError("Docling table image unavailable.")
-                        
-                        # Save the image
-                        with table_image_path.open("wb") as fp:
-                            img.save(fp, "PNG")
-
-                        # Form the image artifact for the tableItem
-                        image_artifact = shared.ExtractedImageArtifact(
-                            kind="table_image",
-                            image_uuid=image_uuid,
-                            file_name=table_image_name,
-                            file_path=str(table_image_path),
-                            page_no=page_no,
-                            table_index=table_index,
-                            reason="table_rows_cols_zero",
+                    if artifacts_enabled:
+                        image_uuid = str(uuid6())
+                        table_image_name = shared._image_file_name_from_uuid(image_uuid)
+                        table_image_path = shared._image_file_path_from_uuid(
+                            artifact_dir,
+                            image_uuid,
                         )
+                        try:
+                            img = element.get_image(result.document)
+                            if img is None:
+                                raise RuntimeError("Docling table image unavailable.")
+                            
+                            # Save the image
+                            with table_image_path.open("wb") as fp:
+                                img.save(fp, "PNG")
 
-                        # Upload it to the S3 and validate the upload status for the table image artifact
-                        image_artifact = shared._upload_image_artifact_to_s3(
-                            image_artifact,
-                            source_file_name=file_name,
-                        )
-                        if image_artifact.s3_upload_status == "failed":
-                            s3_upload_failed_count += 1
-                            warnings.append(
-                                f"Failed to upload table image image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
-                            )
-                        elif image_artifact.s3_upload_status == "uploaded":
-                            s3_upload_uploaded_count += 1
-                        elif image_artifact.s3_upload_status == "skipped":
-                            s3_upload_skipped_count += 1
-
-                        images.append(image_artifact)
-
-                        table_markdown_lines = [
-                            "> **Table (image)**: Table exists in image form.",
-                            f"> {shared._table_image_uuid_marker(image_artifact.image_uuid)}",
-                            f"> ![{table_image_name}]({shared._image_markdown_rel_path_from_uuid(image_artifact.image_uuid)})",
-                        ]
-
-                        if table_image_vlm_runtime is not None and table_image_vlm_executor is not None:
-
-                            # Get a summary placeholder for the table image VLM to inject into the markdown while the VLM job is being processed, 
-                            # so that the markdown can be rendered with partial information while waiting for the VLM results
-                            summary_placeholder = table_image_vlm.table_image_vlm_summary_placeholder(
-                                image_artifact.image_uuid
+                            # Form the image artifact for the tableItem
+                            image_artifact = shared.ExtractedImageArtifact(
+                                kind="table_image",
+                                image_uuid=image_uuid,
+                                file_name=table_image_name,
+                                file_path=str(table_image_path),
+                                page_no=page_no,
+                                table_index=table_index,
+                                reason="table_rows_cols_zero",
                             )
 
-                            # Form a VLM job to process this table image
-                            table_image_vlm_jobs.append(
-                                table_image_vlm.TableImageVlmJob(
-                                    image_artifact=image_artifact,
-                                    table_index=table_index,
-                                    page_no=page_no,
-                                    block_index=len(markdown_parts),
-                                    summary_placeholder=summary_placeholder,
-                                    # The output artifact directory for the VLM to write the extracted table structure JSON and the summary
-                                    output_dir=table_image_vlm.table_image_vlm_output_dir(
-                                        artifact_dir,
-                                        table_index=table_index,
-                                        image_uuid=image_artifact.image_uuid,
-                                    ),
-                                    # A JSON file path for debug
-                                    json_rel_path=table_image_vlm.table_image_vlm_json_rel_path(
-                                        table_index=table_index,
-                                        image_uuid=image_artifact.image_uuid,
-                                    ),
+                            # Upload it to the S3 and validate the upload status for the table image artifact
+                            image_artifact = shared._upload_image_artifact_to_s3(
+                                image_artifact,
+                                source_file_name=file_name,
+                            )
+                            if image_artifact.s3_upload_status == "failed":
+                                s3_upload_failed_count += 1
+                                warnings.append(
+                                    f"Failed to upload table image image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
                                 )
+                            elif image_artifact.s3_upload_status == "uploaded":
+                                s3_upload_uploaded_count += 1
+                            elif image_artifact.s3_upload_status == "skipped":
+                                s3_upload_skipped_count += 1
+
+                            images.append(image_artifact)
+
+                            table_markdown_lines = [
+                                "> **Table (image)**: Table exists in image form.",
+                                f"> {shared._table_image_uuid_marker(image_artifact.image_uuid)}",
+                                f"> ![{table_image_name}]({shared._image_markdown_rel_path_from_uuid(image_artifact.image_uuid)})",
+                            ]
+
+                            if table_image_vlm_runtime is not None and table_image_vlm_executor is not None:
+
+                                # Get a summary placeholder for the table image VLM to inject into the markdown while the VLM job is being processed, 
+                                # so that the markdown can be rendered with partial information while waiting for the VLM results
+                                summary_placeholder = table_image_vlm.table_image_vlm_summary_placeholder(
+                                    image_artifact.image_uuid
+                                )
+
+                                # Form a VLM job to process this table image
+                                table_image_vlm_jobs.append(
+                                    table_image_vlm.TableImageVlmJob(
+                                        image_artifact=image_artifact,
+                                        table_index=table_index,
+                                        page_no=page_no,
+                                        block_index=len(markdown_parts),
+                                        summary_placeholder=summary_placeholder,
+                                        # The output artifact directory for the VLM to write the extracted table structure JSON and the summary
+                                        output_dir=table_image_vlm.table_image_vlm_output_dir(
+                                            artifact_dir,
+                                            table_index=table_index,
+                                            image_uuid=image_artifact.image_uuid,
+                                        ),
+                                        # A JSON file path for debug
+                                        json_rel_path=table_image_vlm.table_image_vlm_json_rel_path(
+                                            table_index=table_index,
+                                            image_uuid=image_artifact.image_uuid,
+                                        ),
+                                    )
+                                )
+                                table_markdown_lines.append(f"> {summary_placeholder}")
+
+                            # Append the markdown for this table item
+                            _append_markdown_block(
+                                text="\n".join(table_markdown_lines),
+                                block_type="table",
+                                page_no=page_no,
+                                is_table_image=True,
+                                table_image_uuid=image_artifact.image_uuid,
                             )
-                            table_markdown_lines.append(f"> {summary_placeholder}")
 
-                        # Append the markdown for this table item
+                            # Submit the VLM job
+                            table_image_vlm.submit_ready_table_image_vlm_jobs(
+                                runtime=table_image_vlm_runtime,
+                                executor=table_image_vlm_executor,
+                                jobs=table_image_vlm_jobs,
+                                markdown_parts=markdown_parts,
+                                warnings=warnings,
+                            )
+                        except Exception as exc:
+                            warnings.append(
+                                f"Failed to export local fallback table image #{table_index} on page {page_no}: {exc}"
+                            )
+                            _append_markdown_block(
+                                text="\n".join(
+                                    [
+                                        "> **Table (image)**: Table exists in image form.",
+                                        "> (Local image export failed.)",
+                                    ]
+                                ),
+                                block_type="table",
+                                page_no=page_no,
+                                is_table_image=True,
+                            )
+                    else:
                         _append_markdown_block(
-                            text="\n".join(table_markdown_lines),
-                            block_type="table",
-                            page_no=page_no,
-                            is_table_image=True,
-                            table_image_uuid=image_artifact.image_uuid,
-                        )
-
-                        # Submit the VLM job
-                        table_image_vlm.submit_ready_table_image_vlm_jobs(
-                            runtime=table_image_vlm_runtime,
-                            executor=table_image_vlm_executor,
-                            jobs=table_image_vlm_jobs,
-                            markdown_parts=markdown_parts,
-                            warnings=warnings,
-                        )
-                    except Exception as exc:
-                        warnings.append(
-                            f"Failed to export local fallback table image #{table_index} on page {page_no}: {exc}"
-                        )
-                        _append_markdown_block(
-                            text="\n".join(
-                                [
-                                    "> **Table (image)**: Table exists in image form.",
-                                    "> (Local image export failed.)",
-                                ]
-                            ),
+                            text="> **Table (image)**: Table exists in image form.",
                             block_type="table",
                             page_no=page_no,
                             is_table_image=True,
@@ -566,7 +582,8 @@ def parse_pdf_with_docling_preview_local(
 
     print("Successfully converted PDF with local Docling, writing markdown and artifacts")
     markdown_text = "\n\n".join(markdown_parts)
-    markdown_path.write_text(markdown_text, encoding="utf-8")
+    if artifacts_enabled:
+        markdown_path.write_text(markdown_text, encoding="utf-8")
     structured_blocks = [
         shared.DoclingStructuredBlock(
             block_index=metadata["block_index"],
@@ -592,8 +609,8 @@ def parse_pdf_with_docling_preview_local(
     result_model = shared.DoclingParseResult(
         source_file_name=file_name,
         artifact_run_id=run_id,
-        artifact_dir=str(artifact_dir),
-        markdown_path=str(markdown_path),
+        artifact_dir=str(artifact_dir) if artifacts_enabled else "",
+        markdown_path=str(markdown_path) if artifacts_enabled else "",
         markdown_text=markdown_text,
         images=images,
         warnings=warnings,
@@ -603,7 +620,8 @@ def parse_pdf_with_docling_preview_local(
     )
 
     # Write it into a manifest file for traceability, debugging and testing purposes
-    shared._write_manifest(artifact_dir, result_model.model_dump())
+    if artifacts_enabled:
+        shared._write_manifest(artifact_dir, result_model.model_dump())
     print(
         "[docling-preview-local] file=%s run_id=%s chunks=%s pictures=%s table_fallbacks=%s partial_failures=%s s3_uploaded=%s s3_failed=%s s3_skipped=%s"
         % (

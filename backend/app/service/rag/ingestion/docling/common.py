@@ -112,14 +112,42 @@ def _default_preview_root() -> Path:
     return _backend_root() / "_local_uploads" / "docling_previews"
 
 
+def is_docling_artifacts_enabled() -> bool:
+    """
+    Return whether Docling debug artifacts should be persisted.
+
+    Env: DOCLING_ARTIFACTS_ENABLED
+    Accepted true values: 1/true/yes/y/on
+    Accepted false values: 0/false/no/n/off
+    Missing or invalid values default to True (backward compatible).
+    """
+
+    raw = os.getenv("DOCLING_ARTIFACTS_ENABLED")
+    if raw is None:
+        return True
+
+    value = raw.strip().lower()
+    if value in {"1", "true", "yes", "y", "on"}:
+        return True
+    if value in {"0", "false", "no", "n", "off"}:
+        return False
+    return True
+
+
 def _prepare_docling_preview_artifact_dir(
     *,
     file_name: str,
     artifact_root: Path | None = None,
-) -> tuple[str, Path, Path]:
+) -> tuple[str, Path | None, Path | None]:
     """
     Prepare the per-run preview artifact directory and markdown output path.
+
+    If DOCLING_ARTIFACTS_ENABLED is false, artifact persistence is disabled and
+    empty path state is returned (run_id="", artifact_dir=None, markdown_path=None).
     """
+
+    if not is_docling_artifacts_enabled():
+        return "", None, None
 
     _ = file_name  # kept in signature for stable call sites / future naming changes
     preview_root = Path(artifact_root) if artifact_root else _default_preview_root()
@@ -338,6 +366,7 @@ __all__ = [
     "DoclingParseResult",
     "_backend_root",
     "_default_preview_root",
+    "is_docling_artifacts_enabled",
     "_prepare_docling_preview_artifact_dir",
     "_safe_stem",
     "_artifact_images_dir",

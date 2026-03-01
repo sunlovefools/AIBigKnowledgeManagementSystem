@@ -235,6 +235,25 @@ def test_trace_artifacts_are_written(tmp_path):
     assert children[0].child_chunk_id in child_text
 
 
+def test_trace_artifacts_are_not_written_when_docling_artifacts_disabled(tmp_path, monkeypatch):
+    monkeypatch.setenv("DOCLING_ARTIFACTS_ENABLED", "false")
+    blocks = [
+        _block(0, "header", "Doc Header"),
+        _block(1, "text", "Body content for trace artifact check."),
+    ]
+
+    parents, children = split_parent_child_chunks_from_docling_blocks(
+        blocks=blocks,
+        file_name="trace.pdf",
+        artifact_dir=tmp_path,
+    )
+
+    assert parents
+    assert children
+    assert not (tmp_path / "parent_chunk.md").exists()
+    assert not (tmp_path / "child_chunk.md").exists()
+
+
 def test_parent_artifact_compacts_table_markup_into_metadata_only(tmp_path):
     table_block = "\n".join(
         [
