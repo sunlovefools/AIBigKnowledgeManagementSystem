@@ -4235,3 +4235,1099 @@ Answer:
 
 *(Sources: wikieval_row_10.txt)*
 ==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T12:14:19.073484+00:00
+Provider: OPENROUTER
+Model: deepseek-chat
+Context Length: 26420
+
+<QUERY>
+what is Uzbekistan–Afghanistan–Pakistan Railway Project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f10e65f-7879-6768-b233-1903154d7dbd",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e6f9-dea5-628b-b782-7b786686b718",
+    "metadata": {
+      "file_name": "wikieval_row_1.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district . Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region . It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-9299-6bda-8659-6e8597232fb4",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e664-5db6-60df-9de8-141c4e472408",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e663-ada3-614a-8e40-cbe5990edd6f",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-68bc-6087-9a53-daca3983585c",
+    "metadata": {
+      "file_name": "wikieval_row_19.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "Juries\nMain Competition (Venezia 80)\nDamien Chazelle, American filmmaker - Jury President\nSaleh Bakri, Palestinian actor\nJane Campion, New Zealand filmmaker\nMia Hansen-Løve, French filmmaker\nGabriele Mainetti, Italian filmmaker\nMartin McDonagh, British-Irish filmmaker and playwright\nSantiago Mitre, Argentine filmmaker\nLaura Poitras, American filmmaker\nShu Qi, Taiwanese-Hong Kong actress and model Horizons (Orizzonti)\nJonas Carpignano - Jury president\nKaouther Ben Hania, Tunisian filmmaker\nKahill Joseph, American filmmaker, music video director, and video artist\nJean-Paul Salomé, French Filmmaker\nTricia Tuttle, British programmer and director of the BFI London Film Festival and the BFI Flare: London LGBTQI+ Film Festival\n\nLuigi de Laurentis Award for Debut Film\nAlice Diop, French Filmmaker - Jury President\nFaouzi Bensaïdi, Moroccan filmmaker\nLaura Citarella, Argentinian director and producer\nAndrea De Sica, Italian director and screenwriter\nChloe Domont, American filmmaker Venice Classics\nAndrea Pallaoro, Italian filmmaker\n\nVenice Immersive\nSinging Chen, Taiwanese filmmaker and music composer - Jury President\nGerman Heller, American animator and producer\nPedro Harres, Brazilian director, animator, screenwriter and multimedia artist\n\nOfficial Selection\nIn Competition\nThe following films were selected for the main international competition:\n\nOut of Competition\nThe following films were selected to be screened out of competition:\n\nSpecial Screening\nThe following films were selected to have a Special Screening: Horizons (Orizzonti)\nThe lineup of films selected for the Horizons section is as follows:",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69a5-b281-75d4cb00d042",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark of the night.By the end of the 1800s, the Seaboard and Roanoke Railroad became part of the Seaboard Air Line Railway network.  The Roanoke and Tar River Railroad was fully merged into the Seaboard Air Line in 1911 .  The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL).  The merged company was named the Seaboard Coast Line Railroad (SCL).  The Lewiston Subdivision connected with an ex-ACL line in Kelford.  In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation.  The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-9650-67ad-88f0-068639536aaf",
+    "metadata": {
+      "file_name": "wikieval_row_13.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "Trolleybus Route 20 is a trolleybus route in Shanghai, China. It started operations on 27 September 1928, and runs between Zhongshan Park (Wanhangdu Road) in Changning District and Hankou Road & Middle Sichuan Road in Huangpu District. It is operated by Shanghai Bus No.1 Public Transportation Co. Ltd.Route 20 is one of Shanghai's most famous and popular bus routes, with a rich history and a route that passes many major landmarks. It is estimated that as many as 9 out of 10 Shanghai residents have ridden the route . The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts. History\nThe Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund .In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No .1 Zhongshan Road to Hankou Road & Middle Sichuan Road.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-56f0-6125-8242-904a6b63a288",
+    "metadata": {
+      "file_name": "wikieval_row_31.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ".One of the most instrumental groups for the recapture and subsequent defenses of Mariupol was the Azov Battalion, a Ukrainian volunteer militia, controversial for its openly neo-Nazi and ultranationalist members. By November 2014 Azov was integrated into the National Guard of Ukraine, with Mariupol as its headquarters. As one of Vladimir Putin's stated goals for the invasion was the \"denazification\" of Ukraine, Mariupol represented an important ideological and symbolical target for the Russian forces .Prior to the siege, around 100,000 residents left Mariupol, according to the city's deputy mayor.Prior to falling to Russian forces, the city was defended by the Ukrainian Ground Forces, the Ukrainian Naval Infantry, the National Guard of Ukraine (primarily the Azov Regiment), the Territorial Defense Forces of Ukraine, and irregular forces. Advances to Mariupol\nPreliminary shelling and advance on the city On 24 February, the day the invasion began, Russian artillery bombarded the city, reportedly injuring 26 people.On the morning of 25 February, Russian forces advanced from DPR territory in the east towards Mariupol. They encountered Ukrainian forces near the village of Pavlopil, whom repelled the Russian advance. The mayor of Mariupol, Vadym Boychenko, said 22 Russian tanks had been destroyed in the skirmish",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69aa-b62f-69013f9f90e3",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986.  The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today. Historic stations\n== References ==\nThe Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark o",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-9117-6278-8cdd-4812f79efb88",
+    "metadata": {
+      "file_name": "wikieval_row_32.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries. In response to the annexation of Crimea by the Russian Federation and the 2022 Russian invasion of Ukraine, some governments and international organisations, led by the United States and European Union, imposed sanctions on Russian individuals and businesses. As the unrest expanded into other parts of Eastern Ukraine, and later escalated into the ongoing war in the Donbass region, the scope of the sanctions increased .Overall, three types of sanctions were imposed: ban on provision of technology for oil and gas exploration, ban on provision of credits to Russian oil companies and state banks, travel restrictions on the influential Russian citizens close to President Putin and involved in the annexation of Crimea. The Russian government responded in kind, with sanctions against some Canadian and American individuals and, in August 2014, with a total ban on food imports from the European Union, United States, Norway, Canada and Australia. Sanctions against Russian and Ukrainian individuals, companies and officials\nFirst round: March/April 2014",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7877-605c-95ca-5ff80bf9707c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries.\nIts construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE). The trail's history dates back to the pre-Islamic era, when it was used by tribes, travellers, and commercial caravans to move between Iraq and Western Arabia. Over time, its usage became regular and easier as the water centres, grazing areas, and mining locations along the route transformed into major stations. During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-6605-a27a-5fa3e16c0084",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi). Geography\nThe territory consists mainly of an extensive plain at an altitude up to 300 m (980 ft) above sea level, with a number of depressions and highlands (Sultanuizdag, Bukantau). Most of the area is covered with dunes (barchans); in the northwest large areas are covered with takirs (clay coatings); there are also some oases. There are agricultural settlements along the rivers and in the oases. Temperatures can be very high during the summer months, from mid-May to mid-September. Kerki, one extreme inland city located on the banks of the Amu Darya River, recorded 52 °C (126 °F) in July 1983 . It is mainly located in Uzbekistan.\nFauna\nDesert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert. Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-ef37-6a8a-8a07-68a74fdd5c82",
+    "metadata": {
+      "file_name": "wikieval_row_39.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-660f-ad5f-2b98ad31f340",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": "The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture \"Zarafshan-Newmont\". The centres of the gas-production industry are Gazli and Mubarek. Gallery\nSee also\nAndronovo culture\nAydar Lake, large artificial lake\nCentral Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert\nKarakum Desert, another desert of Central Asia\nList of deserts by area\nSarmishsay, ancient monuments of anthropogenic activity\n\nReferences\nExternal links\n Media related to Kyzyl Kum at Wikimedia Commons\n\nSlideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T12:16:10.122677+00:00
+Provider: OPENROUTER
+Model: deepseek-chat
+Context Length: 26420
+
+<QUERY>
+what is Uzbekistan–Afghanistan–Pakistan Railway Project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f10e65f-7879-6768-b233-1903154d7dbd",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e6f9-dea5-628b-b782-7b786686b718",
+    "metadata": {
+      "file_name": "wikieval_row_1.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district . Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region . It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-9299-6bda-8659-6e8597232fb4",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e664-5db6-60df-9de8-141c4e472408",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e663-ada3-614a-8e40-cbe5990edd6f",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-68bc-6087-9a53-daca3983585c",
+    "metadata": {
+      "file_name": "wikieval_row_19.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "Juries\nMain Competition (Venezia 80)\nDamien Chazelle, American filmmaker - Jury President\nSaleh Bakri, Palestinian actor\nJane Campion, New Zealand filmmaker\nMia Hansen-Løve, French filmmaker\nGabriele Mainetti, Italian filmmaker\nMartin McDonagh, British-Irish filmmaker and playwright\nSantiago Mitre, Argentine filmmaker\nLaura Poitras, American filmmaker\nShu Qi, Taiwanese-Hong Kong actress and model Horizons (Orizzonti)\nJonas Carpignano - Jury president\nKaouther Ben Hania, Tunisian filmmaker\nKahill Joseph, American filmmaker, music video director, and video artist\nJean-Paul Salomé, French Filmmaker\nTricia Tuttle, British programmer and director of the BFI London Film Festival and the BFI Flare: London LGBTQI+ Film Festival\n\nLuigi de Laurentis Award for Debut Film\nAlice Diop, French Filmmaker - Jury President\nFaouzi Bensaïdi, Moroccan filmmaker\nLaura Citarella, Argentinian director and producer\nAndrea De Sica, Italian director and screenwriter\nChloe Domont, American filmmaker Venice Classics\nAndrea Pallaoro, Italian filmmaker\n\nVenice Immersive\nSinging Chen, Taiwanese filmmaker and music composer - Jury President\nGerman Heller, American animator and producer\nPedro Harres, Brazilian director, animator, screenwriter and multimedia artist\n\nOfficial Selection\nIn Competition\nThe following films were selected for the main international competition:\n\nOut of Competition\nThe following films were selected to be screened out of competition:\n\nSpecial Screening\nThe following films were selected to have a Special Screening: Horizons (Orizzonti)\nThe lineup of films selected for the Horizons section is as follows:",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69a5-b281-75d4cb00d042",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark of the night.By the end of the 1800s, the Seaboard and Roanoke Railroad became part of the Seaboard Air Line Railway network.  The Roanoke and Tar River Railroad was fully merged into the Seaboard Air Line in 1911 .  The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL).  The merged company was named the Seaboard Coast Line Railroad (SCL).  The Lewiston Subdivision connected with an ex-ACL line in Kelford.  In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation.  The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-9650-67ad-88f0-068639536aaf",
+    "metadata": {
+      "file_name": "wikieval_row_13.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "Trolleybus Route 20 is a trolleybus route in Shanghai, China. It started operations on 27 September 1928, and runs between Zhongshan Park (Wanhangdu Road) in Changning District and Hankou Road & Middle Sichuan Road in Huangpu District. It is operated by Shanghai Bus No.1 Public Transportation Co. Ltd.Route 20 is one of Shanghai's most famous and popular bus routes, with a rich history and a route that passes many major landmarks. It is estimated that as many as 9 out of 10 Shanghai residents have ridden the route . The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts. History\nThe Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund .In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No .1 Zhongshan Road to Hankou Road & Middle Sichuan Road.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-56f0-6125-8242-904a6b63a288",
+    "metadata": {
+      "file_name": "wikieval_row_31.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ".One of the most instrumental groups for the recapture and subsequent defenses of Mariupol was the Azov Battalion, a Ukrainian volunteer militia, controversial for its openly neo-Nazi and ultranationalist members. By November 2014 Azov was integrated into the National Guard of Ukraine, with Mariupol as its headquarters. As one of Vladimir Putin's stated goals for the invasion was the \"denazification\" of Ukraine, Mariupol represented an important ideological and symbolical target for the Russian forces .Prior to the siege, around 100,000 residents left Mariupol, according to the city's deputy mayor.Prior to falling to Russian forces, the city was defended by the Ukrainian Ground Forces, the Ukrainian Naval Infantry, the National Guard of Ukraine (primarily the Azov Regiment), the Territorial Defense Forces of Ukraine, and irregular forces. Advances to Mariupol\nPreliminary shelling and advance on the city On 24 February, the day the invasion began, Russian artillery bombarded the city, reportedly injuring 26 people.On the morning of 25 February, Russian forces advanced from DPR territory in the east towards Mariupol. They encountered Ukrainian forces near the village of Pavlopil, whom repelled the Russian advance. The mayor of Mariupol, Vadym Boychenko, said 22 Russian tanks had been destroyed in the skirmish",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69aa-b62f-69013f9f90e3",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986.  The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today. Historic stations\n== References ==\nThe Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark o",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-9117-6278-8cdd-4812f79efb88",
+    "metadata": {
+      "file_name": "wikieval_row_32.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries. In response to the annexation of Crimea by the Russian Federation and the 2022 Russian invasion of Ukraine, some governments and international organisations, led by the United States and European Union, imposed sanctions on Russian individuals and businesses. As the unrest expanded into other parts of Eastern Ukraine, and later escalated into the ongoing war in the Donbass region, the scope of the sanctions increased .Overall, three types of sanctions were imposed: ban on provision of technology for oil and gas exploration, ban on provision of credits to Russian oil companies and state banks, travel restrictions on the influential Russian citizens close to President Putin and involved in the annexation of Crimea. The Russian government responded in kind, with sanctions against some Canadian and American individuals and, in August 2014, with a total ban on food imports from the European Union, United States, Norway, Canada and Australia. Sanctions against Russian and Ukrainian individuals, companies and officials\nFirst round: March/April 2014",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7877-605c-95ca-5ff80bf9707c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries.\nIts construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE). The trail's history dates back to the pre-Islamic era, when it was used by tribes, travellers, and commercial caravans to move between Iraq and Western Arabia. Over time, its usage became regular and easier as the water centres, grazing areas, and mining locations along the route transformed into major stations. During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-6605-a27a-5fa3e16c0084",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi). Geography\nThe territory consists mainly of an extensive plain at an altitude up to 300 m (980 ft) above sea level, with a number of depressions and highlands (Sultanuizdag, Bukantau). Most of the area is covered with dunes (barchans); in the northwest large areas are covered with takirs (clay coatings); there are also some oases. There are agricultural settlements along the rivers and in the oases. Temperatures can be very high during the summer months, from mid-May to mid-September. Kerki, one extreme inland city located on the banks of the Amu Darya River, recorded 52 °C (126 °F) in July 1983 . It is mainly located in Uzbekistan.\nFauna\nDesert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert. Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-ef37-6a8a-8a07-68a74fdd5c82",
+    "metadata": {
+      "file_name": "wikieval_row_39.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-660f-ad5f-2b98ad31f340",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": "The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture \"Zarafshan-Newmont\". The centres of the gas-production industry are Gazli and Mubarek. Gallery\nSee also\nAndronovo culture\nAydar Lake, large artificial lake\nCentral Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert\nKarakum Desert, another desert of Central Asia\nList of deserts by area\nSarmishsay, ancient monuments of anthropogenic activity\n\nReferences\nExternal links\n Media related to Kyzyl Kum at Wikimedia Commons\n\nSlideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T12:16:43.720488+00:00
+Provider: OPENROUTER
+Model: deepseek-chat
+Context Length: 26420
+
+<QUERY>
+what is Uzbekistan–Afghanistan–Pakistan Railway Project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f10e661-9117-6278-8cdd-4812f79efb88",
+    "metadata": {
+      "file_name": "wikieval_row_32.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries. In response to the annexation of Crimea by the Russian Federation and the 2022 Russian invasion of Ukraine, some governments and international organisations, led by the United States and European Union, imposed sanctions on Russian individuals and businesses. As the unrest expanded into other parts of Eastern Ukraine, and later escalated into the ongoing war in the Donbass region, the scope of the sanctions increased .Overall, three types of sanctions were imposed: ban on provision of technology for oil and gas exploration, ban on provision of credits to Russian oil companies and state banks, travel restrictions on the influential Russian citizens close to President Putin and involved in the annexation of Crimea. The Russian government responded in kind, with sanctions against some Canadian and American individuals and, in August 2014, with a total ban on food imports from the European Union, United States, Norway, Canada and Australia. Sanctions against Russian and Ukrainian individuals, companies and officials\nFirst round: March/April 2014",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e663-ada3-614a-8e40-cbe5990edd6f",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e6f9-dea5-628b-b782-7b786686b718",
+    "metadata": {
+      "file_name": "wikieval_row_1.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district . Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region . It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-660f-ad5f-2b98ad31f340",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": "The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture \"Zarafshan-Newmont\". The centres of the gas-production industry are Gazli and Mubarek. Gallery\nSee also\nAndronovo culture\nAydar Lake, large artificial lake\nCentral Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert\nKarakum Desert, another desert of Central Asia\nList of deserts by area\nSarmishsay, ancient monuments of anthropogenic activity\n\nReferences\nExternal links\n Media related to Kyzyl Kum at Wikimedia Commons\n\nSlideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-68bc-6087-9a53-daca3983585c",
+    "metadata": {
+      "file_name": "wikieval_row_19.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "Juries\nMain Competition (Venezia 80)\nDamien Chazelle, American filmmaker - Jury President\nSaleh Bakri, Palestinian actor\nJane Campion, New Zealand filmmaker\nMia Hansen-Løve, French filmmaker\nGabriele Mainetti, Italian filmmaker\nMartin McDonagh, British-Irish filmmaker and playwright\nSantiago Mitre, Argentine filmmaker\nLaura Poitras, American filmmaker\nShu Qi, Taiwanese-Hong Kong actress and model Horizons (Orizzonti)\nJonas Carpignano - Jury president\nKaouther Ben Hania, Tunisian filmmaker\nKahill Joseph, American filmmaker, music video director, and video artist\nJean-Paul Salomé, French Filmmaker\nTricia Tuttle, British programmer and director of the BFI London Film Festival and the BFI Flare: London LGBTQI+ Film Festival\n\nLuigi de Laurentis Award for Debut Film\nAlice Diop, French Filmmaker - Jury President\nFaouzi Bensaïdi, Moroccan filmmaker\nLaura Citarella, Argentinian director and producer\nAndrea De Sica, Italian director and screenwriter\nChloe Domont, American filmmaker Venice Classics\nAndrea Pallaoro, Italian filmmaker\n\nVenice Immersive\nSinging Chen, Taiwanese filmmaker and music composer - Jury President\nGerman Heller, American animator and producer\nPedro Harres, Brazilian director, animator, screenwriter and multimedia artist\n\nOfficial Selection\nIn Competition\nThe following films were selected for the main international competition:\n\nOut of Competition\nThe following films were selected to be screened out of competition:\n\nSpecial Screening\nThe following films were selected to have a Special Screening: Horizons (Orizzonti)\nThe lineup of films selected for the Horizons section is as follows:",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7879-6768-b233-1903154d7dbd",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-56f0-6125-8242-904a6b63a288",
+    "metadata": {
+      "file_name": "wikieval_row_31.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ".One of the most instrumental groups for the recapture and subsequent defenses of Mariupol was the Azov Battalion, a Ukrainian volunteer militia, controversial for its openly neo-Nazi and ultranationalist members. By November 2014 Azov was integrated into the National Guard of Ukraine, with Mariupol as its headquarters. As one of Vladimir Putin's stated goals for the invasion was the \"denazification\" of Ukraine, Mariupol represented an important ideological and symbolical target for the Russian forces .Prior to the siege, around 100,000 residents left Mariupol, according to the city's deputy mayor.Prior to falling to Russian forces, the city was defended by the Ukrainian Ground Forces, the Ukrainian Naval Infantry, the National Guard of Ukraine (primarily the Azov Regiment), the Territorial Defense Forces of Ukraine, and irregular forces. Advances to Mariupol\nPreliminary shelling and advance on the city On 24 February, the day the invasion began, Russian artillery bombarded the city, reportedly injuring 26 people.On the morning of 25 February, Russian forces advanced from DPR territory in the east towards Mariupol. They encountered Ukrainian forces near the village of Pavlopil, whom repelled the Russian advance. The mayor of Mariupol, Vadym Boychenko, said 22 Russian tanks had been destroyed in the skirmish",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69a5-b281-75d4cb00d042",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark of the night.By the end of the 1800s, the Seaboard and Roanoke Railroad became part of the Seaboard Air Line Railway network.  The Roanoke and Tar River Railroad was fully merged into the Seaboard Air Line in 1911 .  The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL).  The merged company was named the Seaboard Coast Line Railroad (SCL).  The Lewiston Subdivision connected with an ex-ACL line in Kelford.  In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation.  The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-6605-a27a-5fa3e16c0084",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi). Geography\nThe territory consists mainly of an extensive plain at an altitude up to 300 m (980 ft) above sea level, with a number of depressions and highlands (Sultanuizdag, Bukantau). Most of the area is covered with dunes (barchans); in the northwest large areas are covered with takirs (clay coatings); there are also some oases. There are agricultural settlements along the rivers and in the oases. Temperatures can be very high during the summer months, from mid-May to mid-September. Kerki, one extreme inland city located on the banks of the Amu Darya River, recorded 52 °C (126 °F) in July 1983 . It is mainly located in Uzbekistan.\nFauna\nDesert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert. Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69aa-b62f-69013f9f90e3",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986.  The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today. Historic stations\n== References ==\nThe Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark o",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-9299-6bda-8659-6e8597232fb4",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7877-605c-95ca-5ff80bf9707c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries.\nIts construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE). The trail's history dates back to the pre-Islamic era, when it was used by tribes, travellers, and commercial caravans to move between Iraq and Western Arabia. Over time, its usage became regular and easier as the water centres, grazing areas, and mining locations along the route transformed into major stations. During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e664-5db6-60df-9de8-141c4e472408",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-9650-67ad-88f0-068639536aaf",
+    "metadata": {
+      "file_name": "wikieval_row_13.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "Trolleybus Route 20 is a trolleybus route in Shanghai, China. It started operations on 27 September 1928, and runs between Zhongshan Park (Wanhangdu Road) in Changning District and Hankou Road & Middle Sichuan Road in Huangpu District. It is operated by Shanghai Bus No.1 Public Transportation Co. Ltd.Route 20 is one of Shanghai's most famous and popular bus routes, with a rich history and a route that passes many major landmarks. It is estimated that as many as 9 out of 10 Shanghai residents have ridden the route . The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts. History\nThe Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund .In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No .1 Zhongshan Road to Hankou Road & Middle Sichuan Road.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-ef37-6a8a-8a07-68a74fdd5c82",
+    "metadata": {
+      "file_name": "wikieval_row_39.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-01T12:16:51.387448+00:00
+Answer Length: 943
+Answer:
+The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. It aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent (Uzbekistan) to Kabul (Afghanistan) and Peshawar (Pakistan). The estimated cost is US$4.8 billion. The trilateral agreement spans 760 kilometers and aims to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days. The route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's Kurram district. It is designed to facilitate both passenger and freight services, foster regional trade, create jobs, attract investment, and contribute to economic growth in the region.
+
+*(Sources: wikieval_row_1.txt)*
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T12:17:34.070084+00:00
+Provider: OPENROUTER
+Model: deepseek-chat
+Context Length: 26420
+
+<QUERY>
+what is Uzbekistan–Afghanistan–Pakistan Railway Project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f10e660-68bc-6087-9a53-daca3983585c",
+    "metadata": {
+      "file_name": "wikieval_row_19.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "Juries\nMain Competition (Venezia 80)\nDamien Chazelle, American filmmaker - Jury President\nSaleh Bakri, Palestinian actor\nJane Campion, New Zealand filmmaker\nMia Hansen-Løve, French filmmaker\nGabriele Mainetti, Italian filmmaker\nMartin McDonagh, British-Irish filmmaker and playwright\nSantiago Mitre, Argentine filmmaker\nLaura Poitras, American filmmaker\nShu Qi, Taiwanese-Hong Kong actress and model Horizons (Orizzonti)\nJonas Carpignano - Jury president\nKaouther Ben Hania, Tunisian filmmaker\nKahill Joseph, American filmmaker, music video director, and video artist\nJean-Paul Salomé, French Filmmaker\nTricia Tuttle, British programmer and director of the BFI London Film Festival and the BFI Flare: London LGBTQI+ Film Festival\n\nLuigi de Laurentis Award for Debut Film\nAlice Diop, French Filmmaker - Jury President\nFaouzi Bensaïdi, Moroccan filmmaker\nLaura Citarella, Argentinian director and producer\nAndrea De Sica, Italian director and screenwriter\nChloe Domont, American filmmaker Venice Classics\nAndrea Pallaoro, Italian filmmaker\n\nVenice Immersive\nSinging Chen, Taiwanese filmmaker and music composer - Jury President\nGerman Heller, American animator and producer\nPedro Harres, Brazilian director, animator, screenwriter and multimedia artist\n\nOfficial Selection\nIn Competition\nThe following films were selected for the main international competition:\n\nOut of Competition\nThe following films were selected to be screened out of competition:\n\nSpecial Screening\nThe following films were selected to have a Special Screening: Horizons (Orizzonti)\nThe lineup of films selected for the Horizons section is as follows:",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e6f9-dea5-628b-b782-7b786686b718",
+    "metadata": {
+      "file_name": "wikieval_row_1.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district . Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region . It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7877-605c-95ca-5ff80bf9707c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries.\nIts construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE). The trail's history dates back to the pre-Islamic era, when it was used by tribes, travellers, and commercial caravans to move between Iraq and Western Arabia. Over time, its usage became regular and easier as the water centres, grazing areas, and mining locations along the route transformed into major stations. During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-9117-6278-8cdd-4812f79efb88",
+    "metadata": {
+      "file_name": "wikieval_row_32.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries. In response to the annexation of Crimea by the Russian Federation and the 2022 Russian invasion of Ukraine, some governments and international organisations, led by the United States and European Union, imposed sanctions on Russian individuals and businesses. As the unrest expanded into other parts of Eastern Ukraine, and later escalated into the ongoing war in the Donbass region, the scope of the sanctions increased .Overall, three types of sanctions were imposed: ban on provision of technology for oil and gas exploration, ban on provision of credits to Russian oil companies and state banks, travel restrictions on the influential Russian citizens close to President Putin and involved in the annexation of Crimea. The Russian government responded in kind, with sanctions against some Canadian and American individuals and, in August 2014, with a total ban on food imports from the European Union, United States, Norway, Canada and Australia. Sanctions against Russian and Ukrainian individuals, companies and officials\nFirst round: March/April 2014",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e663-ada3-614a-8e40-cbe5990edd6f",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-ef37-6a8a-8a07-68a74fdd5c82",
+    "metadata": {
+      "file_name": "wikieval_row_39.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-660f-ad5f-2b98ad31f340",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": "The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture \"Zarafshan-Newmont\". The centres of the gas-production industry are Gazli and Mubarek. Gallery\nSee also\nAndronovo culture\nAydar Lake, large artificial lake\nCentral Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert\nKarakum Desert, another desert of Central Asia\nList of deserts by area\nSarmishsay, ancient monuments of anthropogenic activity\n\nReferences\nExternal links\n Media related to Kyzyl Kum at Wikimedia Commons\n\nSlideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69a5-b281-75d4cb00d042",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark of the night.By the end of the 1800s, the Seaboard and Roanoke Railroad became part of the Seaboard Air Line Railway network.  The Roanoke and Tar River Railroad was fully merged into the Seaboard Air Line in 1911 .  The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL).  The merged company was named the Seaboard Coast Line Railroad (SCL).  The Lewiston Subdivision connected with an ex-ACL line in Kelford.  In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation.  The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-56f0-6125-8242-904a6b63a288",
+    "metadata": {
+      "file_name": "wikieval_row_31.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ".One of the most instrumental groups for the recapture and subsequent defenses of Mariupol was the Azov Battalion, a Ukrainian volunteer militia, controversial for its openly neo-Nazi and ultranationalist members. By November 2014 Azov was integrated into the National Guard of Ukraine, with Mariupol as its headquarters. As one of Vladimir Putin's stated goals for the invasion was the \"denazification\" of Ukraine, Mariupol represented an important ideological and symbolical target for the Russian forces .Prior to the siege, around 100,000 residents left Mariupol, according to the city's deputy mayor.Prior to falling to Russian forces, the city was defended by the Ukrainian Ground Forces, the Ukrainian Naval Infantry, the National Guard of Ukraine (primarily the Azov Regiment), the Territorial Defense Forces of Ukraine, and irregular forces. Advances to Mariupol\nPreliminary shelling and advance on the city On 24 February, the day the invasion began, Russian artillery bombarded the city, reportedly injuring 26 people.On the morning of 25 February, Russian forces advanced from DPR territory in the east towards Mariupol. They encountered Ukrainian forces near the village of Pavlopil, whom repelled the Russian advance. The mayor of Mariupol, Vadym Boychenko, said 22 Russian tanks had been destroyed in the skirmish",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-6605-a27a-5fa3e16c0084",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi). Geography\nThe territory consists mainly of an extensive plain at an altitude up to 300 m (980 ft) above sea level, with a number of depressions and highlands (Sultanuizdag, Bukantau). Most of the area is covered with dunes (barchans); in the northwest large areas are covered with takirs (clay coatings); there are also some oases. There are agricultural settlements along the rivers and in the oases. Temperatures can be very high during the summer months, from mid-May to mid-September. Kerki, one extreme inland city located on the banks of the Amu Darya River, recorded 52 °C (126 °F) in July 1983 . It is mainly located in Uzbekistan.\nFauna\nDesert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert. Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69aa-b62f-69013f9f90e3",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986.  The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today. Historic stations\n== References ==\nThe Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark o",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-9299-6bda-8659-6e8597232fb4",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7879-6768-b233-1903154d7dbd",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-9650-67ad-88f0-068639536aaf",
+    "metadata": {
+      "file_name": "wikieval_row_13.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "Trolleybus Route 20 is a trolleybus route in Shanghai, China. It started operations on 27 September 1928, and runs between Zhongshan Park (Wanhangdu Road) in Changning District and Hankou Road & Middle Sichuan Road in Huangpu District. It is operated by Shanghai Bus No.1 Public Transportation Co. Ltd.Route 20 is one of Shanghai's most famous and popular bus routes, with a rich history and a route that passes many major landmarks. It is estimated that as many as 9 out of 10 Shanghai residents have ridden the route . The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts. History\nThe Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund .In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No .1 Zhongshan Road to Hankou Road & Middle Sichuan Road.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e664-5db6-60df-9de8-141c4e472408",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-01T12:17:42.236863+00:00
+Answer Length: 922
+Answer:
+The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. It aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. The estimated cost is US$4.8 billion, and the trilateral agreement spans 760 kilometers. The route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district. It is designed to facilitate both passenger and freight services, reduce cargo delivery times by approximately five days, create jobs, attract investment, and spur economic development in the region.
+
+*(Sources: wikieval_row_1.txt)*
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T12:21:02.117800+00:00
+Provider: OPENROUTER
+Model: gemini-1.5-flash
+Context Length: 26420
+
+<QUERY>
+what is Uzbekistan–Afghanistan–Pakistan Railway Project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f10e660-68bc-6087-9a53-daca3983585c",
+    "metadata": {
+      "file_name": "wikieval_row_19.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "Juries\nMain Competition (Venezia 80)\nDamien Chazelle, American filmmaker - Jury President\nSaleh Bakri, Palestinian actor\nJane Campion, New Zealand filmmaker\nMia Hansen-Løve, French filmmaker\nGabriele Mainetti, Italian filmmaker\nMartin McDonagh, British-Irish filmmaker and playwright\nSantiago Mitre, Argentine filmmaker\nLaura Poitras, American filmmaker\nShu Qi, Taiwanese-Hong Kong actress and model Horizons (Orizzonti)\nJonas Carpignano - Jury president\nKaouther Ben Hania, Tunisian filmmaker\nKahill Joseph, American filmmaker, music video director, and video artist\nJean-Paul Salomé, French Filmmaker\nTricia Tuttle, British programmer and director of the BFI London Film Festival and the BFI Flare: London LGBTQI+ Film Festival\n\nLuigi de Laurentis Award for Debut Film\nAlice Diop, French Filmmaker - Jury President\nFaouzi Bensaïdi, Moroccan filmmaker\nLaura Citarella, Argentinian director and producer\nAndrea De Sica, Italian director and screenwriter\nChloe Domont, American filmmaker Venice Classics\nAndrea Pallaoro, Italian filmmaker\n\nVenice Immersive\nSinging Chen, Taiwanese filmmaker and music composer - Jury President\nGerman Heller, American animator and producer\nPedro Harres, Brazilian director, animator, screenwriter and multimedia artist\n\nOfficial Selection\nIn Competition\nThe following films were selected for the main international competition:\n\nOut of Competition\nThe following films were selected to be screened out of competition:\n\nSpecial Screening\nThe following films were selected to have a Special Screening: Horizons (Orizzonti)\nThe lineup of films selected for the Horizons section is as follows:",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-9299-6bda-8659-6e8597232fb4",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e663-ada3-614a-8e40-cbe5990edd6f",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-9117-6278-8cdd-4812f79efb88",
+    "metadata": {
+      "file_name": "wikieval_row_32.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries. In response to the annexation of Crimea by the Russian Federation and the 2022 Russian invasion of Ukraine, some governments and international organisations, led by the United States and European Union, imposed sanctions on Russian individuals and businesses. As the unrest expanded into other parts of Eastern Ukraine, and later escalated into the ongoing war in the Donbass region, the scope of the sanctions increased .Overall, three types of sanctions were imposed: ban on provision of technology for oil and gas exploration, ban on provision of credits to Russian oil companies and state banks, travel restrictions on the influential Russian citizens close to President Putin and involved in the annexation of Crimea. The Russian government responded in kind, with sanctions against some Canadian and American individuals and, in August 2014, with a total ban on food imports from the European Union, United States, Norway, Canada and Australia. Sanctions against Russian and Ukrainian individuals, companies and officials\nFirst round: March/April 2014",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69aa-b62f-69013f9f90e3",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986.  The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today. Historic stations\n== References ==\nThe Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark o",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e664-5db6-60df-9de8-141c4e472408",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e6f9-dea5-628b-b782-7b786686b718",
+    "metadata": {
+      "file_name": "wikieval_row_1.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district . Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region . It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7879-6768-b233-1903154d7dbd",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7877-605c-95ca-5ff80bf9707c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries.\nIts construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE). The trail's history dates back to the pre-Islamic era, when it was used by tribes, travellers, and commercial caravans to move between Iraq and Western Arabia. Over time, its usage became regular and easier as the water centres, grazing areas, and mining locations along the route transformed into major stations. During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69a5-b281-75d4cb00d042",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark of the night.By the end of the 1800s, the Seaboard and Roanoke Railroad became part of the Seaboard Air Line Railway network.  The Roanoke and Tar River Railroad was fully merged into the Seaboard Air Line in 1911 .  The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL).  The merged company was named the Seaboard Coast Line Railroad (SCL).  The Lewiston Subdivision connected with an ex-ACL line in Kelford.  In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation.  The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-56f0-6125-8242-904a6b63a288",
+    "metadata": {
+      "file_name": "wikieval_row_31.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ".One of the most instrumental groups for the recapture and subsequent defenses of Mariupol was the Azov Battalion, a Ukrainian volunteer militia, controversial for its openly neo-Nazi and ultranationalist members. By November 2014 Azov was integrated into the National Guard of Ukraine, with Mariupol as its headquarters. As one of Vladimir Putin's stated goals for the invasion was the \"denazification\" of Ukraine, Mariupol represented an important ideological and symbolical target for the Russian forces .Prior to the siege, around 100,000 residents left Mariupol, according to the city's deputy mayor.Prior to falling to Russian forces, the city was defended by the Ukrainian Ground Forces, the Ukrainian Naval Infantry, the National Guard of Ukraine (primarily the Azov Regiment), the Territorial Defense Forces of Ukraine, and irregular forces. Advances to Mariupol\nPreliminary shelling and advance on the city On 24 February, the day the invasion began, Russian artillery bombarded the city, reportedly injuring 26 people.On the morning of 25 February, Russian forces advanced from DPR territory in the east towards Mariupol. They encountered Ukrainian forces near the village of Pavlopil, whom repelled the Russian advance. The mayor of Mariupol, Vadym Boychenko, said 22 Russian tanks had been destroyed in the skirmish",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-660f-ad5f-2b98ad31f340",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": "The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture \"Zarafshan-Newmont\". The centres of the gas-production industry are Gazli and Mubarek. Gallery\nSee also\nAndronovo culture\nAydar Lake, large artificial lake\nCentral Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert\nKarakum Desert, another desert of Central Asia\nList of deserts by area\nSarmishsay, ancient monuments of anthropogenic activity\n\nReferences\nExternal links\n Media related to Kyzyl Kum at Wikimedia Commons\n\nSlideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-9650-67ad-88f0-068639536aaf",
+    "metadata": {
+      "file_name": "wikieval_row_13.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "Trolleybus Route 20 is a trolleybus route in Shanghai, China. It started operations on 27 September 1928, and runs between Zhongshan Park (Wanhangdu Road) in Changning District and Hankou Road & Middle Sichuan Road in Huangpu District. It is operated by Shanghai Bus No.1 Public Transportation Co. Ltd.Route 20 is one of Shanghai's most famous and popular bus routes, with a rich history and a route that passes many major landmarks. It is estimated that as many as 9 out of 10 Shanghai residents have ridden the route . The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts. History\nThe Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund .In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No .1 Zhongshan Road to Hankou Road & Middle Sichuan Road.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-6605-a27a-5fa3e16c0084",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi). Geography\nThe territory consists mainly of an extensive plain at an altitude up to 300 m (980 ft) above sea level, with a number of depressions and highlands (Sultanuizdag, Bukantau). Most of the area is covered with dunes (barchans); in the northwest large areas are covered with takirs (clay coatings); there are also some oases. There are agricultural settlements along the rivers and in the oases. Temperatures can be very high during the summer months, from mid-May to mid-September. Kerki, one extreme inland city located on the banks of the Amu Darya River, recorded 52 °C (126 °F) in July 1983 . It is mainly located in Uzbekistan.\nFauna\nDesert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert. Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-ef37-6a8a-8a07-68a74fdd5c82",
+    "metadata": {
+      "file_name": "wikieval_row_39.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T12:23:21.091397+00:00
+Provider: OPENROUTER
+Model: gemini-2.5-flash-lite
+Context Length: 26420
+
+<QUERY>
+what is Uzbekistan–Afghanistan–Pakistan Railway Project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f10e663-ada3-614a-8e40-cbe5990edd6f",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-6605-a27a-5fa3e16c0084",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi). Geography\nThe territory consists mainly of an extensive plain at an altitude up to 300 m (980 ft) above sea level, with a number of depressions and highlands (Sultanuizdag, Bukantau). Most of the area is covered with dunes (barchans); in the northwest large areas are covered with takirs (clay coatings); there are also some oases. There are agricultural settlements along the rivers and in the oases. Temperatures can be very high during the summer months, from mid-May to mid-September. Kerki, one extreme inland city located on the banks of the Amu Darya River, recorded 52 °C (126 °F) in July 1983 . It is mainly located in Uzbekistan.\nFauna\nDesert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert. Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-68bc-6087-9a53-daca3983585c",
+    "metadata": {
+      "file_name": "wikieval_row_19.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "Juries\nMain Competition (Venezia 80)\nDamien Chazelle, American filmmaker - Jury President\nSaleh Bakri, Palestinian actor\nJane Campion, New Zealand filmmaker\nMia Hansen-Løve, French filmmaker\nGabriele Mainetti, Italian filmmaker\nMartin McDonagh, British-Irish filmmaker and playwright\nSantiago Mitre, Argentine filmmaker\nLaura Poitras, American filmmaker\nShu Qi, Taiwanese-Hong Kong actress and model Horizons (Orizzonti)\nJonas Carpignano - Jury president\nKaouther Ben Hania, Tunisian filmmaker\nKahill Joseph, American filmmaker, music video director, and video artist\nJean-Paul Salomé, French Filmmaker\nTricia Tuttle, British programmer and director of the BFI London Film Festival and the BFI Flare: London LGBTQI+ Film Festival\n\nLuigi de Laurentis Award for Debut Film\nAlice Diop, French Filmmaker - Jury President\nFaouzi Bensaïdi, Moroccan filmmaker\nLaura Citarella, Argentinian director and producer\nAndrea De Sica, Italian director and screenwriter\nChloe Domont, American filmmaker Venice Classics\nAndrea Pallaoro, Italian filmmaker\n\nVenice Immersive\nSinging Chen, Taiwanese filmmaker and music composer - Jury President\nGerman Heller, American animator and producer\nPedro Harres, Brazilian director, animator, screenwriter and multimedia artist\n\nOfficial Selection\nIn Competition\nThe following films were selected for the main international competition:\n\nOut of Competition\nThe following films were selected to be screened out of competition:\n\nSpecial Screening\nThe following films were selected to have a Special Screening: Horizons (Orizzonti)\nThe lineup of films selected for the Horizons section is as follows:",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-9117-6278-8cdd-4812f79efb88",
+    "metadata": {
+      "file_name": "wikieval_row_32.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries. In response to the annexation of Crimea by the Russian Federation and the 2022 Russian invasion of Ukraine, some governments and international organisations, led by the United States and European Union, imposed sanctions on Russian individuals and businesses. As the unrest expanded into other parts of Eastern Ukraine, and later escalated into the ongoing war in the Donbass region, the scope of the sanctions increased .Overall, three types of sanctions were imposed: ban on provision of technology for oil and gas exploration, ban on provision of credits to Russian oil companies and state banks, travel restrictions on the influential Russian citizens close to President Putin and involved in the annexation of Crimea. The Russian government responded in kind, with sanctions against some Canadian and American individuals and, in August 2014, with a total ban on food imports from the European Union, United States, Norway, Canada and Australia. Sanctions against Russian and Ukrainian individuals, companies and officials\nFirst round: March/April 2014",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-9299-6bda-8659-6e8597232fb4",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7879-6768-b233-1903154d7dbd",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69aa-b62f-69013f9f90e3",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986.  The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today. Historic stations\n== References ==\nThe Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark o",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7877-605c-95ca-5ff80bf9707c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries.\nIts construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE). The trail's history dates back to the pre-Islamic era, when it was used by tribes, travellers, and commercial caravans to move between Iraq and Western Arabia. Over time, its usage became regular and easier as the water centres, grazing areas, and mining locations along the route transformed into major stations. During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-660f-ad5f-2b98ad31f340",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": "The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture \"Zarafshan-Newmont\". The centres of the gas-production industry are Gazli and Mubarek. Gallery\nSee also\nAndronovo culture\nAydar Lake, large artificial lake\nCentral Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert\nKarakum Desert, another desert of Central Asia\nList of deserts by area\nSarmishsay, ancient monuments of anthropogenic activity\n\nReferences\nExternal links\n Media related to Kyzyl Kum at Wikimedia Commons\n\nSlideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69a5-b281-75d4cb00d042",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark of the night.By the end of the 1800s, the Seaboard and Roanoke Railroad became part of the Seaboard Air Line Railway network.  The Roanoke and Tar River Railroad was fully merged into the Seaboard Air Line in 1911 .  The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL).  The merged company was named the Seaboard Coast Line Railroad (SCL).  The Lewiston Subdivision connected with an ex-ACL line in Kelford.  In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation.  The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-ef37-6a8a-8a07-68a74fdd5c82",
+    "metadata": {
+      "file_name": "wikieval_row_39.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e664-5db6-60df-9de8-141c4e472408",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e6f9-dea5-628b-b782-7b786686b718",
+    "metadata": {
+      "file_name": "wikieval_row_1.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district . Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region . It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-56f0-6125-8242-904a6b63a288",
+    "metadata": {
+      "file_name": "wikieval_row_31.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ".One of the most instrumental groups for the recapture and subsequent defenses of Mariupol was the Azov Battalion, a Ukrainian volunteer militia, controversial for its openly neo-Nazi and ultranationalist members. By November 2014 Azov was integrated into the National Guard of Ukraine, with Mariupol as its headquarters. As one of Vladimir Putin's stated goals for the invasion was the \"denazification\" of Ukraine, Mariupol represented an important ideological and symbolical target for the Russian forces .Prior to the siege, around 100,000 residents left Mariupol, according to the city's deputy mayor.Prior to falling to Russian forces, the city was defended by the Ukrainian Ground Forces, the Ukrainian Naval Infantry, the National Guard of Ukraine (primarily the Azov Regiment), the Territorial Defense Forces of Ukraine, and irregular forces. Advances to Mariupol\nPreliminary shelling and advance on the city On 24 February, the day the invasion began, Russian artillery bombarded the city, reportedly injuring 26 people.On the morning of 25 February, Russian forces advanced from DPR territory in the east towards Mariupol. They encountered Ukrainian forces near the village of Pavlopil, whom repelled the Russian advance. The mayor of Mariupol, Vadym Boychenko, said 22 Russian tanks had been destroyed in the skirmish",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-9650-67ad-88f0-068639536aaf",
+    "metadata": {
+      "file_name": "wikieval_row_13.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "Trolleybus Route 20 is a trolleybus route in Shanghai, China. It started operations on 27 September 1928, and runs between Zhongshan Park (Wanhangdu Road) in Changning District and Hankou Road & Middle Sichuan Road in Huangpu District. It is operated by Shanghai Bus No.1 Public Transportation Co. Ltd.Route 20 is one of Shanghai's most famous and popular bus routes, with a rich history and a route that passes many major landmarks. It is estimated that as many as 9 out of 10 Shanghai residents have ridden the route . The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts. History\nThe Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund .In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No .1 Zhongshan Road to Hankou Road & Middle Sichuan Road.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-01T12:24:11.145147+00:00
+Provider: OPENROUTER
+Model: gemini-2.5-pro
+Context Length: 26420
+
+<QUERY>
+what is Uzbekistan–Afghanistan–Pakistan Railway Project
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f10e65f-7877-605c-95ca-5ff80bf9707c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Zubaydah Trail (Al-Kufi pilgrimage route) is among the seven major pilgrimage routes in the Arabian Peninsula, dating back over 1000 years. A crucial trade route during the Abbasid era, it is a strong candidate for the UNESCO World Heritage List. This historical trail was constructed to serve pilgrims from Iraq, neighbouring Islamic countries, and East Asian countries.\nIts construction was completed during the Abbasid Caliphate, specifically between 132 AH (750 CE) and 656 AH (1258 CE). The trail's history dates back to the pre-Islamic era, when it was used by tribes, travellers, and commercial caravans to move between Iraq and Western Arabia. Over time, its usage became regular and easier as the water centres, grazing areas, and mining locations along the route transformed into major stations. During the Abbasid era, the trail served as an important link between Baghdad, the holy cities of Mecca and Medina, and the rest of the Arabian Peninsula. The Abbasid caliphs took great interest in the trail, enhanced it with various benefits and facilities, as well as undertook an expansion of the road to make it suitable for use by pilgrims, travellers, and their animals.Historical, geographical, and archaeological sources show that the trail route was designed in a practical and meticulous manner. Along its length from Kufa to Mecca, stations, houses, and resting areas were established",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-660f-ad5f-2b98ad31f340",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": "The desert is well known for its deposits of gold, uranium, copper, aluminium and silver, natural gas and oil. The development of the most famous gold-field at Muruntau began in the early 1970s. The centres for the mining and smelting industry at the region are Navoi, Zarafshan, Uchkuduk. The major industrial enterprises are: НГМК (Navoi Mining and Smelting Complex) and the Uzbek U.S.A. Joint Venture \"Zarafshan-Newmont\". The centres of the gas-production industry are Gazli and Mubarek. Gallery\nSee also\nAndronovo culture\nAydar Lake, large artificial lake\nCentral Asian northern desert, an ecoregion largely corresponding with the Kyzylkum Desert\nKarakum Desert, another desert of Central Asia\nList of deserts by area\nSarmishsay, ancient monuments of anthropogenic activity\n\nReferences\nExternal links\n Media related to Kyzyl Kum at Wikimedia Commons\n\nSlideshow: Across Central Asia’s Empty Core – Walking the caravan routes of the Kyzyl Kum desert",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-68bc-6087-9a53-daca3983585c",
+    "metadata": {
+      "file_name": "wikieval_row_19.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "Juries\nMain Competition (Venezia 80)\nDamien Chazelle, American filmmaker - Jury President\nSaleh Bakri, Palestinian actor\nJane Campion, New Zealand filmmaker\nMia Hansen-Løve, French filmmaker\nGabriele Mainetti, Italian filmmaker\nMartin McDonagh, British-Irish filmmaker and playwright\nSantiago Mitre, Argentine filmmaker\nLaura Poitras, American filmmaker\nShu Qi, Taiwanese-Hong Kong actress and model Horizons (Orizzonti)\nJonas Carpignano - Jury president\nKaouther Ben Hania, Tunisian filmmaker\nKahill Joseph, American filmmaker, music video director, and video artist\nJean-Paul Salomé, French Filmmaker\nTricia Tuttle, British programmer and director of the BFI London Film Festival and the BFI Flare: London LGBTQI+ Film Festival\n\nLuigi de Laurentis Award for Debut Film\nAlice Diop, French Filmmaker - Jury President\nFaouzi Bensaïdi, Moroccan filmmaker\nLaura Citarella, Argentinian director and producer\nAndrea De Sica, Italian director and screenwriter\nChloe Domont, American filmmaker Venice Classics\nAndrea Pallaoro, Italian filmmaker\n\nVenice Immersive\nSinging Chen, Taiwanese filmmaker and music composer - Jury President\nGerman Heller, American animator and producer\nPedro Harres, Brazilian director, animator, screenwriter and multimedia artist\n\nOfficial Selection\nIn Competition\nThe following films were selected for the main international competition:\n\nOut of Competition\nThe following films were selected to be screened out of competition:\n\nSpecial Screening\nThe following films were selected to have a Special Screening: Horizons (Orizzonti)\nThe lineup of films selected for the Horizons section is as follows:",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e664-5db6-60df-9de8-141c4e472408",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69a5-b281-75d4cb00d042",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark of the night.By the end of the 1800s, the Seaboard and Roanoke Railroad became part of the Seaboard Air Line Railway network.  The Roanoke and Tar River Railroad was fully merged into the Seaboard Air Line in 1911 .  The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL).  The merged company was named the Seaboard Coast Line Railroad (SCL).  The Lewiston Subdivision connected with an ex-ACL line in Kelford.  In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation.  The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-ef37-6a8a-8a07-68a74fdd5c82",
+    "metadata": {
+      "file_name": "wikieval_row_39.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-c408-69aa-b62f-69013f9f90e3",
+    "metadata": {
+      "file_name": "wikieval_row_23.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "The southernmost five miles of the line from Kelford to Lewiston was abandoned sometime after 1986.  The remaining line from Boykins to Kelford was sold to the North Carolina and Virginia Railroad in 1987, who operates the line today. Historic stations\n== References ==\nThe Roanoke and Tar River Railroad was a railroad running from Boykins, Virginia south to Lewiston, North Carolina, a distance of 36 miles. The Roanoke and Tar River Railroad was chartered by the North Carolina State Legislature in 1871 though no action to construct the line happened until 1885, when the charter was reissued.  It would operate as a subsidiary of the Seaboard and Roanoke Railroad, which it connected with at the north end in Boykins.  Construction began in 1887 and was complete a year later.In 1892, the Murfreesboro Railroad was built, which branched off the Roanoke and Tar River Railroad at Pendleton and ran to Murfreesboro, North Carolina .  The Roanoke and Tar River Railroad would acquire the Murfreesboro Railroad in 1893 and operated it as a branch line until 1897.  When they discontinued service on the branch, the town of Murfreesboro took action to prevent the abandonment.  But in the late evening of May 7, 1897, the company removed the branch's tracks in the dark o",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e662-9299-6bda-8659-6e8597232fb4",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-56f0-6125-8242-904a6b63a288",
+    "metadata": {
+      "file_name": "wikieval_row_31.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ".One of the most instrumental groups for the recapture and subsequent defenses of Mariupol was the Azov Battalion, a Ukrainian volunteer militia, controversial for its openly neo-Nazi and ultranationalist members. By November 2014 Azov was integrated into the National Guard of Ukraine, with Mariupol as its headquarters. As one of Vladimir Putin's stated goals for the invasion was the \"denazification\" of Ukraine, Mariupol represented an important ideological and symbolical target for the Russian forces .Prior to the siege, around 100,000 residents left Mariupol, according to the city's deputy mayor.Prior to falling to Russian forces, the city was defended by the Ukrainian Ground Forces, the Ukrainian Naval Infantry, the National Guard of Ukraine (primarily the Azov Regiment), the Territorial Defense Forces of Ukraine, and irregular forces. Advances to Mariupol\nPreliminary shelling and advance on the city On 24 February, the day the invasion began, Russian artillery bombarded the city, reportedly injuring 26 people.On the morning of 25 February, Russian forces advanced from DPR territory in the east towards Mariupol. They encountered Ukrainian forces near the village of Pavlopil, whom repelled the Russian advance. The mayor of Mariupol, Vadym Boychenko, said 22 Russian tanks had been destroyed in the skirmish",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e660-475d-6605-a27a-5fa3e16c0084",
+    "metadata": {
+      "file_name": "wikieval_row_18.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Kyzylkum Desert (Uzbek: Qizilqum, Қизилқум, قىزىلقۇم; Kazakh: Қызылқұм, romanized: Qyzylqūm, قىزىلقۇم) is the 15th largest desert in the world. Its name means Red Sand in Turkic languages. It is located in Central Asia, in the land between the confluent rivers Amu Darya and Syr Darya, a region historically known as Transoxania. Today it is divided between Kazakhstan, Turkmenistan and Uzbekistan. It covers about 298,000 km2 (115,000 sq mi). Geography\nThe territory consists mainly of an extensive plain at an altitude up to 300 m (980 ft) above sea level, with a number of depressions and highlands (Sultanuizdag, Bukantau). Most of the area is covered with dunes (barchans); in the northwest large areas are covered with takirs (clay coatings); there are also some oases. There are agricultural settlements along the rivers and in the oases. Temperatures can be very high during the summer months, from mid-May to mid-September. Kerki, one extreme inland city located on the banks of the Amu Darya River, recorded 52 °C (126 °F) in July 1983 . It is mainly located in Uzbekistan.\nFauna\nDesert fauna include the Russian tortoise (Testudo horsfieldii) and a large lizard known as the Transcaspian or desert monitor (Varanus griseus), which can reach lengths of 1.6 m (5.2 ft). The saiga antelope (Saiga tatarica) also occasionally migrates through the northern part of the desert. Kyzylkum Nature Reserve in Bukhara Region was established in 1971. The area of the reserve amounts to 101,000 km2 (39,000 sq mi) and it is located on flood-land (tugai) drained by the Amudarya close to the settlement Dargan Ata. Fauna include: Bactrian deer (Cervus elaphus bactrianus), wild boar (Sus scrofa), common pheasant (Phasianus colchicus), golden eagle (Aquila chrysaetus).",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e6f9-dea5-628b-b782-7b786686b718",
+    "metadata": {
+      "file_name": "wikieval_row_1.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive project undertaking with the objective of creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan's territory. This project aims to enhance trade and logistics efficiency by establishing a 573-km rail connection that would connect Tashkent, the capital of Uzbekistan, to Kabul and Peshawar, the capitals of Afghanistan and Pakistan, respectively. Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4 . Project Details The estimated cost of the project is US$4.8 billion, and its implementation is anticipated to strengthen trade relations between Pakistan and South Asia. The trilateral agreement spanning 760 kilometers was signed by Pakistan, Afghanistan, and Uzbekistan, aiming to significantly reduce cargo delivery times between Uzbekistan and Pakistan by approximately five days.The railway route will traverse through Termez, Mazar-i-Sharif, and Logar in Afghanistan, and continue to the Kharlachi border crossing in Pakistan's northwestern Kurram district . Designed to facilitate both passenger and freight services, the railway is poised to foster regional trade and contribute to overall economic growth in the area. It will create jobs during the construction phase and provide ongoing employment opportunities in the transportation and logistics sectors. The increased connectivity will attract investment and spur economic development in the areas surrounding the railway stations. Overall, the railway project is expected to have a transformative effect on the region . It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan. Hey",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e661-9117-6278-8cdd-4812f79efb88",
+    "metadata": {
+      "file_name": "wikieval_row_32.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries. In response to the annexation of Crimea by the Russian Federation and the 2022 Russian invasion of Ukraine, some governments and international organisations, led by the United States and European Union, imposed sanctions on Russian individuals and businesses. As the unrest expanded into other parts of Eastern Ukraine, and later escalated into the ongoing war in the Donbass region, the scope of the sanctions increased .Overall, three types of sanctions were imposed: ban on provision of technology for oil and gas exploration, ban on provision of credits to Russian oil companies and state banks, travel restrictions on the influential Russian citizens close to President Putin and involved in the annexation of Crimea. The Russian government responded in kind, with sanctions against some Canadian and American individuals and, in August 2014, with a total ban on food imports from the European Union, United States, Norway, Canada and Australia. Sanctions against Russian and Ukrainian individuals, companies and officials\nFirst round: March/April 2014",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-7879-6768-b233-1903154d7dbd",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e65f-9650-67ad-88f0-068639536aaf",
+    "metadata": {
+      "file_name": "wikieval_row_13.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "Trolleybus Route 20 is a trolleybus route in Shanghai, China. It started operations on 27 September 1928, and runs between Zhongshan Park (Wanhangdu Road) in Changning District and Hankou Road & Middle Sichuan Road in Huangpu District. It is operated by Shanghai Bus No.1 Public Transportation Co. Ltd.Route 20 is one of Shanghai's most famous and popular bus routes, with a rich history and a route that passes many major landmarks. It is estimated that as many as 9 out of 10 Shanghai residents have ridden the route . The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts. History\nThe Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund .In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No .1 Zhongshan Road to Hankou Road & Middle Sichuan Road.",
+    "type": "Document"
+  },
+  {
+    "id": "1f10e663-ada3-614a-8e40-cbe5990edd6f",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-01T12:24:15.298212+00:00
+Answer Length: 993
+Answer:
+The Uzbekistan–Afghanistan–Pakistan Railway Project is an extensive undertaking aimed at creating a direct railway link between Uzbekistan and Pakistan, passing through Afghanistan. This project involves establishing a 573-km rail connection to link Tashkent (Uzbekistan's capital) with Kabul (Afghanistan's capital) and Peshawar (Pakistan's capital).
+
+The estimated cost of the project is US$4.8 billion, and it is expected to enhance trade and logistics efficiency, significantly reducing cargo delivery times between Uzbekistan and Pakistan by approximately five days. The railway route will traverse Termez, Mazar-i-Sharif, and Logar in Afghanistan, continuing to the Kharlachi border crossing in Pakistan's northwestern Kurram district. Designed for both passenger and freight services, the project is anticipated to foster regional trade, contribute to economic growth, and create jobs during construction and in the transportation and logistics sectors.
+
+*(Sources: wikieval_row_1.txt)*
+==================================================

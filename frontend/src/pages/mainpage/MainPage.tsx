@@ -15,6 +15,8 @@ import { useResizableLayout } from "./hooks/useResizableLayout";
 export default function MainPage() {
     const navigate = useNavigate();
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
+    const [isAiEditModeEnabled, setIsAiEditModeEnabled] = useState(false);
+    const [selectedAiFileNames, setSelectedAiFileNames] = useState<string[]>([]);
     const bottomRef = useRef<HTMLDivElement | null>(null); // Ref to scroll to the bottom of the chat area
     const {
         sidebarWidth,
@@ -60,13 +62,59 @@ export default function MainPage() {
         aiEditWarnings,
         aiEditDiffSegments,
         aiEditError,
+        aiBatchSelectionMode,
+        aiBatchPreviewItems,
+        isSavingAiBatch,
+        aiBatchSaveMessage,
+        aiBatchSaveError,
         hasAiEditProposal,
         requestAiEditPreview,
         acceptAiEditProposal,
         rejectAiEditProposal,
+        acceptAiBatchFileProposal,
+        rejectAiBatchFileProposal,
+        saveAcceptedAiBatchFiles,
+        retryFailedAiBatchFiles,
     } = useDocuments(isModificationPanelOpen); // run the useDocuments hook to get document-related state and handlers
 
-    const isAiDocumentEditMode = isModificationPanelOpen && Boolean(activeTab);
+    const isAiDocumentEditMode = isAiEditModeEnabled;
+    const isManualFileSelectionMode = selectedAiFileNames.length > 0;
+
+    useEffect(() => {
+        if (!isAiDocumentEditMode) {
+            setSelectedAiFileNames([]);
+        }
+    }, [isAiDocumentEditMode]);
+
+    useEffect(() => {
+        if (!isModificationPanelOpen) {
+            setIsAiEditModeEnabled(false);
+        }
+    }, [isModificationPanelOpen]);
+
+    const handleToggleAiFileSelection = (fileName: string) => {
+        setSelectedAiFileNames((previous) =>
+            previous.includes(fileName)
+                ? previous.filter((name) => name !== fileName)
+                : [...previous, fileName]
+        );
+    };
+
+    const aiSelectionSummary = isAiDocumentEditMode
+        ? isManualFileSelectionMode
+            ? `${selectedAiFileNames.length} file(s) selected; changes will apply only to selected files.`
+            : "No files selected; AI auto-selection mode is active."
+        : "Edit mode is not active.";
+
+    const handleToggleAiEditMode = () => {
+        if (!isModificationPanelOpen) {
+            setIsModificationPanelOpen(true);
+            setIsAiEditModeEnabled(true);
+            return;
+        }
+
+        setIsAiEditModeEnabled((previous) => !previous);
+    };
 
     const handleComposerSend = async () => {
         const textInput = input.trim();
@@ -79,13 +127,24 @@ export default function MainPage() {
             appendMessage({ role: "user", text: textInput });
             setInput("");
 
-            const result = await requestAiEditPreview(textInput);
-            appendMessage({
-                role: "ai",
-                text: result.ok
-                    ? `AI edit preview generated. ${result.summary ?? "Review changes in the edit panel."}`
-                    : `AI edit preview failed: ${result.error ?? "Unknown error"}`,
+            const result = await requestAiEditPreview(textInput, {
+                selectedFileNames: selectedAiFileNames,
             });
+
+            if (!result.ok) {
+                appendMessage({
+                    role: "ai",
+                    text: `AI edit preview failed: ${result.error ?? "Unknown error"}`,
+                });
+                return;
+            }
+
+            if (result.hasChanges) {
+                appendMessage({
+                    role: "ai",
+                    text: `AI edit preview generated. ${result.summary ?? "Review changes in the edit panel."}`,
+                });
+            }
             return;
         }
 
@@ -112,11 +171,6 @@ export default function MainPage() {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isQuerying, isUploading]);
 
-    // Handler to toggle the modification panel open state
-    const handleToggleModificationPanel = () => {
-        setIsModificationPanelOpen((prev) => !prev);
-    };
-
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/register");
@@ -141,9 +195,13 @@ export default function MainPage() {
                     isLoadingFiles={isLoadingFiles}
                     fileListError={fileListError}
                     activeTab={activeTab}
+                    isAiEditModeActive={isAiDocumentEditMode}
+                    selectedAiFileNames={selectedAiFileNames}
+                    aiSelectionSummary={aiSelectionSummary}
                     onFileSelect={handleFileSelect}
                     onUpload={handleUpload}
                     onClearFile={clearFile}
+                    onToggleAiFileSelection={handleToggleAiFileSelection}
                     onOpenFile={(fileName) => {
                         void openDocumentTab(fileName);
                         setIsModificationPanelOpen(true);
@@ -210,10 +268,11 @@ export default function MainPage() {
                 <ChatInput
                     input={input}
                     isQuerying={isQuerying || isAiEditGenerating}
-                    isModificationPanelOpen={isModificationPanelOpen}
+                    isAiEditModeActive={isAiDocumentEditMode}
+                    aiSelectionSummary={aiSelectionSummary}
                     onInputChange={setInput}
                     onInputKeyDown={handleComposerKeyDown}
-                    onToggleModificationPanel={handleToggleModificationPanel}
+                    onToggleAiEditMode={handleToggleAiEditMode}
                     onSend={() => {
                         void handleComposerSend();
                     }}
@@ -243,7 +302,10 @@ export default function MainPage() {
                     isDirty={isActiveDocumentDirty}
                     saveError={saveError}
                     onRefreshDocuments={handleRefreshDocuments}
-                    onClose={() => setIsModificationPanelOpen(false)}
+                    onClose={() => {
+                        setIsModificationPanelOpen(false);
+                        setIsAiEditModeEnabled(false);
+                    }}
                     onTabSelect={(fileName) => {
                         void setActiveDocumentTab(fileName);
                     }}
@@ -259,17 +321,37 @@ export default function MainPage() {
                     aiEditWarnings={aiEditWarnings}
                     aiEditDiffSegments={aiEditDiffSegments}
                     aiEditError={aiEditError}
+                    aiBatchSelectionMode={aiBatchSelectionMode}
+                    aiBatchPreviewItems={aiBatchPreviewItems}
+                    isSavingAiBatch={isSavingAiBatch}
+                    aiBatchSaveMessage={aiBatchSaveMessage}
+                    aiBatchSaveError={aiBatchSaveError}
                     hasAiEditProposal={hasAiEditProposal}
                     isAiEditGenerating={isAiEditGenerating}
                     onAcceptAiEdit={acceptAiEditProposal}
                     onRejectAiEdit={rejectAiEditProposal}
+                    onAcceptAiBatchFile={acceptAiBatchFileProposal}
+                    onRejectAiBatchFile={rejectAiBatchFileProposal}
+                    onSaveAcceptedBatchFiles={() => {
+                        void (async () => {
+                            const result = await saveAcceptedAiBatchFiles();
+                            if (result.closeAfterSave) {
+                                setIsModificationPanelOpen(false);
+                                setIsAiEditModeEnabled(false);
+                            }
+                        })();
+                    }}
+                    onRetryFailedBatchFiles={retryFailedAiBatchFiles}
                 />
             </div>
 
             {isMobile && isModificationPanelOpen && (
                 <button
                     className="panel-backdrop"
-                    onClick={() => setIsModificationPanelOpen(false)}
+                    onClick={() => {
+                        setIsModificationPanelOpen(false);
+                        setIsAiEditModeEnabled(false);
+                    }}
                     aria-label="Close modifications panel"
                 />
             )}

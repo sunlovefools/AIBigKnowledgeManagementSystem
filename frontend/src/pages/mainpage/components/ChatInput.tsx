@@ -4,20 +4,22 @@ import { useCallback, useLayoutEffect, useRef, type KeyboardEvent } from "react"
 type ChatInputProps = {
     input: string; // The current words in the chat input field
     isQuerying: boolean; // Whether a query is currently being processed, used to disable input and send button
-    isModificationPanelOpen: boolean; // Whether the modification panel is currently open
+    isAiEditModeActive: boolean;
+    aiSelectionSummary: string;
     onInputChange: (value: string) => void;
     onInputKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
-    onToggleModificationPanel: () => void;
+    onToggleAiEditMode: () => void;
     onSend: () => void;
 };
 
 export default function ChatInput({
     input,
     isQuerying,
-    isModificationPanelOpen,
+    isAiEditModeActive,
+    aiSelectionSummary,
     onInputChange,
     onInputKeyDown,
-    onToggleModificationPanel,
+    onToggleAiEditMode,
     onSend,
 }: ChatInputProps) {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -44,21 +46,25 @@ export default function ChatInput({
 
     return (
         <div className="input-area-wrapper">
-            <div className="input-container">
+            <div className={`input-container ${isAiEditModeActive ? "edit-mode" : ""}`}>
                 <textarea
                     ref={textareaRef}
                     className="chat-input"
-                    placeholder="Ask something about your files..."
+                    placeholder={
+                        isAiEditModeActive
+                            ? "Enter edit instructions, e.g. convert all headings to uppercase"
+                            : "Ask something about your files..."
+                    }
                     rows={1}
                     value={input}
                     onChange={(event) => onInputChange(event.target.value)}
                     onKeyDown={onInputKeyDown}
                 />
                 <button
-                    className={`modification-toggle ${isModificationPanelOpen ? "active" : ""}`}
-                    onClick={onToggleModificationPanel}
-                    aria-label="Toggle modifications panel"
-                    title="Toggle modifications"
+                    className={`modification-toggle ${isAiEditModeActive ? "active" : ""}`}
+                    onClick={onToggleAiEditMode}
+                    aria-label="Toggle AI edit mode"
+                    title="Toggle AI edit mode"
                 >
                     <svg
                         width="20"
@@ -94,7 +100,9 @@ export default function ChatInput({
                     </svg>
                 </button>
             </div>
-            <div className="input-hint">Enter to send | Shift+Enter for a new line</div>
+            <div className={`input-hint ${isAiEditModeActive ? "edit-mode" : ""}`}>
+                {isAiEditModeActive ? `Edit mode enabled · ${aiSelectionSummary}` : "Enter to send | Shift+Enter for a new line"}
+            </div>
         </div>
     );
 }

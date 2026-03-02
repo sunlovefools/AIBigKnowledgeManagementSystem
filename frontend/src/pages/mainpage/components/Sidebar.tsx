@@ -8,9 +8,13 @@ type SidebarProps = {
     isLoadingFiles: boolean;
     fileListError: string | null;
     activeTab: string | null;
+    isAiEditModeActive: boolean;
+    selectedAiFileNames: string[];
+    aiSelectionSummary: string;
     onFileSelect: ChangeEventHandler<HTMLInputElement>;
     onUpload: () => void;
     onClearFile: () => void;
+    onToggleAiFileSelection: (fileName: string) => void;
     onOpenFile: (fileName: string) => void;
     onRefreshFiles: () => void;
 };
@@ -22,9 +26,13 @@ export default function Sidebar({
     isLoadingFiles,
     fileListError,
     activeTab,
+    isAiEditModeActive,
+    selectedAiFileNames,
+    aiSelectionSummary,
     onFileSelect,
     onUpload,
     onClearFile,
+    onToggleAiFileSelection,
     onOpenFile,
     onRefreshFiles,
 }: SidebarProps) {
@@ -111,6 +119,10 @@ export default function Sidebar({
                     </button>
                 </div>
 
+                {isAiEditModeActive && (
+                    <div className="sidebar-ai-selection-status">{aiSelectionSummary}</div>
+                )}
+
                 <div className="sidebar-documents-list">
                     {isLoadingFiles ? (
                         <div className="sidebar-documents-status">Loading files...</div>
@@ -119,17 +131,40 @@ export default function Sidebar({
                     ) : files.length === 0 ? (
                         <div className="sidebar-documents-status">No files found in vector database.</div>
                     ) : (
-                        files.map((file) => (
-                            <button
-                                key={file.fileId}
-                                className={`sidebar-document-item ${activeTab === file.fileName ? "active" : ""}`}
-                                onClick={() => onOpenFile(file.fileName)}
-                                type="button"
-                            >
-                                <div className="sidebar-document-title">{file.fileName}</div>
-                                <div className="sidebar-document-preview">{file.previewTexts || "..."}</div>
-                            </button>
-                        ))
+                        files.map((file) => {
+                            const isSelectedForAi = selectedAiFileNames.includes(file.fileName);
+
+                            return (
+                                <div
+                                    key={file.fileId}
+                                    className={`sidebar-document-item ${activeTab === file.fileName ? "active" : ""}`}
+                                    onClick={() => onOpenFile(file.fileName)}
+                                    role="button"
+                                    tabIndex={0}
+                                    onKeyDown={(event) => {
+                                        if (event.key === "Enter" || event.key === " ") {
+                                            event.preventDefault();
+                                            onOpenFile(file.fileName);
+                                        }
+                                    }}
+                                >
+                                    <div className="sidebar-document-title-row">
+                                        {isAiEditModeActive && (
+                                            <input
+                                                type="checkbox"
+                                                className="sidebar-ai-select-checkbox"
+                                                checked={isSelectedForAi}
+                                                onChange={() => onToggleAiFileSelection(file.fileName)}
+                                                onClick={(event) => event.stopPropagation()}
+                                                aria-label={`Select ${file.fileName} for AI edit`}
+                                            />
+                                        )}
+                                        <div className="sidebar-document-title">{file.fileName}</div>
+                                    </div>
+                                    <div className="sidebar-document-preview">{file.previewTexts || "..."}</div>
+                                </div>
+                            );
+                        })
                     )}
                 </div>
             </div>

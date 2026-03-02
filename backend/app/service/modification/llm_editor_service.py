@@ -10,13 +10,22 @@ from typing import Any
 
 import aiohttp
 
+try:
+    from backend.debug.debug_logger import log_modification_token_usage
+except ImportError:
+    from debug.debug_logger import log_modification_token_usage
+
 _OPENROUTER_DEFAULT_URL = "https://openrouter.ai/api/v1/chat/completions"
 _DEFAULT_TIMEOUT_S = 500.0
+_DEEPSEEK_PRICE_INPUT_PER_1M = 0.27
+_DEEPSEEK_PRICE_OUTPUT_PER_1M = 1.10
 
 _SYSTEM_PROMPT = (
     "You are a document editor assistant. "
-    "Apply user instruction to the provided document content. "
-    "Return ONLY valid JSON with keys: edited_content (string), summary (string), warnings (array of strings). "
+    "First judge whether the user instruction is relevant to the provided document. "
+    "If relevant, apply the instruction and ensure edited_content is meaningfully changed from original_content. "
+    "If not relevant, keep edited_content equal to original_content. "
+    "Return ONLY valid JSON with keys: is_relevant (boolean), edited_content (string), summary (string), warnings (array of strings). "
     "Do not add markdown code fences."
 )
 
@@ -89,13 +98,15 @@ def _build_user_prompt(file_name: str, instruction: str, original_content: str) 
         "instruction": instruction,
         "original_content": original_content,
         "required_output_schema": {
+            "is_relevant": "boolean",
             "edited_content": "string",
             "summary": "string",
             "warnings": ["string"],
         },
         "constraints": [
             "Keep language and structure unless instruction requests otherwise.",
-            "If no change is needed, return original_content as edited_content.",
+            "If instruction is not relevant, set is_relevant=false and return original_content as edited_content.",
+            "If instruction is relevant, set is_relevant=true and make sure edited_content differs from original_content.",
             "Output must be valid JSON only.",
         ],
     }
@@ -182,11 +193,66 @@ def _normalize_preview_result(candidate: dict[str, Any] | None, original_content
     else:
         warnings = []
 
+    is_relevant = result.get("is_relevant")
+    if not isinstance(is_relevant, bool):
+        is_relevant = result.get("isRelevant")
+    if not isinstance(is_relevant, bool):
+        is_relevant = edited_content.strip() != original_content.strip()
+
     return {
+        "isRelevant": is_relevant,
         "editedContent": edited_content,
         "summary": summary.strip(),
         "warnings": warnings,
     }
+
+
+def _calculate_estimated_cost(model: str, prompt_tokens: int, completion_tokens: int) -> float:
+    model_lower = (model or "").lower()
+    if "deepseek" in model_lower:
+        input_cost = (prompt_tokens / 1_000_000) * _DEEPSEEK_PRICE_INPUT_PER_1M
+        output_cost = (completion_tokens / 1_000_000) * _DEEPSEEK_PRICE_OUTPUT_PER_1M
+        return input_cost + output_cost
+    return 0.0
+
+
+def _extract_usage(data: dict[str, Any]) -> tuple[int, int, int]:
+    usage = data.get("usage")
+    if not isinstance(usage, dict):
+        return 0, 0, 0
+
+    prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
+    completion_tokens = int(usage.get("completion_tokens", 0) or 0)
+    total_tokens = int(usage.get("total_tokens", prompt_tokens + completion_tokens) or 0)
+    return prompt_tokens, completion_tokens, total_tokens
+
+
+def _log_editor_token_usage(
+    *,
+    provider: str,
+    model: str,
+    file_name: str,
+    response_data: dict[str, Any],
+) -> None:
+    prompt_tokens, completion_tokens, total_tokens = _extract_usage(response_data)
+    estimated_cost_usd = _calculate_estimated_cost(model, prompt_tokens, completion_tokens)
+
+    if total_tokens <= 0:
+        return
+
+    print(
+        f"🧾 Edit Token Usage [{file_name}] — "
+        f"Prompt: {prompt_tokens} | Completion: {completion_tokens} | Total: {total_tokens} | Cost: ${estimated_cost_usd:.6f}"
+    )
+    log_modification_token_usage(
+        provider=provider,
+        model=model,
+        file_name=file_name,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        total_tokens=total_tokens,
+        estimated_cost_usd=estimated_cost_usd,
+    )
 
 
 async def _generate_via_openrouter(
@@ -223,6 +289,13 @@ async def _generate_via_openrouter(
         headers=headers,
         timeout_s=cfg.timeout_s,
         error_prefix="LLM editor OpenRouter API error",
+    )
+
+    _log_editor_token_usage(
+        provider="OPENROUTER",
+        model=cfg.openrouter_model,
+        file_name=file_name,
+        response_data=data,
     )
 
     text_content = ""
@@ -273,6 +346,13 @@ async def _generate_via_beam(
         headers=headers,
         timeout_s=cfg.timeout_s,
         error_prefix="LLM editor BEAM API error",
+    )
+
+    _log_editor_token_usage(
+        provider="BEAM",
+        model="beam-editor",
+        file_name=file_name,
+        response_data=data,
     )
 
     if isinstance(data.get("edited_content"), str) or isinstance(data.get("editedContent"), str):

@@ -24,16 +24,64 @@ type UpdateFileResponse = {
     chunks: number;
 };
 
-type LlmEditPreviewResponse = {
-    editedContent: string;
-    summary: string;
-    warnings?: string[];
+type BatchTarget = {
+    fileName: string;
+    originalContent: string;
+};
+
+type LlmEditPreviewBatchResponse = {
+    selectionMode: "manual" | "auto";
+    selectedFiles: Array<{
+        fileName: string;
+        score?: number | null;
+        reasons?: string[];
+    }>;
+    results: Array<{
+        fileName: string;
+        ok: boolean;
+        editedContent?: string | null;
+        summary?: string | null;
+        warnings?: string[];
+        error?: string | null;
+    }>;
+    stats: {
+        total: number;
+        success: number;
+        failed: number;
+    };
+};
+
+type AiBatchPreviewItem = {
+    fileName: string;
+    ok: boolean;
+    score: number | null;
+    reasons: string[];
+    summary: string | null;
+    warnings: string[];
+    error: string | null;
+    diffSegments: DiffSegment[];
+    decision: "pending" | "accepted" | "rejected";
+    saveState: "idle" | "saving" | "saved" | "failed";
 };
 
 type RequestAiPreviewResult = {
     ok: boolean;
+    hasChanges?: boolean;
     summary?: string;
     error?: string;
+};
+
+type RequestAiPreviewOptions = {
+    selectedFileNames?: string[];
+};
+
+type BatchSaveResult = {
+    ok: boolean;
+    saved: number;
+    failed: number;
+    skipped: number;
+    message: string;
+    closeAfterSave?: boolean;
 };
 
 function buildPreviewText(content: string): string {
@@ -103,6 +151,13 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const [aiEditProposedContent, setAiEditProposedContent] = useState<string | null>(null);
     const [aiEditDiffSegments, setAiEditDiffSegments] = useState<DiffSegment[]>([]);
     const [aiEditError, setAiEditError] = useState<string | null>(null);
+    const [aiBatchSelectionMode, setAiBatchSelectionMode] = useState<"manual" | "auto" | null>(null);
+    const [aiBatchSelectedFiles, setAiBatchSelectedFiles] = useState<Array<{ fileName: string; score?: number | null; reasons: string[] }>>([]);
+    const [aiBatchResults, setAiBatchResults] = useState<LlmEditPreviewBatchResponse["results"]>([]);
+    const [aiBatchPreviewItems, setAiBatchPreviewItems] = useState<AiBatchPreviewItem[]>([]);
+    const [isSavingAiBatch, setIsSavingAiBatch] = useState(false);
+    const [aiBatchSaveMessage, setAiBatchSaveMessage] = useState<string | null>(null);
+    const [aiBatchSaveError, setAiBatchSaveError] = useState<string | null>(null);
 
     const getFileIdByName = useCallback(
         (fileName: string) => files.find((item) => item.fileName === fileName)?.fileId ?? null,
@@ -343,7 +398,15 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         setAiEditSummary(null);
         setAiEditWarnings([]);
         setAiEditProposedContent(null);
+        setAiEditDiffSegments([]);
         setAiEditError(null);
+        setAiBatchSelectionMode(null);
+        setAiBatchSelectedFiles([]);
+        setAiBatchResults([]);
+        setAiBatchPreviewItems([]);
+        setIsSavingAiBatch(false);
+        setAiBatchSaveMessage(null);
+        setAiBatchSaveError(null);
     }, []);
 
     const clearAiEditProposal = useCallback(() => {
@@ -352,6 +415,13 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         setAiEditProposedContent(null);
         setAiEditDiffSegments([]);
         setAiEditError(null);
+        setAiBatchSelectionMode(null);
+        setAiBatchSelectedFiles([]);
+        setAiBatchResults([]);
+        setAiBatchPreviewItems([]);
+        setIsSavingAiBatch(false);
+        setAiBatchSaveMessage(null);
+        setAiBatchSaveError(null);
     }, []);
 
     const confirmDiscardUnsavedChanges = useCallback(() => {
@@ -695,14 +765,8 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     }, [clearEditingState]);
 
     const requestAiEditPreview = useCallback(
-        async (instruction: string): Promise<RequestAiPreviewResult> => {
+        async (instruction: string, options?: RequestAiPreviewOptions): Promise<RequestAiPreviewResult> => {
             const trimmedInstruction = instruction.trim();
-
-            if (!activeTab) {
-                const error = "Please open and select a document before using AI edit.";
-                setAiEditError(error);
-                return { ok: false, error };
-            }
 
             if (isAiEditGenerating) {
                 return { ok: false, error: "AI edit preview is already generating." };
@@ -714,48 +778,211 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                 return { ok: false, error };
             }
 
-            const sourceContent =
-                (editingFileName && editingFileName === activeTab
-                    ? editingDraftByFileName[activeTab]
-                    : undefined) ?? getFullDocumentContentByFileName(activeTab);
-            if (!sourceContent.trim()) {
-                const error = "Document content is empty.";
-                setAiEditError(error);
-                return { ok: false, error };
-            }
-
             setIsAiEditGenerating(true);
             setAiEditError(null);
             setAiEditSummary(null);
             setAiEditWarnings([]);
             setAiEditProposedContent(null);
+            setAiEditDiffSegments([]);
+            setAiBatchSelectionMode(null);
+            setAiBatchSelectedFiles([]);
+            setAiBatchResults([]);
+            setAiBatchPreviewItems([]);
+            setAiBatchSaveMessage(null);
+            setAiBatchSaveError(null);
 
             try {
-                const response = await axios.post<LlmEditPreviewResponse>(
-                    `${API_BASE}/api/modifications/llm-edit-preview`,
+                const selectedFileNames = Array.from(
+                    new Set((options?.selectedFileNames ?? []).map((name) => name.trim()).filter(Boolean))
+                );
+                const isManualMode = selectedFileNames.length > 0;
+
+                const candidateNames = Array.from(
+                    new Set([activeTab, ...openTabs].filter((name): name is string => Boolean(name && name.trim())))
+                );
+
+                const contentByFileName = new Map<string, string>();
+                for (const fileName of candidateNames) {
+                    const content =
+                        (editingFileName && editingFileName === fileName
+                            ? editingDraftByFileName[fileName]
+                            : undefined) ?? getFullDocumentContentByFileName(fileName);
+                    if (content && content.trim()) {
+                        contentByFileName.set(fileName, content);
+                    }
+                }
+
+                const previewByFileName = new Map(
+                    files.map((file) => [file.fileName, file.previewTexts || ""])
+                );
+
+                const manualTargets: BatchTarget[] = isManualMode
+                    ? selectedFileNames
+                          .map((fileName) => {
+                              const content =
+                                  contentByFileName.get(fileName) ??
+                                  previewByFileName.get(fileName) ??
+                                  "";
+                              return { fileName, originalContent: content };
+                          })
+                          .filter((item) => item.originalContent.trim().length > 0)
+                    : [];
+
+                if (isManualMode && manualTargets.length === 0) {
+                    const error = "Selected files are missing loaded content. Please open selected files first.";
+                    setAiEditError(error);
+                    return { ok: false, error };
+                }
+
+                if (!isManualMode && files.length === 0) {
+                    const error = "No files available for auto selection.";
+                    setAiEditError(error);
+                    return { ok: false, error };
+                }
+
+                const autoCandidates: BatchTarget[] = isManualMode
+                    ? []
+                    : files
+                          .map((file) => {
+                              const originalContent =
+                                  contentByFileName.get(file.fileName) ??
+                                  previewByFileName.get(file.fileName) ??
+                                  "";
+                              return {
+                                  fileName: file.fileName,
+                                  originalContent,
+                              };
+                          })
+                          .filter((item) => item.originalContent.trim().length > 0);
+
+                const requestTargetContentByFileName = new Map<string, string>([
+                    ...manualTargets.map((item) => [item.fileName, item.originalContent] as const),
+                    ...autoCandidates.map((item) => [item.fileName, item.originalContent] as const),
+                ]);
+
+                const response = await axios.post<LlmEditPreviewBatchResponse>(
+                    `${API_BASE}/api/modifications/llm-edit-preview-batch`,
                     {
-                        fileName: activeTab,
-                        originalContent: sourceContent,
                         instruction: trimmedInstruction,
+                        selectionMode: isManualMode ? "manual" : "auto",
+                        targets: manualTargets,
+                        autoCandidates,
+                        activeFileName: activeTab,
+                        autoSelectOptions: {
+                            maxFiles: 3,
+                            minScore: 0.55,
+                        },
                     }
                 );
 
-                const preview = response.data;
-                const editedContent = typeof preview.editedContent === "string" ? preview.editedContent : sourceContent;
-                const summary = (preview.summary || "AI edit preview generated.").trim();
-                const warnings = Array.isArray(preview.warnings)
-                    ? preview.warnings.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
+                const batch = response.data;
+                setAiBatchSelectionMode(batch.selectionMode);
+                const normalizedSelectedFiles = (batch.selectedFiles ?? []).map((item) => ({
+                        fileName: item.fileName,
+                        score: item.score,
+                        reasons: Array.isArray(item.reasons)
+                            ? item.reasons.filter((reason): reason is string => typeof reason === "string" && reason.trim().length > 0)
+                            : [],
+                    }));
+                setAiBatchSelectedFiles(normalizedSelectedFiles);
+                setAiBatchResults(batch.results ?? []);
+
+                const selectedMetaByFileName = new Map(
+                    normalizedSelectedFiles.map((item) => [item.fileName, item])
+                );
+                const normalizedPreviewItems: AiBatchPreviewItem[] = (batch.results ?? []).map((item) => {
+                    const meta = selectedMetaByFileName.get(item.fileName);
+                    const score = typeof meta?.score === "number" ? meta.score : null;
+                    const reasons = meta?.reasons ?? [];
+
+                    if (!item.ok) {
+                        return {
+                            fileName: item.fileName,
+                            ok: false,
+                            score,
+                            reasons,
+                            summary: null,
+                            warnings: [],
+                            error: item.error ?? "Unknown error",
+                            diffSegments: [],
+                            decision: "pending",
+                            saveState: "idle",
+                        };
+                    }
+
+                    const source =
+                        requestTargetContentByFileName.get(item.fileName) ??
+                        contentByFileName.get(item.fileName) ??
+                        "";
+                    const edited =
+                        typeof item.editedContent === "string" && item.editedContent.length > 0
+                            ? item.editedContent
+                            : source;
+                    const warnings = Array.isArray(item.warnings)
+                        ? item.warnings.filter((warning): warning is string => typeof warning === "string" && warning.trim().length > 0)
+                        : [];
+
+                    return {
+                        fileName: item.fileName,
+                        ok: true,
+                        score,
+                        reasons,
+                        summary: item.summary?.trim() || "AI edit preview generated.",
+                        warnings,
+                        error: null,
+                        diffSegments: calculateDiffSegments(source, edited),
+                        decision: "pending",
+                        saveState: "idle",
+                    };
+                });
+                setAiBatchPreviewItems(normalizedPreviewItems);
+
+                const hasBatchChanges = normalizedPreviewItems.some(
+                    (item) => item.ok && item.diffSegments.some((segment) => segment.type === "add" || segment.type === "del")
+                );
+
+                const successResults = (batch.results ?? []).filter((item) => item.ok);
+                if (successResults.length === 0) {
+                    setAiEditProposedContent(null);
+                    setAiEditSummary(null);
+                    setAiEditWarnings([]);
+                    setAiEditDiffSegments([]);
+                    return { ok: true, hasChanges: false, summary: "No relevant files matched the instruction." };
+                }
+
+                const preferredResult =
+                    successResults.find((item) => item.fileName === activeTab) ?? successResults[0];
+                const preferredSourceContent =
+                    requestTargetContentByFileName.get(preferredResult.fileName) ??
+                    contentByFileName.get(preferredResult.fileName) ??
+                    "";
+
+                const editedContent =
+                    typeof preferredResult.editedContent === "string" && preferredResult.editedContent.trim().length > 0
+                        ? preferredResult.editedContent
+                        : preferredSourceContent;
+                const baseSummary = (preferredResult.summary || "AI edit preview generated.").trim();
+                const summary =
+                    batch.stats.total > 1
+                        ? `${baseSummary} (${batch.stats.success}/${batch.stats.total} files succeeded)`
+                        : baseSummary;
+
+                const warnings = Array.isArray(preferredResult.warnings)
+                    ? preferredResult.warnings.filter((item): item is string => typeof item === "string" && item.trim().length > 0)
                     : [];
 
-                // Calculate diff segments for visualization
-                const diffSegments = calculateDiffSegments(sourceContent, editedContent);
+                const diffSegments = calculateDiffSegments(preferredSourceContent, editedContent);
+
+                const hasPreferredChanges = diffSegments.some(
+                    (segment) => segment.type === "add" || segment.type === "del"
+                );
 
                 setAiEditProposedContent(editedContent);
                 setAiEditSummary(summary);
                 setAiEditWarnings(warnings);
                 setAiEditDiffSegments(diffSegments);
 
-                return { ok: true, summary };
+                return { ok: true, summary, hasChanges: hasBatchChanges || hasPreferredChanges };
             } catch (error) {
                 console.error("Error requesting AI edit preview:", error);
                 const errorMessage = "Failed to generate AI edit preview. Please try again.";
@@ -768,8 +995,11 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         [
             activeTab,
             editingDraftByFileName,
+            editingFileName,
+            files,
             getFullDocumentContentByFileName,
             isAiEditGenerating,
+            openTabs,
         ]
     );
 
@@ -790,6 +1020,253 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const rejectAiEditProposal = useCallback(() => {
         clearAiEditProposal();
     }, [clearAiEditProposal]);
+
+    const acceptAiBatchFileProposal = useCallback(
+        (fileName: string) => {
+            const matched = aiBatchResults.find((item) => item.fileName === fileName && item.ok);
+            const editedContent = matched?.editedContent;
+
+            if (!matched || typeof editedContent !== "string") {
+                return false;
+            }
+
+            setEditingDraftByFileName((previousDrafts) => ({
+                ...previousDrafts,
+                [fileName]: editedContent,
+            }));
+
+            setAiBatchPreviewItems((previousItems) =>
+                previousItems.map((item) =>
+                    item.fileName === fileName
+                        ? { ...item, decision: "accepted", saveState: "idle" }
+                        : item
+                )
+            );
+
+            return true;
+        },
+        [aiBatchResults]
+    );
+
+    const rejectAiBatchFileProposal = useCallback((fileName: string) => {
+        setAiBatchPreviewItems((previousItems) =>
+            previousItems.map((item) =>
+                item.fileName === fileName
+                    ? { ...item, decision: "rejected", saveState: "idle" }
+                    : item
+            )
+        );
+    }, []);
+
+    const saveAcceptedAiBatchFiles = useCallback(async (): Promise<BatchSaveResult> => {
+        if (isSavingAiBatch) {
+            return {
+                ok: false,
+                saved: 0,
+                failed: 0,
+                skipped: 0,
+                message: "Batch save is already in progress.",
+                closeAfterSave: false,
+            };
+        }
+
+        const actionableItems = aiBatchPreviewItems.filter((item) => item.ok);
+        const allRejected =
+            actionableItems.length > 0 &&
+            actionableItems.every((item) => item.decision === "rejected");
+
+        const acceptedItems = aiBatchPreviewItems.filter(
+            (item) => item.ok && item.decision === "accepted" && item.saveState !== "saved"
+        );
+
+        if (acceptedItems.length === 0) {
+            if (allRejected) {
+                const message = "All files were rejected. Closing edit panel.";
+                setAiBatchSaveMessage(message);
+                setAiBatchSaveError(null);
+                clearAiEditProposal();
+                return {
+                    ok: true,
+                    saved: 0,
+                    failed: 0,
+                    skipped: actionableItems.length,
+                    message,
+                    closeAfterSave: true,
+                };
+            }
+
+            const message = "No accepted files to save.";
+            setAiBatchSaveMessage(message);
+            setAiBatchSaveError(null);
+            return { ok: true, saved: 0, failed: 0, skipped: 0, message, closeAfterSave: false };
+        }
+
+        setIsSavingAiBatch(true);
+        setAiBatchSaveError(null);
+        setAiBatchSaveMessage(null);
+
+        setAiBatchPreviewItems((previousItems) =>
+            previousItems.map((item) =>
+                acceptedItems.some((accepted) => accepted.fileName === item.fileName)
+                    ? { ...item, saveState: "saving" }
+                    : item
+            )
+        );
+
+        let saved = 0;
+        let failed = 0;
+        let skipped = 0;
+
+        for (const item of acceptedItems) {
+            const fileName = item.fileName;
+            const fileId = getFileIdByName(fileName);
+
+            const originalContent = getFullDocumentContentByFileName(fileName);
+            const matched = aiBatchResults.find((result) => result.fileName === fileName && result.ok);
+            const matchedEdited = matched?.editedContent;
+            const draftContent =
+                editingDraftByFileName[fileName] ??
+                (typeof matchedEdited === "string" ? matchedEdited : originalContent);
+
+            if (!fileId) {
+                failed += 1;
+                setAiBatchPreviewItems((previousItems) =>
+                    previousItems.map((current) =>
+                        current.fileName === fileName ? { ...current, saveState: "failed" } : current
+                    )
+                );
+                continue;
+            }
+
+            if (!draftContent.trim()) {
+                failed += 1;
+                setAiBatchPreviewItems((previousItems) =>
+                    previousItems.map((current) =>
+                        current.fileName === fileName ? { ...current, saveState: "failed" } : current
+                    )
+                );
+                continue;
+            }
+
+            if (draftContent === originalContent) {
+                skipped += 1;
+                setAiBatchPreviewItems((previousItems) =>
+                    previousItems.map((current) =>
+                        current.fileName === fileName ? { ...current, saveState: "saved" } : current
+                    )
+                );
+                continue;
+            }
+
+            try {
+                const response = await axios.put<UpdateFileResponse>(`${API_BASE}/api/modifications/update-file/${fileId}`, {
+                    fileName,
+                    content: draftContent,
+                });
+
+                const updated = response.data;
+                const localParentId =
+                    tabStates[fileName]?.chunks[0]?.parentId ?? `local-${updated.fileId || fileName}`;
+
+                setFiles((previousFiles) =>
+                    previousFiles.map((file) =>
+                        file.fileName === fileName || file.fileId === updated.previousFileId
+                            ? {
+                                  ...file,
+                                  fileId: updated.fileId,
+                                  fileName: updated.fileName,
+                                  previewTexts: buildPreviewText(updated.content),
+                              }
+                            : file
+                    )
+                );
+
+                setTabStates((previousStates) => {
+                    const current = previousStates[fileName] ?? createEmptyTabState();
+                    return {
+                        ...previousStates,
+                        [fileName]: {
+                            ...current,
+                            chunks: [
+                                {
+                                    parentId: localParentId,
+                                    content: updated.content,
+                                    size: updated.size,
+                                },
+                            ],
+                            hasMore: false,
+                            nextCursor: null,
+                            isLoading: false,
+                            isInitialized: true,
+                            error: null,
+                        },
+                    };
+                });
+
+                setSelectedParentByTab((previousSelections) => ({
+                    ...previousSelections,
+                    [fileName]: localParentId,
+                }));
+
+                setEditingDraftByFileName((previousDrafts) => {
+                    if (!(fileName in previousDrafts)) {
+                        return previousDrafts;
+                    }
+                    const { [fileName]: _removed, ...nextDrafts } = previousDrafts;
+                    return nextDrafts;
+                });
+
+                setAiBatchPreviewItems((previousItems) =>
+                    previousItems.map((current) =>
+                        current.fileName === fileName ? { ...current, saveState: "saved" } : current
+                    )
+                );
+                saved += 1;
+            } catch (error) {
+                console.error(`Error saving batch file ${fileName}:`, error);
+                failed += 1;
+                setAiBatchPreviewItems((previousItems) =>
+                    previousItems.map((current) =>
+                        current.fileName === fileName ? { ...current, saveState: "failed" } : current
+                    )
+                );
+            }
+        }
+
+        const message = `Batch save completed. Saved: ${saved}, Failed: ${failed}, Skipped: ${skipped}.`;
+        setAiBatchSaveMessage(message);
+        setAiBatchSaveError(failed > 0 ? "Some accepted files failed to save. You can retry Save Accepted Files." : null);
+        setIsSavingAiBatch(false);
+
+        return {
+            ok: failed === 0,
+            saved,
+            failed,
+            skipped,
+            message,
+            closeAfterSave: false,
+        };
+    }, [
+        aiBatchPreviewItems,
+        aiBatchResults,
+        clearAiEditProposal,
+        editingDraftByFileName,
+        getFileIdByName,
+        getFullDocumentContentByFileName,
+        isSavingAiBatch,
+        tabStates,
+    ]);
+
+    const retryFailedAiBatchFiles = useCallback(() => {
+        setAiBatchPreviewItems((previousItems) =>
+            previousItems.map((item) =>
+                item.decision === "accepted" && item.saveState === "failed"
+                    ? { ...item, saveState: "idle" }
+                    : item
+            )
+        );
+        setAiBatchSaveError(null);
+    }, []);
 
     const saveEditingActiveDocument = useCallback(async () => {
         if (!activeTab || !editingFileName || activeTab !== editingFileName || savingFileName) {
@@ -929,9 +1406,20 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         aiEditDiffSegments,
         aiEditProposedContent,
         aiEditError,
+        aiBatchSelectionMode,
+        aiBatchSelectedFiles,
+        aiBatchResults,
+        aiBatchPreviewItems,
+        isSavingAiBatch,
+        aiBatchSaveMessage,
+        aiBatchSaveError,
         hasAiEditProposal: aiEditProposedContent !== null,
         requestAiEditPreview,
         acceptAiEditProposal,
         rejectAiEditProposal,
+        acceptAiBatchFileProposal,
+        rejectAiBatchFileProposal,
+        saveAcceptedAiBatchFiles,
+        retryFailedAiBatchFiles,
     };
 }

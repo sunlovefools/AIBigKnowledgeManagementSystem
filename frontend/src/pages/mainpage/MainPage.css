@@ -11,6 +11,7 @@
     --accent-hover: #1d4ed8;
     --button-text: #ffffff;
     --danger-color: #d93025;
+    --edit-mode-color: #d4a017;
 }
 
 body,
@@ -397,6 +398,30 @@ html,
     background: #f8faff;
 }
 
+.sidebar-document-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sidebar-ai-select-checkbox {
+    width: 14px;
+    height: 14px;
+    accent-color: var(--edit-mode-color);
+    cursor: pointer;
+}
+
+.sidebar-ai-selection-status {
+    margin: 4px 0 2px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: 1px solid #f3d8a7;
+    background: #fff7e5;
+    color: #8a6a00;
+    font-size: 0.76rem;
+    line-height: 1.35;
+}
+
 .sidebar-document-title {
     font-size: 0.84rem;
     font-weight: 600;
@@ -684,6 +709,16 @@ html,
     border-color: #cbd5e1;
 }
 
+.input-container.edit-mode {
+    border-color: var(--edit-mode-color);
+    box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.18), 0 6px 20px rgba(0, 0, 0, 0.08);
+}
+
+.input-container.edit-mode:focus-within {
+    border-color: var(--edit-mode-color);
+    box-shadow: 0 0 0 2px rgba(212, 160, 23, 0.25), 0 10px 24px rgba(0, 0, 0, 0.1);
+}
+
 .chat-input {
     flex: 1;
     background: transparent;
@@ -764,6 +799,11 @@ html,
     text-align: left;
     color: var(--text-secondary);
     font-size: 0.9rem;
+}
+
+.input-hint.edit-mode {
+    color: #8a6a00;
+    font-weight: 600;
 }
 
 .app-root.is-sidebar-toggling .sidebar .eyebrow,
@@ -1217,4 +1257,127 @@ html,
 .cancel-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.batch-diff-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.batch-preview-toolbar {
+    display: flex;
+    gap: 8px;
+    margin: 8px 0;
+}
+
+.batch-diff-card {
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #ffffff;
+    padding: 10px;
+}
+
+.batch-diff-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 6px;
+}
+
+.batch-diff-header-right {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.batch-diff-file {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.batch-diff-status {
+    font-size: 0.72rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 8px;
+    border: 1px solid transparent;
+}
+
+.batch-diff-status.ok {
+    color: #15803d;
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.batch-diff-status.error {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+.batch-diff-decision {
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 8px;
+    border: 1px solid transparent;
+}
+
+.batch-diff-decision.accepted {
+    color: #166534;
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.batch-diff-decision.rejected {
+    color: #9f1239;
+    border-color: #fda4af;
+    background: #fff1f2;
+}
+
+.batch-diff-save-state {
+    font-size: 0.7rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 2px 8px;
+    border: 1px solid transparent;
+}
+
+.batch-diff-save-state.saving {
+    color: #1d4ed8;
+    border-color: #93c5fd;
+    background: #eff6ff;
+}
+
+.batch-diff-save-state.saved {
+    color: #166534;
+    border-color: #86efac;
+    background: #f0fdf4;
+}
+
+.batch-diff-save-state.failed {
+    color: #b91c1c;
+    border-color: #fecaca;
+    background: #fef2f2;
+}
+
+.batch-diff-reasons {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    line-height: 1.35;
+}
+
+.batch-diff-view {
+    max-height: 180px;
+}
+
+.batch-diff-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px;
 }

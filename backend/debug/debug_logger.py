@@ -251,6 +251,9 @@ def log_answer_generation_response(answer: str) -> None:
 
 _TOKEN_USAGE_FILE = "token_usage.txt"
 _TOKEN_USAGE_SUMMARY_FILE = "token_usage_summary.txt"
+_MODIFICATION_TOKEN_USAGE_JSONL = "modification_token_usage.jsonl"
+_MODIFICATION_TOKEN_USAGE_SUMMARY_FILE = "modification_token_usage_summary.txt"
+_MODIFICATION_TOKEN_USAGE_REPORT_FILE = "modification_token_usage_report.md"
 
 
 def _update_token_summary(
@@ -396,3 +399,158 @@ def log_token_usage(
             total_tokens=total_tokens,
             estimated_cost_usd=estimated_cost_usd,
         )
+
+
+def _append_jsonl(file_name: str, payload: dict[str, Any]) -> None:
+    path = _resolve_debug_dir() / file_name
+    with path.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(payload, ensure_ascii=False) + "\n")
+
+
+def _read_jsonl(file_name: str) -> list[dict[str, Any]]:
+    path = _resolve_debug_dir() / file_name
+    if not path.exists():
+        return []
+
+    entries: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        stripped = line.strip()
+        if not stripped:
+            continue
+        try:
+            item = json.loads(stripped)
+            if isinstance(item, dict):
+                entries.append(item)
+        except Exception:
+            continue
+    return entries
+
+
+def _update_modification_token_summary(entries: list[dict[str, Any]]) -> None:
+    debug_dir = _resolve_debug_dir()
+    summary_path = debug_dir / _MODIFICATION_TOKEN_USAGE_SUMMARY_FILE
+
+    total_calls = len(entries)
+    total_prompt = sum(int(item.get("prompt_tokens", 0) or 0) for item in entries)
+    total_completion = sum(int(item.get("completion_tokens", 0) or 0) for item in entries)
+    total_tokens = sum(int(item.get("total_tokens", 0) or 0) for item in entries)
+    total_cost = sum(float(item.get("estimated_cost_usd", 0.0) or 0.0) for item in entries)
+
+    avg_prompt = (total_prompt / total_calls) if total_calls else 0.0
+    avg_completion = (total_completion / total_calls) if total_calls else 0.0
+    avg_total = (total_tokens / total_calls) if total_calls else 0.0
+    avg_cost = (total_cost / total_calls) if total_calls else 0.0
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+    lines = [
+        f"TOTAL_MODIFICATION_CALLS:      {total_calls}",
+        f"TOTAL_PROMPT_TOKENS:           {total_prompt}",
+        f"TOTAL_COMPLETION_TOKENS:       {total_completion}",
+        f"TOTAL_TOKENS:                  {total_tokens}",
+        f"TOTAL_COST_USD:                {total_cost:.6f}",
+        "",
+        "=" * 50,
+        "MODIFICATION TOKEN USAGE SUMMARY",
+        "-" * 50,
+        f"Last Updated:                  {timestamp}",
+        "-" * 50,
+        f"Total Modification Calls:      {total_calls}",
+        f"Total Prompt Tokens:           {total_prompt:,}",
+        f"Total Completion Tokens:       {total_completion:,}",
+        f"Total Tokens:                  {total_tokens:,}",
+        f"Total Est. Cost (USD):         ${total_cost:.6f}",
+        "-" * 50,
+        f"Avg Prompt Tokens/Call:        {avg_prompt:,.1f}",
+        f"Avg Completion Tokens/Call:    {avg_completion:,.1f}",
+        f"Avg Total Tokens/Call:         {avg_total:,.1f}",
+        f"Avg Est. Cost/Call (USD):      ${avg_cost:.6f}",
+        "=" * 50,
+    ]
+
+    summary_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def _update_modification_token_report(entries: list[dict[str, Any]]) -> None:
+    debug_dir = _resolve_debug_dir()
+    report_path = debug_dir / _MODIFICATION_TOKEN_USAGE_REPORT_FILE
+
+    total_calls = len(entries)
+    total_prompt = sum(int(item.get("prompt_tokens", 0) or 0) for item in entries)
+    total_completion = sum(int(item.get("completion_tokens", 0) or 0) for item in entries)
+    total_tokens = sum(int(item.get("total_tokens", 0) or 0) for item in entries)
+    total_cost = sum(float(item.get("estimated_cost_usd", 0.0) or 0.0) for item in entries)
+
+    avg_prompt = (total_prompt / total_calls) if total_calls else 0.0
+    avg_completion = (total_completion / total_calls) if total_calls else 0.0
+    avg_total = (total_tokens / total_calls) if total_calls else 0.0
+    avg_cost = (total_cost / total_calls) if total_calls else 0.0
+
+    timestamp = datetime.now(timezone.utc).isoformat()
+
+    lines: list[str] = [
+        "# Modification Token Usage Report",
+        "",
+        f"Last Updated: {timestamp}",
+        "",
+        "## Cumulative Summary",
+        f"- Total modification calls: {total_calls}",
+        f"- Total prompt tokens: {total_prompt}",
+        f"- Total completion tokens: {total_completion}",
+        f"- Total tokens: {total_tokens}",
+        f"- Total estimated cost (USD): ${total_cost:.6f}",
+        f"- Average prompt tokens per call: {avg_prompt:.1f}",
+        f"- Average completion tokens per call: {avg_completion:.1f}",
+        f"- Average total tokens per call: {avg_total:.1f}",
+        f"- Average estimated cost per call (USD): ${avg_cost:.6f}",
+        "",
+        "## Per-call Records",
+        "| # | Timestamp | File | Provider | Model | Prompt | Completion | Total | Cost (USD) |",
+        "|---:|---|---|---|---|---:|---:|---:|---:|",
+    ]
+
+    for index, item in enumerate(entries, start=1):
+        ts = str(item.get("timestamp", ""))
+        file_name = str(item.get("file_name", ""))
+        provider = str(item.get("provider", ""))
+        model = str(item.get("model", ""))
+        prompt_tokens = int(item.get("prompt_tokens", 0) or 0)
+        completion_tokens = int(item.get("completion_tokens", 0) or 0)
+        total = int(item.get("total_tokens", 0) or 0)
+        cost = float(item.get("estimated_cost_usd", 0.0) or 0.0)
+
+        lines.append(
+            f"| {index} | {ts} | {file_name} | {provider} | {model} | {prompt_tokens} | {completion_tokens} | {total} | ${cost:.6f} |"
+        )
+
+    report_path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+
+def log_modification_token_usage(
+    provider: str,
+    model: str,
+    file_name: str,
+    prompt_tokens: int,
+    completion_tokens: int,
+    total_tokens: int,
+    estimated_cost_usd: float,
+) -> None:
+    """Append one modification token usage record and refresh cumulative summary/report files."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        payload = {
+            "timestamp": timestamp,
+            "provider": provider,
+            "model": model,
+            "file_name": file_name,
+            "prompt_tokens": prompt_tokens,
+            "completion_tokens": completion_tokens,
+            "total_tokens": total_tokens,
+            "estimated_cost_usd": round(float(estimated_cost_usd), 6),
+        }
+
+        _append_jsonl(_MODIFICATION_TOKEN_USAGE_JSONL, payload)
+        entries = _read_jsonl(_MODIFICATION_TOKEN_USAGE_JSONL)
+        _update_modification_token_summary(entries)
+        _update_modification_token_report(entries)
+    except Exception as exc:
+        print(f"Warning: failed to write modification token usage log: {exc}")
