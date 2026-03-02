@@ -178,6 +178,67 @@ def _print_judge_request(
     print("===== END OLLAMA JUDGE REQUEST =====\n")
 
 
+def _coerce_object_to_dict(value: Any) -> dict[str, Any] | None:
+    """Best-effort conversion for SDK objects (e.g., pydantic responses)."""
+    if isinstance(value, dict):
+        return value
+
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        try:
+            dumped = model_dump()
+            if isinstance(dumped, dict):
+                return dumped
+        except Exception:
+            pass
+
+    as_dict = getattr(value, "dict", None)
+    if callable(as_dict):
+        try:
+            dumped = as_dict()
+            if isinstance(dumped, dict):
+                return dumped
+        except Exception:
+            pass
+
+    return None
+
+
+def _normalize_content_to_text(content: Any) -> str:
+    """Serialize model content safely to text expected by LangChain/RAGAS."""
+    if isinstance(content, str):
+        return content
+    if isinstance(content, (dict, list)):
+        return json.dumps(content, ensure_ascii=False)
+    return str(content)
+
+
+def _extract_ollama_response_content(response: Any) -> str:
+    """Extract assistant content from Ollama chat response across object/dict variants."""
+    message_obj: Any = None
+
+    response_dict = _coerce_object_to_dict(response)
+    if response_dict is not None:
+        message_obj = response_dict.get("message")
+    elif hasattr(response, "message"):
+        message_obj = getattr(response, "message")
+
+    if message_obj is None:
+        return ""
+
+    if isinstance(message_obj, dict):
+        return _normalize_content_to_text(message_obj.get("content"))
+
+    message_dict = _coerce_object_to_dict(message_obj)
+    if message_dict is not None:
+        return _normalize_content_to_text(message_dict.get("content"))
+
+    if hasattr(message_obj, "content"):
+        return _normalize_content_to_text(getattr(message_obj, "content"))
+
+    return _normalize_content_to_text(message_obj)
+
+
 def _load_eval_judge_model_name() -> str:
     """
     Resolve Ollama judge model from environment.
@@ -261,11 +322,14 @@ class OllamaJudgeChatModel(BaseChatModel):
         except Exception as exc:
             raise RuntimeError(f"Ollama judge chat failed: {exc}") from exc
 
-        message = response.get("message") if isinstance(response, dict) else None
-        content = ""
-        if isinstance(message, dict):
-            raw_content = message.get("content")
-            content = raw_content if isinstance(raw_content, str) else str(raw_content)
+        content = _extract_ollama_response_content(response)
+        if not content.strip():
+            response_dump = _coerce_object_to_dict(response)
+            if response_dump is not None:
+                print("OLLAMA JUDGE RAW RESPONSE:")
+                print(json.dumps(response_dump, ensure_ascii=False, indent=2))
+            else:
+                print(f"OLLAMA JUDGE RAW RESPONSE (repr): {repr(response)}")
         content = _sanitize_judge_output(content)
 
         generation = ChatGeneration(message=AIMessage(content=content))
@@ -282,6 +346,19 @@ def clean_text(text):
         # Replace newlines with a distinct separator
         return text.replace('\n', ' | ').replace('\r', '')
     return text
+
+
+def _strip_source_citations(text: str) -> str:
+    """Remove source citation snippets like '(source: ...)' from model outputs."""
+    if not isinstance(text, str):
+        return str(text)
+    cleaned = re.sub(
+        r"\s*\((?:source|sources)\s*:[^)]*\)",
+        "",
+        text,
+        flags=re.IGNORECASE,
+    )
+    return cleaned.strip()
 
 
 def _resolve_enabled_metrics() -> tuple[list[str], list[Any]]:
@@ -355,6 +432,7 @@ async def generate_rag_responses(dataset_path: str):
             rag_docs = await search_and_retrieve_context(query=question, top_k=5)
             print(rag_docs)
             answer = await generate_answer_api(rag_docs, question)
+            answer = _strip_source_citations(answer)
 
             questions.append(question)
             ground_truths.append(ground_truth) 
