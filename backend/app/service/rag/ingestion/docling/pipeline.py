@@ -56,11 +56,33 @@ from app.service.rag.ingestion.docling.utils import markdown_builder
 
 
 def _structured_table_uuid_marker(table_uuid: str) -> str:
-    """
-    Stable marker for structured table artifacts.
-    UI can detect this and fetch corresponding table_data/<uuid>.json.
-    """
     return f"{{{{TABLE_STRUCTURED_UUID:{table_uuid}}}}}"
+
+
+def _block_type_for_element(
+    element: Any,
+    *,
+    picture_item_cls: Any,
+    table_item_cls: Any,
+    list_item_cls: Any,
+    section_header_item_cls: Any,
+    title_item_cls: Any,
+) -> str:
+    """Classify a Docling element into normalized block categories."""
+
+    if title_item_cls is not None and isinstance(element, title_item_cls):
+        return "header"
+    if section_header_item_cls is not None and isinstance(element, section_header_item_cls):
+        return "header"
+    if list_item_cls is not None and isinstance(element, list_item_cls):
+        return "list"
+    if isinstance(element, picture_item_cls):
+        return "picture"
+    if isinstance(element, table_item_cls):
+        return "table"
+    if hasattr(element, "text"):
+        return "text"
+    return "other"
 
 
 def parse_pdf_with_docling_preview(
@@ -71,6 +93,9 @@ def parse_pdf_with_docling_preview(
     file_id: str | None = None,
     backend: str | None = None,
 ) -> DoclingParseResult:
+    """
+    Parse a PDF with Docling and persist preview artifacts (markdown + extracted images).
+    """
 
     if not pdf_bytes:
         raise ValueError("empty pdf payload")
@@ -125,7 +150,80 @@ def parse_pdf_with_docling_preview(
 
     picture_item_cls = layout["picture_item_cls"]
     table_item_cls = layout["table_item_cls"]
+    list_item_cls = layout.get("list_item_cls")
+    section_header_item_cls = layout.get("section_header_item_cls")
+    title_item_cls = layout.get("title_item_cls")
     converted_chunks = layout.get("converted_chunks", 0)
+
+    table_image_vlm_runtime = (
+        table_image_vlm.build_table_image_vlm_runtime(
+            artifact_dir=artifact_dir,
+            warnings=warnings,
+        )
+        if artifacts_enabled and artifact_dir is not None
+        else None
+    )
+    table_image_vlm_executor: ThreadPoolExecutor | None = None
+    if table_image_vlm_runtime is not None:
+        table_image_vlm_executor = ThreadPoolExecutor(
+            max_workers=table_image_vlm_runtime.max_workers,
+            thread_name_prefix="table-vlm",
+        )
+
+    def _persist_table_data_toon_artifacts() -> None:
+        """
+        Build TOON-wrapped table-data JSON artifacts and upload them to S3 when enabled.
+        """
+
+        if not artifacts_enabled or artifact_dir is None:
+            return
+        if not table_image_vlm_jobs:
+            return
+
+        upload_enabled = (os.getenv("AWS_S3_UPLOAD_ENABLED") or "").strip().lower() == "true"
+
+        for job in table_image_vlm_jobs:
+            if job.result is not None and job.result.json_path:
+                extracted_json_path = Path(job.result.json_path)
+            else:
+                extracted_json_path = job.output_dir / "output.json"
+
+            if not extracted_json_path.exists():
+                continue
+
+            try:
+                extracted_payload = json.loads(extracted_json_path.read_text(encoding="utf-8"))
+                wrapped_payload = s3_upload.build_toon_wrapped_table_payload(
+                    extracted_table_json=extracted_payload,
+                    file_id=resolved_file_id,
+                    page_no=job.page_no,
+                )
+                table_data_path = local_artifacts_store.table_data_file_path_from_uuid(
+                    artifact_dir,
+                    job.image_artifact.image_uuid,
+                )
+                serialized = json.dumps(wrapped_payload, indent=2, ensure_ascii=False)
+                table_data_path.write_text(serialized, encoding="utf-8")
+
+                if upload_enabled:
+                    try:
+                        s3_upload.upload_table_data_json_to_s3(
+                            json_bytes=serialized.encode("utf-8"),
+                            file_id=resolved_file_id,
+                            table_image_uuid=job.image_artifact.image_uuid,
+                            source_file_name=file_name,
+                            page_no=job.page_no,
+                        )
+                    except Exception as exc:
+                        warnings.append(
+                            "Failed to upload table-data JSON to S3 "
+                            f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
+                        )
+            except Exception as exc:
+                warnings.append(
+                    "Failed to convert table-image JSON to TOON "
+                    f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
+                )
 
     pdf_doc: fitz.Document | None = None
     if selected_backend == "beam":
@@ -137,30 +235,98 @@ def parse_pdf_with_docling_preview(
             element = item["element"]
             serializer = item["serializer"]
             page_no = item.get("page_no")
-
             is_picture_item = isinstance(element, picture_item_cls)
             is_table_item = isinstance(element, table_item_cls)
+            picture_markdown_placeholder: str | None = None
 
-            # ==============================
-            # STRUCTURED TABLE EXPORT
-            # ==============================
+            if is_picture_item:
+                picture_markdown_placeholder = DOCLING_IMAGE_CROP_FAILED_MARKER
+                picture_counter += 1
+                if artifacts_enabled and artifact_dir is not None:
+                    image_uuid = str(uuid6())
+                    picture_name = local_artifacts_store.image_file_name_from_uuid(image_uuid)
+                    picture_path = local_artifacts_store.image_file_path_from_uuid(
+                        artifact_dir,
+                        image_uuid,
+                    )
+                    try:
+                        if selected_backend == "beam":
+                            endpoint_item = item.get("endpoint_item", {})
+                            png_bytes = beam_client._crop_image_bytes_from_endpoint_item(
+                                endpoint_item,
+                                pdf_doc,
+                            )
+                            if not png_bytes:
+                                raise RuntimeError(
+                                    "missing/invalid bbox or crop produced no pixels"
+                                )
+                        else:
+                            png_bytes = local_client._extract_png_bytes_from_local_element(
+                                element,
+                                item.get("document"),
+                            )
+                            if not png_bytes:
+                                raise RuntimeError("Docling picture image unavailable.")
+
+                        picture_path.write_bytes(png_bytes)
+                        image_artifact = ExtractedImageArtifact(
+                            kind="picture",
+                            image_uuid=image_uuid,
+                            file_name=picture_name,
+                            file_path=str(picture_path),
+                            page_no=page_no,
+                            picture_index=picture_counter,
+                        )
+                        image_artifact = s3_upload.upload_image_artifact_to_s3(
+                            image_artifact,
+                            source_file_name=file_name,
+                            file_id=resolved_file_id,
+                        )
+
+                        if image_artifact.s3_upload_status == "failed":
+                            s3_upload_failed_count += 1
+                            warnings.append(
+                                f"Failed to upload picture image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
+                            )
+                        elif image_artifact.s3_upload_status == "uploaded":
+                            s3_upload_uploaded_count += 1
+                        elif image_artifact.s3_upload_status == "skipped":
+                            s3_upload_skipped_count += 1
+
+                        images.append(image_artifact)
+                        picture_markdown_placeholder = markdown_builder.picture_uuid_marker(
+                            image_artifact.image_uuid
+                        )
+                    except Exception as exc:
+                        prefix = "local " if selected_backend == "local" else ""
+                        warnings.append(
+                            f"Failed to export {prefix}picture #{picture_counter} on page {page_no}: {exc}"
+                        )
+                else:
+                    picture_markdown_placeholder = markdown_builder.picture_uuid_marker(
+                        str(uuid6())
+                    )
+
             if is_table_item:
                 table_counter += 1
                 table_index = table_counter
                 num_rows = item.get("num_rows")
                 num_cols = item.get("num_cols")
 
-                if (num_rows and num_cols) and (num_rows > 0 and num_cols > 0):
+                if (num_rows is not None and num_cols is not None) and (num_rows > 0 and num_cols > 0):
                     try:
                         table_df = element.export_to_dataframe()
 
-                        headers = [str(col).strip() for col in table_df.columns]
-                        rows = []
+                        headers = [str(col).strip() for col in list(table_df.columns)]
+                        rows: list[dict[str, str]] = []
                         for _, r in table_df.iterrows():
-                            row_dict = {
-                                headers[i]: "" if r.iloc[i] is None else str(r.iloc[i]).strip()
-                                for i in range(len(headers))
-                            }
+                            row_dict: dict[str, str] = {}
+                            for i, h in enumerate(headers):
+                                try:
+                                    val = r.iloc[i]
+                                except Exception:
+                                    val = ""
+                                row_dict[h] = "" if val is None else str(val).strip()
                             if any(v.strip() for v in row_dict.values()):
                                 rows.append(row_dict)
 
@@ -169,19 +335,19 @@ def parse_pdf_with_docling_preview(
                             "rows": rows,
                         }
 
+                        table_uuid = str(uuid6())
+                        marker = _structured_table_uuid_marker(table_uuid)
+
                         if artifacts_enabled and artifact_dir is not None:
-                            table_uuid = str(uuid6())
                             wrapped_payload = s3_upload.build_toon_wrapped_table_payload(
                                 extracted_table_json=extracted_payload,
                                 file_id=resolved_file_id,
                                 page_no=page_no,
                             )
-
                             table_data_path = local_artifacts_store.table_data_file_path_from_uuid(
                                 artifact_dir,
                                 table_uuid,
                             )
-
                             serialized = json.dumps(wrapped_payload, indent=2, ensure_ascii=False)
                             table_data_path.write_text(serialized, encoding="utf-8")
 
@@ -197,69 +363,254 @@ def parse_pdf_with_docling_preview(
                                     )
                                 except Exception as exc:
                                     warnings.append(
-                                        f"Failed to upload structured table JSON to S3: {exc}"
+                                        "Failed to upload structured table-data JSON to S3 "
+                                        f"for table_uuid={table_uuid}: {exc}"
                                     )
 
-                            # Inject stable marker for UI detection
-                            marker = _structured_table_uuid_marker(table_uuid)
-
-                            markdown_builder.append_markdown_block(
-                                markdown_parts=markdown_parts,
-                                structured_block_metadata=structured_block_metadata,
-                                text="\n".join(
-                                    [
-                                        "> **Table (structured)**",
-                                        f"> {marker}",
-                                    ]
-                                ),
-                                block_type="table",
-                                page_no=page_no,
-                                is_table_image=False,
-                            )
-
+                        markdown_builder.append_markdown_block(
+                            markdown_parts=markdown_parts,
+                            structured_block_metadata=structured_block_metadata,
+                            text="\n".join(
+                                [
+                                    "> **Table (structured)**: Table extracted as structured data.",
+                                    f"> {marker}",
+                                ]
+                            ),
+                            block_type="table",
+                            page_no=page_no,
+                            is_table_image=False,
+                        )
                         continue
-
                     except Exception as exc:
                         warnings.append(
                             f"Structured table extraction failed for table #{table_index} on page {page_no}: {exc}"
                         )
 
-                # If no structure, fall through to existing behavior
+                if num_rows == 0 or num_cols == 0:
+                    table_image_count += 1
+                    if artifacts_enabled and artifact_dir is not None:
+                        image_uuid = str(uuid6())
+                        table_image_name = local_artifacts_store.image_file_name_from_uuid(
+                            image_uuid
+                        )
+                        table_image_path = local_artifacts_store.image_file_path_from_uuid(
+                            artifact_dir,
+                            image_uuid,
+                        )
+                        try:
+                            if selected_backend == "beam":
+                                endpoint_item = item.get("endpoint_item", {})
+                                png_bytes = beam_client._crop_image_bytes_from_endpoint_item(
+                                    endpoint_item,
+                                    pdf_doc,
+                                )
+                                if not png_bytes:
+                                    raise RuntimeError(
+                                        "missing/invalid bbox or crop produced no pixels"
+                                    )
+                            else:
+                                png_bytes = local_client._extract_png_bytes_from_local_element(
+                                    element,
+                                    item.get("document"),
+                                )
+                                if not png_bytes:
+                                    raise RuntimeError("Docling table image unavailable.")
 
-            # ==============================
-            # DEFAULT SERIALIZATION
-            # ==============================
+                            table_image_path.write_bytes(png_bytes)
+                            image_artifact = ExtractedImageArtifact(
+                                kind="table_image",
+                                image_uuid=image_uuid,
+                                file_name=table_image_name,
+                                file_path=str(table_image_path),
+                                page_no=page_no,
+                                table_index=table_index,
+                                reason="table_rows_cols_zero",
+                            )
+
+                            image_artifact = s3_upload.upload_image_artifact_to_s3(
+                                image_artifact,
+                                source_file_name=file_name,
+                                file_id=resolved_file_id,
+                            )
+
+                            if image_artifact.s3_upload_status == "failed":
+                                s3_upload_failed_count += 1
+                                warnings.append(
+                                    f"Failed to upload table image image_uuid={image_artifact.image_uuid} to S3: {image_artifact.s3_error}"
+                                )
+                            elif image_artifact.s3_upload_status == "uploaded":
+                                s3_upload_uploaded_count += 1
+                            elif image_artifact.s3_upload_status == "skipped":
+                                s3_upload_skipped_count += 1
+
+                            images.append(image_artifact)
+                            table_markdown_lines = [
+                                "> **Table (image)**: Table exists in image form.",
+                                f"> {markdown_builder.table_image_uuid_marker(image_artifact.image_uuid)}",
+                                f"> ![{table_image_name}]({local_artifacts_store.image_markdown_rel_path_from_uuid(image_artifact.image_uuid)})",
+                            ]
+
+                            if table_image_vlm_runtime is not None and table_image_vlm_executor is not None:
+                                summary_placeholder = table_image_vlm.table_image_vlm_summary_placeholder(
+                                    image_artifact.image_uuid
+                                )
+                                table_image_vlm_jobs.append(
+                                    table_image_vlm.TableImageVlmJob(
+                                        image_artifact=image_artifact,
+                                        table_index=table_index,
+                                        page_no=page_no,
+                                        block_index=len(markdown_parts),
+                                        summary_placeholder=summary_placeholder,
+                                        output_dir=table_image_vlm.table_image_vlm_output_dir(
+                                            artifact_dir,
+                                            table_index=table_index,
+                                            image_uuid=image_artifact.image_uuid,
+                                        ),
+                                        json_rel_path=table_image_vlm.table_image_vlm_json_rel_path(
+                                            table_index=table_index,
+                                            image_uuid=image_artifact.image_uuid,
+                                        ),
+                                    )
+                                )
+                                table_markdown_lines.append(f"> {summary_placeholder}")
+
+                            markdown_builder.append_markdown_block(
+                                markdown_parts=markdown_parts,
+                                structured_block_metadata=structured_block_metadata,
+                                text="\n".join(table_markdown_lines),
+                                block_type="table",
+                                page_no=page_no,
+                                is_table_image=True,
+                                table_image_uuid=image_artifact.image_uuid,
+                            )
+                            table_image_vlm.submit_ready_table_image_vlm_jobs(
+                                runtime=table_image_vlm_runtime,
+                                executor=table_image_vlm_executor,
+                                jobs=table_image_vlm_jobs,
+                                markdown_parts=markdown_parts,
+                                warnings=warnings,
+                            )
+                        except Exception as exc:
+                            prefix = "local " if selected_backend == "local" else ""
+                            message = (
+                                "> (Local image export failed.)"
+                                if selected_backend == "local"
+                                else "> (Local crop failed: missing/invalid bbox or page_no.)"
+                            )
+                            warnings.append(
+                                f"Failed to export {prefix}fallback table image #{table_index} on page {page_no}: {exc}"
+                            )
+                            markdown_builder.append_markdown_block(
+                                markdown_parts=markdown_parts,
+                                structured_block_metadata=structured_block_metadata,
+                                text="\n".join(
+                                    [
+                                        "> **Table (image)**: Table exists in image form.",
+                                        message,
+                                    ]
+                                ),
+                                block_type="table",
+                                page_no=page_no,
+                                is_table_image=True,
+                            )
+                    else:
+                        markdown_builder.append_markdown_block(
+                            markdown_parts=markdown_parts,
+                            structured_block_metadata=structured_block_metadata,
+                            text="> **Table (image)**: Table exists in image form.",
+                            block_type="table",
+                            page_no=page_no,
+                            is_table_image=True,
+                        )
+                    continue
+
             try:
                 serialized_text = serializer.serialize(item=element).text.strip()
             except Exception as exc:
+                prefix = "local " if selected_backend == "local" else ""
                 warnings.append(
-                    f"Failed to serialize element on page {page_no}: {exc}"
+                    f"Failed to serialize {prefix}element on page {page_no}: {exc}"
                 )
                 continue
+
+            if picture_markdown_placeholder is not None:
+                serialized_text = markdown_builder.inject_marker_for_picture(
+                    serialized_text,
+                    picture_markdown_placeholder,
+                )
 
             if serialized_text:
                 markdown_builder.append_markdown_block(
                     markdown_parts=markdown_parts,
                     structured_block_metadata=structured_block_metadata,
                     text=serialized_text,
-                    block_type="text",
+                    block_type=_block_type_for_element(
+                        element,
+                        picture_item_cls=picture_item_cls,
+                        table_item_cls=table_item_cls,
+                        list_item_cls=list_item_cls,
+                        section_header_item_cls=section_header_item_cls,
+                        title_item_cls=title_item_cls,
+                    ),
                     page_no=page_no,
                     is_table_image=False,
                 )
-
+                table_image_vlm.submit_ready_table_image_vlm_jobs(
+                    runtime=table_image_vlm_runtime,
+                    executor=table_image_vlm_executor,
+                    jobs=table_image_vlm_jobs,
+                    markdown_parts=markdown_parts,
+                    warnings=warnings,
+                )
     finally:
         if pdf_doc is not None:
             pdf_doc.close()
+        if table_image_vlm_executor is not None:
+            print("[docling-pipeline] finalizing queued table-image VLM jobs...")
+            table_image_vlm.submit_ready_table_image_vlm_jobs(
+                runtime=table_image_vlm_runtime,
+                executor=table_image_vlm_executor,
+                jobs=table_image_vlm_jobs,
+                markdown_parts=markdown_parts,
+                warnings=warnings,
+                force=True,
+            )
+            table_image_vlm.finalize_table_image_vlm_jobs(
+                artifact_dir=artifact_dir,
+                jobs=table_image_vlm_jobs,
+                markdown_parts=markdown_parts,
+                warnings=warnings,
+            )
+            _persist_table_data_toon_artifacts()
+            table_image_vlm_executor.shutdown(wait=True)
 
     print("[docling-pipeline] item processing complete")
 
+    if not markdown_parts:
+        if selected_backend == "local":
+            raise RuntimeError(
+                "No pages converted successfully with local Docling. "
+                "Try Beam backend or a smaller local chunk size."
+            )
+        raise RuntimeError(
+            "No markdown text serialized from Beam Docling endpoint response."
+        )
+
     markdown_text = "\n\n".join(markdown_parts)
+    if artifacts_enabled and markdown_path is not None:
+        print("[docling-pipeline] writing markdown and manifest artifacts...")
+        markdown_path.write_text(markdown_text, encoding="utf-8")
+
+    structured_blocks = markdown_builder.build_structured_blocks(
+        structured_block_metadata=structured_block_metadata,
+        markdown_parts=markdown_parts,
+    )
 
     stats = DoclingParseStats(
         converted_chunks=converted_chunks,
         partial_failure_chunks=len(partial_failures),
-        pictures_extracted=0,
-        table_fallback_images_extracted=0,
+        pictures_extracted=sum(1 for item in images if item.kind == "picture"),
+        table_fallback_images_extracted=table_image_count,
     )
 
     result_model = DoclingParseResult(
@@ -272,10 +623,26 @@ def parse_pdf_with_docling_preview(
         warnings=warnings,
         partial_failures=partial_failures,
         stats=stats,
-        structured_blocks=structured_block_metadata,
+        structured_blocks=structured_blocks,
     )
 
     if artifacts_enabled and artifact_dir is not None:
         local_artifacts_store.write_manifest(artifact_dir, result_model.model_dump())
 
+    print(
+        "[docling-pipeline] file=%s backend=%s run_id=%s chunks=%s pictures=%s "
+        "table_fallbacks=%s partial_failures=%s s3_uploaded=%s s3_failed=%s s3_skipped=%s"
+        % (
+            file_name,
+            selected_backend,
+            run_id,
+            converted_chunks,
+            stats.pictures_extracted,
+            stats.table_fallback_images_extracted,
+            stats.partial_failure_chunks,
+            s3_upload_uploaded_count,
+            s3_upload_failed_count,
+            s3_upload_skipped_count,
+        )
+    )
     return result_model
