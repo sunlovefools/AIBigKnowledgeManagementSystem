@@ -3140,3 +3140,633 @@ Content: Internal tensions during the invasion of Ukraine Order to integrate Wag
 Content: Sexual harassment allegations and management shakeup (2017)
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: UK 中文翻译
+Timestamp: 2026-03-02T16:18:43.203508+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.683735]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.667385]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.650093]
+Content: == References ==
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.645251]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.642347]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.640393]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.638683]
+Content: References External links Official website
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.637625]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.637396]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.627613]
+Content: Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.004732]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Rank 2 | BGE Score: 0.001260]
+Content: == References ==
+
+[Rank 3 | BGE Score: 0.000578]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Rank 4 | BGE Score: 0.000084]
+Content: References External links Official website
+
+[Rank 5 | BGE Score: 0.000058]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000031]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Rank 7 | BGE Score: 0.000017]
+Content: Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.
+
+[Rank 8 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 9 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 10 | BGE Score: 0.000016]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: United Kingdom 中文名称
+Timestamp: 2026-03-02T16:18:45.387791+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.659543]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.648292]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.646902]
+Content: References External links Official website
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.644733]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.634889]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.630615]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.629758]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.625759]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.625591]
+Content: Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.624715]
+Content: The Laoshan tree frog (Rhacophorus laoshan) is a species of frog in the family Rhacophoridae. Scientists know it from the type locality: 1389 meters above sea level in Cenwangloashan Nature Reserve in China.The adult frog measures about 35 mm in snout-vent length. The skin of the dorsum is brown in color with a ventrolateral stripe. The ventrum is gray-brown in color. The inner surfaces of the hind legs are bright tangerine orange in color.This frog lives in the bamboo understory of forests with tall trees.Scientists named this frog after Cenwanglaoshan Natural Preserve, where it was found.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.003021]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.001786]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Rank 3 | BGE Score: 0.001106]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Rank 4 | BGE Score: 0.000829]
+Content: References External links Official website
+
+[Rank 5 | BGE Score: 0.000224]
+Content: The Laoshan tree frog (Rhacophorus laoshan) is a species of frog in the family Rhacophoridae. Scientists know it from the type locality: 1389 meters above sea level in Cenwangloashan Nature Reserve in China.The adult frog measures about 35 mm in snout-vent length. The skin of the dorsum is brown in color with a ventrolateral stripe. The ventrum is gray-brown in color. The inner surfaces of the hind legs are bright tangerine orange in color.This frog lives in the bamboo understory of forests with tall trees.Scientists named this frog after Cenwanglaoshan Natural Preserve, where it was found.
+
+[Rank 6 | BGE Score: 0.000133]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000038]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 8 | BGE Score: 0.000027]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Rank 9 | BGE Score: 0.000018]
+Content: Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+[Rank 10 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: 英国 替换术语
+Timestamp: 2026-03-02T16:18:49.277660+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.684280]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.651111]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.644311]
+Content: References External links Official website
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.640766]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.639126]
+Content: S. cities by day and neighborhood, by correlating late-night and next-day trips. The blog posting coined the term "ride of glory" for the Uber equivalent of a walk of shame.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.637535]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.613270]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.611703]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.610593]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.607401]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.001573]
+Content: S. cities by day and neighborhood, by correlating late-night and next-day trips. The blog posting coined the term "ride of glory" for the Uber equivalent of a walk of shame.
+
+[Rank 2 | BGE Score: 0.001461]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Rank 3 | BGE Score: 0.000199]
+Content: == References ==
+
+[Rank 4 | BGE Score: 0.000185]
+Content: Measures Infrastructure and international development
+
+[Rank 5 | BGE Score: 0.000030]
+Content: References External links Official website
+
+[Rank 6 | BGE Score: 0.000030]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Rank 7 | BGE Score: 0.000019]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 8 | BGE Score: 0.000018]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 9 | BGE Score: 0.000016]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 10 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: UK 中文对应词
+Timestamp: 2026-03-02T16:18:57.630923+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.691395]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.647023]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.645965]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.644612]
+Content: S. cities by day and neighborhood, by correlating late-night and next-day trips. The blog posting coined the term "ride of glory" for the Uber equivalent of a walk of shame.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.644116]
+Content: References External links Official website
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.635595]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.633319]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.631118]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.627035]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.618894]
+Content: Sheffield United - 1 title Tottenham Hotspur - 1 title West Bromwich Albion - 1 title
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.187270]
+Content: Sheffield United - 1 title Tottenham Hotspur - 1 title West Bromwich Albion - 1 title
+
+[Rank 2 | BGE Score: 0.010452]
+Content: S. cities by day and neighborhood, by correlating late-night and next-day trips. The blog posting coined the term "ride of glory" for the Uber equivalent of a walk of shame.
+
+[Rank 3 | BGE Score: 0.004524]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Rank 4 | BGE Score: 0.001406]
+Content: Measures Infrastructure and international development
+
+[Rank 5 | BGE Score: 0.001187]
+Content: == References ==
+
+[Rank 6 | BGE Score: 0.000081]
+Content: References External links Official website
+
+[Rank 7 | BGE Score: 0.000038]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Rank 8 | BGE Score: 0.000026]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 9 | BGE Score: 0.000019]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 10 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: United Kingdom 中文名称
+Timestamp: 2026-03-02T16:19:00.320938+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.659543]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.648292]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.646902]
+Content: References External links Official website
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.644733]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.634889]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.630615]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.629758]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.625759]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.625591]
+Content: Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.624715]
+Content: The Laoshan tree frog (Rhacophorus laoshan) is a species of frog in the family Rhacophoridae. Scientists know it from the type locality: 1389 meters above sea level in Cenwangloashan Nature Reserve in China.The adult frog measures about 35 mm in snout-vent length. The skin of the dorsum is brown in color with a ventrolateral stripe. The ventrum is gray-brown in color. The inner surfaces of the hind legs are bright tangerine orange in color.This frog lives in the bamboo understory of forests with tall trees.Scientists named this frog after Cenwanglaoshan Natural Preserve, where it was found.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.003021]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.001786]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Rank 3 | BGE Score: 0.001106]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Rank 4 | BGE Score: 0.000829]
+Content: References External links Official website
+
+[Rank 5 | BGE Score: 0.000224]
+Content: The Laoshan tree frog (Rhacophorus laoshan) is a species of frog in the family Rhacophoridae. Scientists know it from the type locality: 1389 meters above sea level in Cenwangloashan Nature Reserve in China.The adult frog measures about 35 mm in snout-vent length. The skin of the dorsum is brown in color with a ventrolateral stripe. The ventrum is gray-brown in color. The inner surfaces of the hind legs are bright tangerine orange in color.This frog lives in the bamboo understory of forests with tall trees.Scientists named this frog after Cenwanglaoshan Natural Preserve, where it was found.
+
+[Rank 6 | BGE Score: 0.000133]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000038]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 8 | BGE Score: 0.000027]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Rank 9 | BGE Score: 0.000018]
+Content: Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+[Rank 10 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: 英国 标准翻译
+Timestamp: 2026-03-02T16:19:02.563320+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.675768]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.670997]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.659156]
+Content: References External links Official website
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.646106]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.642239]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.626777]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.618162]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.617513]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.611428]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.611123]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.001354]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Rank 2 | BGE Score: 0.000728]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Rank 3 | BGE Score: 0.000417]
+Content: == References ==
+
+[Rank 4 | BGE Score: 0.000094]
+Content: References External links Official website
+
+[Rank 5 | BGE Score: 0.000034]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000017]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 7 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 8 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 9 | BGE Score: 0.000016]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Rank 10 | BGE Score: 0.000016]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: UK 中文翻译
+Timestamp: 2026-03-02T16:19:09.266253+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.683735]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.667385]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.650093]
+Content: == References ==
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.645251]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.642347]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.640393]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.638683]
+Content: References External links Official website
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.637625]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.637396]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.627613]
+Content: Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.004732]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Rank 2 | BGE Score: 0.001260]
+Content: == References ==
+
+[Rank 3 | BGE Score: 0.000578]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Rank 4 | BGE Score: 0.000084]
+Content: References External links Official website
+
+[Rank 5 | BGE Score: 0.000058]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000031]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Rank 7 | BGE Score: 0.000017]
+Content: Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.
+
+[Rank 8 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 9 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 10 | BGE Score: 0.000016]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: United Kingdom 中文名称
+Timestamp: 2026-03-02T16:19:10.792286+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.659543]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.648292]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.646902]
+Content: References External links Official website
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.644733]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.634889]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.630615]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.629758]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.625759]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.625591]
+Content: Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.624715]
+Content: The Laoshan tree frog (Rhacophorus laoshan) is a species of frog in the family Rhacophoridae. Scientists know it from the type locality: 1389 meters above sea level in Cenwangloashan Nature Reserve in China.The adult frog measures about 35 mm in snout-vent length. The skin of the dorsum is brown in color with a ventrolateral stripe. The ventrum is gray-brown in color. The inner surfaces of the hind legs are bright tangerine orange in color.This frog lives in the bamboo understory of forests with tall trees.Scientists named this frog after Cenwanglaoshan Natural Preserve, where it was found.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.003021]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.001786]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Rank 3 | BGE Score: 0.001106]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Rank 4 | BGE Score: 0.000829]
+Content: References External links Official website
+
+[Rank 5 | BGE Score: 0.000224]
+Content: The Laoshan tree frog (Rhacophorus laoshan) is a species of frog in the family Rhacophoridae. Scientists know it from the type locality: 1389 meters above sea level in Cenwangloashan Nature Reserve in China.The adult frog measures about 35 mm in snout-vent length. The skin of the dorsum is brown in color with a ventrolateral stripe. The ventrum is gray-brown in color. The inner surfaces of the hind legs are bright tangerine orange in color.This frog lives in the bamboo understory of forests with tall trees.Scientists named this frog after Cenwanglaoshan Natural Preserve, where it was found.
+
+[Rank 6 | BGE Score: 0.000133]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000038]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 8 | BGE Score: 0.000027]
+Content: The route is frequently covered in Chinese-language media as a result of the bus operator's publicity efforts.
+
+[Rank 9 | BGE Score: 0.000018]
+Content: Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+[Rank 10 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: 英国 标准称谓
+Timestamp: 2026-03-02T16:19:13.079749+00:00
+Top-K Requested: 5
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.727115]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.661763]
+Content: References External links Official website
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.661099]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.647163]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.635370]
+Content: S. cities by day and neighborhood, by correlating late-night and next-day trips. The blog posting coined the term "ride of glory" for the Uber equivalent of a walk of shame.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.631514]
+Content: Sheffield United - 1 title Tottenham Hotspur - 1 title West Bromwich Albion - 1 title
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.622847]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.622484]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.621928]
+Content: Manchester United - 20 titles Liverpool - 19 titles Arsenal - 13 titles Everton - 9 titles Aston Villa - 7 titles Chelsea - 6 titles Manchester City - 6 titles Newcastle United - 4 titles Sheffield Wednesday - 4 titles Wolverhampton Wanderers - 4 titles Blackburn Rovers - 3 titles Huddersfield Town - 3 titles Leeds United - 3 titles Preston North End - 2 titles Sunderland - 2 titles Burnley - 1 title Derby County - 1 title Ipswich Town - 1 title Leicester City - 1 title Nottingham Forest - 1 title Portsmouth - 1 title Sheffield United - 1 title Tottenham Hotspur - 1 title
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.616426]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 5 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.003686]
+Content: Sheffield United - 1 title Tottenham Hotspur - 1 title West Bromwich Albion - 1 title
+
+[Rank 2 | BGE Score: 0.002162]
+Content: == References == A blue plaque is a permanent sign installed in a public place in the 英国 and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the 英国 in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Rank 3 | BGE Score: 0.001689]
+Content: Manchester United - 20 titles Liverpool - 19 titles Arsenal - 13 titles Everton - 9 titles Aston Villa - 7 titles Chelsea - 6 titles Manchester City - 6 titles Newcastle United - 4 titles Sheffield Wednesday - 4 titles Wolverhampton Wanderers - 4 titles Blackburn Rovers - 3 titles Huddersfield Town - 3 titles Leeds United - 3 titles Preston North End - 2 titles Sunderland - 2 titles Burnley - 1 title Derby County - 1 title Ipswich Town - 1 title Leicester City - 1 title Nottingham Forest - 1 title Portsmouth - 1 title Sheffield United - 1 title Tottenham Hotspur - 1 title
+
+[Rank 4 | BGE Score: 0.000477]
+Content: S. cities by day and neighborhood, by correlating late-night and next-day trips. The blog posting coined the term "ride of glory" for the Uber equivalent of a walk of shame.
+
+[Rank 5 | BGE Score: 0.000312]
+Content: == References ==
+
+[Rank 6 | BGE Score: 0.000187]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000104]
+Content: References External links Official website
+
+[Rank 8 | BGE Score: 0.000041]
+Content: References Sources == External links == Translation: "Here lies Lord Alexander Stewart, Lord of Badenoch, of good memory, who died on the 24th day of July, in the year of our Lord 1394."
+
+[Rank 9 | BGE Score: 0.000017]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 10 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+--------------------------------------------------

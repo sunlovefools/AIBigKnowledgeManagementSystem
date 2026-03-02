@@ -11,6 +11,11 @@ from typing import Any
 
 import aiohttp
 
+try:
+    from backend.debug.debug_logger import log_token_usage
+except ImportError:
+    from debug.debug_logger import log_token_usage
+
 from .agent_state import AgentState, Proposal
 from .agent_prompts import (
     INITIAL_INTERPRETATION_PROMPT,
@@ -40,7 +45,13 @@ _MAX_RETRIES = 3
 # Internal helpers
 # ------------------------------------------------------------------
 
-async def _call_llm(system_prompt: str, user_message: str) -> str:
+async def _call_llm(
+    system_prompt: str,
+    user_message: str,
+    *,
+    run_id: str | None = None,
+    step: str | None = None,
+) -> tuple[str, dict[str, int]]:
     """Call DeepSeek (OpenAI-compatible) and return response text."""
     if not _DEEPSEEK_KEY:
         raise RuntimeError("OPENROUTER_API_KEY is not set.")
@@ -65,13 +76,37 @@ async def _call_llm(system_prompt: str, user_message: str) -> str:
                 raise RuntimeError(f"DeepSeek API error ({resp.status}): {text}")
             data = await resp.json()
 
+    usage = data.get("usage") if isinstance(data, dict) else {}
+    if not isinstance(usage, dict):
+        usage = {}
+
+    prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
+    completion_tokens = int(usage.get("completion_tokens", 0) or 0)
+    total_tokens = int(usage.get("total_tokens", prompt_tokens + completion_tokens) or 0)
+
+    log_token_usage(
+        provider="OPENROUTER",
+        model=_DEEPSEEK_MODEL,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        total_tokens=total_tokens,
+        estimated_cost_usd=0.0,
+        operation="modification_agent_llm_call",
+        run_id=run_id,
+        step=step,
+    )
+
     choices = data.get("choices", [])
     if not choices:
         raise RuntimeError("DeepSeek returned empty choices.")
     content = choices[0].get("message", {}).get("content", "").strip()
     if not content:
         raise RuntimeError("DeepSeek returned empty content.")
-    return content
+    return content, {
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": total_tokens,
+    }
 
 
 def _parse_json(text: str) -> Any:
@@ -83,6 +118,20 @@ def _parse_json(text: str) -> Any:
     return json.loads(cleaned.strip())
 
 
+def _accumulate_usage(state: AgentState, usage: dict[str, int]) -> dict[str, int]:
+    prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
+    completion_tokens = int(usage.get("completion_tokens", 0) or 0)
+    total_tokens = int(usage.get("total_tokens", prompt_tokens + completion_tokens) or 0)
+    should_count_call = 1 if (prompt_tokens > 0 or completion_tokens > 0 or total_tokens > 0) else 0
+
+    return {
+        "token_prompt_total": int(state.get("token_prompt_total", 0) or 0) + prompt_tokens,
+        "token_completion_total": int(state.get("token_completion_total", 0) or 0) + completion_tokens,
+        "token_total": int(state.get("token_total", 0) or 0) + total_tokens,
+        "llm_call_count": int(state.get("llm_call_count", 0) or 0) + should_count_call,
+    }
+
+
 # ------------------------------------------------------------------
 # Node 1: Initial Interpretation Agent (LLM)
 # ------------------------------------------------------------------
@@ -91,19 +140,21 @@ async def initial_interpretation_node(state: AgentState) -> dict:
     """Classify user intent as 'edit' or 'locate'."""
     print("🤖 [Agent 1] Interpreting intent...")
     try:
-        result = await _call_llm(
+        result, usage = await _call_llm(
             system_prompt=(
                 "Classify the user instruction as 'edit' or 'locate'. Respond with one word only.\n"
                 "'edit' means: modify, update, translate, rewrite, fix, change, summarise, add, remove, replace content.\n"
                 "'locate' means: find, search, show, list, where is — purely read-only retrieval with no changes."
             ),
             user_message=INITIAL_INTERPRETATION_PROMPT.format(instruction=state["instruction"]),
+            run_id=state.get("run_id"),
+            step="initial_interpretation",
         )
         intention = result.strip().lower()
         if intention not in ("edit", "locate"):
             intention = "edit"
         print(f"   Intent: {intention}")
-        return {"intention": intention}
+        return {"intention": intention, **_accumulate_usage(state, usage)}
     except Exception as e:
         print(f"   ❌ Intent classification failed: {e}. Defaulting to 'edit'.")
         return {"intention": "edit"}
@@ -119,19 +170,25 @@ async def queries_creation_node(state: AgentState) -> dict:
     previous_queries = state.get("search_queries", [])
     print(f"🤖 [Agent 2] Generating queries (attempt {retry_count + 1})...")
     try:
-        result = await _call_llm(
+        result, usage = await _call_llm(
             system_prompt="Generate search queries. Respond with only a JSON array of strings.",
             user_message=QUERIES_CREATION_PROMPT.format(
                 instruction=state["instruction"],
                 previous_queries=json.dumps(previous_queries) if previous_queries else "None",
             ),
+            run_id=state.get("run_id"),
+            step="queries_creation",
         )
         queries = _parse_json(result)
         if not isinstance(queries, list):
             queries = [state["instruction"]]
         queries = [str(q) for q in queries if q]
         print(f"   Queries: {queries}")
-        return {"search_queries": queries, "retry_count": retry_count + 1}
+        return {
+            "search_queries": queries,
+            "retry_count": retry_count + 1,
+            **_accumulate_usage(state, usage),
+        }
     except Exception as e:
         print(f"   ❌ Query generation failed: {e}. Using instruction as fallback.")
         return {"search_queries": [state["instruction"]], "retry_count": retry_count + 1}
@@ -227,16 +284,18 @@ async def context_critic_node(state: AgentState) -> dict:
         for i, c in enumerate(chunks[:5])
     ])
     try:
-        result = await _call_llm(
+        result, usage = await _call_llm(
             system_prompt='Evaluate context quality. Respond with only {"satisfied": true} or {"satisfied": false}.',
             user_message=CONTEXT_CRITIC_PROMPT.format(
                 instruction=state["instruction"],
                 chunks_summary=chunks_summary,
             ),
+            run_id=state.get("run_id"),
+            step="context_critic",
         )
         satisfied = bool(_parse_json(result).get("satisfied", True))
         print(f"   Satisfied: {satisfied}")
-        return {"is_satisfied": satisfied}
+        return {"is_satisfied": satisfied, **_accumulate_usage(state, usage)}
     except Exception as e:
         print(f"   ❌ Context critic failed: {e}. Defaulting to satisfied.")
         return {"is_satisfied": True}
@@ -255,16 +314,18 @@ async def context_expansion_node(state: AgentState) -> dict:
         for i, c in enumerate(chunks[:5])
     ])
     try:
-        result = await _call_llm(
+        result, usage = await _call_llm(
             system_prompt='Decide if more context is needed. Respond with only {"needed": true} or {"needed": false}.',
             user_message=CONTEXT_EXPANSION_PROMPT.format(
                 instruction=state["instruction"],
                 chunks_summary=chunks_summary,
             ),
+            run_id=state.get("run_id"),
+            step="context_expansion",
         )
         needed = bool(_parse_json(result).get("needed", False))
         print(f"   Expansion needed: {needed}")
-        return {"needs_expansion": needed}
+        return {"needs_expansion": needed, **_accumulate_usage(state, usage)}
     except Exception as e:
         print(f"   ❌ Context expansion failed: {e}. Defaulting to not needed.")
         return {"needs_expansion": False}
@@ -293,12 +354,14 @@ async def patching_node(state: AgentState) -> dict:
     ]
 
     try:
-        result = await _call_llm(
+        result, usage = await _call_llm(
             system_prompt="You are a precise document editor. Respond with only a JSON array of modification objects.",
             user_message=PATCHING_PROMPT.format(
                 instruction=state["instruction"],
                 chunks_json=json.dumps(chunks_for_prompt, ensure_ascii=False, indent=2),
             ),
+            run_id=state.get("run_id"),
+            step="patching",
         )
         raw_proposals = _parse_json(result)
         if not isinstance(raw_proposals, list):
@@ -327,7 +390,7 @@ async def patching_node(state: AgentState) -> dict:
             ))
 
         print(f"   Generated {len(proposals)} proposal(s).")
-        return {"proposals": proposals}
+        return {"proposals": proposals, **_accumulate_usage(state, usage)}
     except Exception as e:
         print(f"   ❌ Patching agent failed: {e}")
         return {"proposals": [], "error": str(e)}

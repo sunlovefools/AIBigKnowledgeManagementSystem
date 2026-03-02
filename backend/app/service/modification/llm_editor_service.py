@@ -7,8 +7,14 @@ import json
 import os
 import re
 from typing import Any
+from uuid import uuid4
 
 import aiohttp
+
+try:
+    from backend.debug.debug_logger import log_token_usage
+except ImportError:
+    from debug.debug_logger import log_token_usage
 
 _OPENROUTER_DEFAULT_URL = "https://openrouter.ai/api/v1/chat/completions"
 _DEFAULT_TIMEOUT_S = 500.0
@@ -189,6 +195,34 @@ def _normalize_preview_result(candidate: dict[str, Any] | None, original_content
     }
 
 
+def _log_preview_token_usage(
+    *,
+    data: dict[str, Any],
+    provider: str,
+    model: str,
+    run_id: str,
+) -> None:
+    usage = data.get("usage") if isinstance(data, dict) else {}
+    if not isinstance(usage, dict):
+        usage = {}
+
+    prompt_tokens = int(usage.get("prompt_tokens", 0) or 0)
+    completion_tokens = int(usage.get("completion_tokens", 0) or 0)
+    total_tokens = int(usage.get("total_tokens", prompt_tokens + completion_tokens) or 0)
+
+    log_token_usage(
+        provider=provider,
+        model=model,
+        prompt_tokens=prompt_tokens,
+        completion_tokens=completion_tokens,
+        total_tokens=total_tokens,
+        estimated_cost_usd=0.0,
+        operation="modification_llm_edit_preview",
+        run_id=run_id,
+        step="llm_edit_preview",
+    )
+
+
 async def _generate_via_openrouter(
     *,
     session: aiohttp.ClientSession,
@@ -196,6 +230,7 @@ async def _generate_via_openrouter(
     file_name: str,
     original_content: str,
     instruction: str,
+    run_id: str,
 ) -> dict[str, Any]:
     if not cfg.openrouter_api_key:
         raise RuntimeError("OPENROUTER_API_KEY is required when LLM_EDITOR_PROVIDER=OPENROUTER.")
@@ -225,6 +260,13 @@ async def _generate_via_openrouter(
         error_prefix="LLM editor OpenRouter API error",
     )
 
+    _log_preview_token_usage(
+        data=data,
+        provider="OPENROUTER",
+        model=cfg.openrouter_model,
+        run_id=run_id,
+    )
+
     text_content = ""
     choices = data.get("choices")
     if isinstance(choices, list) and choices:
@@ -246,6 +288,7 @@ async def _generate_via_beam(
     file_name: str,
     original_content: str,
     instruction: str,
+    run_id: str,
 ) -> dict[str, Any]:
     if not cfg.beam_url or not cfg.beam_key:
         raise RuntimeError(
@@ -275,6 +318,13 @@ async def _generate_via_beam(
         error_prefix="LLM editor BEAM API error",
     )
 
+    _log_preview_token_usage(
+        data=data,
+        provider="BEAM",
+        model="llm-editor-beam",
+        run_id=run_id,
+    )
+
     if isinstance(data.get("edited_content"), str) or isinstance(data.get("editedContent"), str):
         return _normalize_preview_result(data, original_content)
 
@@ -294,6 +344,7 @@ class LlmEditorService:
         instruction: str,
     ) -> dict:
         cfg = _load_config()
+        run_id = uuid4().hex
 
         async with aiohttp.ClientSession() as session:
             if cfg.provider == "OPENROUTER":
@@ -303,6 +354,7 @@ class LlmEditorService:
                     file_name=file_name,
                     original_content=original_content,
                     instruction=instruction,
+                    run_id=run_id,
                 )
 
             if cfg.provider == "BEAM":
@@ -312,6 +364,7 @@ class LlmEditorService:
                     file_name=file_name,
                     original_content=original_content,
                     instruction=instruction,
+                    run_id=run_id,
                 )
 
             raise RuntimeError(

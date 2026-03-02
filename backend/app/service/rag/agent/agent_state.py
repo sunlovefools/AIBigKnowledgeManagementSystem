@@ -22,6 +22,7 @@ class AgentState(TypedDict):
     # --- Input ---
     instruction: str                    # User's modification instruction
     file_ids: Optional[list[str]]       # None = all files, list = scoped to these fileIds
+    run_id: str                         # Correlation ID for one pipeline run
 
     # --- Intermediate ---
     intention: str                      # "edit" or "locate"
@@ -30,6 +31,10 @@ class AgentState(TypedDict):
     is_satisfied: bool                  # Retrieved context sufficient?
     needs_expansion: bool               # Need more context before editing?
     retry_count: int                    # Retrieval retry counter
+    token_prompt_total: int             # Accumulated prompt tokens across LLM calls
+    token_completion_total: int         # Accumulated completion tokens across LLM calls
+    token_total: int                    # Accumulated total tokens across LLM calls
+    llm_call_count: int                 # Number of successful LLM calls with usage data
 
     # --- Output ---
     proposals: list[Proposal]           # Final proposals returned to frontend
