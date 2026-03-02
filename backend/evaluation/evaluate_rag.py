@@ -2,6 +2,7 @@ import sys
 import os
 import json
 import asyncio
+import re
 import warnings # Import warnings to silence deprecation logs
 import pandas as pd
 from datasets import Dataset
@@ -42,6 +43,139 @@ from app.embedding.local_embedding_client import LocalGemmaEmbeddings
 
 # Filter warnings for cleaner output
 warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+METRIC_REGISTRY = {
+    "faithfulness": faithfulness,
+    "answer_relevancy": answer_relevancy,
+    "answer_correctness": answer_correctness,
+    "context_precision": context_precision,
+    "context_recall": context_recall,
+}
+
+# Toggle metrics here using True/False.
+METRIC_ENABLED = {
+    "faithfulness": True,
+    "answer_relevancy": False,
+    "answer_correctness": False,
+    "context_precision": False,
+    "context_recall": False,
+}
+
+
+def _extract_balanced_json_block(text: str) -> str | None:
+    """
+    Return first balanced JSON object/array found in text.
+
+    This helps recover valid JSON from model outputs that include prose,
+    markdown fences, or trailing notes.
+    """
+    if not isinstance(text, str):
+        return None
+
+    start_idx = None
+    opening = ""
+    closing = ""
+    for idx, ch in enumerate(text):
+        if ch == "{":
+            start_idx = idx
+            opening = "{"
+            closing = "}"
+            break
+        if ch == "[":
+            start_idx = idx
+            opening = "["
+            closing = "]"
+            break
+
+    if start_idx is None:
+        return None
+
+    depth = 0
+    in_string = False
+    escaped = False
+
+    for idx in range(start_idx, len(text)):
+        ch = text[idx]
+        if in_string:
+            if escaped:
+                escaped = False
+            elif ch == "\\":
+                escaped = True
+            elif ch == "\"":
+                in_string = False
+            continue
+
+        if ch == "\"":
+            in_string = True
+            continue
+
+        if ch == opening:
+            depth += 1
+        elif ch == closing:
+            depth -= 1
+            if depth == 0:
+                return text[start_idx : idx + 1]
+
+    return None
+
+
+def _sanitize_judge_output(content: str) -> str:
+    """
+    Remove common reasoning/formatting wrappers so RAGAS output parsers can parse reliably.
+    """
+    if not isinstance(content, str):
+        return str(content)
+
+    cleaned = content.strip()
+    if not cleaned:
+        return cleaned
+
+    # Drop "thinking" blocks emitted by some reasoning models.
+    cleaned = re.sub(r"<think>.*?</think>", "", cleaned, flags=re.IGNORECASE | re.DOTALL).strip()
+
+    # Prefer explicit JSON code-fence content when present.
+    fence_match = re.search(r"```(?:json)?\s*(.*?)```", cleaned, flags=re.IGNORECASE | re.DOTALL)
+    if fence_match:
+        fenced = fence_match.group(1).strip()
+        if fenced:
+            cleaned = fenced
+
+    # Keep only first JSON block if extra text is still present.
+    json_block = _extract_balanced_json_block(cleaned)
+    if json_block:
+        return json_block.strip()
+
+    return cleaned
+
+
+def _print_judge_request(
+    model_name: str,
+    messages: list[BaseMessage],
+    options: dict[str, Any],
+) -> None:
+    """Print every judge-model request payload for debugging."""
+    printable_messages: list[dict[str, str]] = []
+    for message in messages:
+        message_type = getattr(message, "type", "")
+        if message_type == "system":
+            role = "system"
+        elif message_type == "ai":
+            role = "assistant"
+        else:
+            role = "user"
+
+        content = message.content if isinstance(message.content, str) else str(message.content)
+        printable_messages.append({"role": role, "content": content})
+
+    payload = {
+        "model": model_name,
+        "messages": printable_messages,
+        "format": "json",
+        "options": options,
+    }
+    print("\n===== OLLAMA JUDGE REQUEST =====")
+    print(json.dumps(payload, ensure_ascii=False, indent=2))
+    print("===== END OLLAMA JUDGE REQUEST =====\n")
 
 
 def _load_eval_judge_model_name() -> str:
@@ -112,10 +246,16 @@ class OllamaJudgeChatModel(BaseChatModel):
             options["stop"] = stop
 
         client = Client(timeout=self.request_timeout)
+        _print_judge_request(
+            model_name=self.model,
+            messages=messages,
+            options=options,
+        )
         try:
             response = client.chat(
                 model=self.model,
                 messages=self._to_ollama_messages(messages),
+                format="json",
                 options=options,
             )
         except Exception as exc:
@@ -126,6 +266,7 @@ class OllamaJudgeChatModel(BaseChatModel):
         if isinstance(message, dict):
             raw_content = message.get("content")
             content = raw_content if isinstance(raw_content, str) else str(raw_content)
+        content = _sanitize_judge_output(content)
 
         generation = ChatGeneration(message=AIMessage(content=content))
         return ChatResult(generations=[generation])
@@ -141,6 +282,46 @@ def clean_text(text):
         # Replace newlines with a distinct separator
         return text.replace('\n', ' | ').replace('\r', '')
     return text
+
+
+def _resolve_enabled_metrics() -> tuple[list[str], list[Any]]:
+    """Resolve metric objects based on top-level METRIC_ENABLED flags."""
+    selected_names = [
+        metric_name
+        for metric_name in METRIC_REGISTRY.keys()
+        if METRIC_ENABLED.get(metric_name, False)
+    ]
+    if not selected_names:
+        available = ", ".join(METRIC_REGISTRY.keys())
+        raise RuntimeError(
+            f"No metrics enabled. Set at least one metric to True in METRIC_ENABLED. "
+            f"Available metrics: {available}"
+        )
+
+    selected_metrics = [METRIC_REGISTRY[name] for name in selected_names]
+    return selected_names, selected_metrics
+
+
+def _print_metric_values(df: pd.DataFrame, metric_names: list[str]) -> None:
+    """Print one averaged score per selected metric."""
+    print("\nMetric values:")
+    for metric_name in metric_names:
+        column_name = metric_name
+        if column_name not in df.columns and metric_name == "answer_relevancy":
+            if "answer_relevance" in df.columns:
+                column_name = "answer_relevance"
+
+        if column_name not in df.columns:
+            print(f"- {metric_name}: unavailable (column missing in results)")
+            continue
+
+        numeric_series = pd.to_numeric(df[column_name], errors="coerce").dropna()
+        if numeric_series.empty:
+            print(f"- {metric_name}: unavailable (no numeric score returned)")
+            continue
+
+        print(f"- {metric_name}: {numeric_series.mean():.4f}")
+
 
 async def generate_rag_responses(dataset_path: str):
     print(f"📂 Loading Golden Dataset from: {dataset_path}")
@@ -221,13 +402,8 @@ def run_evaluation(data_dict):
     )
     judge_llm = LangchainLLMWrapper(lc_llm)
 
-    metrics = [
-        faithfulness, # Is the responses grounded in the retrieved context?
-        answer_relevancy, # Is the response relevant to user question?
-        answer_correctness, # Does the response match the reference answer?
-        context_precision, # Are the contexts ranked by relevance?
-        context_recall, # Are all relevant contexts successfully retrieved?
-    ]
+    metric_names, metrics = _resolve_enabled_metrics()
+    print(f"Selected metrics: {', '.join(metric_names)}")
 
     print("🚀 Running Ragas Evaluation...")
     
@@ -252,6 +428,7 @@ def run_evaluation(data_dict):
 
     # Save results
     df = results.to_pandas()
+    _print_metric_values(df, metric_names)
 
     # CLEANUP: Convert lists to strings for CSV
     cols_to_clean = ['response', 'reference', 'retrieved_contexts']
@@ -269,7 +446,11 @@ def run_evaluation(data_dict):
 
     # Create a summary row dictionary
     summary_row = {col: "" for col in df.columns}
-    summary_row['user_input'] = "AGGREGATED METRICS (AVERAGE)" # Label the first column
+    if "question" in summary_row:
+        summary_row["question"] = "AGGREGATED METRICS (AVERAGE)"
+    elif summary_row:
+        first_col = next(iter(summary_row))
+        summary_row[first_col] = "AGGREGATED METRICS (AVERAGE)"
     
     # Fill in the calculated averages
     for col, val in averages.items():
