@@ -1,79 +1,202 @@
-# This is only used due to not wasting the credit of beam cloud embeddings
-# For locally run only, need to be commented out when it is not used
-# When using import this to vectordb_init.py, it will use local embedding model instead of beam cloud embedding service
-
 import asyncio
+import os
 from typing import List
+
+import torch
 from langchain_core.embeddings import Embeddings
 from langchain_huggingface import HuggingFaceEmbeddings
-import torch
+
+
+def _parse_bool_env(name: str, *, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+
+    value = raw.strip().lower()
+    if value in {"1", "true", "yes", "y", "on"}:
+        return True
+    if value in {"0", "false", "no", "n", "off"}:
+        return False
+    return default
+
 
 class LocalGemmaEmbeddings(Embeddings):
     """
-    Local embedding class using google/embeddinggemma-300m.
-    Mirrors the structure of BeamGemmaEmbeddings (async + sync).
+    Local embedding class using a Hugging Face model.
+
+    Env:
+    - LOCAL_EMBEDDING_MODEL: local embedding model name.
+    - EMBEDDING_SWAP_TO_RAM: if true and accelerator exists, offload model to CPU RAM
+      after each embedding call and move it back on-demand for next call.
+    - EMBEDDING_GPU_INGEST_ONLY: if true, ingestion/document embeddings run on
+      accelerator while query embeddings run on CPU RAM.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        model_name: str | None = None,
+        *,
+        swap_to_ram: bool | None = None,
+        gpu_ingest_only: bool | None = None,
+    ):
         super().__init__()
 
-        print("🔧 Loading local embedding model: google/embeddinggemma-300m ...")
-
-        if torch.cuda.is_available():
-            device = "cuda"
-        else:
-            device = "cpu" # Default to CPU if CUDA is not available
-
-        self.embedding_model = HuggingFaceEmbeddings(
-            model_name="google/embeddinggemma-300m",
-            model_kwargs={"device": device},  # Changed from "cuda" to "cpu" for CPU-only environments
-            encode_kwargs={"normalize_embeddings": True},
-            show_progress=True
+        resolved_model_name = (
+            model_name
+            or (os.getenv("LOCAL_EMBEDDING_MODEL") or "").strip()
+            or "google/embeddinggemma-300m"
         )
 
-        print(f"✅ Local Gemma Embedding Model Loaded Successfully!\nUsing device: {self.embedding_model.model_kwargs['device']}")
+        if swap_to_ram is None:
+            swap_to_ram = _parse_bool_env("EMBEDDING_SWAP_TO_RAM", default=False)
+        if gpu_ingest_only is None:
+            gpu_ingest_only = _parse_bool_env("EMBEDDING_GPU_INGEST_ONLY", default=True)
 
-    # ==========================================================
-    # INTERNAL ASYNC ENCODER
-    # ==========================================================
+        if torch.cuda.is_available():
+            self.ingest_device = "cuda"
+        elif torch.backends.mps.is_available():
+            self.ingest_device = "mps"
+        else:
+            self.ingest_device = "cpu"
+
+        # Query path should stay in CPU RAM when ingest-only GPU mode is enabled.
+        if bool(gpu_ingest_only) and self.ingest_device != "cpu":
+            self.query_device = "cpu"
+        else:
+            self.query_device = self.ingest_device
+
+        self.swap_to_ram = bool(swap_to_ram)
+        self.gpu_ingest_only = bool(gpu_ingest_only)
+        self._encode_lock = asyncio.Lock()
+
+        print(
+            "Loading local embedding model: "
+            f"{resolved_model_name} "
+            f"(ingest_device={self.ingest_device}, query_device={self.query_device})..."
+        )
+
+        self.embedding_model = HuggingFaceEmbeddings(
+            model_name=resolved_model_name,
+            model_kwargs={"device": self.query_device},
+            encode_kwargs={"normalize_embeddings": True},
+            show_progress=True,
+        )
+
+        self.runtime_device = self.query_device
+        self.model_name = resolved_model_name
+
+        if self._should_swap_to_ram():
+            print("EMBEDDING_SWAP_TO_RAM enabled. Offloading embedding model to CPU RAM.")
+            self._move_model_to_device("cpu")
+
+        print(
+            f"Local embedding model loaded successfully. Active device: {self.runtime_device}"
+        )
+
+    def _should_swap_to_ram(self) -> bool:
+        return self.swap_to_ram and self.ingest_device != "cpu"
+
+    def _resolve_torch_model(self):
+        # LangChain HuggingFaceEmbeddings keeps SentenceTransformer on `client`.
+        candidates = [
+            getattr(self.embedding_model, "client", None),
+            getattr(self.embedding_model, "_client", None),
+            getattr(self.embedding_model, "model", None),
+        ]
+        for candidate in candidates:
+            if candidate is not None and hasattr(candidate, "to"):
+                return candidate
+        return None
+
+    def _move_model_to_device(self, target_device: str) -> None:
+        if self.runtime_device == target_device:
+            return
+
+        torch_model = self._resolve_torch_model()
+        if torch_model is None:
+            print(
+                "Warning: unable to access underlying embedding model for device "
+                "migration. Disabling EMBEDDING_SWAP_TO_RAM."
+            )
+            self.swap_to_ram = False
+            return
+
+        torch_target = torch.device(target_device)
+        torch_model.to(torch_target)
+
+        if isinstance(getattr(self.embedding_model, "model_kwargs", None), dict):
+            self.embedding_model.model_kwargs["device"] = target_device
+
+        self.runtime_device = target_device
+
+        if target_device == "cpu":
+            if torch.cuda.is_available():
+                torch.cuda.empty_cache()
+            if hasattr(torch, "mps") and hasattr(torch.mps, "empty_cache"):
+                try:
+                    torch.mps.empty_cache()
+                except Exception:
+                    pass
+
+    def _embed_with_device_management(
+        self,
+        texts: List[str],
+        *,
+        active_device: str,
+        keep_on_device_after_call: bool = False,
+    ) -> List[List[float]]:
+        if self.runtime_device != active_device:
+            self._move_model_to_device(active_device)
+
+        try:
+            return self.embedding_model.embed_documents(texts)
+        finally:
+            should_offload_to_cpu = (
+                self._should_swap_to_ram()
+                or (self.gpu_ingest_only and active_device != self.query_device)
+            )
+            if should_offload_to_cpu and not keep_on_device_after_call:
+                self._move_model_to_device("cpu")
 
     async def _aembed(self, texts: List[str]) -> List[List[float]]:
         """
         Async wrapper because HuggingFaceEmbeddings is synchronous.
-        Runs the embedding in a thread to avoid blocking FastAPI.
+        Runs embedding in a thread to avoid blocking FastAPI.
         """
+        if not texts:
+            return []
+
         loop = asyncio.get_event_loop()
-
-        embeddings = await loop.run_in_executor(
-            None,
-            lambda: self.embedding_model.embed_documents(texts)
-        )
-
+        async with self._encode_lock:
+            embeddings = await loop.run_in_executor(
+                None,
+                lambda: self._embed_with_device_management(
+                    texts,
+                    active_device=self.ingest_device,
+                ),
+            )
         return embeddings
 
     async def aembed_documents(self, texts: List[str]) -> List[List[float]]:
-        """
-        Async document embedding.
-        """
         return await self._aembed(texts)
 
     async def aembed_query(self, text: str) -> List[float]:
-        """
-        Async query embedding.
-        """
-        result = await self._aembed([text])
-        return result[0]
+        if not text:
+            return []
 
-    # ==========================================================
-    # SYNC FALLBACKS FOR LANGCHAIN
-    # ==========================================================
+        loop = asyncio.get_event_loop()
+        async with self._encode_lock:
+            result = await loop.run_in_executor(
+                None,
+                lambda: self._embed_with_device_management(
+                    [text],
+                    active_device=self.query_device,
+                ),
+            )
+
+        return result[0] if result else []
 
     def _run_coro_safely(self, coro):
-        """
-        Allows sync embed_documents/embed_query to call async code,
-        even when inside FastAPI's running event loop.
-        """
-
         try:
             loop = asyncio.get_event_loop()
         except RuntimeError:
@@ -81,19 +204,14 @@ class LocalGemmaEmbeddings(Embeddings):
 
         if loop.is_running():
             import concurrent.futures
+
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 return executor.submit(asyncio.run, coro).result()
 
         return loop.run_until_complete(coro)
 
     def embed_documents(self, texts: List[str]) -> List[List[float]]:
-        """
-        Sync embedding (LangChain calls this method).
-        """
         return self._run_coro_safely(self.aembed_documents(texts))
 
     def embed_query(self, text: str) -> List[float]:
-        """
-        Sync query embedding.
-        """
         return self._run_coro_safely(self.aembed_query(text))

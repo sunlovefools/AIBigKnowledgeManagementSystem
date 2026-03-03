@@ -46,6 +46,7 @@ class AnswerGeneratorConfig:
     url: str | None
     model: str | None
     api_key: str | None
+    ollama_swap_to_ram: bool = False
 
 
 @dataclass(frozen=True)

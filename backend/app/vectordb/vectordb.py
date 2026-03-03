@@ -1,5 +1,6 @@
 import asyncio
 from typing import List, Dict, Any, Tuple
+from collections import defaultdict, deque
 
 from langchain_core.documents import Document
 
@@ -162,6 +163,57 @@ def _normalize_parent_document(raw_doc: Any) -> Dict[str, Any] | None:
     }
 
 
+def _map_reranked_pairs_to_child_docs(
+    child_documents: List[Document],
+    reranked_pairs: List[Tuple[str, float]],
+) -> List[Tuple[Document, float]]:
+    """
+    Map reranked (content, score) pairs back to child documents while preserving reranked order.
+
+    Uses a queue per content string so duplicate chunk text is handled deterministically.
+    """
+    docs_by_content: Dict[str, deque[Document]] = defaultdict(deque)
+    for doc in child_documents:
+        docs_by_content[doc.page_content].append(doc)
+
+    ordered_docs: List[Tuple[Document, float]] = []
+    for content, score in reranked_pairs:
+        matches = docs_by_content.get(content)
+        if not matches:
+            continue
+        ordered_docs.append((matches.popleft(), float(score)))
+
+    return ordered_docs
+
+
+def _select_top_parent_ids_from_reranked_children(
+    reranked_child_docs: List[Tuple[Document, float]],
+    top_k: int,
+) -> List[str]:
+    """
+    Return unique parent IDs in reranked order, capped at top_k parents.
+    """
+    parent_ids: List[str] = []
+    seen_parent_ids: set[str] = set()
+
+    for doc, _score in reranked_child_docs:
+        parent_id = (doc.metadata.get("child_chunk_metadata") or {}).get("parent_id")
+        if parent_id is None:
+            continue
+
+        parent_id_str = str(parent_id)
+        if parent_id_str in seen_parent_ids:
+            continue
+
+        seen_parent_ids.add(parent_id_str)
+        parent_ids.append(parent_id_str)
+
+        if len(parent_ids) >= top_k:
+            break
+
+    return parent_ids
+
+
 # --- Query/Retrieval Operations ---
 
 async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, Any]]:
@@ -176,6 +228,14 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
         List[Dict[str, Any]]: JSON-serializable parent documents with keys:
             id, metadata, page_content, type
     """
+    try:
+        top_k = int(top_k)
+    except (TypeError, ValueError) as error:
+        raise ValueError("top_k must be an integer.") from error
+
+    if top_k <= 0:
+        raise ValueError("top_k must be greater than 0.")
+
     print(f"Searching Vector Store (Child Chunks) for {query!r} (top_k={top_k})...")
 
     # 1. Search the Vector Store (Child Chunks)
@@ -196,42 +256,46 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
 
     print(f"Reranking {len(child_texts)} candidates...")
 
+    rerank_top_k = top_k // 2
+
     # Rerank the retrieved child chunks using the BGE Reranker
     reranked_pairs = await _RERANKER_SERVICE.rerank_documents(
         query=query,
         documents=child_texts,
-        top_k=top_k * 2,
+        top_k=rerank_top_k,
     )
 
-    reranked_child_docs = []
-    for content, _new_score in reranked_pairs:
-        for original_doc in child_documents:
-            if original_doc.page_content == content:
-                reranked_child_docs.append(original_doc)
-                break
-
-    log_reranker_results(reranked_docs=reranked_pairs, top_k=top_k)
-
-    # 2. Extract unique Parent IDs from the retrieved child chunks
-    parent_ids = list(
-        {
-            (doc.metadata.get("child_chunk_metadata") or {}).get("parent_id")
-            for doc in reranked_child_docs
-            if (doc.metadata.get("child_chunk_metadata") or {}).get("parent_id")
-        }
+    reranked_child_docs = _map_reranked_pairs_to_child_docs(
+        child_documents=child_documents,
+        reranked_pairs=reranked_pairs,
     )
+
+    log_reranker_results(reranked_docs=reranked_pairs[:top_k], top_k=top_k)
+
+    # 2. Extract top-k unique Parent IDs in reranked order.
+    parent_ids = _select_top_parent_ids_from_reranked_children(
+        reranked_child_docs=reranked_child_docs,
+        top_k=top_k,
+    )
+
+    if not parent_ids:
+        return []
+
     print(f"Retrieving content for {len(parent_ids)} unique parent documents.")
 
     # 3. Retrieve Parent Documents (Full Context)
     try:
         parent_documents_raw = await PARENT_STORE.amget(parent_ids)
 
-        for index in range(len(parent_ids)):
-            parent_documents_raw[index]["id"] = parent_ids[index]
-
         parent_documents: List[Dict[str, Any]] = []
-        for raw_doc in parent_documents_raw:
-            normalized = _normalize_parent_document(raw_doc)
+        for parent_id, raw_doc in zip(parent_ids, parent_documents_raw):
+            if not isinstance(raw_doc, dict):
+                continue
+
+            parent_doc_with_id = dict(raw_doc)
+            parent_doc_with_id["id"] = parent_id
+
+            normalized = _normalize_parent_document(parent_doc_with_id)
             if normalized is not None:
                 parent_documents.append(normalized)
 

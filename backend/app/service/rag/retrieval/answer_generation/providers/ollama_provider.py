@@ -114,16 +114,21 @@ async def generate_via_ollama(
         "system": SYSTEM_PROMPT,
         "prompt": prompt_text,
         "stream": False,
+        "enable_thinking": False,
         "options": {
             "num_gpu": 99,
-            "num_ctx": 4096,     # Total tokens allowed
-            "num_predict": 1024, # Max tokens for the answer only
             "temperature": 0
-        }
+        },
     }
 
     # BEAM is an Ollama-compatible alias but should always use HTTP so auth headers are applied.
     is_local = cfg.provider.strip().upper() == "OLLAMA" and is_local_ollama_url(cfg.url)
+    swap_to_ram = bool(cfg.ollama_swap_to_ram and is_local)
+    if swap_to_ram:
+        # Ollama does not expose direct GPU->RAM migration. keep_alive=0 unloads model
+        # after response, and next request auto-loads it back for inference.
+        payload["keep_alive"] = 0
+
     default_local_url = os.getenv("OLLAMA_HOST", "").strip() or f"{DEFAULT_OLLAMA_HOST.rstrip('/')}/api/generate"
 
     if is_local:
@@ -159,13 +164,18 @@ async def generate_via_ollama(
 
         try:
             client = AsyncClient()
+            generate_kwargs: dict[str, Any] = {
+                "model": cfg.model,
+                "system": SYSTEM_PROMPT,
+                "prompt": prompt_text,
+                "stream": False,
+                "options": payload["options"],
+            }
+            if swap_to_ram:
+                generate_kwargs["keep_alive"] = 0
+
             data = await asyncio.wait_for(
-                client.generate(
-                    model=cfg.model,
-                    system=SYSTEM_PROMPT,
-                    prompt=prompt_text,
-                    stream=False,
-                ),
+                client.generate(**generate_kwargs),
                 timeout=cfg.timeout_s,
             )
         except asyncio.TimeoutError as exc:
@@ -200,7 +210,9 @@ async def generate_via_ollama(
             error_prefix="Answer Generator Ollama API error",
         )
 
+    print(data_dict)
     answer = data_dict.get("response")
+    print(answer)
     final_answer = answer if isinstance(answer, str) and answer.strip() else NO_ANSWER_FALLBACK
     log_llm_response(final_answer)
     return final_answer

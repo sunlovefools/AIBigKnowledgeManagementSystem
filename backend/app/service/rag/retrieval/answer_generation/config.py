@@ -17,6 +17,20 @@ from .models import (
 )
 
 
+def _parse_bool_env(name: str, *, default: bool) -> bool:
+    """Parse bool-like environment variables with safe defaults."""
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+
+    value = raw.strip().lower()
+    if value in {"1", "true", "yes", "y", "on"}:
+        return True
+    if value in {"0", "false", "no", "n", "off"}:
+        return False
+    return default
+
+
 def is_local_ollama_url(url: str | None) -> bool:
     """Return True when the configured Ollama URL targets a local daemon host.
 
@@ -69,6 +83,9 @@ def load_answer_generator_config() -> AnswerGeneratorConfig:
     if timeout_s <= 0:
         raise RuntimeError("Answer generator timeout must be > 0.")
 
+    # Toggle for local Ollama behavior: unload model from accelerator memory after each request.
+    ollama_swap_to_ram = _parse_bool_env("OLLAMA_SWAP_TO_RAM", default=False)
+
     # If the provider is OPENROUTER, then we will get the API key and the URL for OPENROUTER
     if provider == "OPENROUTER":
         url = os.getenv("OPENROUTER_URL", OPENROUTER_URL_DEFAULT).strip() or OPENROUTER_URL_DEFAULT
@@ -115,4 +132,5 @@ def load_answer_generator_config() -> AnswerGeneratorConfig:
         url=url,
         model=model,
         api_key=api_key,
+        ollama_swap_to_ram=ollama_swap_to_ram,
     )

@@ -3,14 +3,58 @@ import asyncio
 from typing import Dict, Any
 from langchain_astradb import AstraDBVectorStore
 from astrapy import DataAPIClient
-# from app.embedding.embedding_client import BeamGemmaEmbeddings
+from app.embedding.embedding_client import BeamGemmaEmbeddings
 from app.embedding.local_embedding_client import LocalGemmaEmbeddings
+
+
+def _parse_bool_env(name: str, *, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+
+    value = raw.strip().lower()
+    if value in {"1", "true", "yes", "y", "on"}:
+        return True
+    if value in {"0", "false", "no", "n", "off"}:
+        return False
+    return default
+
+
+def _build_embeddings_instance():
+    provider = (os.getenv("EMBEDDING_PROVIDER", "LOCAL") or "").strip().upper()
+
+    if provider == "BEAM":
+        print("Using BEAM embedding provider.")
+        return BeamGemmaEmbeddings()
+
+    if provider == "LOCAL":
+        model_name = (
+            os.getenv("LOCAL_EMBEDDING_MODEL") or "google/embeddinggemma-300m"
+        ).strip()
+        swap_to_ram = _parse_bool_env("EMBEDDING_SWAP_TO_RAM", default=False)
+        gpu_ingest_only = _parse_bool_env("EMBEDDING_GPU_INGEST_ONLY", default=True)
+        print(
+            "Using LOCAL embedding provider "
+            f"(model={model_name}, swap_to_ram={swap_to_ram}, "
+            f"gpu_ingest_only={gpu_ingest_only})."
+        )
+        return LocalGemmaEmbeddings(
+            model_name=model_name,
+            swap_to_ram=swap_to_ram,
+            gpu_ingest_only=gpu_ingest_only,
+        )
+
+    raise ValueError(
+        f"Invalid EMBEDDING_PROVIDER={provider!r}. Expected 'LOCAL' or 'BEAM'."
+    )
+
 
 # Initialize the embedding model instance
 try:
-    BEAM_EMBEDDINGS_INSTANCE = LocalGemmaEmbeddings()
+    EMBEDDINGS_INSTANCE = _build_embeddings_instance()
 except ValueError as error:
     print(f"Configuration Warning: {error}. Attempting database initialization.")
+    EMBEDDINGS_INSTANCE = None
 
 # Load Astra credentials from .env files
 ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
@@ -133,9 +177,12 @@ def init_vector_db():
     print(f"Initializing vector store collection '{CHILD_COLLECTION_NAME}' with LangChain...")
     
     try:
+        if EMBEDDINGS_INSTANCE is None:
+            raise RuntimeError("Embedding provider failed to initialize.")
+
         # Instantiating the LangChain class ensures the collection exists with vector configuration.
         vector_store = AstraDBVectorStore(
-            embedding=BEAM_EMBEDDINGS_INSTANCE,
+            embedding=EMBEDDINGS_INSTANCE,
             collection_name=CHILD_COLLECTION_NAME,
             token=ASTRA_DB_TOKEN,
             api_endpoint=ASTRA_DB_URL,

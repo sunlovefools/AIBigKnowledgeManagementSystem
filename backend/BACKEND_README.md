@@ -65,6 +65,12 @@ ASTRA_DB_TOKEN=<AstraCS:...>
 BEAM_EMBEDDING_URL=https://embedding-<slug>.app.beam.cloud
 BEAM_EMBEDDINGS_KEY=<beam-token>
 
+# Embedding provider/model controls
+EMBEDDING_PROVIDER=LOCAL            # LOCAL or BEAM
+LOCAL_EMBEDDING_MODEL=google/embeddinggemma-300m
+EMBEDDING_SWAP_TO_RAM=false         # LOCAL only; offload embedding model to CPU RAM between calls
+EMBEDDING_GPU_INGEST_ONLY=true      # LOCAL only; ingestion on accelerator, query on CPU RAM
+
 # (Optional) Additional Beam services
 BEAM_LLM_URL=...
 BEAM_LLM_KEY=...

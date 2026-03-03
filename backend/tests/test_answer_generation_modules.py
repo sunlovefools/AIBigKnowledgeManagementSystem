@@ -69,6 +69,26 @@ def test_load_config_preserves_ollama_url_without_resolve(monkeypatch):
     assert cfg.url == "https://example.com/custom/endpoint"
 
 
+def test_load_config_ollama_swap_to_ram_toggle(monkeypatch):
+    monkeypatch.setenv("ANSWER_GENERATOR_LLM_PROVIDER", "OLLAMA")
+    monkeypatch.setenv("ANSWER_GENERATOR_TIMEOUT_S", "30")
+    monkeypatch.setenv("OLLAMA_ANSWER_GENERATOR_LLM_MODEL", "qwen2.5:7b")
+    monkeypatch.setenv("OLLAMA_SWAP_TO_RAM", "true")
+
+    cfg = load_answer_generator_config()
+    assert cfg.ollama_swap_to_ram is True
+
+
+def test_load_config_ollama_swap_to_ram_default_false(monkeypatch):
+    monkeypatch.setenv("ANSWER_GENERATOR_LLM_PROVIDER", "OLLAMA")
+    monkeypatch.setenv("ANSWER_GENERATOR_TIMEOUT_S", "30")
+    monkeypatch.setenv("OLLAMA_ANSWER_GENERATOR_LLM_MODEL", "qwen2.5:7b")
+    monkeypatch.delenv("OLLAMA_SWAP_TO_RAM", raising=False)
+
+    cfg = load_answer_generator_config()
+    assert cfg.ollama_swap_to_ram is False
+
+
 def test_load_config_timeout_validation(monkeypatch):
     monkeypatch.setenv("ANSWER_GENERATOR_TIMEOUT_S", "not_a_number")
     with pytest.raises(RuntimeError, match="Invalid answer generator timeout value"):
