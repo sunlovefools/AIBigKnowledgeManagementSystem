@@ -6,6 +6,7 @@ import asyncio
 from typing import List
 from langchain_core.embeddings import Embeddings
 from langchain_huggingface import HuggingFaceEmbeddings
+import torch
 
 class LocalGemmaEmbeddings(Embeddings):
     """
@@ -18,9 +19,14 @@ class LocalGemmaEmbeddings(Embeddings):
 
         print("🔧 Loading local embedding model: google/embeddinggemma-300m ...")
 
+        if torch.cuda.is_available():
+            device = "cuda"
+        else:
+            device = "cpu" # Default to CPU if CUDA is not available
+
         self.embedding_model = HuggingFaceEmbeddings(
             model_name="google/embeddinggemma-300m",
-            model_kwargs={"device": "cpu"},  # Changed from "cuda" to "cpu" for CPU-only environments
+            model_kwargs={"device": device},  # Changed from "cuda" to "cpu" for CPU-only environments
             encode_kwargs={"normalize_embeddings": True},
             show_progress=True
         )

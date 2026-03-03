@@ -40,7 +40,7 @@ backend/
 â”‚       â”œâ”€â”€ vectordb_init.py        # Creates `document_chunks_2` collection
 â”‚       â”œâ”€â”€ beam_client.py          # Legacy HTTP client for LLM + embed services
 â”‚       â”œâ”€â”€ query_refiner.py        # Hits Beam query-refiner endpoint
-â”‚       â”œâ”€â”€ answer_generator.py     # Hits Ollama-style `/api/generate` answer endpoint
+â”‚       â”œâ”€â”€ answer_generator.py     # Compatibility facade delegating to answer_generation package
 â”‚       â”œâ”€â”€ chunker/â€¦ utilities     # (future) retrieval logic lives here
 â”‚       â””â”€â”€ tmp/                    # Temporary upload artifacts
 â”œâ”€â”€ docs/                       # Feature-specific guides (ingestion, query, vector DB)
@@ -72,19 +72,18 @@ BEAM_REFINE_LLM_URL=https://api.beam.cloud/v1/qwen-1_5b-query-refiner
 BEAM_REFINE_LLM_KEY=<bearer>
 ANSWER_GENERATOR_LLM_PROVIDER=OLLAMA
 # Optional for local daemon; required for non-local Ollama hosts
-OLLAMA_ANSWER_GENERATOR_LLM_URL=http://127.0.0.1:11434
+OLLAMA_ANSWER_GENERATOR_LLM_URL=http://127.0.0.1:11434/api/generate
 OLLAMA_ANSWER_GENERATOR_LLM_MODEL=llama3.1:8b
 # Optional model fallbacks:
 # LOCAL_ANSWER_GENERATOR_LLM_MODEL=llama3.1:8b
 # OLLAMA_MODEL=llama3.1:8b
 
-# Backward-compatible URL aliases for answer generator
-ANSWER_GENERATOR_LLM_PROVIDER=BEAM    # Alias to OLLAMA code path
-BEAM_ANSWER_GENERATOR_LLM_URL=http://127.0.0.1:11434
-LOCAL_ANSWER_GENERATOR_LLM_URL=http://127.0.0.1:11434
+# BEAM provider for answer generator (deterministic URL key)
+ANSWER_GENERATOR_LLM_PROVIDER=BEAM    # Alias to OLLAMA provider path
+BEAM_ANSWER_GENERATOR_LLM_URL=http://127.0.0.1:11434/api/generate
+BEAM_ANSWER_GENERATOR_LLM_KEY=<beam-token>
 
-# Legacy key vars are still readable but ignored by Ollama answer generation
-BEAM_ANSWER_GENERATOR_LLM_KEY=
+# Optional compatibility key alias for BEAM
 LOCAL_ANSWER_GENERATOR_LLM_KEY=
 
 # Timeout helpers
@@ -185,7 +184,7 @@ Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are 
 1. **Refinement** â€“ `query_refiner.refine_query()` posts the raw question to the Beam Query Refiner (Model_Query_LLM). Returns a single-sentence rephrase optimized for embeddings.
 2. **Query embedding** â€“ `embed_text()` (same as ingestion) converts the refined string to a 768-dim vector.
 3. **Vector search** â€“ `vector_store.search_similar_chunks()` sorts Astra collection by `$vector` similarity (cosine) and returns metadata for `top_k` chunks. `include_similarity=True` is leveraged to read `$similarity`.
-4. **Answer generation** â€“ Extract the textual chunk list and call `answer_generator.generate_answer()`. If Ollama target is local (`localhost` / `127.0.0.1` / `::1`, or URL omitted), the module uses the Python `ollama` library (`AsyncClient`) directly. For non-local targets, it calls Ollama `/api/generate` with `model`, `system`, `prompt`, and `stream=false`. Context is TOON-encoded inside `<CONTEXT_TOON>`. The response is read from `response`. No `Authorization` header is sent for the HTTP fallback path.
+4. **Answer generation** - Extract the textual chunk list and call `answer_generator.generate_answer()` (compatibility facade). The facade delegates to `answer_generation/orchestration.py`, which resolves provider-specific logic. If Ollama target is local (`localhost` / `127.0.0.1` / `::1`, or URL omitted), the provider uses Python `ollama` (`AsyncClient`) directly. For non-local targets, it calls Ollama `/api/generate` with `model`, `system`, `prompt`, and `stream=false`. Context is TOON-encoded inside `<CONTEXT_TOON>`. The response is read from `response`. No `Authorization` header is sent for the Ollama HTTP path.
 5. **Response** â€“ Current response schema is simplified to `{"answer": "<LLM output>"}` (can re-enable chunk metadata by uncommenting code in `router_query.py`).
 
 `/query/direct` bypasses the refinement stage for debugging embeddings or the vector store.
@@ -215,7 +214,8 @@ Error handling uses custom `AuthenticationError` which `router_auth` translates 
 ## Supporting Services
 
 - **`beam_client.py`** â€“ Legacy synchronous helper to call Beam-hosted LLM + embed endpoints directly (`/generate`, `/embed`). Useful for scripts or fallback flows.
-- **`answer_generator.py`** â€“ Async wrapper for Ollama answer generation using TOON context. Uses Python `ollama` client for local daemon targets, and `/api/generate` HTTP for non-local targets. Supports `ANSWER_GENERATOR_LLM_PROVIDER=OLLAMA` and treats `BEAM` as a compatibility alias.
+- **`answer_generator.py`** - Compatibility facade that forwards calls to `service/rag/retrieval/answer_generation/orchestration.py`.
+- **`answer_generation/` package** - Modular answer generation implementation split across config, normalization, citations, HTTP transport, logging adapter, provider implementations, and orchestration.
 - **`query_refiner.py`** â€“ Async call to Model_Query_LLM (Beam) to rewrite user queries prior to embedding.
 - **`vector_store.py`** â€“ Centralized operations on Astra collection (insert + similarity search). Includes manual `cosine_similarity` helper for debugging.
 - **`text_extractor.py`** â€“ Handles PDF/Word/TXT ingestion; writes bytes to `/tmp/_tmp.*` to interop with libraries that read from disk.
@@ -260,4 +260,3 @@ curl -X POST http://127.0.0.1:8000/ingest/upload ^
 - **Testing** â€“ Flesh out `tests/` with unit + integration coverage, especially for chunking and auth.
 
 Use this reference to onboard new backend contributors or to understand how the RAG stack is wired into AstraDB and Beam services.
-

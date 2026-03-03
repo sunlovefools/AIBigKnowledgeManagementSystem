@@ -1118,3 +1118,3769 @@ Content: Source/open data/creative commons licenses? How? - See also “Intellec
 Content: ©University of Nottingham Software Engineering Group Project COMP2002: Project Handbook 2024-2025
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Who are you
+Timestamp: 2026-03-02T03:31:28.417560+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.714054]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.688328]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.665605]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.662156]
+Content: References External links Official website
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.633638]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.632982]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.627991]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.625096]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.624619]
+Content: Accused Crimo attended Highland Park High School, but dropped out before his junior year. He has performed under the stage name "Awake the Rapper", and posted his albums on Spotify, YouTube and Apple Music; which included apparent references to the QAnon conspiracy theory. M. Crimo has also been known to share QAnon-related content on his social media accounts.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.616881]
+Content: The Jury chaired will be composed of 24 students, each of them recommended by professors of film studies from various Italian universities.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.616755]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.610198]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.609821]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.608790]
+Content: The chromosome number of M. angustata is unknown. Flowering and fruiting in January.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.604191]
+Content: As Lewis Strauss, a senior member of the United States Atomic Energy Commission. The ensemble supporting cast includes Florence Pugh, Josh Hartnett, Casey Affleck, Rami Malek and Kenneth Branagh.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.603618]
+Content: Synopsis Joaquín and Victor, both gauchos from Chilean Patagonia, are hired as muleteers on a ranch in the United States. Accompanied only by their dogs and horses, they will have to protect their flocks of thousands of sheep from predators, in a foreign land that they believe they can dominate. Cast Joaquín Agüil Victor Jara
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.602806]
+Content: Candidates As of July 2023, nine candidates have been confirmed to participate. Distrito Nacional – Asia Ciaffarafa Dominican communities in USA – Andreina Santos Duarte – Zudeiny Cruz La Vega – Ashly Santos Peravia – Arlin Basora Rojas Samaná – Elisabeth Perez Santiago – Skarxi Marie San Francisco de Macorís – Karla Martínez Valverde – Lisbette Payamps
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.602253]
+Content: Goba's work has been instrumental in raising awareness about the unique challenges faced by LGBTIQ+ asylum seekers and refugees, who often face discrimination, violence, and persecution in their home countries. Through her organization, she has provided support, resources, and legal assistance to help these individuals navigate the complex asylum process and rebuild their lives in a new country.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.602021]
+Content: OpenAI has declined to reveal technical information such as the size of the GPT-4 model.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.601721]
+Content: Evidence 1. Music Albums: Crimo has released several albums under the stage name "Awake the Rapper" on various music platforms. These albums contain lyrics and references that align with the QAnon conspiracy theory. The lyrics often mention deep state conspiracies, secret societies, and the fight against corruption. 2. Social Media Activity: Crimo has been observed sharing and promoting QAnon-related content on his social media accounts. This includes posts, videos, and articles that support the conspiracy theory. His social media activity indicates a strong belief in the QAnon ideology.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.008255]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian.
+
+[Rank 2 | BGE Score: 0.006347]
+Content: == References ==
+
+[Rank 3 | BGE Score: 0.005066]
+Content: As Lewis Strauss, a senior member of the United States Atomic Energy Commission. The ensemble supporting cast includes Florence Pugh, Josh Hartnett, Casey Affleck, Rami Malek and Kenneth Branagh.
+
+[Rank 4 | BGE Score: 0.004907]
+Content: References External links Official website
+
+[Rank 5 | BGE Score: 0.003652]
+Content: Synopsis Joaquín and Victor, both gauchos from Chilean Patagonia, are hired as muleteers on a ranch in the United States. Accompanied only by their dogs and horses, they will have to protect their flocks of thousands of sheep from predators, in a foreign land that they believe they can dominate. Cast Joaquín Agüil Victor Jara
+
+[Rank 6 | BGE Score: 0.002486]
+Content: Candidates As of July 2023, nine candidates have been confirmed to participate. Distrito Nacional – Asia Ciaffarafa Dominican communities in USA – Andreina Santos Duarte – Zudeiny Cruz La Vega – Ashly Santos Peravia – Arlin Basora Rojas Samaná – Elisabeth Perez Santiago – Skarxi Marie San Francisco de Macorís – Karla Martínez Valverde – Lisbette Payamps
+
+[Rank 7 | BGE Score: 0.002140]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Rank 8 | BGE Score: 0.001227]
+Content: Accused Crimo attended Highland Park High School, but dropped out before his junior year. He has performed under the stage name "Awake the Rapper", and posted his albums on Spotify, YouTube and Apple Music; which included apparent references to the QAnon conspiracy theory. M. Crimo has also been known to share QAnon-related content on his social media accounts.
+
+[Rank 9 | BGE Score: 0.000817]
+Content: Etymology The species is dedicated to Prof. Vladimir G. Radchenko, worldwide authority on the ecology and taxonomy of bees, and head of the Department of General Biology at the National Academy of Sciences of Ukraine.
+
+[Rank 10 | BGE Score: 0.000717]
+Content: Goba's work has been instrumental in raising awareness about the unique challenges faced by LGBTIQ+ asylum seekers and refugees, who often face discrimination, violence, and persecution in their home countries. Through her organization, she has provided support, resources, and legal assistance to help these individuals navigate the complex asylum process and rebuild their lives in a new country.
+
+[Rank 11 | BGE Score: 0.000345]
+Content: Evidence 1. Music Albums: Crimo has released several albums under the stage name "Awake the Rapper" on various music platforms. These albums contain lyrics and references that align with the QAnon conspiracy theory. The lyrics often mention deep state conspiracies, secret societies, and the fight against corruption. 2. Social Media Activity: Crimo has been observed sharing and promoting QAnon-related content on his social media accounts. This includes posts, videos, and articles that support the conspiracy theory. His social media activity indicates a strong belief in the QAnon ideology.
+
+[Rank 12 | BGE Score: 0.000304]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 13 | BGE Score: 0.000192]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 14 | BGE Score: 0.000126]
+Content: The Jury chaired will be composed of 24 students, each of them recommended by professors of film studies from various Italian universities.
+
+[Rank 15 | BGE Score: 0.000057]
+Content: Measures Infrastructure and international development
+
+[Rank 16 | BGE Score: 0.000017]
+Content: OpenAI has declined to reveal technical information such as the size of the GPT-4 model.
+
+[Rank 17 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 18 | BGE Score: 0.000016]
+Content: The chromosome number of M. angustata is unknown. Flowering and fruiting in January.
+
+[Rank 19 | BGE Score: 0.000016]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: How much does CV contribute to the project
+Timestamp: 2026-03-03T12:36:47.584900+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.735536]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.727804]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.723182]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.716217]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.706385]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.706233]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.700738]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.698856]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.697160]
+Content: ## Git Lead
+
+A lecture will be given on the use of Git. An excellent resource on the ins and outs of Git is available here: https://git-scm.com/book/en/v2.
+
+The Git Lead is also expected to contribute other aspects of the project.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.694676]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.691756]
+Content: ## The Pitch
+
+Every team will pitch for 3 projects, and 3 pitches will happen for every project. Your pitch should convince the project sponsor that your team is 'the best team' for their project. A good pitch should:
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.691324]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.689190]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.688787]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.688158]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The project itself,  applying  technical  knowledge,  established  SE  methods,  agile  project management, and interpersonal skills to successfully deliver the project.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.686416]
+Content: ## 3.2.2 Content
+
+- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.680661]
+Content: ## 3.2.2 Content
+
+- If explaining bespoke algorithms developed as part of the project, please introduce them as pseudo code and focus on their key functionality.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.676270]
+Content: ## 4.2 Peer Assessment
+
+It is not just the amount of contributed work that is being evaluated, say in terms of words in the reports or lines of source code, but a wide spectrum of contributions all of which are important for a successful end result. This means that everyone gets a chance to contribute according to their specific skills  and  get  proper  recognition  for  this. Clearly,  someone  who  excels  in  designing  the  system architecture and implementing it has made a very important contribution.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.675253]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.674701]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+When the registration process closes on the third day, every project will have three teams against it, and every team will be signed up to bid for three projects.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.025836]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Rank 2 | BGE Score: 0.018719]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Rank 3 | BGE Score: 0.017353]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Rank 4 | BGE Score: 0.006699]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Rank 5 | BGE Score: 0.006008]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Rank 6 | BGE Score: 0.004326]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Rank 7 | BGE Score: 0.003983]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Rank 8 | BGE Score: 0.002689]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Rank 9 | BGE Score: 0.001472]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Rank 10 | BGE Score: 0.001355]
+Content: ## 4.2 Peer Assessment
+
+It is not just the amount of contributed work that is being evaluated, say in terms of words in the reports or lines of source code, but a wide spectrum of contributions all of which are important for a successful end result. This means that everyone gets a chance to contribute according to their specific skills  and  get  proper  recognition  for  this. Clearly,  someone  who  excels  in  designing  the  system architecture and implementing it has made a very important contribution.
+
+[Rank 11 | BGE Score: 0.000168]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Rank 12 | BGE Score: 0.000143]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The project itself,  applying  technical  knowledge,  established  SE  methods,  agile  project management, and interpersonal skills to successfully deliver the project.
+
+[Rank 13 | BGE Score: 0.000138]
+Content: ## 3.2.2 Content
+
+- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.
+
+[Rank 14 | BGE Score: 0.000089]
+Content: ## The Pitch
+
+Every team will pitch for 3 projects, and 3 pitches will happen for every project. Your pitch should convince the project sponsor that your team is 'the best team' for their project. A good pitch should:
+
+[Rank 15 | BGE Score: 0.000076]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+When the registration process closes on the third day, every project will have three teams against it, and every team will be signed up to bid for three projects.
+
+[Rank 16 | BGE Score: 0.000064]
+Content: ## Git Lead
+
+A lecture will be given on the use of Git. An excellent resource on the ins and outs of Git is available here: https://git-scm.com/book/en/v2.
+
+The Git Lead is also expected to contribute other aspects of the project.
+
+[Rank 17 | BGE Score: 0.000056]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Rank 18 | BGE Score: 0.000048]
+Content: ## 3.2.2 Content
+
+- If explaining bespoke algorithms developed as part of the project, please introduce them as pseudo code and focus on their key functionality.
+
+[Rank 19 | BGE Score: 0.000028]
+Content: Measures Infrastructure and international development
+
+[Rank 20 | BGE Score: 0.000025]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: How much does CV contribute to the project
+Timestamp: 2026-03-03T12:38:32.793282+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.735536]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.727804]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.723182]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.716217]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.706385]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.706233]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.700738]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.698856]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.697160]
+Content: ## Git Lead
+
+A lecture will be given on the use of Git. An excellent resource on the ins and outs of Git is available here: https://git-scm.com/book/en/v2.
+
+The Git Lead is also expected to contribute other aspects of the project.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.694676]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.691756]
+Content: ## The Pitch
+
+Every team will pitch for 3 projects, and 3 pitches will happen for every project. Your pitch should convince the project sponsor that your team is 'the best team' for their project. A good pitch should:
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.691324]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.689190]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.688787]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.688158]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The project itself,  applying  technical  knowledge,  established  SE  methods,  agile  project management, and interpersonal skills to successfully deliver the project.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.686416]
+Content: ## 3.2.2 Content
+
+- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.680661]
+Content: ## 3.2.2 Content
+
+- If explaining bespoke algorithms developed as part of the project, please introduce them as pseudo code and focus on their key functionality.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.676270]
+Content: ## 4.2 Peer Assessment
+
+It is not just the amount of contributed work that is being evaluated, say in terms of words in the reports or lines of source code, but a wide spectrum of contributions all of which are important for a successful end result. This means that everyone gets a chance to contribute according to their specific skills  and  get  proper  recognition  for  this. Clearly,  someone  who  excels  in  designing  the  system architecture and implementing it has made a very important contribution.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.675253]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.674701]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+When the registration process closes on the third day, every project will have three teams against it, and every team will be signed up to bid for three projects.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.025836]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Rank 2 | BGE Score: 0.018719]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Rank 3 | BGE Score: 0.017353]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Rank 4 | BGE Score: 0.006699]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Rank 5 | BGE Score: 0.006008]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Rank 6 | BGE Score: 0.004326]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Rank 7 | BGE Score: 0.003983]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Rank 8 | BGE Score: 0.002689]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Rank 9 | BGE Score: 0.001472]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Rank 10 | BGE Score: 0.001355]
+Content: ## 4.2 Peer Assessment
+
+It is not just the amount of contributed work that is being evaluated, say in terms of words in the reports or lines of source code, but a wide spectrum of contributions all of which are important for a successful end result. This means that everyone gets a chance to contribute according to their specific skills  and  get  proper  recognition  for  this. Clearly,  someone  who  excels  in  designing  the  system architecture and implementing it has made a very important contribution.
+
+[Rank 11 | BGE Score: 0.000168]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Rank 12 | BGE Score: 0.000143]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The project itself,  applying  technical  knowledge,  established  SE  methods,  agile  project management, and interpersonal skills to successfully deliver the project.
+
+[Rank 13 | BGE Score: 0.000138]
+Content: ## 3.2.2 Content
+
+- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.
+
+[Rank 14 | BGE Score: 0.000089]
+Content: ## The Pitch
+
+Every team will pitch for 3 projects, and 3 pitches will happen for every project. Your pitch should convince the project sponsor that your team is 'the best team' for their project. A good pitch should:
+
+[Rank 15 | BGE Score: 0.000076]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+When the registration process closes on the third day, every project will have three teams against it, and every team will be signed up to bid for three projects.
+
+[Rank 16 | BGE Score: 0.000064]
+Content: ## Git Lead
+
+A lecture will be given on the use of Git. An excellent resource on the ins and outs of Git is available here: https://git-scm.com/book/en/v2.
+
+The Git Lead is also expected to contribute other aspects of the project.
+
+[Rank 17 | BGE Score: 0.000056]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Rank 18 | BGE Score: 0.000048]
+Content: ## 3.2.2 Content
+
+- If explaining bespoke algorithms developed as part of the project, please introduce them as pseudo code and focus on their key functionality.
+
+[Rank 19 | BGE Score: 0.000028]
+Content: Measures Infrastructure and international development
+
+[Rank 20 | BGE Score: 0.000025]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: How much marks does CV contribute to the project
+Timestamp: 2026-03-03T12:40:49.185444+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.780556]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.778118]
+Content: ## 5.3 Individual marks
+
+The individual marks represent 20% of the total module mark for individual students. The individual marks are based on the following components:
+
+- Your CV that you have submitted (20% of your individual mark)
+
+- The quality of your individual report (60% of your individual mark)
+
+- The quality of the peer review (20% of your individual mark)
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.774839]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.772702]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.767199]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |
+|-------------------|-----------------------------|-----------------------------------|
+| CV                | 20%                         | 4.00%                             |
+| Individual Report | 60%                         | 12.00%                            |
+| Peer Assessment   | 20%                         | 4.00%                             |
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.762749]
+Content: ## 5.2 Group Marks
+
+The group mark will be scaled to calculate using a weight factor based on peer assessment. This can increase or decrease the mark for individual students and will be moderated by the supervisor to ensure fairness. That is, the final mark for the module will take into account how much individual students have contributed to the 'shared parts' of the project.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.744392]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.741182]
+Content: ## 5.2 Group Marks
+
+The  group  mark  represents  80%  of  your  total  module  mark.  The  group  mark  takes  the  following components into account:
+
+- The expressions of interest and pitch (15% of your group mark)
+
+- The final report (25% of your group mark)
+
+- The stand, presentation, and posters on demo day (15% of your group mark -no poster is required for the virtual open day)
+
+- The software, the inline documentation, and 'the process' used to get the result (45% of your group mark)
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.738808]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.736835]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |
+|---------------------------------------------|-------------------------------------|-----------------------------------|
+| EOI and Pitch                               | 15%                                 | 12.00%                            |
+| Ethics documentation                        | -                                   | -                                 |
+| Interim Report                              | 10%                                 | 8%                                |
+| Final Report                                | 25%                                 | 20.00%                            |
+| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |
+| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.736553]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.734241]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.734154]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.733703]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.733326]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.723887]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.723462]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.721779]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.715749]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.712668]
+Content: ## 3.2.2 Content
+
+- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.593309]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |
+|-------------------|-----------------------------|-----------------------------------|
+| CV                | 20%                         | 4.00%                             |
+| Individual Report | 60%                         | 12.00%                            |
+| Peer Assessment   | 20%                         | 4.00%                             |
+
+[Rank 2 | BGE Score: 0.347324]
+Content: ## 5.3 Individual marks
+
+The individual marks represent 20% of the total module mark for individual students. The individual marks are based on the following components:
+
+- Your CV that you have submitted (20% of your individual mark)
+
+- The quality of your individual report (60% of your individual mark)
+
+- The quality of the peer review (20% of your individual mark)
+
+[Rank 3 | BGE Score: 0.068673]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Rank 4 | BGE Score: 0.063896]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Rank 5 | BGE Score: 0.024045]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |
+|---------------------------------------------|-------------------------------------|-----------------------------------|
+| EOI and Pitch                               | 15%                                 | 12.00%                            |
+| Ethics documentation                        | -                                   | -                                 |
+| Interim Report                              | 10%                                 | 8%                                |
+| Final Report                                | 25%                                 | 20.00%                            |
+| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |
+| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |
+
+[Rank 6 | BGE Score: 0.022743]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Rank 7 | BGE Score: 0.018904]
+Content: ## 5.2 Group Marks
+
+The group mark will be scaled to calculate using a weight factor based on peer assessment. This can increase or decrease the mark for individual students and will be moderated by the supervisor to ensure fairness. That is, the final mark for the module will take into account how much individual students have contributed to the 'shared parts' of the project.
+
+[Rank 8 | BGE Score: 0.012106]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Rank 9 | BGE Score: 0.005747]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Rank 10 | BGE Score: 0.005215]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Rank 11 | BGE Score: 0.004693]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Rank 12 | BGE Score: 0.003532]
+Content: ## 5.2 Group Marks
+
+The  group  mark  represents  80%  of  your  total  module  mark.  The  group  mark  takes  the  following components into account:
+
+- The expressions of interest and pitch (15% of your group mark)
+
+- The final report (25% of your group mark)
+
+- The stand, presentation, and posters on demo day (15% of your group mark -no poster is required for the virtual open day)
+
+- The software, the inline documentation, and 'the process' used to get the result (45% of your group mark)
+
+[Rank 13 | BGE Score: 0.001731]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Rank 14 | BGE Score: 0.001454]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Rank 15 | BGE Score: 0.001448]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Rank 16 | BGE Score: 0.000358]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Rank 17 | BGE Score: 0.000331]
+Content: ## 3.2.2 Content
+
+- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.
+
+[Rank 18 | BGE Score: 0.000215]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Rank 19 | BGE Score: 0.000169]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Rank 20 | BGE Score: 0.000064]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Hey
+Timestamp: 2026-03-03T19:02:46.594301+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.748596]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.692578]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.683338]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.678572]
+Content: References External links Official website
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.672052]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.654049]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.639050]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.638486]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.638323]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.634312]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.631537]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.631097]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.629068]
+Content: ## 1.7 Teams
+
+Every team member is actively encouraged to do so and doing so is part of the goals for this module.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.628396]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.625208]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.624140]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.620074]
+Content: ## Git Lead
+
+The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.619224]
+Content: ## 2.3 Version Control - Git
+
+If you struggle with accessing Git or Multi-Factor Authentication (MFA), please contact the IT Smart Bar. Resetting the Azure MFA account frequently resolves the problem.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.618862]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.618432]
+Content: ## 1.7 Teams
+
+Note that you are not allowed to form your own groups, and that you are not allowed to swap places with someone from another group.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.005330]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.004142]
+Content: References External links Official website
+
+[Rank 3 | BGE Score: 0.003065]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Rank 4 | BGE Score: 0.002591]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 5 | BGE Score: 0.001959]
+Content: Measures Infrastructure and international development
+
+[Rank 6 | BGE Score: 0.000965]
+Content: ## Git Lead
+
+The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.
+
+[Rank 7 | BGE Score: 0.000516]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Rank 8 | BGE Score: 0.000404]
+Content: ## 2.3 Version Control - Git
+
+If you struggle with accessing Git or Multi-Factor Authentication (MFA), please contact the IT Smart Bar. Resetting the Azure MFA account frequently resolves the problem.
+
+[Rank 9 | BGE Score: 0.000400]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 10 | BGE Score: 0.000208]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 11 | BGE Score: 0.000137]
+Content: ## 1.7 Teams
+
+Note that you are not allowed to form your own groups, and that you are not allowed to swap places with someone from another group.
+
+[Rank 12 | BGE Score: 0.000128]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 13 | BGE Score: 0.000103]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 14 | BGE Score: 0.000059]
+Content: ## 1.7 Teams
+
+Every team member is actively encouraged to do so and doing so is part of the goals for this module.
+
+[Rank 15 | BGE Score: 0.000053]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Rank 16 | BGE Score: 0.000048]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Rank 17 | BGE Score: 0.000039]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 18 | BGE Score: 0.000018]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000018]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Hi
+Timestamp: 2026-03-03T19:05:04.835433+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.750384]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.701780]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.690732]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.686104]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.684758]
+Content: References External links Official website
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.650674]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.649577]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.647431]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.641316]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.640090]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.636152]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.635583]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.633481]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.631737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.630447]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.630274]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.628877]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.628763]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.625262]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624475]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.013183]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.009711]
+Content: Measures Infrastructure and international development
+
+[Rank 3 | BGE Score: 0.005048]
+Content: References External links Official website
+
+[Rank 4 | BGE Score: 0.003829]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Rank 5 | BGE Score: 0.002890]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 6 | BGE Score: 0.001217]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Rank 7 | BGE Score: 0.000763]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Rank 8 | BGE Score: 0.000498]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 9 | BGE Score: 0.000482]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 10 | BGE Score: 0.000343]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 11 | BGE Score: 0.000294]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 12 | BGE Score: 0.000211]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 13 | BGE Score: 0.000191]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 14 | BGE Score: 0.000134]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Rank 15 | BGE Score: 0.000094]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 16 | BGE Score: 0.000089]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Rank 17 | BGE Score: 0.000041]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Rank 18 | BGE Score: 0.000019]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 19 | BGE Score: 0.000018]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 20 | BGE Score: 0.000017]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Hi
+Timestamp: 2026-03-03T19:14:10.220021+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.750384]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.701780]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.690732]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.686104]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.684758]
+Content: References External links Official website
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.650674]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.649577]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.647431]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.641316]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.640090]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.636152]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.635583]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.633481]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.631737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.630447]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.630274]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.628877]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.628763]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.625262]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624475]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.013183]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.009711]
+Content: Measures Infrastructure and international development
+
+[Rank 3 | BGE Score: 0.005048]
+Content: References External links Official website
+
+[Rank 4 | BGE Score: 0.003829]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Rank 5 | BGE Score: 0.002890]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 6 | BGE Score: 0.001217]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Rank 7 | BGE Score: 0.000763]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Rank 8 | BGE Score: 0.000498]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 9 | BGE Score: 0.000482]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 10 | BGE Score: 0.000343]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 11 | BGE Score: 0.000294]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 12 | BGE Score: 0.000211]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 13 | BGE Score: 0.000191]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 14 | BGE Score: 0.000134]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Rank 15 | BGE Score: 0.000094]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 16 | BGE Score: 0.000089]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Rank 17 | BGE Score: 0.000041]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Rank 18 | BGE Score: 0.000019]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 19 | BGE Score: 0.000018]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 20 | BGE Score: 0.000017]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Hi
+Timestamp: 2026-03-03T19:20:00.632825+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.750384]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.701780]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.690732]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.686104]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.684758]
+Content: References External links Official website
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.650674]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.649577]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.647431]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.641316]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.640090]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.636152]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.635583]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.633481]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.631737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.630447]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.630274]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.628877]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.628763]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.625262]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624475]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.013183]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.009711]
+Content: Measures Infrastructure and international development
+
+[Rank 3 | BGE Score: 0.005048]
+Content: References External links Official website
+
+[Rank 4 | BGE Score: 0.003829]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Rank 5 | BGE Score: 0.002890]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 6 | BGE Score: 0.001217]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Rank 7 | BGE Score: 0.000763]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Rank 8 | BGE Score: 0.000498]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 9 | BGE Score: 0.000482]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 10 | BGE Score: 0.000343]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 11 | BGE Score: 0.000294]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 12 | BGE Score: 0.000211]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 13 | BGE Score: 0.000191]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 14 | BGE Score: 0.000134]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Rank 15 | BGE Score: 0.000094]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 16 | BGE Score: 0.000089]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Rank 17 | BGE Score: 0.000041]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Rank 18 | BGE Score: 0.000019]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 19 | BGE Score: 0.000018]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 20 | BGE Score: 0.000017]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Hi
+Timestamp: 2026-03-03T19:40:45.582274+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.750384]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.701780]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.690732]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.686104]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.684758]
+Content: References External links Official website
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.650674]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.649577]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.647431]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.641316]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.640090]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.636152]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.635583]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.633481]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.631737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.630447]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.630274]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.628877]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.628763]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.625262]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.624475]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.013183]
+Content: == References ==
+
+[Rank 2 | BGE Score: 0.009711]
+Content: Measures Infrastructure and international development
+
+[Rank 3 | BGE Score: 0.005048]
+Content: References External links Official website
+
+[Rank 4 | BGE Score: 0.003829]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Rank 5 | BGE Score: 0.002890]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 6 | BGE Score: 0.001217]
+Content: Road accidents are unfortunately common and can have devastating consequences. It is important for drivers to exercise caution and follow traffic rules to prevent such incidents. Additionally, regular maintenance and safety checks on vehicles can help reduce the risk of accidents.
+
+[Rank 7 | BGE Score: 0.000763]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Rank 8 | BGE Score: 0.000498]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 9 | BGE Score: 0.000482]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 10 | BGE Score: 0.000343]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 11 | BGE Score: 0.000294]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 12 | BGE Score: 0.000211]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 13 | BGE Score: 0.000191]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 14 | BGE Score: 0.000134]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.
+
+[Rank 15 | BGE Score: 0.000094]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 16 | BGE Score: 0.000089]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Rank 17 | BGE Score: 0.000041]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Rank 18 | BGE Score: 0.000019]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 19 | BGE Score: 0.000018]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 20 | BGE Score: 0.000017]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the instruction given to you?
+Timestamp: 2026-03-03T19:47:06.914582+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.709537]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.704967]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.701184]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.690662]
+Content: ## Your ACTION as a Group
+
+For your conference paper, you should identify 15 images ( 5 easy, 5 medium &amp; 5 hard ) to support your arguments of your proposed image processing pipeline.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680407]
+Content: == References ==
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.679607]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.678193]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.677828]
+Content: ## Your ACTION as a Group
+
+Design and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all.
+
+You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.677190]
+Content: ## 1.7 Teams
+
+Every team member is actively encouraged to do so and doing so is part of the goals for this module.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.676801]
+Content: ## Your ACTION as a Group
+
+the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+Figure 2 : Segmentation Desired Outcome
+
+<!-- image-uuid: 1f11733d-8f56-6fcb-a16c-317a08c156c6 -->
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.674933]
+Content: ## Your ACTION as a Group
+
+For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.673683]
+Content: ## Your ACTION as a Group
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+<!-- image-uuid: 1f11733d-903d-6aa0-99eb-38343303cf50 -->
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.673203]
+Content: ## 3.5.4 Demonstration Video
+
+- Display the team number and the different team members on the first video frame, together with the title of your project, supervisors, and sponsor.
+
+- Prepare the narrative for the demo video before the recording.
+
+- You can edit pieces of narrative to produce the final demo video.
+
+- Speak clearly and be creative.
+
+- Use audio-visual aids as appropriate illustrating crucial features of your work.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.668721]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+<!-- image-uuid: 1f11733d-8f36-6d3c-aa9b-770b8721cdf8 -->
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.668340]
+Content: ## Ground Truth
+
+You will also be provided with a Ground Truth folder which contins images that will be used to fulfil the pipeline evaluation of your coursework. Your image processing pipeline should automatically generate mask of the PMY as shown in Figure 1, below. To ease the process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.667617]
+Content: ## Your ACTION as a Group
+
+The focus of this coursework is on designing and developing your image processing pipeline to perform the abovementioned tasks. You must make sure to evaluate the final outcome. The evaluation can be both qualitative for example perceptual measures - and quantitative - for example mIoU (mean Intersection over Union)can be use as the metrics to evaluate your image processing pipeline's performance. More evaluation metrics ( that you can use ) for image segmentation will be covered in Lecture 9 .
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.664772]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.661486]
+Content: ## 3.2.4 Structure
+
+- Please  make  sure  that  a  table  of  contents  and  an  outline  section  is  included.  The  outline section should be kept short and accessible to the lay person.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.660793]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.660496]
+Content: ## Note:
+
+Please ensure that targets for next sprint become gradually more realistic (e.g. time scales) and inform your supervisor/sponsor when other class activities (coursework for other modules, for example), exams, and holidays are planned.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.009575]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Rank 2 | BGE Score: 0.005248]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 3 | BGE Score: 0.005123]
+Content: ## Ground Truth
+
+You will also be provided with a Ground Truth folder which contins images that will be used to fulfil the pipeline evaluation of your coursework. Your image processing pipeline should automatically generate mask of the PMY as shown in Figure 1, below. To ease the process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+[Rank 4 | BGE Score: 0.003325]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Rank 5 | BGE Score: 0.002380]
+Content: ## Your ACTION as a Group
+
+Design and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all.
+
+You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.
+
+[Rank 6 | BGE Score: 0.002264]
+Content: ## Your ACTION as a Group
+
+For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+[Rank 7 | BGE Score: 0.002133]
+Content: ## Note:
+
+Please ensure that targets for next sprint become gradually more realistic (e.g. time scales) and inform your supervisor/sponsor when other class activities (coursework for other modules, for example), exams, and holidays are planned.
+
+[Rank 8 | BGE Score: 0.001925]
+Content: ## Your ACTION as a Group
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+<!-- image-uuid: 1f11733d-903d-6aa0-99eb-38343303cf50 -->
+
+[Rank 9 | BGE Score: 0.001645]
+Content: ## Your ACTION as a Group
+
+The focus of this coursework is on designing and developing your image processing pipeline to perform the abovementioned tasks. You must make sure to evaluate the final outcome. The evaluation can be both qualitative for example perceptual measures - and quantitative - for example mIoU (mean Intersection over Union)can be use as the metrics to evaluate your image processing pipeline's performance. More evaluation metrics ( that you can use ) for image segmentation will be covered in Lecture 9 .
+
+[Rank 10 | BGE Score: 0.001354]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 11 | BGE Score: 0.001150]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Rank 12 | BGE Score: 0.000863]
+Content: ## Your ACTION as a Group
+
+For your conference paper, you should identify 15 images ( 5 easy, 5 medium &amp; 5 hard ) to support your arguments of your proposed image processing pipeline.
+
+[Rank 13 | BGE Score: 0.000756]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Rank 14 | BGE Score: 0.000589]
+Content: ## 1.7 Teams
+
+Every team member is actively encouraged to do so and doing so is part of the goals for this module.
+
+[Rank 15 | BGE Score: 0.000536]
+Content: ## 3.2.4 Structure
+
+- Please  make  sure  that  a  table  of  contents  and  an  outline  section  is  included.  The  outline section should be kept short and accessible to the lay person.
+
+[Rank 16 | BGE Score: 0.000500]
+Content: ## Your ACTION as a Group
+
+the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+Figure 2 : Segmentation Desired Outcome
+
+<!-- image-uuid: 1f11733d-8f56-6fcb-a16c-317a08c156c6 -->
+
+[Rank 17 | BGE Score: 0.000497]
+Content: ## 3.5.4 Demonstration Video
+
+- Display the team number and the different team members on the first video frame, together with the title of your project, supervisors, and sponsor.
+
+- Prepare the narrative for the demo video before the recording.
+
+- You can edit pieces of narrative to produce the final demo video.
+
+- Speak clearly and be creative.
+
+- Use audio-visual aids as appropriate illustrating crucial features of your work.
+
+[Rank 18 | BGE Score: 0.000066]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+<!-- image-uuid: 1f11733d-8f36-6d3c-aa9b-770b8721cdf8 -->
+
+[Rank 19 | BGE Score: 0.000029]
+Content: == References ==
+
+[Rank 20 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the instruction given to you?
+Timestamp: 2026-03-03T20:01:02.820359+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.709537]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.704967]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.701184]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.690662]
+Content: ## Your ACTION as a Group
+
+For your conference paper, you should identify 15 images ( 5 easy, 5 medium &amp; 5 hard ) to support your arguments of your proposed image processing pipeline.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680407]
+Content: == References ==
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.679607]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.678193]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.677828]
+Content: ## Your ACTION as a Group
+
+Design and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all.
+
+You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.677190]
+Content: ## 1.7 Teams
+
+Every team member is actively encouraged to do so and doing so is part of the goals for this module.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.676801]
+Content: ## Your ACTION as a Group
+
+the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+Figure 2 : Segmentation Desired Outcome
+
+<!-- image-uuid: 1f11733d-8f56-6fcb-a16c-317a08c156c6 -->
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.674933]
+Content: ## Your ACTION as a Group
+
+For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.673683]
+Content: ## Your ACTION as a Group
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+<!-- image-uuid: 1f11733d-903d-6aa0-99eb-38343303cf50 -->
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.673203]
+Content: ## 3.5.4 Demonstration Video
+
+- Display the team number and the different team members on the first video frame, together with the title of your project, supervisors, and sponsor.
+
+- Prepare the narrative for the demo video before the recording.
+
+- You can edit pieces of narrative to produce the final demo video.
+
+- Speak clearly and be creative.
+
+- Use audio-visual aids as appropriate illustrating crucial features of your work.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.668721]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+<!-- image-uuid: 1f11733d-8f36-6d3c-aa9b-770b8721cdf8 -->
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.668340]
+Content: ## Ground Truth
+
+You will also be provided with a Ground Truth folder which contins images that will be used to fulfil the pipeline evaluation of your coursework. Your image processing pipeline should automatically generate mask of the PMY as shown in Figure 1, below. To ease the process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.667617]
+Content: ## Your ACTION as a Group
+
+The focus of this coursework is on designing and developing your image processing pipeline to perform the abovementioned tasks. You must make sure to evaluate the final outcome. The evaluation can be both qualitative for example perceptual measures - and quantitative - for example mIoU (mean Intersection over Union)can be use as the metrics to evaluate your image processing pipeline's performance. More evaluation metrics ( that you can use ) for image segmentation will be covered in Lecture 9 .
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.664772]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.663914]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.661486]
+Content: ## 3.2.4 Structure
+
+- Please  make  sure  that  a  table  of  contents  and  an  outline  section  is  included.  The  outline section should be kept short and accessible to the lay person.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.660793]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.009575]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Rank 2 | BGE Score: 0.005248]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 3 | BGE Score: 0.005123]
+Content: ## Ground Truth
+
+You will also be provided with a Ground Truth folder which contins images that will be used to fulfil the pipeline evaluation of your coursework. Your image processing pipeline should automatically generate mask of the PMY as shown in Figure 1, below. To ease the process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+[Rank 4 | BGE Score: 0.003325]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Rank 5 | BGE Score: 0.002380]
+Content: ## Your ACTION as a Group
+
+Design and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all.
+
+You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.
+
+[Rank 6 | BGE Score: 0.002264]
+Content: ## Your ACTION as a Group
+
+For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+[Rank 7 | BGE Score: 0.001925]
+Content: ## Your ACTION as a Group
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+<!-- image-uuid: 1f11733d-903d-6aa0-99eb-38343303cf50 -->
+
+[Rank 8 | BGE Score: 0.001645]
+Content: ## Your ACTION as a Group
+
+The focus of this coursework is on designing and developing your image processing pipeline to perform the abovementioned tasks. You must make sure to evaluate the final outcome. The evaluation can be both qualitative for example perceptual measures - and quantitative - for example mIoU (mean Intersection over Union)can be use as the metrics to evaluate your image processing pipeline's performance. More evaluation metrics ( that you can use ) for image segmentation will be covered in Lecture 9 .
+
+[Rank 9 | BGE Score: 0.001642]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Rank 10 | BGE Score: 0.001354]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 11 | BGE Score: 0.001150]
+Content: ## 3.2 General Advice
+
+When writing reports, please take the following general advice into account:
+
+[Rank 12 | BGE Score: 0.000863]
+Content: ## Your ACTION as a Group
+
+For your conference paper, you should identify 15 images ( 5 easy, 5 medium &amp; 5 hard ) to support your arguments of your proposed image processing pipeline.
+
+[Rank 13 | BGE Score: 0.000756]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Rank 14 | BGE Score: 0.000589]
+Content: ## 1.7 Teams
+
+Every team member is actively encouraged to do so and doing so is part of the goals for this module.
+
+[Rank 15 | BGE Score: 0.000536]
+Content: ## 3.2.4 Structure
+
+- Please  make  sure  that  a  table  of  contents  and  an  outline  section  is  included.  The  outline section should be kept short and accessible to the lay person.
+
+[Rank 16 | BGE Score: 0.000500]
+Content: ## Your ACTION as a Group
+
+the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+Figure 2 : Segmentation Desired Outcome
+
+<!-- image-uuid: 1f11733d-8f56-6fcb-a16c-317a08c156c6 -->
+
+[Rank 17 | BGE Score: 0.000497]
+Content: ## 3.5.4 Demonstration Video
+
+- Display the team number and the different team members on the first video frame, together with the title of your project, supervisors, and sponsor.
+
+- Prepare the narrative for the demo video before the recording.
+
+- You can edit pieces of narrative to produce the final demo video.
+
+- Speak clearly and be creative.
+
+- Use audio-visual aids as appropriate illustrating crucial features of your work.
+
+[Rank 18 | BGE Score: 0.000066]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+<!-- image-uuid: 1f11733d-8f36-6d3c-aa9b-770b8721cdf8 -->
+
+[Rank 19 | BGE Score: 0.000029]
+Content: == References ==
+
+[Rank 20 | BGE Score: 0.000017]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Who are you?
+Timestamp: 2026-03-03T20:03:16.989247+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.701946]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.672494]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.656191]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.654041]
+Content: References External links Official website
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.650826]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.639555]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Were you primarily technical, managerial, or both? Were you a key player in the successful completion of the project and the operation of the team, a regular contributor? Was your work rate consistent? What initiatives did you take, how was your time management, how did you collaborate with other members to help them to achieve their best?
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.636231]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.632265]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.628507]
+Content: ## Git Lead
+
+The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.627328]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.625427]
+Content: Accused Crimo attended Highland Park High School, but dropped out before his junior year. He has performed under the stage name "Awake the Rapper", and posted his albums on Spotify, YouTube and Apple Music; which included apparent references to the QAnon conspiracy theory. M. Crimo has also been known to share QAnon-related content on his social media accounts.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622154]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.621814]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.621310]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.620310]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.619995]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.619019]
+Content: ## Data protection (the Data Protection Act (2018))
+
+- Is the work collecting or using personal data?
+
+- If so, how is it complying with the requirements of data protection legislation?
+
+- Note, this should also have been covered by your research ethics
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.616183]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+- Difficulties that you experienced within your role, focusing the technical challenges that you encountered as well as in any other aspects of your role.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.615509]
+Content: ## 3.3.2 'Big picture' Reflection Checklist
+
+## Intellectual property (the Copyright, Designs and Patents Act (1988))
+
+- o Do you plan to distribute or promote the work in other ways, for example using open source/open data/creative commons licenses? How?
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.613794]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.019707]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Were you primarily technical, managerial, or both? Were you a key player in the successful completion of the project and the operation of the team, a regular contributor? Was your work rate consistent? What initiatives did you take, how was your time management, how did you collaborate with other members to help them to achieve their best?
+
+[Rank 2 | BGE Score: 0.002938]
+Content: == References ==
+
+[Rank 3 | BGE Score: 0.002482]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Rank 4 | BGE Score: 0.002442]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+- Difficulties that you experienced within your role, focusing the technical challenges that you encountered as well as in any other aspects of your role.
+
+[Rank 5 | BGE Score: 0.002113]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Rank 6 | BGE Score: 0.002016]
+Content: References External links Official website
+
+[Rank 7 | BGE Score: 0.001237]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Rank 8 | BGE Score: 0.000648]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+[Rank 9 | BGE Score: 0.000609]
+Content: Accused Crimo attended Highland Park High School, but dropped out before his junior year. He has performed under the stage name "Awake the Rapper", and posted his albums on Spotify, YouTube and Apple Music; which included apparent references to the QAnon conspiracy theory. M. Crimo has also been known to share QAnon-related content on his social media accounts.
+
+[Rank 10 | BGE Score: 0.000585]
+Content: ## Git Lead
+
+The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.
+
+[Rank 11 | BGE Score: 0.000577]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 12 | BGE Score: 0.000489]
+Content: ## 3.3.2 'Big picture' Reflection Checklist
+
+## Intellectual property (the Copyright, Designs and Patents Act (1988))
+
+- o Do you plan to distribute or promote the work in other ways, for example using open source/open data/creative commons licenses? How?
+
+[Rank 13 | BGE Score: 0.000484]
+Content: ## Data protection (the Data Protection Act (2018))
+
+- Is the work collecting or using personal data?
+
+- If so, how is it complying with the requirements of data protection legislation?
+
+- Note, this should also have been covered by your research ethics
+
+[Rank 14 | BGE Score: 0.000326]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 15 | BGE Score: 0.000057]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 16 | BGE Score: 0.000033]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 17 | BGE Score: 0.000019]
+Content: Measures Infrastructure and international development
+
+[Rank 18 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 19 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 20 | BGE Score: 0.000016]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Who are you?
+Timestamp: 2026-03-03T20:15:41.882590+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.701946]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.672494]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.656191]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.654041]
+Content: References External links Official website
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.650826]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.639555]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Were you primarily technical, managerial, or both? Were you a key player in the successful completion of the project and the operation of the team, a regular contributor? Was your work rate consistent? What initiatives did you take, how was your time management, how did you collaborate with other members to help them to achieve their best?
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.636231]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.632265]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.628507]
+Content: ## Git Lead
+
+The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.627328]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.625427]
+Content: Accused Crimo attended Highland Park High School, but dropped out before his junior year. He has performed under the stage name "Awake the Rapper", and posted his albums on Spotify, YouTube and Apple Music; which included apparent references to the QAnon conspiracy theory. M. Crimo has also been known to share QAnon-related content on his social media accounts.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622154]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.621814]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.621310]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.620310]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.619995]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.619019]
+Content: ## Data protection (the Data Protection Act (2018))
+
+- Is the work collecting or using personal data?
+
+- If so, how is it complying with the requirements of data protection legislation?
+
+- Note, this should also have been covered by your research ethics
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.616183]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+- Difficulties that you experienced within your role, focusing the technical challenges that you encountered as well as in any other aspects of your role.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.615509]
+Content: ## 3.3.2 'Big picture' Reflection Checklist
+
+## Intellectual property (the Copyright, Designs and Patents Act (1988))
+
+- o Do you plan to distribute or promote the work in other ways, for example using open source/open data/creative commons licenses? How?
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.613794]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.019707]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Were you primarily technical, managerial, or both? Were you a key player in the successful completion of the project and the operation of the team, a regular contributor? Was your work rate consistent? What initiatives did you take, how was your time management, how did you collaborate with other members to help them to achieve their best?
+
+[Rank 2 | BGE Score: 0.002938]
+Content: == References ==
+
+[Rank 3 | BGE Score: 0.002482]
+Content: Moud Goba is a Zimbabwean LGBTIQ+ human rights activist. She is a refugee in the United Kingdom where she arrived as a young asylum seeker fleeing Zimbabwe after years of persecution for being a lesbian. Early life
+
+[Rank 4 | BGE Score: 0.002442]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+- Difficulties that you experienced within your role, focusing the technical challenges that you encountered as well as in any other aspects of your role.
+
+[Rank 5 | BGE Score: 0.002113]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Rank 6 | BGE Score: 0.002016]
+Content: References External links Official website
+
+[Rank 7 | BGE Score: 0.001237]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Rank 8 | BGE Score: 0.000648]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+[Rank 9 | BGE Score: 0.000609]
+Content: Accused Crimo attended Highland Park High School, but dropped out before his junior year. He has performed under the stage name "Awake the Rapper", and posted his albums on Spotify, YouTube and Apple Music; which included apparent references to the QAnon conspiracy theory. M. Crimo has also been known to share QAnon-related content on his social media accounts.
+
+[Rank 10 | BGE Score: 0.000585]
+Content: ## Git Lead
+
+The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.
+
+[Rank 11 | BGE Score: 0.000577]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 12 | BGE Score: 0.000489]
+Content: ## 3.3.2 'Big picture' Reflection Checklist
+
+## Intellectual property (the Copyright, Designs and Patents Act (1988))
+
+- o Do you plan to distribute or promote the work in other ways, for example using open source/open data/creative commons licenses? How?
+
+[Rank 13 | BGE Score: 0.000484]
+Content: ## Data protection (the Data Protection Act (2018))
+
+- Is the work collecting or using personal data?
+
+- If so, how is it complying with the requirements of data protection legislation?
+
+- Note, this should also have been covered by your research ethics
+
+[Rank 14 | BGE Score: 0.000326]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 15 | BGE Score: 0.000057]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 16 | BGE Score: 0.000033]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 17 | BGE Score: 0.000019]
+Content: Measures Infrastructure and international development
+
+[Rank 18 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 19 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 20 | BGE Score: 0.000016]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Hi who are you
+Timestamp: 2026-03-03T21:44:55.162364+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.705707]
+Content: == References ==
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.678205]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.676496]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.651492]
+Content: References External links Official website
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.635637]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.634829]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.628955]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.621288]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.620272]
+Content: ## Git Lead
+
+The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.616554]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.614972]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Were you primarily technical, managerial, or both? Were you a key player in the successful completion of the project and the operation of the team, a regular contributor? Was your work rate consistent? What initiatives did you take, how was your time management, how did you collaborate with other members to help them to achieve their best?
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.614751]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.612270]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.612057]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.611398]
+Content: ## Data protection (the Data Protection Act (2018))
+
+- Is the work collecting or using personal data?
+
+- If so, how is it complying with the requirements of data protection legislation?
+
+- Note, this should also have been covered by your research ethics
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.610837]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.607709]
+Content: ## 2.3 Version Control - Git
+
+If you struggle with accessing Git or Multi-Factor Authentication (MFA), please contact the IT Smart Bar. Resetting the Azure MFA account frequently resolves the problem.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.607067]
+Content: ## 3.3.2 'Big picture' Reflection Checklist
+
+## Intellectual property (the Copyright, Designs and Patents Act (1988))
+
+- o Do you plan to distribute or promote the work in other ways, for example using open source/open data/creative commons licenses? How?
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.605605]
+Content: History Since the first participation of the Dominican Republ
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.605546]
+Content: ## 1.7 Teams
+
+Every team member is actively encouraged to do so and doing so is part of the goals for this module.
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.007052]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Were you primarily technical, managerial, or both? Were you a key player in the successful completion of the project and the operation of the team, a regular contributor? Was your work rate consistent? What initiatives did you take, how was your time management, how did you collaborate with other members to help them to achieve their best?
+
+[Rank 2 | BGE Score: 0.004398]
+Content: References External links Official website
+
+[Rank 3 | BGE Score: 0.004057]
+Content: == References ==
+
+[Rank 4 | BGE Score: 0.000858]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Rank 5 | BGE Score: 0.000500]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Rank 6 | BGE Score: 0.000442]
+Content: ## Git Lead
+
+The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.
+
+[Rank 7 | BGE Score: 0.000436]
+Content: ## 1.7 Teams
+
+Every team member is actively encouraged to do so and doing so is part of the goals for this module.
+
+[Rank 8 | BGE Score: 0.000395]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 9 | BGE Score: 0.000325]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 10 | BGE Score: 0.000313]
+Content: ## Data protection (the Data Protection Act (2018))
+
+- Is the work collecting or using personal data?
+
+- If so, how is it complying with the requirements of data protection legislation?
+
+- Note, this should also have been covered by your research ethics
+
+[Rank 11 | BGE Score: 0.000270]
+Content: ## 3.3.2 'Big picture' Reflection Checklist
+
+## Intellectual property (the Copyright, Designs and Patents Act (1988))
+
+- o Do you plan to distribute or promote the work in other ways, for example using open source/open data/creative commons licenses? How?
+
+[Rank 12 | BGE Score: 0.000270]
+Content: ## Industry Sponsor
+
+The role of the industry sponsor can differ. Some will primarily act as the client or product owner. Others get more involved, e.g. by taking up a mentoring role or by providing detailed technical input.
+
+[Rank 13 | BGE Score: 0.000242]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 14 | BGE Score: 0.000240]
+Content: History Since the first participation of the Dominican Republ
+
+[Rank 15 | BGE Score: 0.000187]
+Content: References External links Media related to Miss Grand Dominican Republic at Wikimedia Commons
+
+[Rank 16 | BGE Score: 0.000172]
+Content: ## 2.3 Version Control - Git
+
+If you struggle with accessing Git or Multi-Factor Authentication (MFA), please contact the IT Smart Bar. Resetting the Azure MFA account frequently resolves the problem.
+
+[Rank 17 | BGE Score: 0.000019]
+Content: Measures Infrastructure and international development
+
+[Rank 18 | BGE Score: 0.000018]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 19 | BGE Score: 0.000016]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 20 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: How much marks does CV contribute to the project
+Timestamp: 2026-03-03T21:52:57.894350+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.780556]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.778118]
+Content: ## 5.3 Individual marks
+
+The individual marks represent 20% of the total module mark for individual students. The individual marks are based on the following components:
+
+- Your CV that you have submitted (20% of your individual mark)
+
+- The quality of your individual report (60% of your individual mark)
+
+- The quality of the peer review (20% of your individual mark)
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.774839]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.772702]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.767199]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |
+|-------------------|-----------------------------|-----------------------------------|
+| CV                | 20%                         | 4.00%                             |
+| Individual Report | 60%                         | 12.00%                            |
+| Peer Assessment   | 20%                         | 4.00%                             |
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.762749]
+Content: ## 5.2 Group Marks
+
+The group mark will be scaled to calculate using a weight factor based on peer assessment. This can increase or decrease the mark for individual students and will be moderated by the supervisor to ensure fairness. That is, the final mark for the module will take into account how much individual students have contributed to the 'shared parts' of the project.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.744392]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.741182]
+Content: ## 5.2 Group Marks
+
+The  group  mark  represents  80%  of  your  total  module  mark.  The  group  mark  takes  the  following components into account:
+
+- The expressions of interest and pitch (15% of your group mark)
+
+- The final report (25% of your group mark)
+
+- The stand, presentation, and posters on demo day (15% of your group mark -no poster is required for the virtual open day)
+
+- The software, the inline documentation, and 'the process' used to get the result (45% of your group mark)
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.738808]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.736835]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |
+|---------------------------------------------|-------------------------------------|-----------------------------------|
+| EOI and Pitch                               | 15%                                 | 12.00%                            |
+| Ethics documentation                        | -                                   | -                                 |
+| Interim Report                              | 10%                                 | 8%                                |
+| Final Report                                | 25%                                 | 20.00%                            |
+| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |
+| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.736553]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.734241]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.734154]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.733703]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.733326]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.723887]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.723462]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.721779]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.715749]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.713605]
+Content: ## Conference Paper:
+
+- -Justification of chosen algorithms based on performed literature review: 15%
+
+- -Critical analysis and discussion of your findings: 25%
+
+- -Discussion of the strengths and weaknesses of your proposed pipeline (based on your findings and pipeline design) : 30%
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.593309]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |
+|-------------------|-----------------------------|-----------------------------------|
+| CV                | 20%                         | 4.00%                             |
+| Individual Report | 60%                         | 12.00%                            |
+| Peer Assessment   | 20%                         | 4.00%                             |
+
+[Rank 2 | BGE Score: 0.347324]
+Content: ## 5.3 Individual marks
+
+The individual marks represent 20% of the total module mark for individual students. The individual marks are based on the following components:
+
+- Your CV that you have submitted (20% of your individual mark)
+
+- The quality of your individual report (60% of your individual mark)
+
+- The quality of the peer review (20% of your individual mark)
+
+[Rank 3 | BGE Score: 0.068673]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Rank 4 | BGE Score: 0.063896]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Rank 5 | BGE Score: 0.024045]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |
+|---------------------------------------------|-------------------------------------|-----------------------------------|
+| EOI and Pitch                               | 15%                                 | 12.00%                            |
+| Ethics documentation                        | -                                   | -                                 |
+| Interim Report                              | 10%                                 | 8%                                |
+| Final Report                                | 25%                                 | 20.00%                            |
+| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |
+| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |
+
+[Rank 6 | BGE Score: 0.022743]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Rank 7 | BGE Score: 0.018904]
+Content: ## 5.2 Group Marks
+
+The group mark will be scaled to calculate using a weight factor based on peer assessment. This can increase or decrease the mark for individual students and will be moderated by the supervisor to ensure fairness. That is, the final mark for the module will take into account how much individual students have contributed to the 'shared parts' of the project.
+
+[Rank 8 | BGE Score: 0.012106]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Rank 9 | BGE Score: 0.005747]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Rank 10 | BGE Score: 0.005215]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Rank 11 | BGE Score: 0.004693]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Rank 12 | BGE Score: 0.003532]
+Content: ## 5.2 Group Marks
+
+The  group  mark  represents  80%  of  your  total  module  mark.  The  group  mark  takes  the  following components into account:
+
+- The expressions of interest and pitch (15% of your group mark)
+
+- The final report (25% of your group mark)
+
+- The stand, presentation, and posters on demo day (15% of your group mark -no poster is required for the virtual open day)
+
+- The software, the inline documentation, and 'the process' used to get the result (45% of your group mark)
+
+[Rank 13 | BGE Score: 0.001731]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Rank 14 | BGE Score: 0.001454]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Rank 15 | BGE Score: 0.001448]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Rank 16 | BGE Score: 0.000358]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Rank 17 | BGE Score: 0.000349]
+Content: ## Conference Paper:
+
+- -Justification of chosen algorithms based on performed literature review: 15%
+
+- -Critical analysis and discussion of your findings: 25%
+
+- -Discussion of the strengths and weaknesses of your proposed pipeline (based on your findings and pipeline design) : 30%
+
+[Rank 18 | BGE Score: 0.000215]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Rank 19 | BGE Score: 0.000169]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Rank 20 | BGE Score: 0.000064]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: How much marks does CV contribute to the project
+Timestamp: 2026-03-03T22:00:52.636129+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.780556]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.778118]
+Content: ## 5.3 Individual marks
+
+The individual marks represent 20% of the total module mark for individual students. The individual marks are based on the following components:
+
+- Your CV that you have submitted (20% of your individual mark)
+
+- The quality of your individual report (60% of your individual mark)
+
+- The quality of the peer review (20% of your individual mark)
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.774839]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.772702]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.767199]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |
+|-------------------|-----------------------------|-----------------------------------|
+| CV                | 20%                         | 4.00%                             |
+| Individual Report | 60%                         | 12.00%                            |
+| Peer Assessment   | 20%                         | 4.00%                             |
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.762749]
+Content: ## 5.2 Group Marks
+
+The group mark will be scaled to calculate using a weight factor based on peer assessment. This can increase or decrease the mark for individual students and will be moderated by the supervisor to ensure fairness. That is, the final mark for the module will take into account how much individual students have contributed to the 'shared parts' of the project.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.744392]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.741182]
+Content: ## 5.2 Group Marks
+
+The  group  mark  represents  80%  of  your  total  module  mark.  The  group  mark  takes  the  following components into account:
+
+- The expressions of interest and pitch (15% of your group mark)
+
+- The final report (25% of your group mark)
+
+- The stand, presentation, and posters on demo day (15% of your group mark -no poster is required for the virtual open day)
+
+- The software, the inline documentation, and 'the process' used to get the result (45% of your group mark)
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.738808]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.736835]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |
+|---------------------------------------------|-------------------------------------|-----------------------------------|
+| EOI and Pitch                               | 15%                                 | 12.00%                            |
+| Ethics documentation                        | -                                   | -                                 |
+| Interim Report                              | 10%                                 | 8%                                |
+| Final Report                                | 25%                                 | 20.00%                            |
+| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |
+| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.736553]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.734241]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.734154]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.733703]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.733326]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.723887]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.723462]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.721779]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.715749]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.713605]
+Content: ## Conference Paper:
+
+- -Justification of chosen algorithms based on performed literature review: 15%
+
+- -Critical analysis and discussion of your findings: 25%
+
+- -Discussion of the strengths and weaknesses of your proposed pipeline (based on your findings and pipeline design) : 30%
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.593309]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |
+|-------------------|-----------------------------|-----------------------------------|
+| CV                | 20%                         | 4.00%                             |
+| Individual Report | 60%                         | 12.00%                            |
+| Peer Assessment   | 20%                         | 4.00%                             |
+
+[Rank 2 | BGE Score: 0.347324]
+Content: ## 5.3 Individual marks
+
+The individual marks represent 20% of the total module mark for individual students. The individual marks are based on the following components:
+
+- Your CV that you have submitted (20% of your individual mark)
+
+- The quality of your individual report (60% of your individual mark)
+
+- The quality of the peer review (20% of your individual mark)
+
+[Rank 3 | BGE Score: 0.068673]
+Content: ## 1.5 Workload
+
+Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.
+
+[Rank 4 | BGE Score: 0.063896]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Rank 5 | BGE Score: 0.024045]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |
+|---------------------------------------------|-------------------------------------|-----------------------------------|
+| EOI and Pitch                               | 15%                                 | 12.00%                            |
+| Ethics documentation                        | -                                   | -                                 |
+| Interim Report                              | 10%                                 | 8%                                |
+| Final Report                                | 25%                                 | 20.00%                            |
+| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |
+| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |
+
+[Rank 6 | BGE Score: 0.022743]
+Content: ## Curriculum Vitae
+
+CVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.
+
+[Rank 7 | BGE Score: 0.018904]
+Content: ## 5.2 Group Marks
+
+The group mark will be scaled to calculate using a weight factor based on peer assessment. This can increase or decrease the mark for individual students and will be moderated by the supervisor to ensure fairness. That is, the final mark for the module will take into account how much individual students have contributed to the 'shared parts' of the project.
+
+[Rank 8 | BGE Score: 0.012106]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Rank 9 | BGE Score: 0.005747]
+Content: ## 1.8.2 Supervisor Roles
+
+## Academic Supervisor
+
+- The bidding process : the CVs, expressions of interest and the pitches. If working on an industry project, the assessment of the expressions of interest and pitches will be done jointly with the industry  sponsor.  However,  it  remains  the  responsibility  of  the  academic  supervisor  to complete the feedback, submit it, and to set the mark.
+
+- The ethics forms .
+
+- The interim report and prototype that the team submits.
+
+[Rank 10 | BGE Score: 0.005215]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Rank 11 | BGE Score: 0.004693]
+Content: ## Curriculum Vitae
+
+Every team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.
+
+[Rank 12 | BGE Score: 0.003532]
+Content: ## 5.2 Group Marks
+
+The  group  mark  represents  80%  of  your  total  module  mark.  The  group  mark  takes  the  following components into account:
+
+- The expressions of interest and pitch (15% of your group mark)
+
+- The final report (25% of your group mark)
+
+- The stand, presentation, and posters on demo day (15% of your group mark -no poster is required for the virtual open day)
+
+- The software, the inline documentation, and 'the process' used to get the result (45% of your group mark)
+
+[Rank 13 | BGE Score: 0.001731]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Rank 14 | BGE Score: 0.001454]
+Content: ## 4.2 Peer Assessment
+
+A peer review template (that must be followed) is provided on Moodle for each student. The following aspects are considered when judging your fellow students' contributions:
+
+- General Contribution to the project: coding, relationship with ' customers, ' data gathering and so on.
+
+- Creativity : introduction of new ideas for the project, contribution to designs etc.
+
+[Rank 15 | BGE Score: 0.001448]
+Content: ## 2.8 Golden Rules
+
+- Make sure that you have enough to do.  Don't wait to be assigned tasks - volunteer for things that you find interesting. Keep in mind that the peer assessment is used to scale group marks, and  that  underperformance  of  individual  group  members  can  significantly  influence  their marks. That is, take on an active role in the project and work hard.
+
+[Rank 16 | BGE Score: 0.000358]
+Content: ## Industry Sponsor
+
+All communication with your industry sponsor should be in a professional manner and the academic supervisor should be copied in. Note that the industry sponsor will be asked for their input when your academic supervisor marks the project.
+
+[Rank 17 | BGE Score: 0.000349]
+Content: ## Conference Paper:
+
+- -Justification of chosen algorithms based on performed literature review: 15%
+
+- -Critical analysis and discussion of your findings: 25%
+
+- -Discussion of the strengths and weaknesses of your proposed pipeline (based on your findings and pipeline design) : 30%
+
+[Rank 18 | BGE Score: 0.000215]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Rank 19 | BGE Score: 0.000169]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Rank 20 | BGE Score: 0.000064]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+--------------------------------------------------

@@ -12,7 +12,15 @@ load_dotenv()
 BACKEND_DIR = Path(__file__).resolve().parents[2]   # 到 backend/
 sys.path.insert(0, str(BACKEND_DIR))
 
-from app.service.answer_generator import generate_answer
+from app.service.rag.retrieval.answer_generator import generate_answer
+
+
+def _to_rag_docs(chunks: list[str]) -> list[dict[str, object]]:
+    """Convert legacy plain-text chunks into strict dict RAG documents."""
+    return [
+        {"id": None, "metadata": {}, "page_content": chunk, "type": "Document"}
+        for chunk in chunks
+    ]
 
 
 async def test_generate_answer_basic():
@@ -26,7 +34,7 @@ async def test_generate_answer_basic():
     user_query = "What is machine learning?"
     
     try:
-        result = await generate_answer(rag_contents, user_query)
+        result = await generate_answer(_to_rag_docs(rag_contents), user_query)
         
         assert result is not None, "Result should not be None"
         assert isinstance(result, str), f"Result should be string, got {type(result)}"
@@ -52,7 +60,7 @@ async def test_generate_answer_single_chunk():
     user_query = "What is Python?"
     
     try:
-        result = await generate_answer(rag_contents, user_query)
+        result = await generate_answer(_to_rag_docs(rag_contents), user_query)
         
         assert result is not None, "Result should not be None"
         assert isinstance(result, str), f"Result should be string, got {type(result)}"
@@ -82,7 +90,7 @@ async def test_generate_answer_multiple_chunks():
     user_query = "Explain different types of neural networks"
     
     try:
-        result = await generate_answer(rag_contents, user_query)
+        result = await generate_answer(_to_rag_docs(rag_contents), user_query)
         
         assert result is not None, "Result should not be None"
         assert isinstance(result, str), f"Result should be string, got {type(result)}"
@@ -110,7 +118,7 @@ async def test_generate_answer_chinese():
     user_query = "什么是人工智能？"
     
     try:
-        result = await generate_answer(rag_contents, user_query)
+        result = await generate_answer(_to_rag_docs(rag_contents), user_query)
         
         assert result is not None, "Result should not be None"
         assert isinstance(result, str), f"Result should be string, got {type(result)}"
@@ -136,7 +144,7 @@ async def test_generate_answer_long_context():
     user_query = "Summarize the impact of AI"
     
     try:
-        result = await generate_answer(rag_contents, user_query)
+        result = await generate_answer(_to_rag_docs(rag_contents), user_query)
         
         assert result is not None, "Result should not be None"
         assert isinstance(result, str), f"Result should be string, got {type(result)}"
@@ -166,7 +174,7 @@ async def test_generate_answer_technical_content():
     user_query = "How does neural network training work?"
     
     try:
-        result = await generate_answer(rag_contents, user_query)
+        result = await generate_answer(_to_rag_docs(rag_contents), user_query)
         
         assert result is not None, "Result should not be None"
         assert isinstance(result, str), f"Result should be string, got {type(result)}"
@@ -194,7 +202,7 @@ async def test_generate_answer_mixed_language():
     user_query = "What are AI applications?"
     
     try:
-        result = await generate_answer(rag_contents, user_query)
+        result = await generate_answer(_to_rag_docs(rag_contents), user_query)
         
         assert result is not None, "Result should not be None"
         assert isinstance(result, str), f"Result should be string, got {type(result)}"
@@ -222,7 +230,7 @@ async def test_generate_answer_context_joining():
     user_query = "What information is provided?"
     
     try:
-        result = await generate_answer(rag_contents, user_query)
+        result = await generate_answer(_to_rag_docs(rag_contents), user_query)
         
         assert result is not None, "Result should not be None"
         assert isinstance(result, str), f"Result should be string, got {type(result)}"

@@ -406,7 +406,7 @@ async def generate_rag_responses(dataset_path: str):
     with open(dataset_path, "r") as f:
         golden_data = json.load(f)
     
-    golden_data = golden_data[:1]
+    golden_data = golden_data[:50]
     
     questions = []
     ground_truths = []

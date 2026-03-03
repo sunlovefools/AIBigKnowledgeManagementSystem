@@ -7,7 +7,7 @@ It covers the following components:
 
 * `router_query.py`
 * `query_refiner.py`
-* `answer_generator.py` (Ollama `/api/generate` + TOON context)
+* `answer_generator.py` compatibility facade + `answer_generation/` modular package (Ollama/OpenRouter + TOON/JSON context)
 * Updated `vector_store.py` with similarity search
 * End-to-end RAG pipeline execution
 * API design + request/response schemas
@@ -53,7 +53,7 @@ Full RAG pipeline:
 1. LLM refinement
 2. Embedding generation
 3. Vector similarity search
-4. Answer generation via Ollama endpoint
+4. Answer generation via compatibility facade -> modular answer_generation providers
 
 ### **➤ /api/query/direct**
 
@@ -101,7 +101,7 @@ similar_chunks = search_similar_chunks(query_embedding, top_k=request.top_k)
 
 #### **Step 4 — Answer Generation**
 
-The retrieved context is passed to `answer_generator.generate_answer()` which calls Ollama `/api/generate` with TOON context.
+The retrieved context is passed to `answer_generator.generate_answer()` (compatibility facade), then delegated to `answer_generation/orchestration.py` which routes to Ollama/OpenRouter provider modules. The Ollama provider calls `/api/generate` with TOON context (or local SDK path).
 
 ---
 
@@ -138,16 +138,16 @@ The LLM is expected to return:
 
 ---
 
-# ✅ 4A. answer_generator.py
+# ✅ 4A. answer_generator.py + answer_generation package
 
-Answer generation now uses an Ollama-compatible `/api/generate` endpoint.
+Answer generation now uses a compatibility facade (`answer_generator.py`) that delegates to the modular `answer_generation/` package for Ollama/OpenRouter provider execution.
 
 ### Provider + Env
 
 ```
 ANSWER_GENERATOR_LLM_PROVIDER=OLLAMA
 # Optional for local daemon; required for non-local hosts
-OLLAMA_ANSWER_GENERATOR_LLM_URL=http://127.0.0.1:11434
+OLLAMA_ANSWER_GENERATOR_LLM_URL=http://127.0.0.1:11434/api/generate
 OLLAMA_ANSWER_GENERATOR_LLM_MODEL=<required-model-name>
 # Optional model fallbacks:
 # LOCAL_ANSWER_GENERATOR_LLM_MODEL=<model-name>
@@ -159,7 +159,7 @@ Backward-compatible aliases:
 ```
 ANSWER_GENERATOR_LLM_PROVIDER=BEAM    # Alias to OLLAMA code path
 BEAM_ANSWER_GENERATOR_LLM_URL
-LOCAL_ANSWER_GENERATOR_LLM_URL
+BEAM_ANSWER_GENERATOR_LLM_KEY
 ```
 
 ### Request/Response Contract
