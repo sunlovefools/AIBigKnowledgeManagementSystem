@@ -1,209 +1,156 @@
-import React, { useState, useRef, useEffect } from "react";
-import axios from "axios";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
-import rehypeHighlight from "rehype-highlight";
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
+import Sidebar from "./components/Sidebar";
+import ChatArea from "./components/ChatArea";
+import ChatInput from "./components/ChatInput";
+import ModificationPanel from "./components/ModificationPanel";
+import { useChat } from "./hooks/useChat";
+import { useDocuments } from "./hooks/useDocuments";
+import { useFileUpload } from "./hooks/useFileUpload";
+import { useResizableLayout } from "./hooks/useResizableLayout";
 
-
-type ChatMessage = {
-    role: "user" | "ai";
-    text: string;
-};
-
-const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
-
+// MainPage component that render the main interface of the application
 export default function MainPage() {
     const navigate = useNavigate();
+    const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
+    const bottomRef = useRef<HTMLDivElement | null>(null); // Ref to scroll to the bottom of the chat area
+    const {
+        sidebarWidth,
+        modPanelWidth,
+        isSidebarOpen,
+        isMobile,
+        isResizing,
+        isSidebarToggling,
+        toggleSidebar,
+        closeSidebar,
+        startSidebarResize,
+        startModPanelResize,
+    } = useResizableLayout(); // Run the useResizableLayout hook to get layout-related state and handlers
 
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [input, setInput] = useState("");
+    const { messages, input, isQuerying, setInput, appendMessage, handleQuery, handleKeyDown } =
+        useChat(); // Run the useChat hook to get chat-related state and handlers
+    
+    // Document management state and handlers
+    const {
+        files,
+        isLoadingFiles,
+        fileListError,
+        openTabs,
+        activeTab,
+        activeTabState,
+        handleRefreshDocuments,
+        openDocumentTab,
+        closeDocumentTab,
+        setActiveDocumentTab,
+        loadMoreActiveTab,
+        invalidateDocumentCache,
+        editingDocumentContent,
+        isEditingActiveDocument,
+        isSavingActiveDocument,
+        isActiveDocumentDirty,
+        saveError,
+        startEditingActiveDocument,
+        setActiveEditingDocumentContent,
+        cancelEditingActiveDocument,
+        saveEditingActiveDocument,
+    } = useDocuments(isModificationPanelOpen); // run the useDocuments hook to get document-related state and handlers
 
-    // File State
-    const [selectedFile, setSelectedFile] = useState<File | null>(null);
-    const [fileContent, setFileContent] = useState<string>("");
+    const { selectedFile, isUploading, handleFileSelect, handleUpload, clearFile } = useFileUpload({
+        onUploadMessage: (message) => appendMessage({ role: "ai", text: message }),
+        onUploadSuccess: async () => {
+            invalidateDocumentCache();
+            await handleRefreshDocuments();
+        },
+    });
 
-    // Loading States
-    const [isQuerying, setIsQuerying] = useState<boolean>(false);
-    const [isUploading, setIsUploading] = useState<boolean>(false);
-
-    // Refs
-    const fileRef = useRef<HTMLInputElement | null>(null);
-    const bottomRef = useRef<HTMLDivElement | null>(null);
-
+    // Effect to scroll to the bottom of the chat area whenever messages, querying state, or uploading state changes
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isQuerying, isUploading]);
+
+    // Handler to toggle the modification panel open state
+    const handleToggleModificationPanel = () => {
+        setIsModificationPanelOpen((prev) => !prev);
+    };
 
     const handleLogout = () => {
         localStorage.removeItem("token");
         navigate("/register");
     };
 
-    // --- File Handlers ---
-    const handleFileSelectClick = () => {
-        fileRef.current?.click();
-    };
-
-    const onFileChange: React.ChangeEventHandler<HTMLInputElement> = (event) => {
-        const file = event.target.files?.[0] || null;
-        setSelectedFile(file);
-
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const base64String = (reader.result as string).split(",")[1];
-                setFileContent(base64String);
-            };
-            reader.readAsDataURL(file);
-        } else {
-            setFileContent("");
-        }
-    };
-
-    const clearFile = () => {
-        setSelectedFile(null);
-        setFileContent("");
-        if (fileRef.current) fileRef.current.value = "";
-    };
-
-    const handleUpload = async () => {
-        if (!fileContent || !selectedFile || isUploading) return;
-        setIsUploading(true);
-        try {
-            await axios.post(`${API_BASE}/ingest/webhook`, {
-                fileName: selectedFile.name,
-                contentType: selectedFile.type || "application/octet-stream",
-                data: fileContent,
-            });
-
-            setMessages((prev) => [
-                ...prev,
-                { role: "ai", text: `"${selectedFile.name}" has been added to the knowledge base.` },
-            ]);
-            clearFile();
-        } catch (error) {
-            console.error("Error ingesting file:", error);
-            setMessages((prev) => [
-                ...prev,
-                { role: "ai", text: `Failed to upload "${selectedFile?.name ?? "file"}".` },
-            ]);
-        } finally {
-            setIsUploading(false);
-        }
-    };
-
-    // --- Chat Handlers ---
-    const handleQuery = async () => {
-        const textInput = input.trim();
-        if (!textInput || isQuerying) return;
-
-        setIsQuerying(true);
-        const newMessage: ChatMessage = { role: "user", text: textInput };
-        let placeholderIndex = -1;
-
-        setMessages((prev) => {
-            placeholderIndex = prev.length + 1; // index of the placeholder
-            return [...prev, newMessage, { role: "ai" as const, text: "Processing…" }];
-        });
-        setInput("");
-
-        try {
-            const response = await axios.post(`${API_BASE}/api/query`, {
-                query: textInput,
-            });
-
-            setMessages((prev) =>
-                prev.map((msg, idx) =>
-                    idx === placeholderIndex
-                        ? { role: "ai", text: response.data.answer || "(no response)" }
-                        : msg
-                )
-            );
-        } catch {
-            setMessages((prev) =>
-                prev.map((msg, idx) =>
-                    idx === placeholderIndex
-                        ? { role: "ai", text: "Error: Unable to reach backend" }
-                        : msg
-                )
-            );
-        } finally {
-            setIsQuerying(false);
-        }
-    };
-
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleQuery();
-        }
-    };
-
     return (
-        <div className="app-root">
-            <aside className="sidebar">
-                <div className="sidebar-header">
-                    <div className="logo-mark">KB</div>
-                    <div>
-                        <div className="eyebrow">Workspace</div>
-                        <div className="sidebar-title">Upload sources</div>
-                    </div>
-                </div>
-                <p className="sidebar-hint">PDF, DOCX or TXT - keep everything you need for the chat here.</p>
+        <div
+            // Root div of the main page, with dynamic classes and styles based on the current state of the layout
+            className={`app-root ${isMobile ? "mobile-layout" : ""} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
+            style={
+                {
+                    "--sidebar-width": `${sidebarWidth}px`,
+                    "--mod-panel-width": `${modPanelWidth}px`,
+                } as CSSProperties
+            }
+        >
+            <div className={`sidebar-container ${isSidebarOpen ? "open" : "closed"}`}>
+                <Sidebar // Render the sidebar component
+                    selectedFile={selectedFile}
+                    isUploading={isUploading}
+                    files={files}
+                    isLoadingFiles={isLoadingFiles}
+                    fileListError={fileListError}
+                    activeTab={activeTab}
+                    onFileSelect={handleFileSelect}
+                    onUpload={handleUpload}
+                    onClearFile={clearFile}
+                    onOpenFile={(fileName) => {
+                        void openDocumentTab(fileName);
+                        setIsModificationPanelOpen(true);
+                    }}
+                    onRefreshFiles={() => {
+                        void handleRefreshDocuments();
+                    }}
+                />
+            </div>
 
-                <div className="sources-section">
-                    <div className="section-title">Files</div>
+            {/* Allowing this div with resizing sidebar if the sidebar is open and not in mobile view */}
+            {!isMobile && isSidebarOpen && (
+                <div
+                    className="resize-handle resize-handle-sidebar"
+                    onMouseDown={(event) => startSidebarResize(event.clientX)}
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label="Resize sidebar"
+                />
+            )}
 
-                    <input
-                        ref={fileRef}
-                        type="file"
-                        className="hidden-file-input"
-                        style={{ display: "none" }}
-                        onChange={onFileChange}
-                        accept=".pdf,.doc,.docx,.txt"
-                    />
-
-                    {!selectedFile && (
-                        <button className="add-source-btn" onClick={handleFileSelectClick}>
-                            <span className="plus-icon" aria-hidden>
-                                +
-                            </span>
-                            Select file
-                        </button>
-                    )}
-
-                    {selectedFile && (
-                        <div className="source-card active">
-                            <div className="file-info">
-                                <span className="file-icon" aria-hidden>
-                                    DOC
-                                </span>
-                                <span className="file-name">{selectedFile.name}</span>
-                            </div>
-                            <div className="file-actions">
-                                <button
-                                    className="action-btn upload-confirm-btn"
-                                    onClick={handleUpload}
-                                    disabled={isUploading}
-                                >
-                                    {isUploading ? "Uploading..." : "Confirm upload"}
-                                </button>
-                                <button className="action-btn remove-btn" onClick={clearFile} disabled={isUploading}>
-                                    Remove
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-                </div>
-            </aside>
-
+            {/* Main content which includes the chatbox */}
             <main className="main-content">
                 <header className="top-nav">
-                    <div>
+                    <div className="nav-title-row">
+                        {/* Button for opening and closing the sidebar */}
+                        <button
+                            className="nav-sidebar-toggle"
+                            onClick={toggleSidebar}
+                            aria-label={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
+                            title={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
+                        >
+                            {/* The svg image for the sidebar toggle button (It is a 3 lines menu button) */}
+                            <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                aria-hidden
+                            >
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <line x1="3" y1="12" x2="21" y2="12" />
+                                <line x1="3" y1="18" x2="21" y2="18" />
+                            </svg>
+                        </button>
                         <div className="nav-eyebrow">Document chat</div>
                         <div className="nav-title">Ask your documents</div>
                     </div>
@@ -214,77 +161,74 @@ export default function MainPage() {
                     </div>
                 </header>
 
-                <div className="chat-scroll-area">
-                    {!messages.length ? (
-                        <div className="welcome-screen">
-                            <div className="welcome-icon">*</div>
-                            <h2>Start the conversation</h2>
-                            <p>Upload a document from the left panel, then ask anything about it.</p>
-                        </div>
-                    ) : (
-                        <div className="messages-container">
-                            {messages.map((msg, idx) => (
-                                <div key={idx} className={`message ${msg.role}`}>
-                                    <div className="message-avatar">{msg.role === "user" ? "You" : "AI"}</div>
-                                    <div className="message-content">
-                                        <ReactMarkdown
-                                            remarkPlugins={[remarkGfm]}
-                                            rehypePlugins={[rehypeHighlight]}
-                                        >
-                                            {msg.text}
-                                        </ReactMarkdown>
-                                    </div>
-                                </div>
-                            ))}
-                            {isUploading && (
-                                <div className="message ai">
-                                    <div className="message-avatar">AI</div>
-                                    <div className="message-content">
-                                        <span className="typing-indicator">
-                                            Reading document...
-                                        </span>
-                                    </div>
-                                </div>
-                            )}
-                            <div ref={bottomRef} />
-                        </div>
-                    )}
-                </div>
+                {/* Chat area of the app (Responsible for showing messages from AI and the user question) */}
+                <ChatArea messages={messages} isUploading={isUploading} bottomRef={bottomRef} />
 
-                <div className="input-area-wrapper">
-                    <div className="input-container">
-                        <textarea
-                            className="chat-input"
-                            placeholder="Ask something about your files..."
-                            rows={1}
-                            value={input}
-                            onChange={(e) => setInput(e.target.value)}
-                            onKeyDown={handleKeyDown}
-                        />
-                        <button
-                            className="send-icon-btn"
-                            onClick={handleQuery}
-                            disabled={!input.trim() || isQuerying}
-                            aria-label="Send message"
-                        >
-                            <svg
-                                width="20"
-                                height="20"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            >
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                        </button>
-                    </div>
-                    <div className="input-hint">Enter to send | Shift+Enter for a new line</div>
-                </div>
+                {/* Chat input area of the app */}
+                <ChatInput
+                    input={input}
+                    isQuerying={isQuerying}
+                    isModificationPanelOpen={isModificationPanelOpen}
+                    onInputChange={setInput}
+                    onInputKeyDown={handleKeyDown}
+                    onToggleModificationPanel={handleToggleModificationPanel}
+                    onSend={handleQuery}
+                />
             </main>
+
+            {/* Allow of resizing of the modification panel if the user is not in mobile view and the modification panel is open*/}
+            {!isMobile && isModificationPanelOpen && (
+                <div
+                    className="resize-handle resize-handle-mod-panel"
+                    onMouseDown={(event) => startModPanelResize(event.clientX)}
+                    role="separator"
+                    aria-orientation="vertical"
+                    aria-label="Resize modifications panel"
+                />
+            )}
+
+            <div className={`mod-panel-container ${isModificationPanelOpen ? "open" : "closed"}`}>
+                <ModificationPanel
+                    openTabs={openTabs}
+                    activeTab={activeTab}
+                    activeTabState={activeTabState}
+                    isLoadingFiles={isLoadingFiles}
+                    editingContent={editingDocumentContent}
+                    isEditing={isEditingActiveDocument}
+                    isSaving={isSavingActiveDocument}
+                    isDirty={isActiveDocumentDirty}
+                    saveError={saveError}
+                    onRefreshDocuments={handleRefreshDocuments}
+                    onClose={() => setIsModificationPanelOpen(false)}
+                    onTabSelect={(fileName) => {
+                        void setActiveDocumentTab(fileName);
+                    }}
+                    onTabClose={closeDocumentTab}
+                    onLoadMoreActiveTab={loadMoreActiveTab}
+                    onStartEditing={startEditingActiveDocument}
+                    onEditingContentChange={setActiveEditingDocumentContent}
+                    onCancelEditing={cancelEditingActiveDocument}
+                    onSaveEditing={() => {
+                        void saveEditingActiveDocument();
+                    }}
+                />
+            </div>
+
+            {isMobile && isModificationPanelOpen && (
+                <button
+                    className="panel-backdrop"
+                    onClick={() => setIsModificationPanelOpen(false)}
+                    aria-label="Close modifications panel"
+                />
+            )}
+
+            {isMobile && isSidebarOpen && (
+                <button
+                    className="panel-backdrop"
+                    onClick={closeSidebar}
+                    aria-label="Close sidebar"
+                />
+            )}
         </div>
     );
 }

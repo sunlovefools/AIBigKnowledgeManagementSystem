@@ -1,0 +1,276 @@
+{
+  "table_metadata": {
+    "table_name": "user_investments",
+    "display_name": "User Investments Table",
+    "description": "Table containing user IDs, names, email addresses, and investment types",
+    "table_type": "relational",
+    "units_note": ""
+  },
+  "columns": [
+    {
+      "name": "id",
+      "display_name": "Id",
+      "data_type": "integer",
+      "description": "",
+      "unit": "",
+      "role": "identifier"
+    },
+    {
+      "name": "name",
+      "display_name": "Name",
+      "data_type": "string",
+      "description": "",
+      "unit": "",
+      "role": "text"
+    },
+    {
+      "name": "email",
+      "display_name": "Email",
+      "data_type": "string",
+      "description": "",
+      "unit": "",
+      "role": "text"
+    },
+    {
+      "name": "investments",
+      "display_name": "Investments",
+      "data_type": "string",
+      "description": "",
+      "unit": "",
+      "role": "dimension"
+    }
+  ],
+  "data": [
+    {
+      "row_id": "id_header",
+      "row_type": "header",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": "Id",
+        "name": "Name",
+        "email": "Email",
+        "investments": "Investments"
+      },
+      "raw_values": {
+        "id": "Id",
+        "name": "Name",
+        "email": "Email",
+        "investments": "Investments"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_231",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 231,
+        "name": "Albert Master",
+        "email": "albert.master@gmail.com",
+        "investments": "Bonds"
+      },
+      "raw_values": {
+        "id": "231",
+        "name": "Albert Master",
+        "email": "albert.master@gmail.com",
+        "investments": "Bonds"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_210",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 210,
+        "name": "Alfred Alan",
+        "email": "aalan@gmail.com",
+        "investments": "Stocks"
+      },
+      "raw_values": {
+        "id": "210",
+        "name": "Alfred Alan",
+        "email": "aalan@gmail.com",
+        "investments": "Stocks"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_256",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 256,
+        "name": "Alison Smart",
+        "email": "asmart@biztalk.com",
+        "investments": "Residential Property"
+      },
+      "raw_values": {
+        "id": "256",
+        "name": "Alison Smart",
+        "email": "asmart@biztalk.com",
+        "investments": "Residential Property"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_211",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 211,
+        "name": "Ally Emery",
+        "email": "allye@easymail.com",
+        "investments": "Stocks"
+      },
+      "raw_values": {
+        "id": "211",
+        "name": "Ally Emery",
+        "email": "allye@easymail.com",
+        "investments": "Stocks"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_248",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 248,
+        "name": "Andrew Phips",
+        "email": "andyp@mycorp.com",
+        "investments": "Stocks"
+      },
+      "raw_values": {
+        "id": "248",
+        "name": "Andrew Phips",
+        "email": "andyp@mycorp.com",
+        "investments": "Stocks"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_234",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 234,
+        "name": "Andy Mitchel",
+        "email": "andym@hotmail.com",
+        "investments": "Stocks"
+      },
+      "raw_values": {
+        "id": "234",
+        "name": "Andy Mitchel",
+        "email": "andym@hotmail.com",
+        "investments": "Stocks"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_226",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 226,
+        "name": "Angus Robins",
+        "email": "arobins@robin.com",
+        "investments": "Bonds"
+      },
+      "raw_values": {
+        "id": "226",
+        "name": "Angus Robins",
+        "email": "arobins@robin.com",
+        "investments": "Bonds"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_241",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 241,
+        "name": "Ann Melan",
+        "email": "ann_melan@iinet.com",
+        "investments": "Residential Property"
+      },
+      "raw_values": {
+        "id": "241",
+        "name": "Ann Melan",
+        "email": "ann_melan@iinet.com",
+        "investments": "Residential Property"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_225",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 225,
+        "name": "Ben Bessel",
+        "email": "benb@hotmail.com",
+        "investments": "Stocks"
+      },
+      "raw_values": {
+        "id": "225",
+        "name": "Ben Bessel",
+        "email": "benb@hotmail.com",
+        "investments": "Stocks"
+      },
+      "notes": null
+    },
+    {
+      "row_id": "id_235",
+      "row_type": "data",
+      "category": null,
+      "metric": null,
+      "level": 0,
+      "parent_row_id": null,
+      "values": {
+        "id": 235,
+        "name": "Bensen Romanolf",
+        "email": "berr@albert.net",
+        "investments": "Bonds"
+      },
+      "raw_values": {
+        "id": "235",
+        "name": "Bensen Romanolf",
+        "email": "berr@albert.net",
+        "investments": "Bonds"
+      },
+      "notes": null
+    }
+  ]
+}

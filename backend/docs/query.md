@@ -7,6 +7,7 @@ It covers the following components:
 
 * `router_query.py`
 * `query_refiner.py`
+* `answer_generator.py` compatibility facade + `answer_generation/` modular package (Ollama/OpenRouter + TOON/JSON context)
 * Updated `vector_store.py` with similarity search
 * End-to-end RAG pipeline execution
 * API design + request/response schemas
@@ -17,7 +18,7 @@ It covers the following components:
 # ✅ 1. Module Overview
 
 The Query Module implements the **Retrieval-Augmented Generation (RAG)** pipeline that powers the system’s document search functionality.
-It processes user queries, refines them using an LLM, converts them into embeddings, performs vector similarity search, and returns the top-K most relevant document chunks.
+It processes user queries, refines them using an LLM, converts them into embeddings, performs vector similarity search, and generates an answer from retrieved context.
 
 ---
 
@@ -34,7 +35,7 @@ User Query
     ↓
 (3) Vector Similarity Search (AstraDB)
     ↓
-(4) Top-K Retrieved Chunks
+(4) Answer Generation (Ollama /api/generate + TOON context)
     ↓
 Response JSON
 ```
@@ -52,7 +53,7 @@ Full RAG pipeline:
 1. LLM refinement
 2. Embedding generation
 3. Vector similarity search
-4. Top-K chunk retrieval
+4. Answer generation via compatibility facade -> modular answer_generation providers
 
 ### **➤ /api/query/direct**
 
@@ -98,9 +99,9 @@ query_embedding = embedding_response["embedding"][0]
 similar_chunks = search_similar_chunks(query_embedding, top_k=request.top_k)
 ```
 
-#### **Step 4 — Format Output**
+#### **Step 4 — Answer Generation**
 
-Each result is converted into a `RetrievedChunk` Pydantic model.
+The retrieved context is passed to `answer_generator.generate_answer()` (compatibility facade), then delegated to `answer_generation/orchestration.py` which routes to Ollama/OpenRouter provider modules. The Ollama provider calls `/api/generate` with TOON context (or local SDK path).
 
 ---
 
@@ -134,6 +135,40 @@ The LLM is expected to return:
   "response": "clean refined version"
 }
 ```
+
+---
+
+# ✅ 4A. answer_generator.py + answer_generation package
+
+Answer generation now uses a compatibility facade (`answer_generator.py`) that delegates to the modular `answer_generation/` package for Ollama/OpenRouter provider execution.
+
+### Provider + Env
+
+```
+ANSWER_GENERATOR_LLM_PROVIDER=OLLAMA
+# Optional for local daemon; required for non-local hosts
+OLLAMA_ANSWER_GENERATOR_LLM_URL=http://127.0.0.1:11434/api/generate
+OLLAMA_ANSWER_GENERATOR_LLM_MODEL=<required-model-name>
+# Optional model fallbacks:
+# LOCAL_ANSWER_GENERATOR_LLM_MODEL=<model-name>
+# OLLAMA_MODEL=<model-name>
+```
+
+Backward-compatible aliases:
+
+```
+ANSWER_GENERATOR_LLM_PROVIDER=BEAM    # Alias to OLLAMA code path
+BEAM_ANSWER_GENERATOR_LLM_URL
+BEAM_ANSWER_GENERATOR_LLM_KEY
+```
+
+### Request/Response Contract
+
+- Local target (`localhost` / `127.0.0.1` / `::1`, or URL omitted): uses Python `ollama` client directly (`AsyncClient`)
+- Non-local target: request JSON includes `model`, `system`, `prompt`, `stream=false`
+- Context is TOON-encoded and inserted under `<CONTEXT_TOON>` inside `prompt`
+- No `Authorization` header is sent
+- The answer is read from response field `response`
 
 ---
 
@@ -214,8 +249,8 @@ User Query
  → refine_query()   
  → embed_text()
  → search_similar_chunks()
- → Build response list
- → QueryResponse returned
+ → generate_answer() via Ollama `/api/generate`
+ → QueryResponse returned (`answer`)
 ```
 
 ### Direct Mode (no refinement)

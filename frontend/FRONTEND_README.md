@@ -76,9 +76,9 @@ Always strip trailing slashes to avoid double `//` when constructing endpoint UR
 - On success: displays a banner, clears the form, and `navigate("/mainpage")`.
 - Handles Axios errors explicitly (API responses vs. network).
 - UI features:
-  - Password visibility toggle (SVG icons).
-  - Role dropdown (`user`, `admin`).
-  - Inline success/error message area.
+    - Password visibility toggle (SVG icons).
+    - Role dropdown (`user`, `admin`).
+    - Inline success/error message area.
 
 ### 2. **Main Workspace Page** (`src/pages/mainpage/MainPage.tsx`)
 
@@ -88,27 +88,27 @@ Responsibilities:
 - Uses `useEffect` + `listRef` for auto-scroll when new messages arrive.
 - Allows text entry + file uploads (PDF/DOC/Image). Files convert to base64 via `FileReader` and are stored in `fileContent`.
 - `handleSend()` workflow:
-  1. Pushes the user message into local chat state.
-  2. Calls `POST {API_BASE}/api/query` with `{ query: <text> }`.
-  3. Appends AI response or error placeholder.
-  4. If a file was selected, posts to `POST {API_BASE}/ingest/webhook` with `{ fileName, contentType, data: <base64> }`.
-  5. Clears the input + file picker.
+    1. Pushes the user message into local chat state.
+    2. Calls `POST {API_BASE}/api/query` with `{ query: <text> }`.
+    3. Appends AI response or error placeholder.
+    4. If a file was selected, posts to `POST {API_BASE}/ingest/upload` with `{ fileName, contentType, data: <base64> }`.
+    5. Clears the input + file picker.
 - Additional actions:
-  - `handleLogout()` clears `localStorage.token` and redirects to `/register`.
-  - Hidden “Backend test” button triggers `GET {API_BASE}/hello` and stores the result in `response`.
-  - Shows welcome placeholder UI when no messages exist yet.
+    - `handleLogout()` clears `localStorage.token` and redirects to `/register`.
+    - Hidden “Backend test” button triggers `GET {API_BASE}/hello` and stores the result in `response`.
+    - Shows welcome placeholder UI when no messages exist yet.
 
 State summary:
 
-| Hook            | Purpose                                               |
-|-----------------|-------------------------------------------------------|
-| `messages`      | Array of `{ role: "user" | "ai", text, fileName? }`.  |
-| `input`         | Textarea content.                                     |
-| `selectedFile`  | `File` object chosen via hidden `<input type="file">`.|
-| `fileContent`   | Base64 string for ingestion API.                      |
-| `response`      | Output from `/hello` diagnostics (dev only).          |
-| `fileRef`       | Ref to hidden file input, triggered by upload button. |
-| `listRef`       | Ref to scrollable chat container.                     |
+| Hook           | Purpose                                                |
+| -------------- | ------------------------------------------------------ | ------------------------- |
+| `messages`     | Array of `{ role: "user"                               | "ai", text, fileName? }`. |
+| `input`        | Textarea content.                                      |
+| `selectedFile` | `File` object chosen via hidden `<input type="file">`. |
+| `fileContent`  | Base64 string for ingestion API.                       |
+| `response`     | Output from `/hello` diagnostics (dev only).           |
+| `fileRef`      | Ref to hidden file input, triggered by upload button.  |
+| `listRef`      | Ref to scrollable chat container.                      |
 
 ---
 
@@ -143,12 +143,12 @@ Artifacts in `dist/` can be deployed to GitHub Pages or any static host. For Git
 
 ## Integration Points
 
-| Purpose            | Endpoint (relative to `VITE_API_BASE`) | Notes |
-|--------------------|----------------------------------------|-------|
-| Health check       | `GET /hello`                           | Surfaced through hidden test button on `MainPage`. |
-| Register user      | `POST /auth/register`                  | Expect `{ detail }` error message on failure. |
-| Query LLM          | `POST /api/query` (or `/query`)        | Replace path once backend finalizes route; currently used for placeholder responses. |
-| Upload document    | `POST /ingest/webhook`                 | Accepts base64 payload + metadata for ingestion pipeline. |
+| Purpose         | Endpoint (relative to `VITE_API_BASE`) | Notes                                                                                |
+| --------------- | -------------------------------------- | ------------------------------------------------------------------------------------ |
+| Health check    | `GET /hello`                           | Surfaced through hidden test button on `MainPage`.                                   |
+| Register user   | `POST /auth/register`                  | Expect `{ detail }` error message on failure.                                        |
+| Query LLM       | `POST /api/query` (or `/query`)        | Replace path once backend finalizes route; currently used for placeholder responses. |
+| Upload document | `POST /ingest/upload`                  | Accepts base64 payload + metadata for ingestion pipeline.                            |
 
 When authentication is implemented, attach `Authorization: Bearer <token>` headers to both query and ingestion requests. Consider centralizing axios configuration in a helper module once login is added.
 
@@ -156,36 +156,36 @@ When authentication is implemented, attach `Authorization: Bearer <token>` heade
 
 ## Future Enhancements
 
-1. **Login & Session Handling**  
-   - Add `/auth/login` UI.  
-   - Store JWT/refresh tokens in `localStorage` and configure axios interceptors.
+1. **Login & Session Handling**
+    - Add `/auth/login` UI.
+    - Store JWT/refresh tokens in `localStorage` and configure axios interceptors.
 
-2. **Error UX**  
-   - Replace inline strings with toast notifications.  
-   - Indicate loading states for long-running uploads or queries.
+2. **Error UX**
+    - Replace inline strings with toast notifications.
+    - Indicate loading states for long-running uploads or queries.
 
-3. **Component Tests**  
-   - Introduce Vitest + React Testing Library to cover Register/MainPage logic.
+3. **Component Tests**
+    - Introduce Vitest + React Testing Library to cover Register/MainPage logic.
 
-4. **Design System**  
-   - Migrate CSS files to a consistent component library or CSS-in-JS solution.  
-   - Replace placeholder glyphs with production-ready icons.
+4. **Design System**
+    - Migrate CSS files to a consistent component library or CSS-in-JS solution.
+    - Replace placeholder glyphs with production-ready icons.
 
-5. **State Management**  
-   - Evaluate Zustand/Redux if multi-page state (auth, chat history) grows complex.
+5. **State Management**
+    - Evaluate Zustand/Redux if multi-page state (auth, chat history) grows complex.
 
-6. **Accessibility**  
-   - Add focus handling for chat input, ARIA labels for file attachments, and keyboard shortcuts for sending messages.
+6. **Accessibility**
+    - Add focus handling for chat input, ARIA labels for file attachments, and keyboard shortcuts for sending messages.
 
 ---
 
 ## Quick Reference
 
-| Command          | Description                          |
-|------------------|--------------------------------------|
-| `npm run dev`    | Start dev server (HMR).              |
-| `npm run lint`   | ESLint check.                        |
-| `npm run build`  | Production bundle to `dist/`.        |
-| `npm run preview`| Serve the production bundle locally. |
+| Command           | Description                          |
+| ----------------- | ------------------------------------ |
+| `npm run dev`     | Start dev server (HMR).              |
+| `npm run lint`    | ESLint check.                        |
+| `npm run build`   | Production bundle to `dist/`.        |
+| `npm run preview` | Serve the production bundle locally. |
 
 Use this README when onboarding new frontend contributors or syncing with backend teammates on API expectations. For deployment specifics (GitHub Pages, CI secrets), refer to the root `README.md`.

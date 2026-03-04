@@ -1,0 +1,723 @@
+{
+  "source_file_name": "COMP2005_2026_CWBrief.pdf",
+  "artifact_run_id": "1f11733d-0e74-6ccd-81c8-da249ccc7e2f",
+  "artifact_dir": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f",
+  "markdown_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f\\document.md",
+  "markdown_text": "<!-- image-uuid: 1f11733d-8e23-691f-a92a-34cc56d32737 -->\n\nModule Assessment Sheet for 2025-2026\n\n| Module             | Introduction to Image Processing (IIP) / COMP 2005 / Semester 2   |\n|--------------------|-------------------------------------------------------------------|\n| Assessment         | Coursework (100%)                                                 |\n| Module Convenor(s) | Magan Moemeni                                                     |\n\n| Programming and Conference Paper   | Group   |\n|------------------------------------|---------|\n\n## Description and Deliverable(s)\n\n| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |\n|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |\n| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |\n| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |\n\nThe coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:\n\n## Per group submission:\n\n1. Python codes: .py files (submitted as a ZIP folder)\n\n2. A 6-page conference paper in PDF format ( note: additional pages will result in a deduction of 5% for every additional page for the entire group ).\n\n3. Results 2026 IIP - Group XXX (submitted as a ZIP folder and please change XXX to your group number (e.g., 001, 007, 011)\n\n4. -001 - Input Images\n\n5. -002 - Image Processing Pipeline\n\n6. -003 - Output Images\n\n## Individual submission:\n\n4. Each of you will need to make an additional submission, separately for your peer assessment . Please click on the ' Peer Assessment ' link on Moodle to perform this submission.\n\n5. Additionally, each of you will need to fill up the provided AI Declaration Microsoft Form link on Moodle. Should you fail to perform a submission, it WILL result in a penalty of 15% deduction of your individual mark.\n\nAside from this assessment sheet , you will be provided with the following documentations:\n\n1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.\n\n2. A compressed Dataset folder.\n\n3. A compressed Ground Truth folder.\n\nNote: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.\n\n## Declaration of AI Use\n\nAs you are aware, Artificial Intelligence (AI) - especially tools like ChatGPT, Microsoft Copilot, and Grammarly-is rapidly transforming how we learn, write, code, and even think. For this module, we like to engage critically with AI: not to fear it, but to use it wisely and responsibly.\n\nFor this assessment, you must submit the AI Use Declaration form (to be provided on Moodle), clearly stating whether AI tools were used and how. This new practice supports transparency and academic integrity.\n\nREMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.\n\n<!-- image-uuid: 1f11733d-8f05-606d-8711-499dae3e9330 -->\n\n## Semantic Segmentation of Blood Cell\n\n## Background\n\nThe need to separate one material from another, or to identify a particular material, arises in many image processing applications. From industrial inspection, where the task may involve identifying pixels corresponding to correctly manufactured cloth, to human computer interaction, where detecting human skin is required, the core problem remains the same: developing an image processing pipeline that converts a colour image into a new representation by labelling different materials.\n\nMedical image analysis is an active research area undergoing transformative evolution through the application of image processing and computer vision technologies. In the field of haematology, for example, Ali et al. (2023) state that haematologists bear the burden of labour-intensive manual processes, requiring meticulous examination of countless blood cells under high workloads and frequent distractions to diagnose blood disorders and guide treatment decisions. However, advancements in automated peripheral blood smear analysis have significantly alleviated these challenges faced by haematologists.\n\nIn this coursework, the objective is to develop an image processing pipeline to segment pro-myelocytes (PMYs) from their corresponding background. The resulting pipeline will generate relevant output images to automate blood cell classification.\n\n## Image Processing Pipeline\n\nAn image processing pipeline usually includes at least some of the following steps (but not exhaustively):\n\nColour space conversion : choose a colour space. Any can be used, but most people choose to work in a lowerdimensional (&lt;3) space whenever possible.\n\nNoise reduction : depending on image quality, some form of noise suppression may be required.\n\nThresholding/Segmentation : image regions corresponding to blood cells must be identified, and thresholding is a common approach. The method used varies and may be global or local. Methods that automatically determine the threshold value have obvious advantages over those that require user interaction.\n\nBinary image processing : Identifying a perfect threshold value or segmentation method is almost impossible, and most methods will result in some mis-classified pixels. A further binary image processing stage is often needed to clean up the image, hopefully leaving it containing only regions that correspond to required blood cells. Nothing, however, is perfect.\n\n## Dataset\n\nYou will be using the Naturalize dataset, consisting of 16,000 images, separated into 11 classes. For this pipeline we have selected 3 out of these 11 classes PMY , EO and ERB . Within your team you should analyse these images in each folder and make a decision as a team for the images to use for this pipeline. You must choose ONLY 5 images for each folder.\n\nEmpty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.\n\n## Image Selection Guide :\n\nWhile you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard\n\n## Ground Truth\n\nYou will also be provided with a Ground Truth folder which contins images that will be used to fulfil the pipeline evaluation of your coursework. Your image processing pipeline should automatically generate mask of the PMY as shown in Figure 1, below. To ease the process, please add ' \\_mymask ' at the end of each name of the image such as ' image\\_1\\_mymask.png '.\n\nFigure 1 : An example of a mask created for one PMY.\n\n<!-- image-uuid: 1f11733d-8f20-6e00-b68b-1f84a07f2493 -->\n\n<!-- image-uuid: 1f11733d-8f36-6d3c-aa9b-770b8721cdf8 -->\n\n## Your ACTION as a Group\n\nDesign and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all. You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.\n\nThe focus of this coursework is on designing and developing your image processing pipeline to perform the abovementioned tasks. You must make sure to evaluate the final outcome. The evaluation can be both qualitative for example perceptual measures - and quantitative - for example mIoU (mean Intersection over Union)can be use as the metrics to evaluate your image processing pipeline's performance. More evaluation metrics ( that you can use ) for image segmentation will be covered in Lecture 9 .\n\nYou should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).\n\nFigure 2 : Segmentation Desired Outcome\n\n<!-- image-uuid: 1f11733d-8f56-6fcb-a16c-317a08c156c6 -->\n\nFor your conference paper, you should identify 15 images ( 5 easy, 5 medium &amp; 5 hard ) to support your arguments of your proposed image processing pipeline.\n\nAs for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs. After the execution of your program, it is expected that each image in your provided input-images folder (e.g., 15 images - 5 easy, 5 medium &amp; 5 hard) has a corresponding segmentation result represented by a .jpg file saved in the output-images folder , categorised within three sub-folders (e.g., easy, medium, and hard) with the same name as the input images but with an extension of '-easy\\_1, -easy\\_2, -easy\\_3, -medium\\_1, -medium\\_2, -medium\\_3, -hard\\_1, -hard\\_2 and -hard\\_3 ' at the end of the filename. As mentioned earlier, your output image must have a white background with only the segmented PMY. Additionally, images generated as part of your image processing pipeline can be saved in the image-processing-pipeline folder whereby you can create subfolders for each input image and label the sub-folders as the same name as the input image. For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.\n\nNOTE : A readme file is recommended to be produced alongside the source code.\n\n<!-- image-uuid: 1f11733d-903d-6aa0-99eb-38343303cf50 -->\n\nFigure 3 : The overall process of Image Processing Pipeline and Evaluation\n\n<!-- image-uuid: 1f11733d-9050-691c-8032-4ed9c463dd85 -->\n\n## CONFERENCE PAPER : When writing your conference paper, consider the following points:\n\n1. Detail the chosen method(s) and specific image processing technique(s) employed.\n\n2. Explain why you choose those technique(s) and method(s). You may include the pseudocodes of the chosen technique(s) and method(s) (if applicable). Clearly justify your parameter choices and support your arguments based on either the literature review or trial and error.\n\n3. Present the results obtained from your practical implementation.\n\n4. Critically evaluate your method(s) on the basis of those results: what are its strengths and weakness? This section should make explicit reference to features of the results you obtained as well as using the relevant metric for segmentation to support your provided arguments/justifications.\n\n5. Critically evaluate your results: highlighting the strengths and weakness of your entire pipeline. Please use the qualitative metrics (e.g., MIoU ) and qualitative metrics (perception measurements), generated from your pipeline to further support your provided arguments/justifications in your conference paper.\n\n## Reference:\n\nAbou Ali, M., Dornaika, F., &amp; Arganda-Carreras, I. (2023). Blood cell revolution: Unveiling 11 distinct types with 'Naturalize' augmentation. Algorithms , 16 (12), 562.\n\n## Assessment Criteria\n\nPython code(s): 30% [ unable to run codes will result in 0% being awarded ]\n\n## Conference Paper:\n\n- -Justification of chosen algorithms based on performed literature review: 15%\n\n- -Critical analysis and discussion of your findings: 25%\n\n- -Discussion of the strengths and weaknesses of your proposed pipeline (based on your findings and pipeline design) : 30%\n\n## ExamSys Test\n\n## Individual 30%\n\n| Description        | Focuses on theories covered in the lectures and practical exercises   |\n|--------------------|-----------------------------------------------------------------------|\n| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |",
+  "images": [
+    {
+      "kind": "picture",
+      "image_uuid": "1f11733d-8e23-691f-a92a-34cc56d32737",
+      "file_name": "1f11733d-8e23-691f-a92a-34cc56d32737.png",
+      "file_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f\\images\\1f11733d-8e23-691f-a92a-34cc56d32737.png",
+      "page_no": 1,
+      "table_index": null,
+      "picture_index": 1,
+      "reason": null,
+      "s3_bucket": null,
+      "s3_key": null,
+      "s3_region": null,
+      "s3_uri": null,
+      "s3_upload_status": "skipped",
+      "s3_error": "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
+    },
+    {
+      "kind": "picture",
+      "image_uuid": "1f11733d-8f05-606d-8711-499dae3e9330",
+      "file_name": "1f11733d-8f05-606d-8711-499dae3e9330.png",
+      "file_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f\\images\\1f11733d-8f05-606d-8711-499dae3e9330.png",
+      "page_no": 2,
+      "table_index": null,
+      "picture_index": 2,
+      "reason": null,
+      "s3_bucket": null,
+      "s3_key": null,
+      "s3_region": null,
+      "s3_uri": null,
+      "s3_upload_status": "skipped",
+      "s3_error": "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
+    },
+    {
+      "kind": "picture",
+      "image_uuid": "1f11733d-8f20-6e00-b68b-1f84a07f2493",
+      "file_name": "1f11733d-8f20-6e00-b68b-1f84a07f2493.png",
+      "file_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f\\images\\1f11733d-8f20-6e00-b68b-1f84a07f2493.png",
+      "page_no": 2,
+      "table_index": null,
+      "picture_index": 3,
+      "reason": null,
+      "s3_bucket": null,
+      "s3_key": null,
+      "s3_region": null,
+      "s3_uri": null,
+      "s3_upload_status": "skipped",
+      "s3_error": "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
+    },
+    {
+      "kind": "picture",
+      "image_uuid": "1f11733d-8f36-6d3c-aa9b-770b8721cdf8",
+      "file_name": "1f11733d-8f36-6d3c-aa9b-770b8721cdf8.png",
+      "file_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f\\images\\1f11733d-8f36-6d3c-aa9b-770b8721cdf8.png",
+      "page_no": 3,
+      "table_index": null,
+      "picture_index": 4,
+      "reason": null,
+      "s3_bucket": null,
+      "s3_key": null,
+      "s3_region": null,
+      "s3_uri": null,
+      "s3_upload_status": "skipped",
+      "s3_error": "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
+    },
+    {
+      "kind": "picture",
+      "image_uuid": "1f11733d-8f56-6fcb-a16c-317a08c156c6",
+      "file_name": "1f11733d-8f56-6fcb-a16c-317a08c156c6.png",
+      "file_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f\\images\\1f11733d-8f56-6fcb-a16c-317a08c156c6.png",
+      "page_no": 3,
+      "table_index": null,
+      "picture_index": 5,
+      "reason": null,
+      "s3_bucket": null,
+      "s3_key": null,
+      "s3_region": null,
+      "s3_uri": null,
+      "s3_upload_status": "skipped",
+      "s3_error": "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
+    },
+    {
+      "kind": "picture",
+      "image_uuid": "1f11733d-903d-6aa0-99eb-38343303cf50",
+      "file_name": "1f11733d-903d-6aa0-99eb-38343303cf50.png",
+      "file_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f\\images\\1f11733d-903d-6aa0-99eb-38343303cf50.png",
+      "page_no": 4,
+      "table_index": null,
+      "picture_index": 6,
+      "reason": null,
+      "s3_bucket": null,
+      "s3_key": null,
+      "s3_region": null,
+      "s3_uri": null,
+      "s3_upload_status": "skipped",
+      "s3_error": "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
+    },
+    {
+      "kind": "picture",
+      "image_uuid": "1f11733d-9050-691c-8032-4ed9c463dd85",
+      "file_name": "1f11733d-9050-691c-8032-4ed9c463dd85.png",
+      "file_path": "C:\\Users\\Yoong Shen\\Desktop\\Software Engineer Group Projects\\Project Codebase\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11733d-0e74-6ccd-81c8-da249ccc7e2f\\images\\1f11733d-9050-691c-8032-4ed9c463dd85.png",
+      "page_no": 4,
+      "table_index": null,
+      "picture_index": 7,
+      "reason": null,
+      "s3_bucket": null,
+      "s3_key": null,
+      "s3_region": null,
+      "s3_uri": null,
+      "s3_upload_status": "skipped",
+      "s3_error": "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
+    }
+  ],
+  "warnings": [],
+  "partial_failures": [],
+  "stats": {
+    "converted_chunks": 1,
+    "partial_failure_chunks": 0,
+    "pictures_extracted": 7,
+    "table_fallback_images_extracted": 0
+  },
+  "structured_blocks": [
+    {
+      "block_index": 0,
+      "block_type": "picture",
+      "content": "<!-- image-uuid: 1f11733d-8e23-691f-a92a-34cc56d32737 -->",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 1,
+      "block_type": "text",
+      "content": "Module Assessment Sheet for 2025-2026",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 2,
+      "block_type": "table",
+      "content": "| Module             | Introduction to Image Processing (IIP) / COMP 2005 / Semester 2   |\n|--------------------|-------------------------------------------------------------------|\n| Assessment         | Coursework (100%)                                                 |\n| Module Convenor(s) | Magan Moemeni                                                     |",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 3,
+      "block_type": "table",
+      "content": "| Programming and Conference Paper   | Group   |\n|------------------------------------|---------|",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 4,
+      "block_type": "header",
+      "content": "## Description and Deliverable(s)",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 5,
+      "block_type": "table",
+      "content": "| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |\n|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |\n| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |\n| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 6,
+      "block_type": "text",
+      "content": "The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 7,
+      "block_type": "header",
+      "content": "## Per group submission:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 8,
+      "block_type": "list",
+      "content": "1. Python codes: .py files (submitted as a ZIP folder)",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 9,
+      "block_type": "list",
+      "content": "2. A 6-page conference paper in PDF format ( note: additional pages will result in a deduction of 5% for every additional page for the entire group ).",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 10,
+      "block_type": "list",
+      "content": "3. Results 2026 IIP - Group XXX (submitted as a ZIP folder and please change XXX to your group number (e.g., 001, 007, 011)",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 11,
+      "block_type": "list",
+      "content": "4. -001 - Input Images",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 12,
+      "block_type": "list",
+      "content": "5. -002 - Image Processing Pipeline",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 13,
+      "block_type": "list",
+      "content": "6. -003 - Output Images",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 14,
+      "block_type": "header",
+      "content": "## Individual submission:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 15,
+      "block_type": "list",
+      "content": "4. Each of you will need to make an additional submission, separately for your peer assessment . Please click on the ' Peer Assessment ' link on Moodle to perform this submission.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 16,
+      "block_type": "list",
+      "content": "5. Additionally, each of you will need to fill up the provided AI Declaration Microsoft Form link on Moodle. Should you fail to perform a submission, it WILL result in a penalty of 15% deduction of your individual mark.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 17,
+      "block_type": "text",
+      "content": "Aside from this assessment sheet , you will be provided with the following documentations:",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 18,
+      "block_type": "list",
+      "content": "1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 19,
+      "block_type": "list",
+      "content": "2. A compressed Dataset folder.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 20,
+      "block_type": "list",
+      "content": "3. A compressed Ground Truth folder.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 21,
+      "block_type": "text",
+      "content": "Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 22,
+      "block_type": "header",
+      "content": "## Declaration of AI Use",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 23,
+      "block_type": "text",
+      "content": "As you are aware, Artificial Intelligence (AI) - especially tools like ChatGPT, Microsoft Copilot, and Grammarly-is rapidly transforming how we learn, write, code, and even think. For this module, we like to engage critically with AI: not to fear it, but to use it wisely and responsibly.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 24,
+      "block_type": "text",
+      "content": "For this assessment, you must submit the AI Use Declaration form (to be provided on Moodle), clearly stating whether AI tools were used and how. This new practice supports transparency and academic integrity.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 25,
+      "block_type": "text",
+      "content": "REMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.",
+      "page_no": 1,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 26,
+      "block_type": "picture",
+      "content": "<!-- image-uuid: 1f11733d-8f05-606d-8711-499dae3e9330 -->",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 27,
+      "block_type": "header",
+      "content": "## Semantic Segmentation of Blood Cell",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 28,
+      "block_type": "header",
+      "content": "## Background",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 29,
+      "block_type": "text",
+      "content": "The need to separate one material from another, or to identify a particular material, arises in many image processing applications. From industrial inspection, where the task may involve identifying pixels corresponding to correctly manufactured cloth, to human computer interaction, where detecting human skin is required, the core problem remains the same: developing an image processing pipeline that converts a colour image into a new representation by labelling different materials.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 30,
+      "block_type": "text",
+      "content": "Medical image analysis is an active research area undergoing transformative evolution through the application of image processing and computer vision technologies. In the field of haematology, for example, Ali et al. (2023) state that haematologists bear the burden of labour-intensive manual processes, requiring meticulous examination of countless blood cells under high workloads and frequent distractions to diagnose blood disorders and guide treatment decisions. However, advancements in automated peripheral blood smear analysis have significantly alleviated these challenges faced by haematologists.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 31,
+      "block_type": "text",
+      "content": "In this coursework, the objective is to develop an image processing pipeline to segment pro-myelocytes (PMYs) from their corresponding background. The resulting pipeline will generate relevant output images to automate blood cell classification.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 32,
+      "block_type": "header",
+      "content": "## Image Processing Pipeline",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 33,
+      "block_type": "text",
+      "content": "An image processing pipeline usually includes at least some of the following steps (but not exhaustively):",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 34,
+      "block_type": "text",
+      "content": "Colour space conversion : choose a colour space. Any can be used, but most people choose to work in a lowerdimensional (&lt;3) space whenever possible.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 35,
+      "block_type": "text",
+      "content": "Noise reduction : depending on image quality, some form of noise suppression may be required.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 36,
+      "block_type": "text",
+      "content": "Thresholding/Segmentation : image regions corresponding to blood cells must be identified, and thresholding is a common approach. The method used varies and may be global or local. Methods that automatically determine the threshold value have obvious advantages over those that require user interaction.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 37,
+      "block_type": "text",
+      "content": "Binary image processing : Identifying a perfect threshold value or segmentation method is almost impossible, and most methods will result in some mis-classified pixels. A further binary image processing stage is often needed to clean up the image, hopefully leaving it containing only regions that correspond to required blood cells. Nothing, however, is perfect.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 38,
+      "block_type": "header",
+      "content": "## Dataset",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 39,
+      "block_type": "text",
+      "content": "You will be using the Naturalize dataset, consisting of 16,000 images, separated into 11 classes. For this pipeline we have selected 3 out of these 11 classes PMY , EO and ERB . Within your team you should analyse these images in each folder and make a decision as a team for the images to use for this pipeline. You must choose ONLY 5 images for each folder.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 40,
+      "block_type": "text",
+      "content": "Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 41,
+      "block_type": "header",
+      "content": "## Image Selection Guide :",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 42,
+      "block_type": "text",
+      "content": "While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 43,
+      "block_type": "header",
+      "content": "## Ground Truth",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 44,
+      "block_type": "text",
+      "content": "You will also be provided with a Ground Truth folder which contins images that will be used to fulfil the pipeline evaluation of your coursework. Your image processing pipeline should automatically generate mask of the PMY as shown in Figure 1, below. To ease the process, please add ' \\_mymask ' at the end of each name of the image such as ' image\\_1\\_mymask.png '.",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 45,
+      "block_type": "picture",
+      "content": "Figure 1 : An example of a mask created for one PMY.\n\n<!-- image-uuid: 1f11733d-8f20-6e00-b68b-1f84a07f2493 -->",
+      "page_no": 2,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 46,
+      "block_type": "picture",
+      "content": "<!-- image-uuid: 1f11733d-8f36-6d3c-aa9b-770b8721cdf8 -->",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 47,
+      "block_type": "header",
+      "content": "## Your ACTION as a Group",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 48,
+      "block_type": "text",
+      "content": "Design and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all. You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 49,
+      "block_type": "text",
+      "content": "The focus of this coursework is on designing and developing your image processing pipeline to perform the abovementioned tasks. You must make sure to evaluate the final outcome. The evaluation can be both qualitative for example perceptual measures - and quantitative - for example mIoU (mean Intersection over Union)can be use as the metrics to evaluate your image processing pipeline's performance. More evaluation metrics ( that you can use ) for image segmentation will be covered in Lecture 9 .",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 50,
+      "block_type": "text",
+      "content": "You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 51,
+      "block_type": "picture",
+      "content": "Figure 2 : Segmentation Desired Outcome\n\n<!-- image-uuid: 1f11733d-8f56-6fcb-a16c-317a08c156c6 -->",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 52,
+      "block_type": "text",
+      "content": "For your conference paper, you should identify 15 images ( 5 easy, 5 medium &amp; 5 hard ) to support your arguments of your proposed image processing pipeline.",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 53,
+      "block_type": "text",
+      "content": "As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs. After the execution of your program, it is expected that each image in your provided input-images folder (e.g., 15 images - 5 easy, 5 medium &amp; 5 hard) has a corresponding segmentation result represented by a .jpg file saved in the output-images folder , categorised within three sub-folders (e.g., easy, medium, and hard) with the same name as the input images but with an extension of '-easy\\_1, -easy\\_2, -easy\\_3, -medium\\_1, -medium\\_2, -medium\\_3, -hard\\_1, -hard\\_2 and -hard\\_3 ' at the end of the filename. As mentioned earlier, your output image must have a white background with only the segmented PMY. Additionally, images generated as part of your image processing pipeline can be saved in the image-processing-pipeline folder whereby you can create subfolders for each input image and label the sub-folders as the same name as the input image. For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 54,
+      "block_type": "text",
+      "content": "NOTE : A readme file is recommended to be produced alongside the source code.",
+      "page_no": 3,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 55,
+      "block_type": "picture",
+      "content": "<!-- image-uuid: 1f11733d-903d-6aa0-99eb-38343303cf50 -->",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 56,
+      "block_type": "picture",
+      "content": "Figure 3 : The overall process of Image Processing Pipeline and Evaluation\n\n<!-- image-uuid: 1f11733d-9050-691c-8032-4ed9c463dd85 -->",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 57,
+      "block_type": "header",
+      "content": "## CONFERENCE PAPER : When writing your conference paper, consider the following points:",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 58,
+      "block_type": "list",
+      "content": "1. Detail the chosen method(s) and specific image processing technique(s) employed.",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 59,
+      "block_type": "list",
+      "content": "2. Explain why you choose those technique(s) and method(s). You may include the pseudocodes of the chosen technique(s) and method(s) (if applicable). Clearly justify your parameter choices and support your arguments based on either the literature review or trial and error.",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 60,
+      "block_type": "list",
+      "content": "3. Present the results obtained from your practical implementation.",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 61,
+      "block_type": "list",
+      "content": "4. Critically evaluate your method(s) on the basis of those results: what are its strengths and weakness? This section should make explicit reference to features of the results you obtained as well as using the relevant metric for segmentation to support your provided arguments/justifications.",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 62,
+      "block_type": "list",
+      "content": "5. Critically evaluate your results: highlighting the strengths and weakness of your entire pipeline. Please use the qualitative metrics (e.g., MIoU ) and qualitative metrics (perception measurements), generated from your pipeline to further support your provided arguments/justifications in your conference paper.",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 63,
+      "block_type": "header",
+      "content": "## Reference:",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 64,
+      "block_type": "text",
+      "content": "Abou Ali, M., Dornaika, F., &amp; Arganda-Carreras, I. (2023). Blood cell revolution: Unveiling 11 distinct types with 'Naturalize' augmentation. Algorithms , 16 (12), 562.",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 65,
+      "block_type": "header",
+      "content": "## Assessment Criteria",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 66,
+      "block_type": "text",
+      "content": "Python code(s): 30% [ unable to run codes will result in 0% being awarded ]",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 67,
+      "block_type": "header",
+      "content": "## Conference Paper:",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 68,
+      "block_type": "list",
+      "content": "- -Justification of chosen algorithms based on performed literature review: 15%",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 69,
+      "block_type": "list",
+      "content": "- -Critical analysis and discussion of your findings: 25%",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 70,
+      "block_type": "list",
+      "content": "- -Discussion of the strengths and weaknesses of your proposed pipeline (based on your findings and pipeline design) : 30%",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 71,
+      "block_type": "header",
+      "content": "## ExamSys Test",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 72,
+      "block_type": "header",
+      "content": "## Individual 30%",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    },
+    {
+      "block_index": 73,
+      "block_type": "table",
+      "content": "| Description        | Focuses on theories covered in the lectures and practical exercises   |\n|--------------------|-----------------------------------------------------------------------|\n| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |",
+      "page_no": 4,
+      "is_table_image": false,
+      "table_image_uuid": null
+    }
+  ]
+}
