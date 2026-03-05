@@ -8,6 +8,10 @@ from typing import Optional, Dict, Any
 from dotenv import load_dotenv
 from astrapy import DataAPIClient
 
+# ADDED: Auth0 libraries
+import requests
+from jose import jwt
+
 # from auth_schema import get_users_table_definition
 from app.core.password_utils import hash_password, verify_password
 from app.core.validation import validate_email_format, validate_password_strength, sanitize_email
@@ -19,6 +23,11 @@ load_dotenv()
 # Database connection by using URL and private token in .env file
 ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
 ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
+
+# ADDED: Auth0 environment variables
+AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
+AUTH0_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
+AUTH0_ALGORITHMS = ["RS256"]
 
 # If either variable is missing, raise an error
 if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
@@ -38,11 +47,53 @@ print(f"Connected to database {database.info().name}\n")
 
 ### It ends here ###
 
+
+# ADDED: Auth0 token verification helper
+def verify_auth0_token(token: str) -> Dict[str, Any]:
+    """
+    Verify Auth0 JWT token and return decoded payload
+    """
+    try:
+        jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+        jwks = requests.get(jwks_url).json()
+
+        unverified_header = jwt.get_unverified_header(token)
+
+        rsa_key = {}
+
+        for key in jwks["keys"]:
+            if key["kid"] == unverified_header["kid"]:
+                rsa_key = {
+                    "kty": key["kty"],
+                    "kid": key["kid"],
+                    "use": key["use"],
+                    "n": key["n"],
+                    "e": key["e"]
+                }
+
+        if rsa_key:
+            payload = jwt.decode(
+                token,
+                rsa_key,
+                algorithms=AUTH0_ALGORITHMS,
+                audience=AUTH0_AUDIENCE,
+                issuer=f"https://{AUTH0_DOMAIN}/"
+            )
+
+            return payload
+
+        raise Exception("Unable to find appropriate key")
+
+    except Exception as e:
+        raise Exception(f"Invalid Auth0 token: {e}")
+
+
 class AuthenticationError(Exception):
     # Custom exception for authentication errors
     # Can 'pass' pass the exception to the caller?
     # Yes, 'pass' allows the exception to be raised and handled by the caller.
     pass 
+
 
 # AuthService class
 class AuthService:
@@ -73,15 +124,11 @@ class AuthService:
     def _get_next_user_id(self) -> int:
         """Get the next available user ID"""
         try:
-            # Find the maximum ID in the table
-            # Note: This is a simple implementation. For production, consider using UUID or database sequences
             result = self.table.find({})
-            # .find() will return a cursor object that is iterable (Imagine it's a pointer point to the dataset over at the database [cloud])
             print(f"\n\n{result}\n\n")
-            # Get a max_id to keep track of the latest id from the table
+
             max_id = 0
 
-            # Loop through each row in the result to find the maximum id
             for row in result:
                 if row.get('id', 0) > max_id:
                     max_id = row['id']
@@ -92,17 +139,9 @@ class AuthService:
     def email_exists(self, email: str) -> bool:
         """
         Check if an email already exists in the database
-        
-        Args:
-            email: Email to check
-            
-        Returns:
-            True if email exists, False otherwise
         """
-        # Sanitize email
         email = sanitize_email(email)
         try:
-            # Check for existing email
             result = self.table.find({"email": email})
             return len(list(result)) > 0
         except Exception:
@@ -111,69 +150,42 @@ class AuthService:
     def register_user(self, email: str, password: str, role: str) -> Dict[str, Any]:
         """
         Register a new user
-        
-        Args:
-            email: User's email
-            password: User's plain text password
-            
-        Returns:
-            Dictionary with user information (without password)
-            {
-                "id": int,
-                "email": str,
-                "user_role": str,
-                "created_at": datetime,
-                "is_active": bool
-            }
-
-        Raises:
-            AuthenticationError: If validation fails or email already exists
         """
-        # Sanitize email into lowercase and remove trailing spaces or leading spaces
-        # email = sanitize_email(email)
-        
-        # Validate email format and return 
-        # is_valid_email: Boolean indicating if email is valid
-        # email_error: Error message if invalid
-        # email: Normalized email (Normalised email is in lowercase and trimmed [Same as sanitize_email function, that is why I commented out the sanitize_email line above])
+
         is_valid_email, email_error, email = validate_email_format(email)
-        # If email is invalid, raise error
         if not is_valid_email:
             raise AuthenticationError(f"Invalid email format: {email_error}")
         
-        # Validate password strength, if the password is weak, raise error
         is_valid_password, password_error = validate_password_strength(password)
         if not is_valid_password:
             raise AuthenticationError(f"Weak password: {password_error}")
         
-        # Check for duplicate email, if exists, raise error
         if self.email_exists(email):
             raise AuthenticationError(f"Account with email '{email}' already exists")
 
-        # Validate user role
         if role not in ["user", "admin"]:
             raise AuthenticationError(f"Invalid user role: {role}")
 
-        # Hash password using bcrypt
         password_hash = hash_password(password)
 
-        # Prepare user data dictionary
         user_data = {
             "email": email,
             "user_role": role,
             "password_hash": password_hash,
+
+            # OAuth fields added
+            "auth_provider": "local",
+            "oauth_sub": None,
+
             "created_at": datetime.now(timezone.utc),
             "is_active": True
         }
         
-        # Insert into database
         try:
-            # Inset the data into the table
             inserted_result = self.table.insert_one(user_data)
             
-            # Get the new user ID (_id) assigned by the database
             new_user_id = inserted_result.inserted_id
-            # Return user data without password
+
             return {
                 "id": new_user_id,
                 "email": email,
@@ -187,56 +199,27 @@ class AuthService:
     def login_user(self, email: str, password: str) -> Dict[str, Any]:
         """
         Authenticate a user login
-        
-        Args:
-            email: User's email
-            password: User's plain text password
-            
-        Returns:
-            Dictionary with user information if login successful
-            
-        Raises:
-            AuthenticationError: If credentials are invalid
         """
-        # Sanitize email
+
         email = sanitize_email(email)
         
-        # Find user by email
         try:
-            # Try to find the user in the database
-            # find() method will return a cursor object that is iterable, can you list() it to get all the results
             result = self.table.find({"email": email})
             users = list(result)
 
-            # Example of output: 
-            # [{'id': 1, 
-            # 'created_at': DataAPITimestamp(timestamp_ms=1762275590557 [2025-11-04T16:59:50.557Z]),
-            #  'email': 'test@example.com',
-            #  'is_active': True,
-            #  'password_hash': '$2b$12$zpycz1q9DASaDwt9IGULYehixv6JiFrdJ/O7pGndmvrH2ZhwGNCXC'}]
-
-            # Example of accessing the data of email: 
-            # users[0]['email'] => 'test@example.com'
-            
-            # If no user found with that email, raise error
             if not users:
                 raise AuthenticationError("Invalid email or password")
             
-            # Get the first user (there should only be one due to unique email constraint)
             user = users[0]
             
-            # Check if account is active
-            # If account is deactivated, raise error
             if not user.get('is_active', False):
                 raise AuthenticationError("Account is deactivated")
             
-            # Verify password using hashed password
             if not verify_password(password, user['password_hash']):
                 raise AuthenticationError("Invalid email or password")
             
             print(f"✅ User logged in successfully: {email}")
             
-            # Return user data without password
             return {
                 "id": user['id'],
                 "email": user['email'],
@@ -251,12 +234,6 @@ class AuthService:
     def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
         """
         Get user information by email
-        
-        Args:
-            email: User's email
-            
-        Returns:
-            User information dictionary or None if not found
         """
         email = sanitize_email(email)
         try:
@@ -273,3 +250,79 @@ class AuthService:
             return None
         except Exception:
             return None
+
+    def oauth_login(self, email: str, oauth_sub: str) -> Dict[str, Any]:
+        """
+        OAuth login or automatic registration
+
+        If the OAuth user already exists, log them in.
+        If they do not exist, create a new account automatically.
+        """
+
+        email = sanitize_email(email)
+
+        try:
+            result = self.table.find({"oauth_sub": oauth_sub})
+            users = list(result)
+
+            if users:
+                user = users[0]
+
+                if not user.get('is_active', True):
+                    raise AuthenticationError("Account is deactivated")
+
+                return {
+                    "id": user.get('id', user.get('_id')),
+                    "email": user.get('email'),
+                    "user_role": user.get('user_role', "user"),
+                    "created_at": user.get('created_at'),
+                    "is_active": user.get('is_active', True)
+                }
+
+            user_data = {
+                "email": email,
+                "user_role": "user",
+                "auth_provider": "oauth",
+                "oauth_sub": oauth_sub,
+                "created_at": datetime.now(timezone.utc),
+                "is_active": True
+            }
+
+            inserted_result = self.table.insert_one(user_data)
+
+            return {
+                "id": inserted_result.inserted_id,
+                "email": email,
+                "user_role": "user",
+                "created_at": user_data["created_at"],
+                "is_active": True
+            }
+
+        except AuthenticationError:
+            raise
+        except Exception as e:
+            raise AuthenticationError(f"OAuth login failed: {e}")
+
+
+    # ADDED: Auth0 login method
+    def auth0_login(self, token: str) -> Dict[str, Any]:
+        """
+        Login using Auth0 JWT token
+        """
+
+        try:
+            payload = verify_auth0_token(token)
+
+            email = payload.get("email")
+            oauth_sub = payload.get("sub")
+
+            if not email or not oauth_sub:
+                raise AuthenticationError("Invalid Auth0 payload")
+
+            # Reuse existing OAuth login logic
+            return self.oauth_login(email, oauth_sub)
+
+        except AuthenticationError:
+            raise
+        except Exception as e:
+            raise AuthenticationError(f"Auth0 login failed: {e}")
