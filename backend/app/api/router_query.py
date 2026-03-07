@@ -72,9 +72,8 @@ def _get_conversations_collection():
         print(f"⚠️ Conversations collection init failed: {e}")
         return None
 
-
+#Generates conversation title based on the first user message, with a max length and ellipsis if truncated.
 def _generate_conversation_title(first_user_message: str):
-    # Keep title deterministic and lightweight for now.
     normalized = " ".join(first_user_message.strip().split())
     if not normalized:
         return "New conversation"
@@ -82,21 +81,21 @@ def _generate_conversation_title(first_user_message: str):
     max_length = 60
     return normalized[:max_length].rstrip() + ("..." if len(normalized) > max_length else "")
 
-
+#Add/update conversation metadata (title, timestamps, message count) whenever a new message is saved.
 def _upsert_conversation_metadata(
     conversation_id: str,
     user_email: str,
     role: str,
     text: str,
 ):
-    collection = _get_conversations_collection()
-    if collection is None:
+    collection = _get_conversations_collection()#returns AstraDB conversations collection
+    if collection is None:#if DB not been initialized
         return None
 
     timestamp = datetime.now(timezone.utc).isoformat()
-    existing = collection.find_one({"conversationId": conversation_id})
+    existing = collection.find_one({"conversationId": conversation_id})#check if conversation metadata already exists for this conversationId
 
-    if existing:
+    if existing:#update existing conversation metadata
         current_count = int(existing.get("messageCount", 0))
         existing_title = existing.get("title", "New conversation")
         should_replace_title = role == "user" and (not existing_title or existing_title == "New conversation")
@@ -127,8 +126,9 @@ def _upsert_conversation_metadata(
             "updated": update_result is not None,
         }
 
+    #if no existing metadata, create new metadata entry for this conversation
     title = _generate_conversation_title(text) if role == "user" else "New conversation"
-    document = {
+    conversationDocument = {
         "conversationId": conversation_id,
         "userEmail": user_email,
         "title": title,
@@ -141,7 +141,7 @@ def _upsert_conversation_metadata(
             "timestamp": timestamp,
         },
     }
-    collection.insert_one(document)
+    collection.insert_one(conversationDocument)
     return {
         "conversationId": conversation_id,
         "createdAt": timestamp,
@@ -151,33 +151,33 @@ def _upsert_conversation_metadata(
         "created": True,
     }
 
-
+# Save each chat message to the 'chat_messages' collection, and update conversation metadata in 'conversations' collection.
 def _save_chat_message(conversation_id: str, user_email: str, role: str, text: str):
     collection = _get_chat_collection()
     if collection is None:
         return None
 
     timestamp = datetime.now(timezone.utc).isoformat()
-    document = {
-        "conversationId": conversation_id,
+    chatDocument = {#create a document for chat message with all metadata
+        "conversationId": conversation_id, 
         "userEmail": user_email,
         "role": role,
         "text": text,
         "timestamp": timestamp,
     }
 
-    result = collection.insert_one(document)
+    result = collection.insert_one(chatDocument)#returns ID of newly inserted chat message document
     try:
-        _upsert_conversation_metadata(
+        _upsert_conversation_metadata(#update conversation of chat message with new metadata e.g. lastMessage and timestamp will have changed
             conversation_id=conversation_id,
             user_email=user_email,
             role=role,
             text=text,
         )
-    except Exception as e:
-        print(f"⚠️ Failed to update conversation metadata: {e}")
+    except Exception as e:#if conversation metadata update fails, log the error but do not fail the entire message saving process
+        print(f"Failed to update conversation's metadata: {e}")
 
-    return {
+    return {#return the saved chat message with its new ID and metadata
         "messageId": str(result.inserted_id),
         "conversationId": conversation_id,
         "userEmail": user_email,
@@ -219,7 +219,7 @@ async def query_documents(request: QueryRequest):
     """
     Full RAG Query Pipeline using the Parent-Child Retriever pattern:
     1. Refine the user query using LLM. (It is currently skipped as experiment)
-    2. Search for relevant child chunks and retrieve associated parent document contents (LangChain/AstraDB).
+    2. Search for relevant child chunks and retrieve associated parent conversationDocument contents (LangChain/AstraDB).
     3. Generate an answer from the context using the Answer Generator LLM.
     """
 
