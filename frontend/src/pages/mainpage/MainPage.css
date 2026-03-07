@@ -461,6 +461,89 @@ html,
     background: #eef2ff;
 }
 
+.conversation-switcher {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 24px 12px;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.62);
+}
+
+.conversation-switcher-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.conversation-switcher-title {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.conversation-switcher-status {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+}
+
+.conversation-switcher-status.error {
+    color: var(--danger-color);
+}
+
+.conversation-chip-list {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.conversation-chip {
+    min-width: 170px;
+    max-width: 240px;
+    text-align: left;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--panel);
+    padding: 8px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.conversation-chip:hover:not(:disabled) {
+    border-color: #cbd5e1;
+    background: #f8faff;
+}
+
+.conversation-chip.active {
+    border-color: var(--accent-color);
+    background: #f3f7ff;
+}
+
+.conversation-chip:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.conversation-chip-title {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conversation-chip-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+}
+
 /* Chat Scroll Area */
 .chat-scroll-area {
     flex: 1;
@@ -722,6 +805,10 @@ html,
 
     .top-nav {
         padding: 0 16px;
+    }
+
+    .conversation-switcher {/* The container for the list of conversations */
+        padding: 10px 16px;
     }
 
     .nav-actions {

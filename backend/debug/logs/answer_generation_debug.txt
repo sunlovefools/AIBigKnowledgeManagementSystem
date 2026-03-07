@@ -1342,3 +1342,504 @@ Answer Length: 473
 Answer:
 The Indian Space Research Organization (ISRO) is the space agency of the Government of India. Established in 1969 with the aim of developing space technology and conducting space research, ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies. Over the years, ISRO has achieved several significant milestones, including launching its first satellite, Aryabhata, in 1975.
 ==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-07T13:42:07.615642+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 17340
+
+<QUERY>
+What is the overall task for the COMP2005 module coursework?
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f116fd4-bd84-68bd-8cbe-716d58662bc5",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 60
+    },
+    "page_content": "## 3.5.5 Abstract\n\nTeams are asked to provide a short abstract (5 -10 lines) that will be included in the programme distributed  for  the  showcase.    The  abstract  should  document what the  project  was about,  why  it matters, how it was approached, and how it can be built upon in the future. A template for the abstract is provided on Moodle.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd5e-6aa5-9095-627a52529f0f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## 1 Introduction\n\n## 1.1 Overview\n\nThe software engineering group project module brings students together to work in team on a project. The module and project focus on the entire software development lifecycle, including the software specification (requirements analysis and design), development (implementation, coding, programming), validation and testing, documentation, and the management of the project. That is, this module is not ' just ' about writing code, but instead about the whole software engineering (SE) process. This will require teams to bring theory that they have learned (or will learn) in other modules, including  G51FSE  G51PGP,  G51PGA,  and  G52SWM,  into  practice.  Supporting  lectures  and  project supervisor(s) will guide you through the process.\n\nThe module consists of the following key elements:\n\n- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.\n\n- The project itself,  applying  technical  knowledge,  established  SE  methods,  agile  project management, and interpersonal skills to successfully deliver the project.\n\n- The demo  day (circumstances  permitting),  a  \"trade  fair  style  event\"  where  you  will demonstrate your work to both internal and external visitors.\n\n- The delivery / end of contract , including the submission of your software, project report, user and software documentation, management documentation, an individual project report, and a peer review.\n\nFor many of you, the group project will offer a first working experience on a team based project, helping you to apply theoretical and practical knowledge to deliver a real result. The group project is generally regarded as one of the most important components of your UG degree and encapsulates key elements towards the BCS accreditation of your degree. Many alumni comment to us that this module has had the most value to them as they start their working life.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68e4-957e-dcf6d7bbd55b",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 70
+    },
+    "page_content": "## 5.4 Total marks\n\nThe total mark for an individual student is based on the (scaled) group mark and his/her individual marks.  The  total  module  mark  uses  an  80/20  weighting  for  the  group/individual  marks.  The contribution for each of the component marks to the total module mark is shown below.\n\n|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |\n|---------------------------------------------|-------------------------------------|-----------------------------------|\n| EOI and Pitch                               | 15%                                 | 12.00%                            |\n| Ethics documentation                        | -                                   | -                                 |\n| Interim Report                              | 10%                                 | 8%                                |\n| Final Report                                | 25%                                 | 20.00%                            |\n| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |\n| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |\n\n|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |\n|-------------------|-----------------------------|-----------------------------------|\n| CV                | 20%                         | 4.00%                             |\n| Individual Report | 60%                         | 12.00%                            |\n| Peer Assessment   | 20%                         | 4.00%                             |",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd7a-6c54-ac68-668f223b8846",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 53
+    },
+    "page_content": "## Broader ethical and social considerations\n\n- How have you considered the broader ethical and social aspects of the work? For example:\n\n- o Who will benefit from the work? How?\n\n- o Could the work have unintended consequences? What?\n\n- o Could the work have military or criminal applications? What?\n\n- o Who might be affected by the work, directly or indirectly? How?\n\n- o Have people who might be affected been able to influence the work?\n\n- o Is the work accessible or beneficial to all?\n\n- o Is the work likely to reduce or increase societal inequalities?\n\n- o What impact might the work have on the natural environment?\n\n- o Is the work worth doing? Why?\n\n- See Responsible (Research and) Innovation (COMP3020). The RRI Prompts and Practice cards, (https://experience.horizon.ac.uk/2022/09/30/rri-prompt-practice-cards/)  and  the  Moral-IT cards (https://lachlansresearch.com/the-moral-it-legal-it-decks/) may also help you to reflect on these aspects of your project.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd5c-6370-94fc-ae2b8ac73b4e",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "## Software Engineering Group Project\n\nCOMP2002: Project Handbook 2024-2025",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd65-6fc1-a478-c4de6f034202",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 7
+    },
+    "page_content": "## 1.5 Workload\n\nCOMP2002 is a 20 credit module. This means that each member of the team should spend roughly 200 hours of work on the project, or in a team of 6 people, a total of 1200 hours. That is, one could reasonably expect to work about 100 hours per term on their group project, or on average just over 1 day per week in a 12 week term. Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.\n\nThe module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd6c-61a8-8089-1b7974e47b67",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 20
+    },
+    "page_content": "## 2 The Project\n\n## 2.1 The Bidding Process\n\n## 2.1.1 Project Sign-Up\n\nAll  project  briefs  are  listed  on  the  Moodle  page  for  COMP2002.  The  project  briefs  give  an  initial specification of the project and may initially be vague. Teams are expected to shortlist projects that they want bid for as soon as possible (prior to the start of the sign-up process, which takes place late September to early October).\n\nDuring the sign-up process, teams register to bid for projects on a FCFS basis. That is, if other teams register for a project before you, the other teams will be given the opportunity to bid for the project and your team will have to register for an alternative project. It is therefore recommended that teams shortlist  about  6  projects  in  case  they  miss  out  on  their  first  few  options.  Note  that  teams  are responsible for jointly shortlisting the projects, but that only the group administrator will be able to register the team's interest for projects.\n\nTo maximise the chances of teams getting at least one of their preferred choices, the sign-up process is spread across three consecutive days. That is, you register to bid for the first project on day 1, the second project on day 2, and the third project on day 3. The different registration systems will open automatically at 09:00 on each day (the exact dates are announced in Moodle). When the registration process closes on the third day, every project will have three teams against it, and every team will be signed up to bid for three projects.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90de-6e71-8a34-65e029b62e97",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 1
+    },
+    "page_content": "## Description and Deliverable(s)\n\n| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |\n|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |\n| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |\n| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |\n\nThe coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd71-6023-a100-afb4867c943f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 26
+    },
+    "page_content": "## 2.2 Project Management\n\nA major component of the project will be to practice software engineering techniques and technical skills  that  you  have covered theoretically or at a lower level of complexity in other modules. This includes programming skills, software design, team skills, and project management\n\nAn Agile project management approach, which is in its purest form typically well suited for smaller projects with co-located teams that communicate informally, is recommended. Agile methods have a strong focus on delivering a finished piece of work (e.g. a working product or completed analysis) after every sprint (to be demo-ed to supervisors during meetings) and typically interleave requirements elicitation with development, rather than having a heavy weight upfront requirements analysis (as with plan driven approaches) that causes significant overhead.  In summary, agile methods encourage customer  involvement,  embrace  changes  to  requirements,  delivers  small  and  frequent  releases, focusses on simplicity of software and processes, and assumes self-organising teams.\n\nThere must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68da-b35d-53d67346d620",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 66
+    },
+    "page_content": "## 5 Assessment\n\nThe total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68eb-8103-53256fd61d7f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 72
+    },
+    "page_content": "## 5.5 Re-assessment\n\nIf you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:\n\n- Consider  the  code  and  documentation  (report,  manual,  etc.)  that  have  been  submitted already, and the initial and adopted requirements.\n\n- Add a useful fix or addition to the code\n\n- Update the documentation appropriately\n\n- Provide a brief (1-3 page) report summarising what you changed, why it was changed, what effect it had\n\n- A  reflection  upon  what  you  have  done  and  (if  you  so  wish,  to  enhance  the  potential  for reflection) within the initial project duration.\n\nYour additional work should demonstrate:\n\n- ability to work with (i.e. adapt/improve) the code and documentation already provided by others (and you)\n\n- knowledge of software engineering methodologies\n\n- ability to understand the requirements and specifications (as originally given or adapted)\n\n- ability to select and deploy tools and techniques\n\n- the ability to reflect upon your own progress, strengths and weaknesses\n\nThe marking criteria for the regular assessment will be used as a guide to evaluate your work.\n\nAll  code  changes  should  be  pushed  to  Git,  and  the  report  should  be  submitted  to  the  relevant submission system on Moodle.\n\nNote that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd78-6561-9e04-a98fb5a4dc27",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 50
+    },
+    "page_content": "## Research ethics\n\n- Does the work involve human participants or data subjects? If so:\n\n- o Have you followed the University of Nottingham research ethics requirements?\n\n- o How does the work safeguard participants and data subjects?\n\n- o How does the work reflect principles of informed consent and voluntary participation?\n\n- o Were there any ethically tricky aspects to the work, and how did you deal with them?\n\n- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90dd-6ab3-9ab9-2d264359165e",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "<!-- image-uuid: 1f11733d-8e23-691f-a92a-34cc56d32737 -->\n\nModule Assessment Sheet for 2025-2026\n\n| Module             | Introduction to Image Processing (IIP) / COMP 2005 / Semester 2   |\n|--------------------|-------------------------------------------------------------------|\n| Assessment         | Coursework (100%)                                                 |\n| Module Convenor(s) | Magan Moemeni                                                     |\n\n| Programming and Conference Paper   | Group   |\n|------------------------------------|---------|",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90de-6e77-83dc-a068d9a450a7",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## Individual submission:\n\n4. Each of you will need to make an additional submission, separately for your peer assessment . Please click on the ' Peer Assessment ' link on Moodle to perform this submission.\n\n5. Additionally, each of you will need to fill up the provided AI Declaration Microsoft Form link on Moodle. Should you fail to perform a submission, it WILL result in a penalty of 15% deduction of your individual mark.\n\nAside from this assessment sheet , you will be provided with the following documentations:\n\n1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.\n\n2. A compressed Dataset folder.\n\n3. A compressed Ground Truth folder.\n\nNote: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-07T13:42:40.414191+00:00
+Answer Length: 337
+Answer:
+The overall task for the COMP2005 module coursework involves developing a software solution using Python to address a real image processing problem. Students are required to collaborate in groups of maximum 4 members to create a software solution, produce a conference paper, and submit it along with critical evaluation of the solution.
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-07T13:43:09.480729+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 16227
+
+<QUERY>
+Can I hand in the coursework late?
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f116fd4-bd84-68e8-b1f6-586deea0e7da",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 71
+    },
+    "page_content": "## Important:\n\n- Ethics documentation will carry no actual mark, however, non-completion of this documentation (and follow up documentation for projects considered to require it) will nullify any  marks  obtained  for  any  other  components.  Not  going  through  appropriate  ethics clearance is considered as academic misconduct\n\n- Late submissions, be it of printed copies or electronic copies of reports and software, will be penalised at the standard university guidelines of 5 % per working day.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd5c-6370-94fc-ae2b8ac73b4e",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "## Software Engineering Group Project\n\nCOMP2002: Project Handbook 2024-2025",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd75-6e44-8fa5-a37d9745c20d",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 43
+    },
+    "page_content": "## 3.2.1 Writing Process\n\n- Ensure  that  there  is  one  editor  in  charge  of  the  documents,  preferably  someone  with  an emphasis on presentation and good English. This helps to write reports in a uniform style, even if individual sections are drafted by different members of the team.\n\n- It is recommended to avoid cutting and pasting sections written by other team members, and to instead read and rewrite them. This will help to improve coherency across the reports.\n\n- Ensure that the reports are ready well in advance. It is reasonable to expect that you will require several writing and editing iterations to obtain good reports, including after feedback from your supervisor.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd65-6fc1-a478-c4de6f034202",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 7
+    },
+    "page_content": "## 1.5 Workload\n\nCOMP2002 is a 20 credit module. This means that each member of the team should spend roughly 200 hours of work on the project, or in a team of 6 people, a total of 1200 hours. That is, one could reasonably expect to work about 100 hours per term on their group project, or on average just over 1 day per week in a 12 week term. Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.\n\nThe module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd63-68e2-b862-6b2932f76b1e",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 5
+    },
+    "page_content": "## 1.3 Ethics\n\nThe University of Nottingham requires all students engaged in work that involves human participants or human data (including biological data) to complete an Ethics Review. All groups must complete the CS Preliminary Ethics Checklist. For most projects, completing the preliminary ethics checklist will be sufficient.\n\nStudents  should work together  with  their  academic  supervisors to  complete  the  checklist.  After completion and agreement from the supervisor, each group submits the preliminary ethics checklist to the relevant submission system in Moodle (one per group, submitted by the group administrator) and notify their supervisor of the submission. The supervisor will check and 'mark' the submission.\n\nIf your project involves, e.g., human participants, the use of personal data that is not in the public domain, or involves biological materials, your team will also need to complete the full CS Research Ethics Checklist. After completion and agreement from the supervisor, the team should submit the full  ethics  form and supporting documentation to the relevant submission system in Moodle. The submission will be checked and approved by the supervisor, or sent to the CS ethics committee for further review. You will be required to revise your ethics application if it does not satisfy the ethics requirements.\n\nGroups must not start work with human participants, personal data that is not in the public domain, or  biological  materials  before  the  ethics review  process  has  been completed.  You  are  therefore advised to start the ethics process as soon as possible (i.e. immediately after you have been assigned your project or as soon as it becomes apparent that you need ethics clearance).\n\nThe forms necessary to complete for the ethics process are available on Moodle and on the school's Ethics Forms on workspace.\n\nFigure 1: Ethics Checks - Flow chart (original available on the CS workspace)\n\n<!-- image-uuid: 1f116fd4-bab9-67c6-bf43-aa37efd0758f -->",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90de-6e71-8a34-65e029b62e97",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 1
+    },
+    "page_content": "## Description and Deliverable(s)\n\n| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |\n|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |\n| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |\n| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |\n\nThe coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd73-6739-bec5-b854fc965526",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 33
+    },
+    "page_content": "## Note that:\n\n- Attendance at formal meetings is compulsory - non-attendance may affect your individual marks.\n\n- Meetings should be documented with attendance records and meeting minutes (by the group administrator), made accessible all team members and supervisors (e.g. stored in sharepoint, google drive, or similar).\n\n- The main computer science lab (A32) is booked for 2 hours every week (see timetable for the exact time), and no other activities are scheduled during this time (all team members should therefore be able to attend).",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd6e-690d-aa51-8ef9683118ee",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 22
+    },
+    "page_content": "## Curriculum Vitae\n\nEvery team member is requested to submit a Curriculum Vitae (CV). This CV should be tailored to the role you apply for (in this case, software engineer) and provide convincing evidence that you should be considered for the project. A lecture by a member of staff from the Careers and Employability Office will provide guidance on how to write a CV.\n\nCVs will be marked by an academic, and the mark for your CV will count towards the individually assessed  components  for  the  module  (see  Section  5).  In  addition,  your  supervisor  will  provide feedback on the strengths of your CV, and the areas where you could make further improvements. This feedback will hopefully be helpful when you decide to apply for internships or for jobs in the future.\n\nIf you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.\n\nAn example of a good CV can be found in the appendices.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd71-6023-a100-afb4867c943f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 26
+    },
+    "page_content": "## 2.2 Project Management\n\nA major component of the project will be to practice software engineering techniques and technical skills  that  you  have covered theoretically or at a lower level of complexity in other modules. This includes programming skills, software design, team skills, and project management\n\nAn Agile project management approach, which is in its purest form typically well suited for smaller projects with co-located teams that communicate informally, is recommended. Agile methods have a strong focus on delivering a finished piece of work (e.g. a working product or completed analysis) after every sprint (to be demo-ed to supervisors during meetings) and typically interleave requirements elicitation with development, rather than having a heavy weight upfront requirements analysis (as with plan driven approaches) that causes significant overhead.  In summary, agile methods encourage customer  involvement,  embrace  changes  to  requirements,  delivers  small  and  frequent  releases, focusses on simplicity of software and processes, and assumes self-organising teams.\n\nThere must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68eb-8103-53256fd61d7f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 72
+    },
+    "page_content": "## 5.5 Re-assessment\n\nIf you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:\n\n- Consider  the  code  and  documentation  (report,  manual,  etc.)  that  have  been  submitted already, and the initial and adopted requirements.\n\n- Add a useful fix or addition to the code\n\n- Update the documentation appropriately\n\n- Provide a brief (1-3 page) report summarising what you changed, why it was changed, what effect it had\n\n- A  reflection  upon  what  you  have  done  and  (if  you  so  wish,  to  enhance  the  potential  for reflection) within the initial project duration.\n\nYour additional work should demonstrate:\n\n- ability to work with (i.e. adapt/improve) the code and documentation already provided by others (and you)\n\n- knowledge of software engineering methodologies\n\n- ability to understand the requirements and specifications (as originally given or adapted)\n\n- ability to select and deploy tools and techniques\n\n- the ability to reflect upon your own progress, strengths and weaknesses\n\nThe marking criteria for the regular assessment will be used as a guide to evaluate your work.\n\nAll  code  changes  should  be  pushed  to  Git,  and  the  report  should  be  submitted  to  the  relevant submission system on Moodle.\n\nNote that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd75-6e3f-b2cc-fa0c5ddecbf6",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 41
+    },
+    "page_content": "## 3.1 Submission Format\n\nReports  should  follow  a  pre-defined ' format ' for  the  front  page,  of  which  a  copy  is  available  for download on Moodle. The style itself can be changed to match the rest of the report. The front page of your report must contain:\n\n- Project information:\n\n- o The project title.\n\n- o Project sponsor (e.g. UoN or industry partner).\n\n- Team information:\n\n- o The team number.\n\n- o The team members (first name, last name, student id, username).\n\n- Supervisor information:\n\n- o Academic supervisor (first name, last name).\n\n- o Sponsor company.\n\n- o Industry supervisor(s) (first name, last name).\n\nThe second page of the report must contain the documentation links to the:\n\n- Trello board.\n\n- Code repository.\n\n- Document repository.\n\n- Further online documentation (if applicable).\n\nNote that permissions to access the above resources must be granted to the team supervisor.\n\nAll reports must be submitted in PDF Format to the appropriate submission system on Moodle . The file name must be \"teamX-groupReport.pdf\" (replacing the X with your team number).",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90e0-6f17-8b1a-140cb4145397",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 4
+    },
+    "page_content": "## Declaration of AI Use\n\nAs you are aware, Artificial Intelligence (AI) - especially tools like ChatGPT, Microsoft Copilot, and Grammarly-is rapidly transforming how we learn, write, code, and even think. For this module, we like to engage critically with AI: not to fear it, but to use it wisely and responsibly.\n\nFor this assessment, you must submit the AI Use Declaration form (to be provided on Moodle), clearly stating whether AI tools were used and how. This new practice supports transparency and academic integrity.\n\nREMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.\n\n<!-- image-uuid: 1f11733d-8f05-606d-8711-499dae3e9330 -->",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90de-6e77-83dc-a068d9a450a7",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## Individual submission:\n\n4. Each of you will need to make an additional submission, separately for your peer assessment . Please click on the ' Peer Assessment ' link on Moodle to perform this submission.\n\n5. Additionally, each of you will need to fill up the provided AI Declaration Microsoft Form link on Moodle. Should you fail to perform a submission, it WILL result in a penalty of 15% deduction of your individual mark.\n\nAside from this assessment sheet , you will be provided with the following documentations:\n\n1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.\n\n2. A compressed Dataset folder.\n\n3. A compressed Ground Truth folder.\n\nNote: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd73-6733-834e-99cd8a8217bc",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 30
+    },
+    "page_content": "## Note:\n\nPlease ensure that targets for next sprint become gradually more realistic (e.g. time scales) and inform your supervisor/sponsor when other class activities (coursework for other modules, for example), exams, and holidays are planned.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-07T13:43:11.535257+00:00
+Answer Length: 276
+Answer:
+Yes, late submissions, be it of printed copies or electronic copies of reports and software, will be penalised at the standard university guidelines of 5% per working day. However, the exact amount of penalty depends on the total number of working days exceeding the deadline.
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-07T13:43:55.268523+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 20060
+
+<QUERY>
+What are the deliverables for the COMP2002 project?
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f116fd4-bd75-6e35-ae6b-5c45bfa432bf",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 38
+    },
+    "page_content": "## 2.7 End-Of-Contract\n\nThe end of contract required the team to write a group report (including software and user manual). In addition, every team member will write an individual report and complete a peer assessment. These deliverables are described in more detail in the relevant section below.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd5c-6370-94fc-ae2b8ac73b4e",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "## Software Engineering Group Project\n\nCOMP2002: Project Handbook 2024-2025",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd6c-61a0-a185-898834a9361e",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 17
+    },
+    "page_content": "## 1.9 Expenses\n\n## 1.9.1 Travel\n\nExpenses  to  travel  to  the  industry  sponsor  of  your  project  will  be  reimbursed  by  the  university. However, you are expected to use common sense and be responsible in this. That is, travel as much as possible (and practical) with public transport, or if going by taxi, share a taxi whenever possible. If traveling by car, please ensure that your insurance covers you for 'work / business' related trips.\n\nApproval must be obtained from the project coordinator (Dr. Geert De Maere) prior to booking any travel. Make sure you keep any receipts to claim back expenses. The expense reclaim form can be downloaded from the COMP2002 Moodle page.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd78-654b-b021-6f5687058986",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 44
+    },
+    "page_content": "## 3.2.2 Content\n\n- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.\n\n- The  reports  should  focus  on  key  aspects,  insights  and  observations.  Avoid  introducing common knowledge (e.g. no need to explain class hierarchies in Java) or stating the obvious.\n\n- The reports should not be written as a rapport of the chronological sequence of events carried out by the different members of the team during the project.\n\n- If explaining bespoke algorithms developed as part of the project, please introduce them as pseudo code and focus on their key functionality.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd5e-6aa5-9095-627a52529f0f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## 1 Introduction\n\n## 1.1 Overview\n\nThe software engineering group project module brings students together to work in team on a project. The module and project focus on the entire software development lifecycle, including the software specification (requirements analysis and design), development (implementation, coding, programming), validation and testing, documentation, and the management of the project. That is, this module is not ' just ' about writing code, but instead about the whole software engineering (SE) process. This will require teams to bring theory that they have learned (or will learn) in other modules, including  G51FSE  G51PGP,  G51PGA,  and  G52SWM,  into  practice.  Supporting  lectures  and  project supervisor(s) will guide you through the process.\n\nThe module consists of the following key elements:\n\n- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.\n\n- The project itself,  applying  technical  knowledge,  established  SE  methods,  agile  project management, and interpersonal skills to successfully deliver the project.\n\n- The demo  day (circumstances  permitting),  a  \"trade  fair  style  event\"  where  you  will demonstrate your work to both internal and external visitors.\n\n- The delivery / end of contract , including the submission of your software, project report, user and software documentation, management documentation, an individual project report, and a peer review.\n\nFor many of you, the group project will offer a first working experience on a team based project, helping you to apply theoretical and practical knowledge to deliver a real result. The group project is generally regarded as one of the most important components of your UG degree and encapsulates key elements towards the BCS accreditation of your degree. Many alumni comment to us that this module has had the most value to them as they start their working life.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd7a-6c54-ac68-668f223b8846",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 53
+    },
+    "page_content": "## Broader ethical and social considerations\n\n- How have you considered the broader ethical and social aspects of the work? For example:\n\n- o Who will benefit from the work? How?\n\n- o Could the work have unintended consequences? What?\n\n- o Could the work have military or criminal applications? What?\n\n- o Who might be affected by the work, directly or indirectly? How?\n\n- o Have people who might be affected been able to influence the work?\n\n- o Is the work accessible or beneficial to all?\n\n- o Is the work likely to reduce or increase societal inequalities?\n\n- o What impact might the work have on the natural environment?\n\n- o Is the work worth doing? Why?\n\n- See Responsible (Research and) Innovation (COMP3020). The RRI Prompts and Practice cards, (https://experience.horizon.ac.uk/2022/09/30/rri-prompt-practice-cards/)  and  the  Moral-IT cards (https://lachlansresearch.com/the-moral-it-legal-it-decks/) may also help you to reflect on these aspects of your project.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd6e-690b-9157-7104269a63d6",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 21
+    },
+    "page_content": "## 2.1.2 Bidding for a Project\n\nA bid for a project consists of three parts:\n\n- A CV for every member of the team.\n\n- An expression of interest (EoI) for the project - using the template provided in Moodle.\n\n- A pitch to the sponsor and supervisor of the project.\n\nEvery team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd6c-61a8-8089-1b7974e47b67",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 20
+    },
+    "page_content": "## 2 The Project\n\n## 2.1 The Bidding Process\n\n## 2.1.1 Project Sign-Up\n\nAll  project  briefs  are  listed  on  the  Moodle  page  for  COMP2002.  The  project  briefs  give  an  initial specification of the project and may initially be vague. Teams are expected to shortlist projects that they want bid for as soon as possible (prior to the start of the sign-up process, which takes place late September to early October).\n\nDuring the sign-up process, teams register to bid for projects on a FCFS basis. That is, if other teams register for a project before you, the other teams will be given the opportunity to bid for the project and your team will have to register for an alternative project. It is therefore recommended that teams shortlist  about  6  projects  in  case  they  miss  out  on  their  first  few  options.  Note  that  teams  are responsible for jointly shortlisting the projects, but that only the group administrator will be able to register the team's interest for projects.\n\nTo maximise the chances of teams getting at least one of their preferred choices, the sign-up process is spread across three consecutive days. That is, you register to bid for the first project on day 1, the second project on day 2, and the third project on day 3. The different registration systems will open automatically at 09:00 on each day (the exact dates are announced in Moodle). When the registration process closes on the third day, every project will have three teams against it, and every team will be signed up to bid for three projects.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd65-6fc1-a478-c4de6f034202",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 7
+    },
+    "page_content": "## 1.5 Workload\n\nCOMP2002 is a 20 credit module. This means that each member of the team should spend roughly 200 hours of work on the project, or in a team of 6 people, a total of 1200 hours. That is, one could reasonably expect to work about 100 hours per term on their group project, or on average just over 1 day per week in a 12 week term. Note that the group marks of the project will be scaled based on the individual's work rate and contribution to the project, as described in more detail in Section 5.2.\n\nThe module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd63-68e2-b862-6b2932f76b1e",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 5
+    },
+    "page_content": "## 1.3 Ethics\n\nThe University of Nottingham requires all students engaged in work that involves human participants or human data (including biological data) to complete an Ethics Review. All groups must complete the CS Preliminary Ethics Checklist. For most projects, completing the preliminary ethics checklist will be sufficient.\n\nStudents  should work together  with  their  academic  supervisors to  complete  the  checklist.  After completion and agreement from the supervisor, each group submits the preliminary ethics checklist to the relevant submission system in Moodle (one per group, submitted by the group administrator) and notify their supervisor of the submission. The supervisor will check and 'mark' the submission.\n\nIf your project involves, e.g., human participants, the use of personal data that is not in the public domain, or involves biological materials, your team will also need to complete the full CS Research Ethics Checklist. After completion and agreement from the supervisor, the team should submit the full  ethics  form and supporting documentation to the relevant submission system in Moodle. The submission will be checked and approved by the supervisor, or sent to the CS ethics committee for further review. You will be required to revise your ethics application if it does not satisfy the ethics requirements.\n\nGroups must not start work with human participants, personal data that is not in the public domain, or  biological  materials  before  the  ethics review  process  has  been completed.  You  are  therefore advised to start the ethics process as soon as possible (i.e. immediately after you have been assigned your project or as soon as it becomes apparent that you need ethics clearance).\n\nThe forms necessary to complete for the ethics process are available on Moodle and on the school's Ethics Forms on workspace.\n\nFigure 1: Ethics Checks - Flow chart (original available on the CS workspace)\n\n<!-- image-uuid: 1f116fd4-bab9-67c6-bf43-aa37efd0758f -->",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd6c-619c-a744-a7db55b3cac6",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 16
+    },
+    "page_content": "## Git Lead\n\nEvery team elects a Git Lead at their first meeting, or soon after. This person will be responsible for making sure the state of the Git repository is kept up to date and that no one commits to the main branch without passing all unit and regression tests. The Git Lead may be the same person as the group administrator. The best person is probably someone who has prior experience with Git, or who is prepared to get to know about it.\n\nA lecture will be given on the use of Git. An excellent resource on the ins and outs of Git is available here: https://git-scm.com/book/en/v2.\n\nThe Git Lead is also expected to contribute other aspects of the project.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90de-6e71-8a34-65e029b62e97",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 1
+    },
+    "page_content": "## Description and Deliverable(s)\n\n| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |\n|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |\n| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |\n| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |\n\nThe coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd71-6023-a100-afb4867c943f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 26
+    },
+    "page_content": "## 2.2 Project Management\n\nA major component of the project will be to practice software engineering techniques and technical skills  that  you  have covered theoretically or at a lower level of complexity in other modules. This includes programming skills, software design, team skills, and project management\n\nAn Agile project management approach, which is in its purest form typically well suited for smaller projects with co-located teams that communicate informally, is recommended. Agile methods have a strong focus on delivering a finished piece of work (e.g. a working product or completed analysis) after every sprint (to be demo-ed to supervisors during meetings) and typically interleave requirements elicitation with development, rather than having a heavy weight upfront requirements analysis (as with plan driven approaches) that causes significant overhead.  In summary, agile methods encourage customer  involvement,  embrace  changes  to  requirements,  delivers  small  and  frequent  releases, focusses on simplicity of software and processes, and assumes self-organising teams.\n\nThere must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68da-b35d-53d67346d620",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 66
+    },
+    "page_content": "## 5 Assessment\n\nThe total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd78-6561-9e04-a98fb5a4dc27",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 50
+    },
+    "page_content": "## Research ethics\n\n- Does the work involve human participants or data subjects? If so:\n\n- o Have you followed the University of Nottingham research ethics requirements?\n\n- o How does the work safeguard participants and data subjects?\n\n- o How does the work reflect principles of informed consent and voluntary participation?\n\n- o Were there any ethically tricky aspects to the work, and how did you deal with them?\n\n- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68dc-85bd-6b9172b55128",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 67
+    },
+    "page_content": "## 5.1 Summary of Deliverables\n\nThe group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:\n\n- The bidding process:\n\n- o Your CV.\n\n- o The team's Expressions of Interest.\n\n- o The team's p itches for projects.\n\n- Ethics form(s).\n\n- •\n\n- The project:\n\n- o The code repository on GitLab (https://projects.cs.nott.ac.uk).\n\n- o All minutes and other non-software documents as well as regular commits of developments. Progress on development will be assessed at the end of semester one and again at the end of the module.\n\n- o Code/software including testing and documentation (for example Javadoc).\n\n- o Project management documentation -e.g. Trello board, meeting minutes.\n\n- Reports:\n\n- o The team's interim report and prototype.\n\n- o The team's final report that documents the requirements analysis (and reflection), the software documentation, the user manual.\n\n- o Your individual report and reflection on your work.\n\n- o Your peer assessment statement of team members.\n\n- The Open Day -formal open day in the form of a trade show.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90de-6e77-83dc-a068d9a450a7",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## Individual submission:\n\n4. Each of you will need to make an additional submission, separately for your peer assessment . Please click on the ' Peer Assessment ' link on Moodle to perform this submission.\n\n5. Additionally, each of you will need to fill up the provided AI Declaration Microsoft Form link on Moodle. Should you fail to perform a submission, it WILL result in a penalty of 15% deduction of your individual mark.\n\nAside from this assessment sheet , you will be provided with the following documentations:\n\n1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.\n\n2. A compressed Dataset folder.\n\n3. A compressed Ground Truth folder.\n\nNote: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-07T13:44:01.346008+00:00
+Answer Length: 980
+Answer:
+The deliverables for the COMP2002 project include:
+
+- The bidding process:
+  - Your CV.
+  - The team's Expressions of Interest.
+  - The team's pitches for projects.
+  
+- Ethics form(s).
+
+- The project:
+  - The code repository on GitLab (https://projects.cs.nott.ac.uk).
+  - All minutes and other non-software documents as well as regular commits of developments. Progress on development will be assessed at the end of semester one and again at the end of the module.
+  - Code/software including testing and documentation (for example Javadoc).
+  - Project management documentation -e.g. Trello board, meeting minutes.
+  
+- Reports:
+  - The team's interim report and prototype.
+  - The team's final report that documents the requirements analysis (and reflection), the software documentation, the user manual.
+  - Your individual report and reflection on your work.
+  - Your peer assessment statement of team members.
+  
+- The Open Day -formal open day in the form of a trade show.
+==================================================

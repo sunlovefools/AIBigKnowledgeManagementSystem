@@ -1168,3 +1168,987 @@ Content: Both stages were to have been constructed of carbon fiber, including th
 Content: Background History and development of reconnaissance balloons
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the overall task for the COMP2005 module coursework?
+Timestamp: 2026-03-07T13:41:58.095570+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.778052]
+Content: ## 1.5 Workload
+
+COMP2002 is a 20 credit module. This means that each member of the team should spend roughly 200 hours of work on the project, or in a team of 6 people, a total of 1200 hours. That is, one could reasonably expect to work about 100 hours per term on their group project, or on average just over 1 day per week in a 12 week term.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.772271]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.767926]
+Content: Module Assessment Sheet for 2025-2026
+
+Module Assessment Sheet for 2025-2026
+
+| Module             | Introduction to Image Processing (IIP) / COMP 2005 / Semester 2   |
+|--------------------|-------------------------------------------------------------------|
+| Assessment         | Coursework (100%)                                                 |
+| Module Convenor(s) | Magan Moemeni                                                     |
+
+Module Assessment Sheet for 2025-2026
+
+| Programming and Conference Paper   | Group   |
+|------------------------------------|---------|
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.760885]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.740272]
+Content: ## Individual submission:
+
+1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.
+
+2. A compressed Dataset folder.
+
+3. A compressed Ground Truth folder.
+
+Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.725175]
+Content: <!-- image-uuid: 1f11733d-8e23-691f-a92a-34cc56d32737 -->
+
+Module Assessment Sheet for 2025-2026
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.723695]
+Content: ## Description and Deliverable(s)
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.716847]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.705090]
+Content: ## Description and Deliverable(s)
+
+| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |
+|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |
+| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |
+| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.703896]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+All  project  briefs  are  listed  on  the  Moodle  page  for  COMP2002.  The  project  briefs  give  an  initial specification of the project and may initially be vague. Teams are expected to shortlist projects that they want bid for as soon as possible (prior to the start of the sign-up process, which takes place late September to early October).
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.700953]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |
+|-------------------|-----------------------------|-----------------------------------|
+| CV                | 20%                         | 4.00%                             |
+| Individual Report | 60%                         | 12.00%                            |
+| Peer Assessment   | 20%                         | 4.00%                             |
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.700316]
+Content: ## 1.5 Workload
+
+The module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.700042]
+Content: ## 3.5.5 Abstract
+
+Teams are asked to provide a short abstract (5 -10 lines) that will be included in the programme distributed  for  the  showcase.    The  abstract  should  document what the  project  was about,  why  it matters, how it was approached, and how it can be built upon in the future. A template for the abstract is provided on Moodle.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.699817]
+Content: ## Broader ethical and social considerations
+
+- How have you considered the broader ethical and social aspects of the work? For example:
+
+- o Who will benefit from the work? How?
+
+- o Could the work have unintended consequences? What?
+
+- o Could the work have military or criminal applications? What?
+
+- o Who might be affected by the work, directly or indirectly? How?
+
+- o Have people who might be affected been able to influence the work?
+
+- o Is the work accessible or beneficial to all?
+
+- o Is the work likely to reduce or increase societal inequalities?
+
+- o What impact might the work have on the natural environment?
+
+- o Is the work worth doing? Why?
+
+- See Responsible (Research and) Innovation (COMP3020). The RRI Prompts and Practice cards, (https://experience.horizon.ac.uk/2022/09/30/rri-prompt-practice-cards/)  and  the  Moral-IT cards (https://lachlansresearch.com/the-moral-it-legal-it-decks/) may also help you to reflect on these aspects of your project.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.699229]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.696826]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+The software engineering group project module brings students together to work in team on a project. The module and project focus on the entire software development lifecycle, including the software specification (requirements analysis and design), development (implementation, coding, programming), validation and testing, documentation, and the management of the project. That is, this module is not ' just ' about writing code, but instead about the whole software engineering (SE) process.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.695722]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+This will require teams to bring theory that they have learned (or will learn) in other modules, including  G51FSE  G51PGP,  G51PGA,  and  G52SWM,  into  practice. Supporting  lectures  and  project supervisor(s) will guide you through the process.
+
+The module consists of the following key elements:
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.695514]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |
+|---------------------------------------------|-------------------------------------|-----------------------------------|
+| EOI and Pitch                               | 15%                                 | 12.00%                            |
+| Ethics documentation                        | -                                   | -                                 |
+| Interim Report                              | 10%                                 | 8%                                |
+| Final Report                                | 25%                                 | 20.00%                            |
+| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |
+| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.693162]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+For many of you, the group project will offer a first working experience on a team based project, helping you to apply theoretical and practical knowledge to deliver a real result. The group project is generally regarded as one of the most important components of your UG degree and encapsulates key elements towards the BCS accreditation of your degree. Many alumni comment to us that this module has had the most value to them as they start their working life.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.693014]
+Content: ## 2.2 Project Management
+
+A major component of the project will be to practice software engineering techniques and technical skills  that  you  have covered theoretically or at a lower level of complexity in other modules. This includes programming skills, software design, team skills, and project management
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.155058]
+Content: Module Assessment Sheet for 2025-2026
+
+Module Assessment Sheet for 2025-2026
+
+| Module             | Introduction to Image Processing (IIP) / COMP 2005 / Semester 2   |
+|--------------------|-------------------------------------------------------------------|
+| Assessment         | Coursework (100%)                                                 |
+| Module Convenor(s) | Magan Moemeni                                                     |
+
+Module Assessment Sheet for 2025-2026
+
+| Programming and Conference Paper   | Group   |
+|------------------------------------|---------|
+
+[Rank 2 | BGE Score: 0.016388]
+Content: ## Individual submission:
+
+1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.
+
+2. A compressed Dataset folder.
+
+3. A compressed Ground Truth folder.
+
+Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.
+
+[Rank 3 | BGE Score: 0.010411]
+Content: ## Description and Deliverable(s)
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:
+
+[Rank 4 | BGE Score: 0.005337]
+Content: ## 2.2 Project Management
+
+A major component of the project will be to practice software engineering techniques and technical skills  that  you  have covered theoretically or at a lower level of complexity in other modules. This includes programming skills, software design, team skills, and project management
+
+[Rank 5 | BGE Score: 0.003635]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+The software engineering group project module brings students together to work in team on a project. The module and project focus on the entire software development lifecycle, including the software specification (requirements analysis and design), development (implementation, coding, programming), validation and testing, documentation, and the management of the project. That is, this module is not ' just ' about writing code, but instead about the whole software engineering (SE) process.
+
+[Rank 6 | BGE Score: 0.002984]
+Content: ## Description and Deliverable(s)
+
+| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |
+|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |
+| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |
+| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using
+
+[Rank 7 | BGE Score: 0.002077]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+This will require teams to bring theory that they have learned (or will learn) in other modules, including  G51FSE  G51PGP,  G51PGA,  and  G52SWM,  into  practice. Supporting  lectures  and  project supervisor(s) will guide you through the process.
+
+The module consists of the following key elements:
+
+[Rank 8 | BGE Score: 0.001642]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Rank 9 | BGE Score: 0.001405]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                                             | Group Mark Weighting (out of 100)   | Weighting for Total Module Mark   |
+|---------------------------------------------|-------------------------------------|-----------------------------------|
+| EOI and Pitch                               | 15%                                 | 12.00%                            |
+| Ethics documentation                        | -                                   | -                                 |
+| Interim Report                              | 10%                                 | 8%                                |
+| Final Report                                | 25%                                 | 20.00%                            |
+| Stand/Demo/Presentation                     | 15%                                 | 12.00%                            |
+| Software/Project Management/Decision Making | 35%                                 | 28.00%                            |
+
+[Rank 10 | BGE Score: 0.001128]
+Content: ## 1.5 Workload
+
+The module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).
+
+[Rank 11 | BGE Score: 0.001090]
+Content: ## 1.5 Workload
+
+COMP2002 is a 20 credit module. This means that each member of the team should spend roughly 200 hours of work on the project, or in a team of 6 people, a total of 1200 hours. That is, one could reasonably expect to work about 100 hours per term on their group project, or on average just over 1 day per week in a 12 week term.
+
+[Rank 12 | BGE Score: 0.000896]
+Content: ## Broader ethical and social considerations
+
+- How have you considered the broader ethical and social aspects of the work? For example:
+
+- o Who will benefit from the work? How?
+
+- o Could the work have unintended consequences? What?
+
+- o Could the work have military or criminal applications? What?
+
+- o Who might be affected by the work, directly or indirectly? How?
+
+- o Have people who might be affected been able to influence the work?
+
+- o Is the work accessible or beneficial to all?
+
+- o Is the work likely to reduce or increase societal inequalities?
+
+- o What impact might the work have on the natural environment?
+
+- o Is the work worth doing? Why?
+
+- See Responsible (Research and) Innovation (COMP3020). The RRI Prompts and Practice cards, (https://experience.horizon.ac.uk/2022/09/30/rri-prompt-practice-cards/)  and  the  Moral-IT cards (https://lachlansresearch.com/the-moral-it-legal-it-decks/) may also help you to reflect on these aspects of your project.
+
+[Rank 13 | BGE Score: 0.000726]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Rank 14 | BGE Score: 0.000689]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+For many of you, the group project will offer a first working experience on a team based project, helping you to apply theoretical and practical knowledge to deliver a real result. The group project is generally regarded as one of the most important components of your UG degree and encapsulates key elements towards the BCS accreditation of your degree. Many alumni comment to us that this module has had the most value to them as they start their working life.
+
+[Rank 15 | BGE Score: 0.000679]
+Content: ## 3.5.5 Abstract
+
+Teams are asked to provide a short abstract (5 -10 lines) that will be included in the programme distributed  for  the  showcase.    The  abstract  should  document what the  project  was about,  why  it matters, how it was approached, and how it can be built upon in the future. A template for the abstract is provided on Moodle.
+
+[Rank 16 | BGE Score: 0.000572]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Rank 17 | BGE Score: 0.000442]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+All  project  briefs  are  listed  on  the  Moodle  page  for  COMP2002.  The  project  briefs  give  an  initial specification of the project and may initially be vague. Teams are expected to shortlist projects that they want bid for as soon as possible (prior to the start of the sign-up process, which takes place late September to early October).
+
+[Rank 18 | BGE Score: 0.000437]
+Content: ## 5.4 Total marks
+
+for the group/individual marks. The contribution for each of the component marks to the total module mark is shown below.
+
+|                   | Individual Mark Weighting   | Weighting for Total Module Mark   |
+|-------------------|-----------------------------|-----------------------------------|
+| CV                | 20%                         | 4.00%                             |
+| Individual Report | 60%                         | 12.00%                            |
+| Peer Assessment   | 20%                         | 4.00%                             |
+
+[Rank 19 | BGE Score: 0.000099]
+Content: <!-- image-uuid: 1f11733d-8e23-691f-a92a-34cc56d32737 -->
+
+Module Assessment Sheet for 2025-2026
+
+[Rank 20 | BGE Score: 0.000077]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Can I hand in the coursework late?
+Timestamp: 2026-03-07T13:43:02.670365+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.803590]
+Content: ## Important:
+
+- Late submissions, be it of printed copies or electronic copies of reports and software, will be penalised at the standard university guidelines of 5 % per working day.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.727848]
+Content: ## Description and Deliverable(s)
+
+| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |
+|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |
+| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |
+| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.717390]
+Content: ## Important:
+
+- Ethics documentation will carry no actual mark, however, non-completion of this documentation (and follow up documentation for projects considered to require it) will nullify any  marks  obtained  for  any  other  components.  Not  going  through  appropriate  ethics clearance is considered as academic misconduct
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.716229]
+Content: ## 1.3 Ethics
+
+The University of Nottingham requires all students engaged in work that involves human participants or human data (including biological data) to complete an Ethics Review. All groups must complete the CS Preliminary Ethics Checklist. For most projects, completing the preliminary ethics checklist will be sufficient.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.715412]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.712049]
+Content: ## 1.5 Workload
+
+The module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.709285]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.700487]
+Content: ## 3.2.1 Writing Process
+
+- Ensure that the reports are ready well in advance. It is reasonable to expect that you will require several writing and editing iterations to obtain good reports, including after feedback from your supervisor.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.697626]
+Content: ## Note:
+
+Please ensure that targets for next sprint become gradually more realistic (e.g. time scales) and inform your supervisor/sponsor when other class activities (coursework for other modules, for example), exams, and holidays are planned.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.697169]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.696851]
+Content: ## Declaration of AI Use
+
+REMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.696678]
+Content: ## Note that:
+
+- Attendance at formal meetings is compulsory - non-attendance may affect your individual marks.
+
+- Meetings should be documented with attendance records and meeting minutes (by the group administrator), made accessible all team members and supervisors (e.g. stored in sharepoint, google drive, or similar).
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.693327]
+Content: ## Description and Deliverable(s)
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.691349]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.691099]
+Content: ## 1.3 Ethics
+
+Students  should work together  with  their  academic  supervisors to  complete  the  checklist.  After completion and agreement from the supervisor, each group submits the preliminary ethics checklist to the relevant submission system in Moodle (one per group, submitted by the group administrator) and notify their supervisor of the submission. The supervisor will check and 'mark' the submission.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.690498]
+Content: ## 1.3 Ethics
+
+The submission will be checked and approved by the supervisor, or sent to the CS ethics committee for further review. You will be required to revise your ethics application if it does not satisfy the ethics requirements.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.689910]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.686540]
+Content: ## 1.3 Ethics
+
+The forms necessary to complete for the ethics process are available on Moodle and on the school's Ethics Forms on workspace.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.686250]
+Content: ## Individual submission:
+
+5. Additionally, each of you will need to fill up the provided AI Declaration Microsoft Form link on Moodle. Should you fail to perform a submission, it WILL result in a penalty of 15% deduction of your individual mark.
+
+Aside from this assessment sheet , you will be provided with the following documentations:
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.683992]
+Content: ## 3.1 Submission Format
+
+All reports must be submitted in PDF Format to the appropriate submission system on Moodle . The file name must be "teamX-groupReport.pdf" (replacing the X with your team number).
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.112976]
+Content: ## Description and Deliverable(s)
+
+| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |
+|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |
+| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |
+| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using
+
+[Rank 2 | BGE Score: 0.052699]
+Content: ## Important:
+
+- Late submissions, be it of printed copies or electronic copies of reports and software, will be penalised at the standard university guidelines of 5 % per working day.
+
+[Rank 3 | BGE Score: 0.000729]
+Content: ## Note:
+
+Please ensure that targets for next sprint become gradually more realistic (e.g. time scales) and inform your supervisor/sponsor when other class activities (coursework for other modules, for example), exams, and holidays are planned.
+
+[Rank 4 | BGE Score: 0.000491]
+Content: ## 3.2.1 Writing Process
+
+- Ensure that the reports are ready well in advance. It is reasonable to expect that you will require several writing and editing iterations to obtain good reports, including after feedback from your supervisor.
+
+[Rank 5 | BGE Score: 0.000419]
+Content: ## Description and Deliverable(s)
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:
+
+[Rank 6 | BGE Score: 0.000287]
+Content: ## Individual submission:
+
+5. Additionally, each of you will need to fill up the provided AI Declaration Microsoft Form link on Moodle. Should you fail to perform a submission, it WILL result in a penalty of 15% deduction of your individual mark.
+
+Aside from this assessment sheet , you will be provided with the following documentations:
+
+[Rank 7 | BGE Score: 0.000142]
+Content: ## 1.5 Workload
+
+The module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).
+
+[Rank 8 | BGE Score: 0.000094]
+Content: ## Important:
+
+- Ethics documentation will carry no actual mark, however, non-completion of this documentation (and follow up documentation for projects considered to require it) will nullify any  marks  obtained  for  any  other  components.  Not  going  through  appropriate  ethics clearance is considered as academic misconduct
+
+[Rank 9 | BGE Score: 0.000055]
+Content: ## Curriculum Vitae
+
+If you are bidding for a project with industry, and if you give us permission to do so (in Moodle), your CV will be shared with the industry sponsor of the projects that your team applies for. You are not obliged to share your CV with industry sponsors and opting out will not affect your marks.
+
+An example of a good CV can be found in the appendices.
+
+[Rank 10 | BGE Score: 0.000051]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Rank 11 | BGE Score: 0.000048]
+Content: ## 1.3 Ethics
+
+The submission will be checked and approved by the supervisor, or sent to the CS ethics committee for further review. You will be required to revise your ethics application if it does not satisfy the ethics requirements.
+
+[Rank 12 | BGE Score: 0.000047]
+Content: ## 3.1 Submission Format
+
+All reports must be submitted in PDF Format to the appropriate submission system on Moodle . The file name must be "teamX-groupReport.pdf" (replacing the X with your team number).
+
+[Rank 13 | BGE Score: 0.000040]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Rank 14 | BGE Score: 0.000035]
+Content: ## 1.3 Ethics
+
+Students  should work together  with  their  academic  supervisors to  complete  the  checklist.  After completion and agreement from the supervisor, each group submits the preliminary ethics checklist to the relevant submission system in Moodle (one per group, submitted by the group administrator) and notify their supervisor of the submission. The supervisor will check and 'mark' the submission.
+
+[Rank 15 | BGE Score: 0.000022]
+Content: ## Note that:
+
+- Attendance at formal meetings is compulsory - non-attendance may affect your individual marks.
+
+- Meetings should be documented with attendance records and meeting minutes (by the group administrator), made accessible all team members and supervisors (e.g. stored in sharepoint, google drive, or similar).
+
+[Rank 16 | BGE Score: 0.000020]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Rank 17 | BGE Score: 0.000020]
+Content: ## 1.3 Ethics
+
+The University of Nottingham requires all students engaged in work that involves human participants or human data (including biological data) to complete an Ethics Review. All groups must complete the CS Preliminary Ethics Checklist. For most projects, completing the preliminary ethics checklist will be sufficient.
+
+[Rank 18 | BGE Score: 0.000019]
+Content: ## Declaration of AI Use
+
+REMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.
+
+[Rank 19 | BGE Score: 0.000017]
+Content: ## 1.3 Ethics
+
+The forms necessary to complete for the ethics process are available on Moodle and on the school's Ethics Forms on workspace.
+
+[Rank 20 | BGE Score: 0.000016]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What are the deliverables for the COMP2002 project?
+Timestamp: 2026-03-07T13:43:45.998421+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.824212]
+Content: ## 1.5 Workload
+
+COMP2002 is a 20 credit module. This means that each member of the team should spend roughly 200 hours of work on the project, or in a team of 6 people, a total of 1200 hours. That is, one could reasonably expect to work about 100 hours per term on their group project, or on average just over 1 day per week in a 12 week term.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.801891]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+All  project  briefs  are  listed  on  the  Moodle  page  for  COMP2002.  The  project  briefs  give  an  initial specification of the project and may initially be vague. Teams are expected to shortlist projects that they want bid for as soon as possible (prior to the start of the sign-up process, which takes place late September to early October).
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.797440]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.789501]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.740210]
+Content: ## 1.9 Expenses
+
+## 1.9.1 Travel
+
+Approval must be obtained from the project coordinator (Dr. Geert De Maere) prior to booking any travel. Make sure you keep any receipts to claim back expenses. The expense reclaim form can be downloaded from the COMP2002 Moodle page.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.734762]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.721674]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.716434]
+Content: ## 3.2.2 Content
+
+- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.713193]
+Content: ## 2.2 Project Management
+
+A major component of the project will be to practice software engineering techniques and technical skills  that  you  have covered theoretically or at a lower level of complexity in other modules. This includes programming skills, software design, team skills, and project management
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.709967]
+Content: ## Broader ethical and social considerations
+
+- How have you considered the broader ethical and social aspects of the work? For example:
+
+- o Who will benefit from the work? How?
+
+- o Could the work have unintended consequences? What?
+
+- o Could the work have military or criminal applications? What?
+
+- o Who might be affected by the work, directly or indirectly? How?
+
+- o Have people who might be affected been able to influence the work?
+
+- o Is the work accessible or beneficial to all?
+
+- o Is the work likely to reduce or increase societal inequalities?
+
+- o What impact might the work have on the natural environment?
+
+- o Is the work worth doing? Why?
+
+- See Responsible (Research and) Innovation (COMP3020). The RRI Prompts and Practice cards, (https://experience.horizon.ac.uk/2022/09/30/rri-prompt-practice-cards/)  and  the  Moral-IT cards (https://lachlansresearch.com/the-moral-it-legal-it-decks/) may also help you to reflect on these aspects of your project.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.705673]
+Content: ## Individual submission:
+
+1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.
+
+2. A compressed Dataset folder.
+
+3. A compressed Ground Truth folder.
+
+Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.698567]
+Content: ## 5.1 Summary of Deliverables
+
+- o All minutes and other non-software documents as well as regular commits of developments. Progress on development will be assessed at the end of semester one and again at the end of the module.
+
+- o Code/software including testing and documentation (for example Javadoc).
+
+- o Project management documentation -e.g. Trello board, meeting minutes.
+
+- Reports:
+
+- o The team's interim report and prototype.
+
+- o The team's final report that documents the requirements analysis (and reflection), the software documentation, the user manual.
+
+- o Your individual report and reflection on your work.
+
+- o Your peer assessment statement of team members.
+
+- The Open Day -formal open day in the form of a trade show.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.692355]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The delivery / end of contract , including the submission of your software, project report, user and software documentation, management documentation, an individual project report, and a peer review.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.690932]
+Content: ## 2.7 End-Of-Contract
+
+The end of contract required the team to write a group report (including software and user manual). In addition, every team member will write an individual report and complete a peer assessment. These deliverables are described in more detail in the relevant section below.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.689625]
+Content: ## 1.3 Ethics
+
+If your project involves, e.g., human participants, the use of personal data that is not in the public domain, or involves biological materials, your team will also need to complete the full CS Research Ethics Checklist. After completion and agreement from the supervisor, the team should submit the full  ethics  form and supporting documentation to the relevant submission system in Moodle.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.689488]
+Content: ## 3.2.2 Content
+
+- The reports should not be written as a rapport of the chronological sequence of events carried out by the different members of the team during the project.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.687692]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.685608]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.683788]
+Content: ## Git Lead
+
+A lecture will be given on the use of Git. An excellent resource on the ins and outs of Git is available here: https://git-scm.com/book/en/v2.
+
+The Git Lead is also expected to contribute other aspects of the project.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.683111]
+Content: ## Description and Deliverable(s)
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.358683]
+Content: ## 1.5 Workload
+
+COMP2002 is a 20 credit module. This means that each member of the team should spend roughly 200 hours of work on the project, or in a team of 6 people, a total of 1200 hours. That is, one could reasonably expect to work about 100 hours per term on their group project, or on average just over 1 day per week in a 12 week term.
+
+[Rank 2 | BGE Score: 0.283292]
+Content: ## 5 Assessment
+
+The total module mark received for COMP2002 will be composed out of (weighted) marks for the team and individual marks , as explained below. For projects with industry, the opinion of the industry sponsor will be taken into account by the academic supervisor when setting the marks.
+
+[Rank 3 | BGE Score: 0.283184]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+All  project  briefs  are  listed  on  the  Moodle  page  for  COMP2002.  The  project  briefs  give  an  initial specification of the project and may initially be vague. Teams are expected to shortlist projects that they want bid for as soon as possible (prior to the start of the sign-up process, which takes place late September to early October).
+
+[Rank 4 | BGE Score: 0.181289]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Rank 5 | BGE Score: 0.133966]
+Content: ## 5.1 Summary of Deliverables
+
+The group project has no formal written examinations. Instead, it is assessed through a number of different  deliverables  that  are  completed  at  specific  times  during  the  project.  These  deliverables include:
+
+- The bidding process:
+
+- o Your CV.
+
+- o The team's Expressions of Interest.
+
+- o The team's p itches for projects.
+
+- Ethics form(s).
+
+- •
+
+- The project:
+
+- o The code repository on GitLab (https://projects.cs.nott.ac.uk).
+
+[Rank 6 | BGE Score: 0.085241]
+Content: ## 1.9 Expenses
+
+## 1.9.1 Travel
+
+Approval must be obtained from the project coordinator (Dr. Geert De Maere) prior to booking any travel. Make sure you keep any receipts to claim back expenses. The expense reclaim form can be downloaded from the COMP2002 Moodle page.
+
+[Rank 7 | BGE Score: 0.051711]
+Content: ## 5.1 Summary of Deliverables
+
+- o All minutes and other non-software documents as well as regular commits of developments. Progress on development will be assessed at the end of semester one and again at the end of the module.
+
+- o Code/software including testing and documentation (for example Javadoc).
+
+- o Project management documentation -e.g. Trello board, meeting minutes.
+
+- Reports:
+
+- o The team's interim report and prototype.
+
+- o The team's final report that documents the requirements analysis (and reflection), the software documentation, the user manual.
+
+- o Your individual report and reflection on your work.
+
+- o Your peer assessment statement of team members.
+
+- The Open Day -formal open day in the form of a trade show.
+
+[Rank 8 | BGE Score: 0.047954]
+Content: ## 3.2.2 Content
+
+- Take into account that this is a software engineering group project. That is, in addition to the deliverables and technical achievements, your reports and supporting documentation should demonstrate  the  use  of  established  software  engineering  practices  and  good  project management.
+
+[Rank 9 | BGE Score: 0.026990]
+Content: ## Description and Deliverable(s)
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:
+
+[Rank 10 | BGE Score: 0.015519]
+Content: ## 2.7 End-Of-Contract
+
+The end of contract required the team to write a group report (including software and user manual). In addition, every team member will write an individual report and complete a peer assessment. These deliverables are described in more detail in the relevant section below.
+
+[Rank 11 | BGE Score: 0.010265]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The delivery / end of contract , including the submission of your software, project report, user and software documentation, management documentation, an individual project report, and a peer review.
+
+[Rank 12 | BGE Score: 0.005706]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Rank 13 | BGE Score: 0.002739]
+Content: ## Broader ethical and social considerations
+
+- How have you considered the broader ethical and social aspects of the work? For example:
+
+- o Who will benefit from the work? How?
+
+- o Could the work have unintended consequences? What?
+
+- o Could the work have military or criminal applications? What?
+
+- o Who might be affected by the work, directly or indirectly? How?
+
+- o Have people who might be affected been able to influence the work?
+
+- o Is the work accessible or beneficial to all?
+
+- o Is the work likely to reduce or increase societal inequalities?
+
+- o What impact might the work have on the natural environment?
+
+- o Is the work worth doing? Why?
+
+- See Responsible (Research and) Innovation (COMP3020). The RRI Prompts and Practice cards, (https://experience.horizon.ac.uk/2022/09/30/rri-prompt-practice-cards/)  and  the  Moral-IT cards (https://lachlansresearch.com/the-moral-it-legal-it-decks/) may also help you to reflect on these aspects of your project.
+
+[Rank 14 | BGE Score: 0.001729]
+Content: ## 2.2 Project Management
+
+A major component of the project will be to practice software engineering techniques and technical skills  that  you  have covered theoretically or at a lower level of complexity in other modules. This includes programming skills, software design, team skills, and project management
+
+[Rank 15 | BGE Score: 0.000288]
+Content: ## Research ethics
+
+- Does the work involve human participants or data subjects? If so:
+
+- o Have you followed the University of Nottingham research ethics requirements?
+
+- o How does the work safeguard participants and data subjects?
+
+- o How does the work reflect principles of informed consent and voluntary participation?
+
+- o Were there any ethically tricky aspects to the work, and how did you deal with them?
+
+- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students
+
+[Rank 16 | BGE Score: 0.000265]
+Content: ## 3.2.2 Content
+
+- The reports should not be written as a rapport of the chronological sequence of events carried out by the different members of the team during the project.
+
+[Rank 17 | BGE Score: 0.000211]
+Content: ## Individual submission:
+
+1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.
+
+2. A compressed Dataset folder.
+
+3. A compressed Ground Truth folder.
+
+Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.
+
+[Rank 18 | BGE Score: 0.000088]
+Content: ## 2.1.2 Bidding for a Project
+
+A bid for a project consists of three parts:
+
+- A CV for every member of the team.
+
+- An expression of interest (EoI) for the project - using the template provided in Moodle.
+
+- A pitch to the sponsor and supervisor of the project.
+
+Every team is expected to submit three different bids, one for each of the projects they have signed up for. Note that the EoIs and pitches should be tailored to the different projects, but that the same CVs can be submitted for the different bids.
+
+[Rank 19 | BGE Score: 0.000059]
+Content: ## 1.3 Ethics
+
+If your project involves, e.g., human participants, the use of personal data that is not in the public domain, or involves biological materials, your team will also need to complete the full CS Research Ethics Checklist. After completion and agreement from the supervisor, the team should submit the full  ethics  form and supporting documentation to the relevant submission system in Moodle.
+
+[Rank 20 | BGE Score: 0.000049]
+Content: ## Git Lead
+
+A lecture will be given on the use of Git. An excellent resource on the ins and outs of Git is available here: https://git-scm.com/book/en/v2.
+
+The Git Lead is also expected to contribute other aspects of the project.
+
+--------------------------------------------------

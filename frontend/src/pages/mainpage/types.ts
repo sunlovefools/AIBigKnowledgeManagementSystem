@@ -22,12 +22,17 @@ export type Conversation = {
     updatedAt: string; // ISO timestamp
 };
 
-// Lightweight type for conversation list display
+// Lightweight type for conversation list display, contains summary info
 export type ConversationSummary = {
     conversationId: string;
     title: string;
     updatedAt: string;
     messageCount?: number;
+    lastMessage?: {
+        role: "user" | "ai";
+        text: string;
+        timestamp: string;
+    };
 };
 
 // Type for a sidebar file item (merged by uploaded filename).

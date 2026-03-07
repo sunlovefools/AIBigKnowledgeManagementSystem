@@ -29,7 +29,24 @@ export default function MainPage() {
         startModPanelResize,
     } = useResizableLayout(); // Run the useResizableLayout hook to get layout-related state and handlers
 
-    const { messages, input, isQuerying, setInput, appendMessage, handleQuery, handleKeyDown } =
+    const {
+        messages,
+        conversations,
+        input,
+        isQuerying,
+        isLoadingConversations,
+        isLoadingConversationMessages,
+        conversationsError,
+        conversationMessagesError,
+        conversationId,
+        setInput,
+        appendMessage,
+        refreshConversations,
+        loadConversationMessages,
+        startNewConversation,
+        handleQuery,
+        handleKeyDown,
+    } =
         useChat(); // Run the useChat hook to get chat-related state and handlers
     
     // Document management state and handlers
@@ -69,6 +86,10 @@ export default function MainPage() {
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isQuerying, isUploading]);
+
+    useEffect(() => {
+        void refreshConversations();
+    }, [refreshConversations]);
 
     // Handler to toggle the modification panel open state
     const handleToggleModificationPanel = () => {
@@ -160,6 +181,49 @@ export default function MainPage() {
                         </button>
                     </div>
                 </header>
+
+                <section className="conversation-switcher" aria-label="Conversation history switcher">
+                    <div className="conversation-switcher-header">
+                        <div className="conversation-switcher-title">Conversations</div>
+                        <button
+                            className="nav-btn"
+                            onClick={startNewConversation}
+                            disabled={isQuerying || isLoadingConversationMessages}
+                            type="button"
+                        >
+                            New chat
+                        </button>
+                    </div>
+
+                    {isLoadingConversations ? (
+                        <div className="conversation-switcher-status">Loading conversations...</div>
+                    ) : conversationsError ? (
+                        <div className="conversation-switcher-status error">{conversationsError}</div>
+                    ) : conversations.length === 0 ? (
+                        <div className="conversation-switcher-status">No conversation history yet.</div>
+                    ) : (
+                        <div className="conversation-chip-list">
+                            {conversations.map((conversation) => (
+                                <button
+                                    key={conversation.conversationId}
+                                    className={`conversation-chip ${conversationId === conversation.conversationId ? "active" : ""}`}
+                                    onClick={() => {
+                                        void loadConversationMessages(conversation.conversationId);
+                                    }}
+                                    disabled={isLoadingConversationMessages}
+                                    type="button"
+                                >
+                                    <div className="conversation-chip-title">{conversation.title || "New conversation"}</div>
+                                    <div className="conversation-chip-meta">{conversation.messageCount ?? 0} msgs</div>
+                                </button>
+                            ))}
+                        </div>
+                    )}
+
+                    {conversationMessagesError && (
+                        <div className="conversation-switcher-status error">{conversationMessagesError}</div>
+                    )}
+                </section>
 
                 {/* Chat area of the app (Responsible for showing messages from AI and the user question) */}
                 <ChatArea messages={messages} isUploading={isUploading} bottomRef={bottomRef} />

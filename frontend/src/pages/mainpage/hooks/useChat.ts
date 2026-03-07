@@ -1,6 +1,6 @@
 import { useCallback, useState, type KeyboardEvent } from "react";
 import axios from "axios";
-import type { ChatMessage } from "../types";
+import type { ChatMessage, ConversationSummary } from "../types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:8000").replace(/\/$/, "");
 const CHAT_TEST_USER_EMAIL_STORAGE_KEY = "chatTestUserEmail";
@@ -27,27 +27,111 @@ function getResolvedUserEmail() {
 // Custom hook to manage chat state and interactions
 export function useChat() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
+    const [conversations, setConversations] = useState<ConversationSummary[]>([]);
     const [input, setInput] = useState("");
     const [isQuerying, setIsQuerying] = useState(false);
+    const [isLoadingConversations, setIsLoadingConversations] = useState(false);
+    const [isLoadingConversationMessages, setIsLoadingConversationMessages] = useState(false);
+    const [conversationsError, setConversationsError] = useState<string | null>(null);
+    const [conversationMessagesError, setConversationMessagesError] = useState<string | null>(null);
     const [conversationId, setConversationId] = useState<string | null>(null);
 
     // Function to append a new message to the chat history
     const appendMessage = useCallback((message: ChatMessage) => {
-        setMessages((previousMessages) => [...previousMessages, message]);
+        setMessages((previousMessages) => [...previousMessages, message]);// Append the new message to the existing list of messages in the state
     }, []);
 
-    const setTestUserEmail = useCallback((email: string) => {
+    const setTestUserEmail = useCallback((email: string) => {// Function to set a test user email in local storage, which can be used to simulate different users in the chat
         const normalizedEmail = email.trim();
         if (!normalizedEmail) {
             localStorage.removeItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY);
             return;
         }
 
-        localStorage.setItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY, normalizedEmail);
+        localStorage.setItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY, normalizedEmail);// Store the normalized email in local storage under a specific key
     }, []);
 
-    const clearTestUserEmail = useCallback(() => {
+    const clearTestUserEmail = useCallback(() => {// Function to clear the test user email from local storage, effectively resetting to the default user email resolution behavior
         localStorage.removeItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY);
+    }, []);
+
+    const refreshConversations = useCallback(async () => {// Function to load the list of conversations for the current user from the backend API, and update the state with the retrieved conversations
+        const userEmail = getResolvedUserEmail();
+        if (!userEmail) {
+            setConversations([]);
+            setConversationsError("Set a test user email to load conversations.");
+            return;
+        }
+
+        setIsLoadingConversations(true);
+        setConversationsError(null);
+
+        try {// Make a GET request to the backend API to retrieve the list of conversations for the user, passing the user email as a query parameter
+            const response = await axios.get(`${API_BASE}/api/conversations`, {
+                params: {
+                    user_email: userEmail,
+                    limit: 100,
+                },
+            });
+
+            const nextConversations = Array.isArray(response.data?.conversations)// Check if the response contains a conversations array, and if so, cast it to the expected type; otherwise, use an empty array
+                ? (response.data.conversations as ConversationSummary[])
+                : [];
+            setConversations(nextConversations);
+        } catch (error) {
+            setConversationsError("Failed to load conversations.");
+        } finally {
+            setIsLoadingConversations(false);
+        }
+    }, []);
+
+    // Function to load messages for a specific conversation from the backend API, and update the state with the retrieved messages and conversation ID i.e. when conversation is selected from the list
+    const loadConversationMessages = useCallback(async (targetConversationId: string) => {
+        const userEmail = getResolvedUserEmail();
+        if (!userEmail) {
+            setConversationMessagesError("Set a test user email to load conversation messages.");
+            return;
+        }
+
+        setIsLoadingConversationMessages(true);
+        setConversationMessagesError(null);
+
+        try {
+            const response = await axios.get(`${API_BASE}/api/conversations/${targetConversationId}/messages`, {
+                params: {
+                    user_email: userEmail,
+                    limit: 100,
+                    cursor: 0,
+                },
+            });
+
+            const nextMessages = Array.isArray(response.data?.messages)// Check if the response contains a messages array, and if so, map it to the expected ChatMessage type; otherwise, use an empty array
+                ? (response.data.messages as Array<
+                      ChatMessage & {
+                          messageId?: string;
+                      }
+                  >).map((message) => ({
+                      messageId: message.messageId,
+                      role: message.role,
+                      text: message.text,
+                      timestamp: message.timestamp,
+                      userEmail: message.userEmail,
+                  }))
+                : [];
+
+            setMessages(nextMessages);
+            setConversationId(targetConversationId);
+        } catch (error) {
+            setConversationMessagesError("Failed to load selected conversation.");
+        } finally {
+            setIsLoadingConversationMessages(false);
+        }
+    }, []);
+
+    const startNewConversation = useCallback(() => {// Function to start a new conversation, which clears the current messages and conversation ID from the state, effectively resetting the chat interface for a new conversation
+        setConversationId(null);
+        setMessages([]);
+        setConversationMessagesError(null);
     }, []);
 
     // Function to handle sending a query to the backend and updating the chat history with the response
@@ -82,6 +166,8 @@ export function useChat() {
             setMessages((previousMessages) =>
                 [...previousMessages.slice(0, -1), { role: "ai", text: response.data.answer || "(no response)" }]);
 
+            void refreshConversations();// Refresh the conversation list to reflect any updates (like new conversations or updated timestamps)
+
         } catch (error) {
             setMessages((previousMessages) =>
                 // If there's an error, replace the placeholder with an error message
@@ -90,7 +176,7 @@ export function useChat() {
         } finally {
             setIsQuerying(false);
         }
-    }, [conversationId, input, isQuerying]); // Update the function whenever the input or querying state changes to ensure it has the latest values.
+    }, [conversationId, input, isQuerying, refreshConversations]); // Update the function whenever the input or querying state changes to ensure it has the latest values.
 
     // Handler for keydown events in the chat input, to allow sending the query with Enter key
     const handleKeyDown = useCallback(
@@ -105,14 +191,22 @@ export function useChat() {
 
     return {
         messages,
+        conversations,
         input,
         isQuerying,
+        isLoadingConversations,
+        isLoadingConversationMessages,
+        conversationsError,
+        conversationMessagesError,
         conversationId,
         userEmail: getResolvedUserEmail(),
         setInput,
         setTestUserEmail,
         clearTestUserEmail,
         appendMessage,
+        refreshConversations,
+        loadConversationMessages,
+        startNewConversation,
         handleQuery,
         handleKeyDown,
     };
