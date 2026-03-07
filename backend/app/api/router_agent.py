@@ -74,6 +74,8 @@ async def agent_modify(request: AgentModifyRequest):
     except ImportError:
         from agent_graph import agent_graph
 
+    import aiohttp
+
     # Normalise: empty list → None (search all)
     file_ids = request.fileIds if request.fileIds else None
     run_id = uuid4().hex
@@ -94,6 +96,7 @@ async def agent_modify(request: AgentModifyRequest):
         "llm_call_count": 0,
         "proposals": [],
         "error": None,
+        "_session": None,  # B03: populated below inside the session context manager
     }
 
     print(f"\n{'='*50}")
@@ -103,8 +106,14 @@ async def agent_modify(request: AgentModifyRequest):
     print(f"   Scope: {scope}")
     print(f"{'='*50}")
 
+    # B03: create one shared ClientSession for the entire pipeline run.
+    # All LLM nodes (initial_interpretation, queries_creation, context_critic,
+    # context_expansion, patching) reuse this session's connection pool instead
+    # of each creating and immediately destroying their own.
     try:
-        final_state = await agent_graph.ainvoke(initial_state)
+        async with aiohttp.ClientSession() as session:
+            initial_state["_session"] = session
+            final_state = await agent_graph.ainvoke(initial_state)
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(

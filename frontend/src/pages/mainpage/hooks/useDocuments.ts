@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
 import type { AgentProposal, FileTabState, ParentChunkContent, SidebarFileSummary } from "../types";
 
@@ -77,6 +77,12 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const [agentError, setAgentError] = useState<string | null>(null);
     const [agentIntention, setAgentIntention] = useState<string | null>(null);
 
+    // Ref mirror of agentAcceptedMap — lets rejectAgentProposal (deps=[]) read the
+    // latest accepted entries (including patchOffset) without a stale closure. (F01)
+    const agentAcceptedMapRef = useRef(agentAcceptedMap);
+    useEffect(() => { agentAcceptedMapRef.current = agentAcceptedMap; }, [agentAcceptedMap]);
+
+
     // Helpers: resolve between fileId and fileName
     const getFileNameById = useCallback(
         (fileId: string) => files.find((f) => f.fileId === fileId)?.fileName ?? fileId,
@@ -119,10 +125,13 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     // ── Chunk loading ──
 
     const loadFileChunks = useCallback(
-        async (fileId: string, reset = false) => {
+        async (fileId: string, reset = false): Promise<ParentChunkContent[]> => {
             const current = tabStates[fileId] ?? createEmptyTabState();
-            if (current.isLoading) return;
-            if (!reset && current.isInitialized && !current.hasMore) return;
+            // When reset=true (called by acceptAgentProposal), always fetch fresh data
+            // even if a load is already in progress — the in-progress load may be
+            // for a different page or stale state.
+            if (!reset && current.isLoading) return current.chunks;
+            if (!reset && current.isInitialized && !current.hasMore) return current.chunks;
 
             setTabStates((prev) => ({
                 ...prev,
@@ -140,10 +149,11 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                     params: { fileId, limit: PAGE_SIZE, ...(cursor ? { cursor } : {}) },
                 });
                 const incoming = (response.data.chunks ?? []) as ParentChunkContent[];
+                const existing = reset ? [] : (tabStates[fileId]?.chunks ?? []);
+                const merged = reset ? incoming : [...existing, ...incoming];
+                const deduped = Array.from(new Map(merged.map((c) => [c.parentId, c])).values());
                 setTabStates((prev) => {
                     const state = prev[fileId] ?? createEmptyTabState();
-                    const merged = reset ? incoming : [...state.chunks, ...incoming];
-                    const deduped = Array.from(new Map(merged.map((c) => [c.parentId, c])).values());
                     return {
                         ...prev,
                         [fileId]: {
@@ -157,6 +167,10 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                         },
                     };
                 });
+                // Return the freshly loaded chunks directly — callers like
+                // acceptAgentProposal need these immediately without waiting
+                // for React to re-render and update tabStates.
+                return deduped;
             } catch {
                 const fileName = getFileNameById(fileId);
                 setTabStates((prev) => ({
@@ -168,6 +182,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                         error: `Failed to load content for ${fileName}.`,
                     },
                 }));
+                return [];
             }
         },
         [tabStates, getFileNameById]
@@ -401,19 +416,55 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     );
 
     // Accept: apply partial text replacement locally. Does NOT write to DB yet.
-    const acceptAgentProposal = useCallback((proposal: AgentProposal) => {
-        // Chunk must be loaded before accepting — we need the full surrounding content
-        // to do a safe partial replace. Without it, save would write only the partial
-        // proposed text to DB (Bug 1 variant).
-        const hasChunk = tabStates[proposal.fileId]?.chunks.some(
+    // Auto-loads the file's chunks if not yet in tabStates, so the user never
+    // has to manually open a file before clicking Accept.
+    const acceptAgentProposal = useCallback(async (proposal: AgentProposal) => {
+        // If the chunk isn't loaded yet, trigger loading now and wait for it.
+        let targetChunk = tabStates[proposal.fileId]?.chunks.find(
             (c) => c.parentId === proposal.parentId
         );
-        if (!hasChunk) {
-            setSaveError(`Please open "${proposal.fileName}" and wait for it to load before accepting this proposal.`);
+        if (!targetChunk) {
+            // Open the tab and trigger loading — this is the first-time path.
+            setOpenTabs((prev) => prev.includes(proposal.fileId) ? prev : [...prev, proposal.fileId]);
+            setActiveTab(proposal.fileId);
+            // loadFileChunks returns the chunks directly, so we don't need to
+            // wait for React state to update before reading them.
+            const freshChunks = await loadFileChunks(proposal.fileId, true);
+            targetChunk = freshChunks.find((c) => c.parentId === proposal.parentId);
+        }
+        if (!targetChunk) {
+            setSaveError(`无法加载"${proposal.fileName}"的内容，请确认文件存在后重试。`);
             return;
         }
 
-        setAgentAcceptedMap((prev) => new Map(prev).set(proposal.parentId, proposal));
+        // B01: use indexOf to find exact position instead of .replace().
+        // .replace(a, b) only changes the first occurrence silently; indexOf lets us
+        // verify existence, count duplicates, and record the precise offset for revert.
+        const offset = targetChunk.content.indexOf(proposal.original);
+        if (offset === -1) {
+            // Original text no longer exists in the chunk (e.g. stale proposal after
+            // another edit). Reject silently rather than writing corrupt content.
+            setSaveError(`原文未在文档中找到（可能是过期的 proposal），已跳过。`);
+            return;
+        }
+
+        // Warn when the original appears more than once so the user is aware only
+        // the first occurrence will be patched.
+        const matchCount = targetChunk.content.split(proposal.original).length - 1;
+        if (matchCount > 1) {
+            console.warn(
+                `[B01] "${proposal.original.slice(0, 60)}…" appears ${matchCount} times ` +
+                `in chunk ${proposal.parentId}. Only the first occurrence (offset=${offset}) ` +
+                `will be replaced.`
+            );
+        }
+
+        // Store offset alongside the proposal so rejectAgentProposal can restore
+        // the exact position without guessing. (F01 fix)
+        setAgentAcceptedMap((prev) =>
+            new Map(prev).set(proposal.parentId, { ...proposal, patchOffset: offset })
+        );
+        // Ensure tab is open and active (no-op if already set by auto-load above).
         setOpenTabs((prev) => prev.includes(proposal.fileId) ? prev : [...prev, proposal.fileId]);
         setActiveTab(proposal.fileId);
 
@@ -421,9 +472,10 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             const state = prev[proposal.fileId] ?? createEmptyTabState();
             const updatedChunks = state.chunks.map((chunk) => {
                 if (chunk.parentId !== proposal.parentId) return chunk;
-                // If original text not found, leave the chunk untouched.
-                if (!chunk.content.includes(proposal.original)) return chunk;
-                const patched = chunk.content.replace(proposal.original, proposal.proposed);
+                const patched =
+                    chunk.content.slice(0, offset) +
+                    proposal.proposed +
+                    chunk.content.slice(offset + proposal.original.length);
                 return { ...chunk, content: patched, size: patched.length };
             });
             return {
@@ -431,7 +483,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                 [proposal.fileId]: { ...state, chunks: updatedChunks, isInitialized: true, isLoading: false, error: null },
             };
         });
-    }, [tabStates]);
+    }, [tabStates, loadFileChunks]);
 
     // Save: write accepted proposal to DB.
     const saveAgentProposal = useCallback(
@@ -548,11 +600,41 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                     const state = tabPrev[proposal.fileId] ?? createEmptyTabState();
                     const reverted = state.chunks.map((chunk) => {
                         if (chunk.parentId !== parentId) return chunk;
-                        // Reverse the partial patch: replace proposed text back to original.
-                        // This mirrors acceptAgentProposal's replace(original, proposed),
-                        // avoiding the bug where content = proposal.original truncates the whole chunk.
-                        if (!chunk.content.includes(proposal.proposed)) return chunk;
-                        const restored = chunk.content.replace(proposal.proposed, proposal.original);
+
+                        // F01: use the offset recorded at accept time for a positionally
+                        // exact revert. Without it, .replace(proposed, original) would
+                        // silently restore the wrong occurrence if `proposed` text appears
+                        // elsewhere in the chunk.
+                        const acceptedEntry = agentAcceptedMapRef.current.get(parentId);
+                        const offset = acceptedEntry?.patchOffset;
+
+                        if (offset !== undefined) {
+                            const proposedEnd = offset + proposal.proposed.length;
+                            // Verify the proposed text is still at the recorded position
+                            // (it should be, unless some other edit moved it).
+                            if (chunk.content.slice(offset, proposedEnd) === proposal.proposed) {
+                                const restored =
+                                    chunk.content.slice(0, offset) +
+                                    proposal.original +
+                                    chunk.content.slice(proposedEnd);
+                                return { ...chunk, content: restored, size: restored.length };
+                            }
+                            // Position check failed — fall through to indexOf fallback.
+                            console.warn(
+                                `[F01] Expected "${proposal.proposed.slice(0, 40)}…" at offset ${offset} ` +
+                                `but found "${chunk.content.slice(offset, offset + 40)}…". ` +
+                                `Falling back to indexOf.`
+                            );
+                        }
+
+                        // Fallback: find by indexOf (covers proposals accepted before this
+                        // fix was deployed, or edge cases where offset is unavailable).
+                        const pos = chunk.content.indexOf(proposal.proposed);
+                        if (pos === -1) return chunk;
+                        const restored =
+                            chunk.content.slice(0, pos) +
+                            proposal.original +
+                            chunk.content.slice(pos + proposal.proposed.length);
                         return { ...chunk, content: restored, size: restored.length };
                     });
                     return { ...tabPrev, [proposal.fileId]: { ...state, chunks: reverted } };
@@ -566,7 +648,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             return next;
         });
         setAgentRejectedIds((prev) => new Set([...prev, parentId]));
-    }, []);
+    }, []); // agentAcceptedMapRef is a stable ref — no dependency needed
 
     return {
         files,

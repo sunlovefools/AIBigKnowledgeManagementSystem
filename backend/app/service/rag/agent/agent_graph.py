@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from langgraph.graph import StateGraph, END
 
-from .agent_state import AgentState
+from .agent_state import AgentState, AGENT_MAX_RETRIES
 from .agent_nodes import (
     initial_interpretation_node,
     queries_creation_node,
@@ -16,8 +16,6 @@ from .agent_nodes import (
     display_locate_node,
 )
 
-_MAX_RETRIES = 3
-
 
 def route_after_context_critic(state: AgentState) -> str:
     is_satisfied = state.get("is_satisfied", True)
@@ -27,8 +25,8 @@ def route_after_context_critic(state: AgentState) -> str:
     if is_satisfied:
         return "context_expansion" if intention == "edit" else "display_locate"
 
-    if retry_count < _MAX_RETRIES:
-        print(f"   Context insufficient — retrying ({retry_count}/{_MAX_RETRIES})...")
+    if retry_count < AGENT_MAX_RETRIES:
+        print(f"   Context insufficient — retrying ({retry_count}/{AGENT_MAX_RETRIES})...")
         return "queries_creation"
 
     print("   Max retries reached — proceeding with available context.")
@@ -38,7 +36,7 @@ def route_after_context_critic(state: AgentState) -> str:
 def route_after_context_expansion(state: AgentState) -> str:
     needs_expansion = state.get("needs_expansion", False)
     retry_count = state.get("retry_count", 0)
-    if needs_expansion and retry_count < _MAX_RETRIES:
+    if needs_expansion and retry_count < AGENT_MAX_RETRIES:
         return "queries_creation"
     return "patching"
 

@@ -16,7 +16,7 @@ try:
 except ImportError:
     from debug.debug_logger import log_token_usage
 
-from .agent_state import AgentState, Proposal
+from .agent_state import AgentState, Proposal, AGENT_MAX_RETRIES
 from .agent_prompts import (
     INITIAL_INTERPRETATION_PROMPT,
     QUERIES_CREATION_PROMPT,
@@ -38,7 +38,6 @@ _DEEPSEEK_URL = _normalize_url(
 )
 _DEEPSEEK_KEY = os.getenv("OPENROUTER_API_KEY")
 _DEEPSEEK_MODEL = os.getenv("OPENROUTER_MODEL", "deepseek-chat")
-_MAX_RETRIES = 3
 
 
 # ------------------------------------------------------------------
@@ -49,10 +48,21 @@ async def _call_llm(
     system_prompt: str,
     user_message: str,
     *,
+    session: aiohttp.ClientSession | None = None,
     run_id: str | None = None,
     step: str | None = None,
+    max_tokens: int = 4096,
 ) -> tuple[str, dict[str, int]]:
-    """Call DeepSeek (OpenAI-compatible) and return response text."""
+    """Call DeepSeek (OpenAI-compatible) and return response text.
+
+    B03: accepts an optional shared session. When provided the caller's
+    connection pool is reused across all LLM calls in one pipeline run,
+    avoiding the overhead of creating/destroying a ClientSession per call.
+    Falls back to creating its own session when none is supplied.
+
+    max_tokens is always set explicitly to prevent the API from using its own
+    default, which can silently truncate large JSON responses mid-string.
+    """
     if not _DEEPSEEK_KEY:
         raise RuntimeError("OPENROUTER_API_KEY is not set.")
 
@@ -63,18 +73,26 @@ async def _call_llm(
             {"role": "user", "content": user_message},
         ],
         "temperature": 0,
+        "max_tokens": max_tokens,
     }
     headers = {
         "Authorization": f"Bearer {_DEEPSEEK_KEY}",
         "Content-Type": "application/json",
     }
     timeout = aiohttp.ClientTimeout(total=120.0)
-    async with aiohttp.ClientSession() as session:
-        async with session.post(_DEEPSEEK_URL, json=payload, headers=headers, timeout=timeout) as resp:
+
+    async def _do_request(s: aiohttp.ClientSession) -> dict:
+        async with s.post(_DEEPSEEK_URL, json=payload, headers=headers, timeout=timeout) as resp:
             if resp.status != 200:
                 text = await resp.text()
                 raise RuntimeError(f"DeepSeek API error ({resp.status}): {text}")
-            data = await resp.json()
+            return await resp.json()
+
+    if session is not None:
+        data = await _do_request(session)
+    else:
+        async with aiohttp.ClientSession() as own_session:
+            data = await _do_request(own_session)
 
     usage = data.get("usage") if isinstance(data, dict) else {}
     if not isinstance(usage, dict):
@@ -110,12 +128,30 @@ async def _call_llm(
 
 
 def _parse_json(text: str) -> Any:
-    """Parse JSON from LLM response, stripping markdown fences if present."""
+    """Parse JSON from LLM response, stripping markdown fences if present.
+
+    Also attempts to recover from truncated responses: if the full parse fails,
+    it walks back from the last closing bracket/brace to find the largest valid
+    prefix — this salvages partial proposals instead of discarding the entire
+    response when max_tokens is hit unexpectedly.
+    """
     cleaned = text.strip()
     if cleaned.startswith("```"):
         lines = cleaned.split("\n")
         cleaned = "\n".join(lines[1:-1] if lines[-1].strip() == "```" else lines[1:])
-    return json.loads(cleaned.strip())
+    cleaned = cleaned.strip()
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        # Walk back from the last ] or } and try to parse whatever is complete.
+        for end_char in ("]", "}"):
+            pos = cleaned.rfind(end_char)
+            if pos != -1:
+                try:
+                    return json.loads(cleaned[: pos + 1])
+                except json.JSONDecodeError:
+                    continue
+        raise
 
 
 def _accumulate_usage(state: AgentState, usage: dict[str, int]) -> dict[str, int]:
@@ -141,14 +177,14 @@ async def initial_interpretation_node(state: AgentState) -> dict:
     print("🤖 [Agent 1] Interpreting intent...")
     try:
         result, usage = await _call_llm(
-            system_prompt=(
-                "Classify the user instruction as 'edit' or 'locate'. Respond with one word only.\n"
-                "'edit' means: modify, update, translate, rewrite, fix, change, summarise, add, remove, replace content.\n"
-                "'locate' means: find, search, show, list, where is — purely read-only retrieval with no changes."
-            ),
+            # The full classification rules are already in INITIAL_INTERPRETATION_PROMPT.
+            # A minimal system prompt avoids double-spending tokens on repeated instructions.
+            system_prompt="You are an intent classifier. Respond with one word only: 'edit' or 'locate'.",
             user_message=INITIAL_INTERPRETATION_PROMPT.format(instruction=state["instruction"]),
+            session=state.get("_session"),
             run_id=state.get("run_id"),
             step="initial_interpretation",
+            max_tokens=10,  # One word reply — no need for more
         )
         intention = result.strip().lower()
         if intention not in ("edit", "locate"):
@@ -176,6 +212,7 @@ async def queries_creation_node(state: AgentState) -> dict:
                 instruction=state["instruction"],
                 previous_queries=json.dumps(previous_queries) if previous_queries else "None",
             ),
+            session=state.get("_session"),
             run_id=state.get("run_id"),
             step="queries_creation",
         )
@@ -250,17 +287,26 @@ async def retrieve_chunks_node(state: AgentState) -> dict:
             except Exception as e:
                 print(f"   ⚠️  Direct load failed for file_id={file_id}: {e}")
     else:
-        # No file scope — use semantic search across all files
-        for query in queries:
+        # No file scope — use semantic search across all files.
+        # B05: fire all queries in parallel with asyncio.gather instead of
+        # awaiting them one-by-one. 3 queries × ~300ms each = ~900ms serial
+        # vs ~300ms parallel — the longest single query sets the total time.
+        import asyncio
+
+        async def _search_one(query: str) -> list[dict]:
             try:
-                chunks = await search_and_retrieve_context(query=query, top_k=5)
-                for chunk in chunks:
-                    chunk_id = chunk.get("id")
-                    if chunk_id and chunk_id not in seen_ids:
-                        seen_ids.add(chunk_id)
-                        all_chunks.append(chunk)
+                return await search_and_retrieve_context(query=query, top_k=5)
             except Exception as e:
                 print(f"   ⚠️  Search failed for '{query}': {e}")
+                return []
+
+        results = await asyncio.gather(*[_search_one(q) for q in queries])
+        for chunks in results:
+            for chunk in chunks:
+                chunk_id = chunk.get("id")
+                if chunk_id and chunk_id not in seen_ids:
+                    seen_ids.add(chunk_id)
+                    all_chunks.append(chunk)
 
     print(f"   Retrieved {len(all_chunks)} unique parent chunks.")
     return {"retrieved_chunks": all_chunks}
@@ -290,6 +336,7 @@ async def context_critic_node(state: AgentState) -> dict:
                 instruction=state["instruction"],
                 chunks_summary=chunks_summary,
             ),
+            session=state.get("_session"),
             run_id=state.get("run_id"),
             step="context_critic",
         )
@@ -320,6 +367,7 @@ async def context_expansion_node(state: AgentState) -> dict:
                 instruction=state["instruction"],
                 chunks_summary=chunks_summary,
             ),
+            session=state.get("_session"),
             run_id=state.get("run_id"),
             step="context_expansion",
         )
@@ -335,8 +383,22 @@ async def context_expansion_node(state: AgentState) -> dict:
 # Node 6: Patching Agent (LLM)
 # ------------------------------------------------------------------
 
+# Max chunks sent to the patching LLM per batch.
+# Keeping batches small prevents oversized JSON responses that exceed max_tokens
+# and get truncated mid-string (the root cause of "Unterminated string" errors).
+_PATCHING_BATCH_SIZE = 5
+
+
 async def patching_node(state: AgentState) -> dict:
-    """Generate original/proposed modification pairs."""
+    """Generate original/proposed modification pairs.
+
+    Chunks are processed in parallel batches of _PATCHING_BATCH_SIZE to prevent
+    LLM response truncation that occurs when all chunks are serialised into one
+    giant prompt.  Each batch gets its own LLM call with a generous max_tokens
+    budget, and results are merged before validation.
+    """
+    import asyncio
+
     print("🤖 [Agent 6] Generating modification proposals...")
     chunks = state.get("retrieved_chunks", [])
 
@@ -353,29 +415,81 @@ async def patching_node(state: AgentState) -> dict:
         for chunk in chunks
     ]
 
-    try:
+    # Partition into batches
+    batches = [
+        chunks_for_prompt[i: i + _PATCHING_BATCH_SIZE]
+        for i in range(0, max(len(chunks_for_prompt), 1), _PATCHING_BATCH_SIZE)
+    ]
+    print(f"   Processing {len(chunks_for_prompt)} chunk(s) across {len(batches)} batch(es)...")
+
+    async def _call_batch(batch: list[dict]) -> tuple[list, dict]:
         result, usage = await _call_llm(
             system_prompt="You are a precise document editor. Respond with only a JSON array of modification objects.",
             user_message=PATCHING_PROMPT.format(
                 instruction=state["instruction"],
-                chunks_json=json.dumps(chunks_for_prompt, ensure_ascii=False, indent=2),
+                chunks_json=json.dumps(batch, ensure_ascii=False, indent=2),
             ),
+            session=state.get("_session"),
             run_id=state.get("run_id"),
             step="patching",
+            max_tokens=8192,  # Generous budget per batch — each batch is small
         )
-        raw_proposals = _parse_json(result)
+        parsed = _parse_json(result)
+        return (parsed if isinstance(parsed, list) else []), usage
+
+    batch_results = await asyncio.gather(
+        *[_call_batch(b) for b in batches],
+        return_exceptions=True,
+    )
+
+    raw_proposals: list[dict] = []
+    combined_usage: dict[str, int] = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
+    for i, res in enumerate(batch_results):
+        if isinstance(res, Exception):
+            print(f"   ⚠️  Batch {i + 1} failed: {res}")
+            continue
+        proposals_batch, usage = res
+        raw_proposals.extend(proposals_batch)
+        for k in combined_usage:
+            combined_usage[k] += usage.get(k, 0)
+
+    try:
         if not isinstance(raw_proposals, list):
             raw_proposals = []
 
         chunk_map: dict[str, dict] = {chunk.get("id", ""): chunk for chunk in chunks}
         proposals: list[Proposal] = []
 
+        skipped = 0
         for item in raw_proposals:
             parent_id = item.get("parentId", "")
-            chunk = chunk_map.get(parent_id, {})
+            original = item.get("original", "")
+            proposed = item.get("proposed", "")
+
+            # B02: validate parentId refers to a real chunk we actually retrieved.
+            # LLM sometimes hallucinates parentIds that don't exist in chunk_map.
+            chunk = chunk_map.get(parent_id)
+            if chunk is None:
+                print(f"   ⚠️  Skipping proposal — parentId '{parent_id}' not in retrieved chunks (hallucinated).")
+                skipped += 1
+                continue
+
+            # B02: validate original text truly exists inside the chunk content.
+            # Without this, the frontend would display a diff with text that isn't
+            # in the document, and accepting it would write corrupt content to the DB.
+            chunk_content = chunk.get("page_content", "")
+            if not original:
+                print(f"   ⚠️  Skipping proposal — empty original text for parentId '{parent_id}'.")
+                skipped += 1
+                continue
+            if original not in chunk_content:
+                print(f"   ⚠️  Skipping proposal — original text not found in chunk '{parent_id}'. "
+                      f"LLM may have hallucinated: {original[:80]!r}")
+                skipped += 1
+                continue
+
             metadata = chunk.get("metadata", {})
             file_metadata = metadata.get("file_metadata", {})
-
             file_name = (
                 file_metadata.get("file_name")
                 or chunk.get("metadata", {}).get("file_name")
@@ -385,12 +499,14 @@ async def patching_node(state: AgentState) -> dict:
                 fileId=file_metadata.get("file_id", ""),
                 fileName=file_name,
                 parentId=parent_id,
-                original=item.get("original", ""),
-                proposed=item.get("proposed", ""),
+                original=original,
+                proposed=proposed,
             ))
 
+        if skipped:
+            print(f"   ⚠️  {skipped} proposal(s) skipped due to validation failures.")
         print(f"   Generated {len(proposals)} proposal(s).")
-        return {"proposals": proposals, **_accumulate_usage(state, usage)}
+        return {"proposals": proposals, **_accumulate_usage(state, combined_usage)}
     except Exception as e:
         print(f"   ❌ Patching agent failed: {e}")
         return {"proposals": [], "error": str(e)}

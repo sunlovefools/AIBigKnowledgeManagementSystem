@@ -7,6 +7,12 @@ from typing import Any, Optional
 from typing_extensions import TypedDict
 
 
+# B04: single source of truth for the retry limit.
+# Previously defined separately in agent_nodes.py AND agent_graph.py,
+# risking the two values drifting out of sync.
+AGENT_MAX_RETRIES: int = 3
+
+
 class Proposal(TypedDict):
     """A single modification proposal for one parent chunk."""
     fileId: str
@@ -35,6 +41,13 @@ class AgentState(TypedDict):
     token_completion_total: int         # Accumulated completion tokens across LLM calls
     token_total: int                    # Accumulated total tokens across LLM calls
     llm_call_count: int                 # Number of successful LLM calls with usage data
+
+    # --- Infrastructure ---
+    # B03: shared aiohttp.ClientSession for the entire pipeline run.
+    # Created once in router_agent.py before ainvoke, passed through state so
+    # all LLM nodes reuse the same connection pool instead of creating 5 sessions.
+    # Typed as Any to avoid importing aiohttp here.
+    _session: Optional[Any]
 
     # --- Output ---
     proposals: list[Proposal]           # Final proposals returned to frontend

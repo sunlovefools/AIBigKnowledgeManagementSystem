@@ -31,7 +31,7 @@ type ModificationPanelProps = {
     onEditingContentChange: (nextContent: string) => void;
     onCancelEditing: () => void;
     onSaveEditing: () => void;
-    onAcceptAgentProposal: (proposal: AgentProposal) => void;
+    onAcceptAgentProposal: (proposal: AgentProposal) => Promise<void>;
     onSaveAgentProposal: (proposal: AgentProposal) => void;
     onRejectAgentProposal: (parentId: string) => void;
     onClearAgentProposals: () => void;
@@ -237,7 +237,7 @@ export default function ModificationPanel({
                                             <button
                                                 className="save-btn"
                                                 type="button"
-                                                onClick={() => onAcceptAgentProposal(proposal)}
+                                                onClick={() => { void onAcceptAgentProposal(proposal); }}
                                             >
                                                 Accept
                                             </button>

@@ -262,7 +262,7 @@ export default function MainPage() {
                     agentSavingIds={agentSavingIds}
                     agentError={agentError}
                     agentIntention={agentIntention}
-                    onAcceptAgentProposal={acceptAgentProposal}
+                    onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
                     onSaveAgentProposal={(proposal) => { void saveAgentProposal(proposal); }}
                     onRejectAgentProposal={rejectAgentProposal}
                     onClearAgentProposals={clearAgentState}

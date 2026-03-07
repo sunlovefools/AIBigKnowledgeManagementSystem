@@ -55,4 +55,11 @@ export type AgentProposal = {
     parentId: string;
     original: string;
     proposed: string;
+    /**
+     * Byte offset of `original` within the chunk content at accept time.
+     * Set by acceptAgentProposal and read by rejectAgentProposal for precise
+     * positional revert (B01/F01 fix). Undefined on proposals received from
+     * the backend before they have been accepted locally.
+     */
+    patchOffset?: number;
 };
