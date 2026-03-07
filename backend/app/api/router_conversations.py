@@ -137,20 +137,31 @@ def get_conversation_messages(#path parameter for conversation ID; query paramet
   if conversation.get("userEmail") != user_email:
     raise HTTPException(status_code=403, detail="Forbidden for this conversation")
 
-  all_docs = list(chat_collection.find({"conversationId": conversation_id}))
-  all_docs.sort(key=lambda doc: doc.get("timestamp", ""))
+  message_count = int(conversation.get("messageCount", 0))#get the total number of messages in the conversation from the conversation metadata
+  raw_docs = list(
+    chat_collection.find(
+      {"conversationId": conversation_id},
+      sort={"timestamp": -1},
+      skip=cursor,
+      limit=limit + 1,
+    )
+  )
 
-  paged_docs = all_docs[cursor : cursor + limit]
-  next_cursor = cursor + limit
-  has_more = next_cursor < len(all_docs)
+  # Determine if there are more messages to load beyond the current page
+  has_more = len(raw_docs) > limit
+  paged_docs = raw_docs[:limit]
+  paged_docs.reverse()#reverse the order of the messages to be chronological (oldest to newest) before returning to the frontend
+  next_cursor = cursor + limit if has_more else None#calculate the next cursor value for pagination 
+  #if there are more messages to load, the next cursor will be the current cursor plus the limit; 
+  #if there are no more messages, the next cursor will be null
 
-  return ConversationMessagesResponse(
+  return ConversationMessagesResponse(#return the conversation metadata and the list of messages in the response model format, along with pagination info
     conversation=ConversationMetaOut(
       conversationId=conversation_id,
       title=conversation.get("title", "New conversation"),
       createdAt=conversation.get("createdAt"),
       updatedAt=conversation.get("updatedAt", ""),
-      messageCount=int(conversation.get("messageCount", len(all_docs))),
+      messageCount=message_count,
     ),
     messages=[
       ChatMessageOut(
@@ -163,5 +174,5 @@ def get_conversation_messages(#path parameter for conversation ID; query paramet
       for doc in paged_docs
     ],
     hasMore=has_more,
-    nextCursor=next_cursor if has_more else None,
+    nextCursor=next_cursor,
   )

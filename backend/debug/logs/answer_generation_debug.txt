@@ -1843,3 +1843,442 @@ The deliverables for the COMP2002 project include:
   
 - The Open Day -formal open day in the form of a trade show.
 ==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-07T13:47:14.256597+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 11076
+
+<QUERY>
+Tell me more about the interim report
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f116fd4-bd78-6559-a45b-15b54a063a43",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 48
+    },
+    "page_content": "## 3.3 Legal, Societal, Ethical and Professional Issues (LSEPI)\n\n## 3.3.1 Context\n\nYour  project  doesn't  happen  in  a  vacuum.  Your  work  is  affected  by  the  world  around  you.  This influence includes laws and University policies, but also the concerns and priorities of society and your peers. On the other hand, your work can affect the world around you. In fact, it might also change the world (for better or worse)!\n\nAs part of your 'Contributions and reflections' in your interim and final report, explain how the team has considered the 'bigger picture' within which your work is situated. The checklist, below, identifies several  issues.  Depending  on  the  project,  some  of  them  may  be  more  relevant  than  others.  But everyone should have something to reflect on (even if it is the last question).\n\nIn the interim report you should highlight which issues are the most significant for your project, and how you will address them in the remainder of your project. In the final report you should present your reflections on each issue, including why they are (or are not) significant for your project.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68c1-9ad9-b7778db496f0",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 62
+    },
+    "page_content": "## 4.1 Individual Report - Reflective Statement\n\nYour individual report focusses on your work within the group and the challenges that you may have faced. Its main purpose of is to reflect on the quality of your own contribution, the experience you had in the team, and lessons learned from it for the future. Your report should focus on both the technical contributions that you have made as well as the interpersonal role that you have played. Please contextualise your achievements against the requirements for the project.\n\nA template for your individual report (that must be followed) is available on Moodle.  The template contains five sections:\n\n- Why the group applied for the project ,  focusing  on how the interest, technical skills,  past experience, and future aspirations influenced the choice for this project. This should reflect the team's view as well as your own personal perspective.\n\n- The accuracy of the original project description , giving you the opportunity to express how, in your own view, the original project description and requirements have evolved during the course of the project. This gives you an opportunity to demonstrate your own understanding of the project.\n\n- The role that you have played within the team, focusing in a concise manner on the technical, administrative, managerial, and interpersonal contributions that you have made to the project and team. Your focus should be on your key contributions and, where possible, be supported by contextual ' evidence ' .  How did you use your strengths to the benefit of the team and project? What were the different roles that you took on within the team? Were you primarily technical, managerial, or both? Were you a key player in the successful completion of the project and the operation of the team, a regular contributor? Was your work rate consistent? What initiatives did you take, how was your time management, how did you collaborate with other members to help them to achieve their best?\n\n- Difficulties that you experienced within your role, focusing the technical challenges that you encountered as well as in any other aspects of your role.\n\n- Difficulties  that  you  may  have  experienced  working  in  this  group  and  constructive  actions taken to resolve  these  challenges ,  documenting  any challenges that  were  encountered  by yourself  or  the  whole  team,  and  the  constructive  /  proactive  measures  that  you  took  to address concerns to the benefit of the team. Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd7f-6a86-9e19-6cc36b3e298a",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 55
+    },
+    "page_content": "## o summary of key points and future plan\n\n## 3.5 The Final Report\n\nThe final report consists of three key parts:\n\n- The main report.\n\n- The software manual.\n\n- The user manual.\n\nAll three parts must be submitted as one single document. Additional guidance on how to write each of the individual parts is given below.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd7f-6a88-9d92-1bc13ab48322",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 56
+    },
+    "page_content": "## 3.5.1 Main Report\n\nThe main report, the first part of your final report, builds upon the previously written interim report, from which content can be re-used to present a holistic  document  describing  the  project  and  its results. It can be reasonably expected to contain between 6000 and 8000 words (around 12-16 pages, excluding  appendices).  It  documents  in  addition  to  the  interim  report's  improved  and  updated content - the progress made during the second term.\n\nThe main report provides general project background (similar to what was included in the interim report). Whilst some sections of the interim report may remain relevant, key changes to sections from the interim report (e.g. to reflect recent progress), newly added sections, or any sections that have been removed should be listed in  a  'change  section' at  the  start  of  the  main  report  in  line  with common practice.\n\nIn addition to the above, the main report should have an increased focus on constructive reflection and software engineering. That is, any technical content should, where appropriate, be supported and documented using established methods from the domain of software engineering, for instance when introducing user-, functional- and non-functional requirements. In relation to the reflection element, the following items should be considered (where applicable):\n\n- A reflection on the success of the project and the achievements of the project by the end of contract.\n\n- A description of how requirements have changed over the course of the project and how the team dealt with this.\n\n- A description of what changed in the methods used and the team's approach (even if the requirements did not change).\n\n- A motivation behind the technical approaches that the team used in the implementation and a motivation for them.\n\n- A reflection on what went well, what was hard to achieve, what went badly, what the team has learned from this, and how the team's functioning could be improved.\n\n- An overview of how the work was split between different group members.\n\n- A reflection on the management of the project (sprints, sprint planning, retros).\n\n- A reflection on how contingency measures helped to deal with unexpected circumstances, or what  contingency  measures  you  would  take  in  hindsight  to  better  deal  with  unexpected circumstances.\n\n- A reflection on LSEPI (see Section 3.3) elements identified in the interim report.\n\n- Promising future directions for the project.\n\nThe above list of items is not exhaustive and teams are expected to reflect on additional aspects. That is,  they should use their own judgement on what other content to include, or which items to not include from the list above (if they are not relevant in the context of your project).\n\nFinally, any feedback received from your team supervisor previously on the interim report should be carefully considered and addressed.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd7a-6c56-87d0-0c745440cd8f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 54
+    },
+    "page_content": "## 3.4 The Interim Report\n\nThe interim report is a group report that is due around the half-way stage of the project. It should contain 3000 - 4000 words (around 6-8 pages, excluding any appendices). The main content should reflect (where possible) the assessment criteria below. Note that, as stated above, it is not the goal that you stick rigorously to the headings below, but that you ensure that the narrative of the report flows well.\n\n- Project Background &amp; Understanding (10%):\n\n- o Evidence of understanding of the initial brief / specification\n\n- o Evidence of own interpretations / additions / innovations\n\n- o Depth and context of the problem presented (e.g. existing products)\n\n- Requirements &amp; Critical Analysis (15%):\n\n- o Depth / clarity / coverage and appropriate prioritisation of requirements.\n\n- o Motivation / reflection for changes to requirements and scope reductions.\n\n- o Results of focus groups / user surveys (where applicable)\n\n- o Analysis  of  hardware  /  tools  /  methods  /  software  libraries  for  the  project  and motivation for the choices made.\n\n- Initial software implementation &amp; testing (30%) -where applicable\n\n- o Architecture / design / proof of concept implementation\n\n- o Data storage / management / manipulation / use of (personal) data (if applicable)\n\n- o Appropriate use of version control system (branching / merging)\n\n- o Evidence of testing\n\n- o Preliminary inline software documentation\n\n- Project Management &amp; progress (15%)\n\n- o Evidence of effective / appropriate project management (Agile, SCRUM, SCRUMBAN, Kanban, etc.)\n\n- o Documentation of sprints / retrospectives / workload management / formal meetings (where applicable)\n\n- o Use of project management tools (Trello / Microsoft Planner / Teams / Slack)\n\n- o Effective use of team skills / skills transfers / cross training\n\n- o Professional attitude / disciplined / consistent / timely / punctual / autonomous &amp; self organising\n\n- Preliminary Reflection (15%)\n\n- o Tools / techniques / methods / technical difficulties / testing\n\n- o On  project  management  /  current  progress  /  encountered  problems  /  mitigation measures\n\n- o LSEPI (see Section 3.3)\n\n- o Functioning of the team so far and contributions made by individual members\n\n- o Forward plan that addresses concerns identified\n\n- Style (8%)\n\n- o Accessibility / clarity &amp; motivation of the argument / structure (e.g. by key parts / components of the project)\n\n- o Concise / conceptual descriptions / appropriately balanced content / length / depth\n\n- o Grammar / spelling / articulation / formatting / structure / jargon &amp; definitions\n\n- o Use of visuals / graphics\n\n- Resource links (2%)\n\n- o Links  to  document  repository  /  project  management  documentation  (e.g.  Trello  / Microsoft Planner) / code repository\n\n- Conclusion &amp; Summary (5%)",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-07T13:47:52.858458+00:00
+Answer Length: 1864
+Answer:
+The interim report is a group report that is due around the halfway stage of the project. It should contain approximately 3000-4000 words (around 6-8 pages, excluding any appendices). The main content should reflect (where possible) the assessment criteria outlined below:
+
+- Project Background & Understanding (10%)
+- Evidence of understanding of the initial brief/specification
+- Evidence of own interpretations/additions/innovations
+- Depth and context of the problem presented (e.g., existing products)
+
+- Requirements & Critical Analysis (15%)
+- Depth/clarity/coverage and appropriate prioritization of requirements
+- Motivation/reflection for changes to requirements and scope reductions
+- Results of focus groups/user surveys (where applicable)
+- Analysis of hardware/tools/methods/software libraries for the project and motivation for the choices made
+
+- Initial software implementation & testing (30%)
+- Architecture/design/proof of concept implementation
+- Data storage/mangement/manipulation/use of (personal)data (if applicable)
+- Appropriate use of version control system (branching/merging)
+- Evidence of testing
+- Preliminary inline software documentation
+
+- Project Management & Progress (15%)
+- Evidence of effective/appropriate project management (Agile, SCRUM, SCRUMBAN, Kanban, etc.)
+- Documentation of sprints/sprint planning/retributosives/workload management/formal meetings (where applicable)
+- Use of project management tools (Trello/Microsoft Planner/Teams/Slack)
+- Effective use of team skills/skills transfers/cross training
+- Professional attitude/disciplined/timed/punctual/self organizing
+
+- Preliminary Reflection (15%)
+- Tools/techniques/methods/technical difficulties/testing
+- On project management/current progress/encountered problems/mitigation measures
+- LSEPI (see Section 3.3)
+- Functioning of the team so far/contributions
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-07T13:54:40.188636+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 42694
+
+<QUERY>
+what is LSEPI?
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f116fd4-bd5e-6aa5-9095-627a52529f0f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## 1 Introduction\n\n## 1.1 Overview\n\nThe software engineering group project module brings students together to work in team on a project. The module and project focus on the entire software development lifecycle, including the software specification (requirements analysis and design), development (implementation, coding, programming), validation and testing, documentation, and the management of the project. That is, this module is not ' just ' about writing code, but instead about the whole software engineering (SE) process. This will require teams to bring theory that they have learned (or will learn) in other modules, including  G51FSE  G51PGP,  G51PGA,  and  G52SWM,  into  practice.  Supporting  lectures  and  project supervisor(s) will guide you through the process.\n\nThe module consists of the following key elements:\n\n- The bidding process involving the submission of your t eam's CVs, Expressions of Interest (EoI), a set of formal pitches, and a project award process.\n\n- The project itself,  applying  technical  knowledge,  established  SE  methods,  agile  project management, and interpersonal skills to successfully deliver the project.\n\n- The demo  day (circumstances  permitting),  a  \"trade  fair  style  event\"  where  you  will demonstrate your work to both internal and external visitors.\n\n- The delivery / end of contract , including the submission of your software, project report, user and software documentation, management documentation, an individual project report, and a peer review.\n\nFor many of you, the group project will offer a first working experience on a team based project, helping you to apply theoretical and practical knowledge to deliver a real result. The group project is generally regarded as one of the most important components of your UG degree and encapsulates key elements towards the BCS accreditation of your degree. Many alumni comment to us that this module has had the most value to them as they start their working life.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90e2-62f9-af60-df2e2aae3fe3",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 10
+    },
+    "page_content": "## Your ACTION as a Group\n\nDesign and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all. You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.\n\nThe focus of this coursework is on designing and developing your image processing pipeline to perform the abovementioned tasks. You must make sure to evaluate the final outcome. The evaluation can be both qualitative for example perceptual measures - and quantitative - for example mIoU (mean Intersection over Union)can be use as the metrics to evaluate your image processing pipeline's performance. More evaluation metrics ( that you can use ) for image segmentation will be covered in Lecture 9 .\n\nYou should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).\n\nFigure 2 : Segmentation Desired Outcome\n\n<!-- image-uuid: 1f11733d-8f56-6fcb-a16c-317a08c156c6 -->\n\nFor your conference paper, you should identify 15 images ( 5 easy, 5 medium &amp; 5 hard ) to support your arguments of your proposed image processing pipeline.\n\nAs for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs. After the execution of your program, it is expected that each image in your provided input-images folder (e.g., 15 images - 5 easy, 5 medium &amp; 5 hard) has a corresponding segmentation result represented by a .jpg file saved in the output-images folder , categorised within three sub-folders (e.g., easy, medium, and hard) with the same name as the input images but with an extension of '-easy\\_1, -easy\\_2, -easy\\_3, -medium\\_1, -medium\\_2, -medium\\_3, -hard\\_1, -hard\\_2 and -hard\\_3 ' at the end of the filename. As mentioned earlier, your output image must have a white background with only the segmented PMY. Additionally, images generated as part of your image processing pipeline can be saved in the image-processing-pipeline folder whereby you can create subfolders for each input image and label the sub-folders as the same name as the input image. For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.\n\nNOTE : A readme file is recommended to be produced alongside the source code.\n\n<!-- image-uuid: 1f11733d-903d-6aa0-99eb-38343303cf50 -->\n\nFigure 3 : The overall process of Image Processing Pipeline and Evaluation\n\n<!-- image-uuid: 1f11733d-9050-691c-8032-4ed9c463dd85 -->",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd78-6559-a45b-15b54a063a43",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 48
+    },
+    "page_content": "## 3.3 Legal, Societal, Ethical and Professional Issues (LSEPI)\n\n## 3.3.1 Context\n\nYour  project  doesn't  happen  in  a  vacuum.  Your  work  is  affected  by  the  world  around  you.  This influence includes laws and University policies, but also the concerns and priorities of society and your peers. On the other hand, your work can affect the world around you. In fact, it might also change the world (for better or worse)!\n\nAs part of your 'Contributions and reflections' in your interim and final report, explain how the team has considered the 'bigger picture' within which your work is situated. The checklist, below, identifies several  issues.  Depending  on  the  project,  some  of  them  may  be  more  relevant  than  others.  But everyone should have something to reflect on (even if it is the last question).\n\nIn the interim report you should highlight which issues are the most significant for your project, and how you will address them in the remainder of your project. In the final report you should present your reflections on each issue, including why they are (or are not) significant for your project.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90e2-62ec-96d0-6581372e009d",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 6
+    },
+    "page_content": "## Image Processing Pipeline\n\nAn image processing pipeline usually includes at least some of the following steps (but not exhaustively):\n\nColour space conversion : choose a colour space. Any can be used, but most people choose to work in a lowerdimensional (&lt;3) space whenever possible.\n\nNoise reduction : depending on image quality, some form of noise suppression may be required.\n\nThresholding/Segmentation : image regions corresponding to blood cells must be identified, and thresholding is a common approach. The method used varies and may be global or local. Methods that automatically determine the threshold value have obvious advantages over those that require user interaction.\n\nBinary image processing : Identifying a perfect threshold value or segmentation method is almost impossible, and most methods will result in some mis-classified pixels. A further binary image processing stage is often needed to clean up the image, hopefully leaving it containing only regions that correspond to required blood cells. Nothing, however, is perfect.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c7f-e87d-6386-b4c9-b24c6e286c69",
+    "metadata": {
+      "file_name": "wikieval_row_4.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": "Single-photon emission computed tomography\nSingle-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression . For example, SPECT imaging with technetium-99m (Tc-99m) radiopharmaceuticals can assess myocardial perfusion and identify areas of ischemia or infarction in patients with cardiovascular diseases.In theranostics, SPECT imaging helps in identifying disease localization, staging, and assessing the response to therapy. Moreover, SPECT imaging is employed in targeted radionuclide therapy, where the same radiotracer used for diagnostic imaging can be utilized to deliver therapeutic doses of radiation to the diseased tissue. Magnetic resonance imagine\nMagnetic resonance imaging (MRI) is a non-invasive imaging technique that utilizes strong magnetic fields and radiofrequency pulses to generate detailed anatomical and functional images of the body. MRI provides excellent soft tissue contrast and is widely used in theranostics for its ability to visualize anatomical structures and assess physiological processes.In theranostics, MRI allows for the detection and characterization of tumors, assessment of tumor extent, and evaluation of treatment response",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c83-36a2-6bb0-94ad-7e11811fa167",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c80-6505-6632-9124-7f7f6a41ef3c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd5c-6370-94fc-ae2b8ac73b4e",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "## Software Engineering Group Project\n\nCOMP2002: Project Handbook 2024-2025",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c80-a276-6e8e-a0e0-07d5c3ac7391",
+    "metadata": {
+      "file_name": "wikieval_row_14.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Inter Expo Center (IEC) is a multi-purpose convention center in Sofia, Bulgaria. It consists of six exhibition halls, eight congress halls, and outdoor exhibition spaces. The center is the biggest convention and exhibition venue in the city. The development also includes an office tower above the main reception area and restaurants around the main entrance. History\nThe Inter Expo Center opened in 2001, initially featuring two exhibition halls and outdoor exhibition spaces alongside leasable office and trade spaces in an office tower above the halls and in public areas around the main entrance facing the street.The center had its first expansion in 2003, adding a congress center featuring eight congress halls, as well as an additional exhibition hall. In 2008, the center was expanded again with the opening of further exhibition halls. The Inter Expo Center – Tsarigradsko shose Metro Station, part of the Sofia Metro, opened in April 2012 . Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion. References\nExternal links\nOfficial website",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd5c-6372-8546-53b7c8685372",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 1
+    },
+    "page_content": "## Table of Contents\n\n| 1 Introduction ....................................................................................................................................5   | 1 Introduction ....................................................................................................................................5                                                                                                                       |\n|--------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|\n| 1.1                                                                                                                                                    | Overview................................................................................................................................5                                                                                                                                  |\n| 1.2 BCS                                                                                                                                                | Accreditation ..................................................................................................................6                                                                                                                                          |\n| 1.3                                                                                                                                                    | Ethics......................................................................................................................................7                                                                                                                              |\n| 1.4                                                                                                                                                    | Non-Disclosure Agreements and Intellectual Property.........................................................9                                                                                                                                                              |\n| 1.5                                                                                                                                                    | Workload.............................................................................................................................10                                                                                                                                    |\n| 1.6                                                                                                                                                    | Supporting Lectures.............................................................................................................11                                                                                                                                         |\n| 1.7                                                                                                                                                    | Teams...................................................................................................................................12                                                                                                                                 |\n| 1.8                                                                                                                                                    | Roles and Responsibilities ...................................................................................................13                                                                                                                                           |\n| 1.8.1                                                                                                                                                  | The Group Project Coordinator.......................................................................................13                                                                                                                                                     |\n| 1.8.2                                                                                                                                                  | Supervisor Roles..............................................................................................................13                                                                                                                                           |\n| 1.8.3                                                                                                                                                  | Team Roles......................................................................................................................14                                                                                                                                         |\n| 1.9                                                                                                                                                    | Expenses..............................................................................................................................16                                                                                                                                   |\n| 1.9.1                                                                                                                                                  | Travel...............................................................................................................................16                                                                                                                                    |\n| 1.9.2                                                                                                                                                  | Equipment.......................................................................................................................16                                                                                                                                         |\n| 1.10                                                                                                                                                   | Background Reading............................................................................................................17                                                                                                                                           |\n| 2 The                                                                                                                                                  | Project ....................................................................................................................................18                                                                                                                             |\n| 2.1                                                                                                                                                    | The Bidding Process.............................................................................................................18                                                                                                                                         |\n| 2.1.1                                                                                                                                                  | Project Sign-Up................................................................................................................18                                                                                                                                          |\n| 2.1.2                                                                                                                                                  | Bidding for a Project........................................................................................................18                                                                                                                                            |\n| 2.1.3                                                                                                                                                  | Award Process.................................................................................................................19                                                                                                                                           |\n| 2.2                                                                                                                                                    | Project Management...........................................................................................................20                                                                                                                                            |\n| 2.2.1                                                                                                                                                  | 'Backlogs' .......................................................................................................................20                                                                                                                                       |\n| 2.2.2                                                                                                                                                  | 'Sprints' ..........................................................................................................................20                                                                                                                                     |\n| 2.2.3                                                                                                                                                  | 'Stand - Ups' or 'Scrums' ................................................................................................21                                                                                                                                               |\n| 2.2.4                                                                                                                                                  | Supervisor Meetings........................................................................................................21                                                                                                                                              |\n| 2.3                                                                                                                                                    | Version Control - Git............................................................................................................22                                                                                                                                        |\n| 2.4                                                                                                                                                    | Code quality.........................................................................................................................23                                                                                                                                    |\n| 2.5                                                                                                                                                    | Testing .................................................................................................................................24                                                                                                                                |\n| 2.6 Open                                                                                                                                               | Day.............................................................................................................................25                                                                                                                                         |\n| 2.7                                                                                                                                                    | End-Of-Contract...................................................................................................................26                                                                                                                                       |\n| 2.8                                                                                                                                                    | Golden Rules........................................................................................................................27                                                                                                                                     |\n| 3.1                                                                                                                                                    | Reports...............................................................................................................................28 Submission Format..............................................................................................................28 |\n| 3 Group                                                                                                                                                |                                                                                                                                                                                                                                                                            |\n| 3.2                                                                                                                                                    | General Advice.....................................................................................................................29                                                                                                                                      |\n\n4\n\n5\n\n3.2.2\n\n3.2.3\n\n3.2.4\n\n3.2.5\n\n3.3\n\n3.3.1\n\n3.3.2\n\n3.4\n\n3.5\n\n3.5.1\n\n3.5.2\n\n3.5.3\n\n3.5.4\n\n3.5.5\n\nContent  ............................................................................................................................  29\n\nLanguage &amp; Style .............................................................................................................  29\n\nStructure  ..........................................................................................................................  29\n\nReferencing .....................................................................................................................  30\n\nLegal, Societal, Ethical and Professional Issues (LSEPI) .......................................................  31\n\nContext ............................................................................................................................  31\n\n'Big picture' Reflection Checklist\n\n...................................................................................  31\n\nThe Interim Report ..............................................................................................................  33\n\nThe Final Report...................................................................................................................  34\n\nMain Report ....................................................................................................................  34\n\nSoftware Manual .............................................................................................................  35\n\nUser Manual ....................................................................................................................  35\n\nDemonstration Video ......................................................................................................  36\n\nAbstract ...........................................................................................................................  36\n\nIndividual Reports .........................................................................................................................  37\n\n4.1\n\nIndividual Report - Reflective Statement ............................................................................  37\n\n4.2\n\nPeer Assessment  ..................................................................................................................  38\n\nAssessment ...................................................................................................................................  40\n\n5.1\n\nSummary of Deliverables  .....................................................................................................  40\n\n5.2\n\n5.3\n\n5.4\n\n5.5\n\nGroup Marks ........................................................................................................................  40\n\nIndividual marks ..................................................................................................................  40\n\nTotal marks ..........................................................................................................................  41\n\nRe-assessment .....................................................................................................................  42",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c85-0ac5-6033-a904-bdcf66b4e157",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd7f-6a88-9d92-1bc13ab48322",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 56
+    },
+    "page_content": "## 3.5.1 Main Report\n\nThe main report, the first part of your final report, builds upon the previously written interim report, from which content can be re-used to present a holistic  document  describing  the  project  and  its results. It can be reasonably expected to contain between 6000 and 8000 words (around 12-16 pages, excluding  appendices).  It  documents  in  addition  to  the  interim  report's  improved  and  updated content - the progress made during the second term.\n\nThe main report provides general project background (similar to what was included in the interim report). Whilst some sections of the interim report may remain relevant, key changes to sections from the interim report (e.g. to reflect recent progress), newly added sections, or any sections that have been removed should be listed in  a  'change  section' at  the  start  of  the  main  report  in  line  with common practice.\n\nIn addition to the above, the main report should have an increased focus on constructive reflection and software engineering. That is, any technical content should, where appropriate, be supported and documented using established methods from the domain of software engineering, for instance when introducing user-, functional- and non-functional requirements. In relation to the reflection element, the following items should be considered (where applicable):\n\n- A reflection on the success of the project and the achievements of the project by the end of contract.\n\n- A description of how requirements have changed over the course of the project and how the team dealt with this.\n\n- A description of what changed in the methods used and the team's approach (even if the requirements did not change).\n\n- A motivation behind the technical approaches that the team used in the implementation and a motivation for them.\n\n- A reflection on what went well, what was hard to achieve, what went badly, what the team has learned from this, and how the team's functioning could be improved.\n\n- An overview of how the work was split between different group members.\n\n- A reflection on the management of the project (sprints, sprint planning, retros).\n\n- A reflection on how contingency measures helped to deal with unexpected circumstances, or what  contingency  measures  you  would  take  in  hindsight  to  better  deal  with  unexpected circumstances.\n\n- A reflection on LSEPI (see Section 3.3) elements identified in the interim report.\n\n- Promising future directions for the project.\n\nThe above list of items is not exhaustive and teams are expected to reflect on additional aspects. That is,  they should use their own judgement on what other content to include, or which items to not include from the list above (if they are not relevant in the context of your project).\n\nFinally, any feedback received from your team supervisor previously on the interim report should be carefully considered and addressed.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c7f-e87d-6381-82cb-dc3d1b57c337",
+    "metadata": {
+      "file_name": "wikieval_row_4.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". Additionally, these particles can be designed to release chemotherapy agents specifically at the site of binding, producing a local synergistic effect with antibody action. Integrating these methods with medical-nuclear techniques, which offer greater imaging sensitivity, can aid in target identification and treatment monitoring. Imaging techniques\nPositron emission tomography\nPositron emission tomography (PET) imaging in theranostics provides insight into metabolic and molecular processes within the body. The PET scanner detects photons and creates three-dimensional images that enable visualization and quantification of physiological and biochemical processes. PET imaging utilizes radiotracers that target specific molecules or processes. For example, [18F] fluorodeoxyglucose (FDG) is commonly used to assess glucose metabolism, as cancer cells exhibit increased glucose uptake . Other radiotracers target specific receptors, enzymes, or transporters, allowing the evaluation of various physiological and pathological processes.In theranostics, PET imaging plays a role in both diagnosis and treatment planning. It aids in the identification and staging of diseases, such as cancer, by visualizing the extent and metabolic activity of tumors. PET scans can also guide treatment decisions by assessing treatment response and monitoring disease progression . Additionally, PET imaging is utilized to determine the suitability of patients for targeted therapies based on specific molecular characteristics, enabling personalized treatment approaches.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90e0-6f1c-8cc3-537a717bebc3",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 5
+    },
+    "page_content": "## Semantic Segmentation of Blood Cell\n\n## Background\n\nThe need to separate one material from another, or to identify a particular material, arises in many image processing applications. From industrial inspection, where the task may involve identifying pixels corresponding to correctly manufactured cloth, to human computer interaction, where detecting human skin is required, the core problem remains the same: developing an image processing pipeline that converts a colour image into a new representation by labelling different materials.\n\nMedical image analysis is an active research area undergoing transformative evolution through the application of image processing and computer vision technologies. In the field of haematology, for example, Ali et al. (2023) state that haematologists bear the burden of labour-intensive manual processes, requiring meticulous examination of countless blood cells under high workloads and frequent distractions to diagnose blood disorders and guide treatment decisions. However, advancements in automated peripheral blood smear analysis have significantly alleviated these challenges faced by haematologists.\n\nIn this coursework, the objective is to develop an image processing pipeline to segment pro-myelocytes (PMYs) from their corresponding background. The resulting pipeline will generate relevant output images to automate blood cell classification.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-07T13:55:11.618009+00:00
+Answer Length: 349
+Answer:
+LSEPI stands for Legal, Societal, Ethical and Professional Issues. It is a component of the COMP2005_2026_CWBrief.pdf document, focusing on the broader impact of the project on the world around you and the considerations of stakeholders. It encourages teams to think about the bigger picture and address significant issues relevant to their project.
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-07T13:56:46.293763+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 25891
+
+<QUERY>
+Tell me about the pink plaques
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f115c84-dbfb-6987-838f-4cc8109fb964",
+    "metadata": {
+      "file_name": "wikieval_row_47.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ". These dikes form a symmetrical network around the central point where the lava emerged, where there may also be a depression caused by the collapse of the magma chamber. Arachnoids are so named because they resemble a spider's web, featuring several concentric ovals surrounded by a complex network of radial fractures similar to those of a nova. It is not known whether the 250 or so features identified as arachnoids actually share a common origin, or are the result of different geological processes. Recent volcanic activity\nVolcanism on Venus has taken place within the last 2.5 million years; however, until recently there had been no absolute proof that any volcano on Venus has erupted recently. Recent radar imagery shows more than 1,000 volcanic structures and evidence of possible periodic resurfacing of the planet by floods of lava. In addition to the radar images, there is supporting evidence that volcanism has taken place, including an unusual change in the amount of sulphur dioxide gas in the upper atmosphere. Sulphur dioxide is an important component of volcanic outgassing .  However, the sulphur dioxide in the lower atmosphere remains stable. This could mean that a change in the global atmosphere caused the sulphur dioxide concentration to increase above the clouds.  Even though the change in the atmosphere may be evidence that there have been volcanoes that erupted in Venus, it is difficult to determine whether they occurred or not.  In March 2014, the first direct evidence for ongoing volcanism was located, in the form of infrared \"flashes\" over the edges of rift zone Ganis Chasma, near the shield volcano Sapas Mons",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c84-58bd-6c1a-aa05-6f7536f9a3d3",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd78-6561-9e04-a98fb5a4dc27",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 50
+    },
+    "page_content": "## Research ethics\n\n- Does the work involve human participants or data subjects? If so:\n\n- o Have you followed the University of Nottingham research ethics requirements?\n\n- o How does the work safeguard participants and data subjects?\n\n- o How does the work reflect principles of informed consent and voluntary participation?\n\n- o Were there any ethically tricky aspects to the work, and how did you deal with them?\n\n- See also project module guidance on research ethics and https://workspace.nottingham.ac.uk/display/CompSci/Research+Ethics+Guidelines+for+Aca demic+Staff%2C+Researchers+and+Students",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c80-6505-6632-9124-7f7f6a41ef3c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c83-36a2-6bb0-94ad-7e11811fa167",
+    "metadata": {
+      "file_name": "wikieval_row_37.txt",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Responses\nDuring a press conference shortly after the attacks, Moore County Sheriff Ronnie Fields claimed the substations were targeted and that attack was intentional. Fields also claimed that the perpetrators most likely knew what they were doing but did not state that the attacks may have been domestic terrorism. The sheriff also reported that his office has not been able to tie anything back to a drag show in Southern Pines, scheduled around the time the power went out, thereby addressing a rumor that began on social media.U.S .U.S. National Security Council spokesman John Kirby advised that the White House was monitoring the situation closely, and emphasized the importance of shoring up the security of the infrastructure.North Carolina Governor Roy Cooper issued a statement via Twitter, saying, \"An attack like this on critical infrastructure is a serious, intentional crime and I expect state and federal authorities to thoroughly investigate and bring those responsible to justice.\" See also\n\nElectrical grid security in the United States\nMetcalf sniper attack == References ==\nMoore County is a county located in the U.S. state of North Carolina. As of the 2020 census, its population was 99,727. Its county seat is Carthage and its largest municipality Pinehurst. It is a border county between the Piedmont and the Atlantic Coastal Plain.\nIn the early years, the economy was dependent on agriculture and lumber. The lumber business expanded after railroads reached the area, improving access to markets. It lies at the northern edge of the area known as the Sandhills region, and developed resorts in the late 19th century, aided by railroads. Since the early 21st century, Moore County comprises the Aberdeen-Pinehurst-Southern Pines, North Carolina Micropolitan Statistical Area. Moore County is a part of the Fayetteville Combined Statistical Area, which had a population of 834,094 in 2020, making it the 66th largest CSA in the United States. History\nArcheological evidence indicates Siouan Native Americans inhabited the area eventually comprising Moore County from the",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c82-0444-6d43-8ed6-d98e8ad6b58f",
+    "metadata": {
+      "file_name": "wikieval_row_31.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": ".One of the most instrumental groups for the recapture and subsequent defenses of Mariupol was the Azov Battalion, a Ukrainian volunteer militia, controversial for its openly neo-Nazi and ultranationalist members. By November 2014 Azov was integrated into the National Guard of Ukraine, with Mariupol as its headquarters. As one of Vladimir Putin's stated goals for the invasion was the \"denazification\" of Ukraine, Mariupol represented an important ideological and symbolical target for the Russian forces .Prior to the siege, around 100,000 residents left Mariupol, according to the city's deputy mayor.Prior to falling to Russian forces, the city was defended by the Ukrainian Ground Forces, the Ukrainian Naval Infantry, the National Guard of Ukraine (primarily the Azov Regiment), the Territorial Defense Forces of Ukraine, and irregular forces. Advances to Mariupol\nPreliminary shelling and advance on the city On 24 February, the day the invasion began, Russian artillery bombarded the city, reportedly injuring 26 people.On the morning of 25 February, Russian forces advanced from DPR territory in the east towards Mariupol. They encountered Ukrainian forces near the village of Pavlopil, whom repelled the Russian advance. The mayor of Mariupol, Vadym Boychenko, said 22 Russian tanks had been destroyed in the skirmish",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c84-dbf8-61c4-90a8-a45c5b73966b",
+    "metadata": {
+      "file_name": "wikieval_row_47.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Although many lines of evidence such as this suggest that volcanoes on Venus have been recently active, present-day eruptions at Maat Mons have not been confirmed. Nevertheless, other more recent studies, in January 2020, suggest that Venus, though not Maat Mons specifically, is indeed currently volcanically active. In 2023, scientists reexamined topographical images of the Maat Mons region taken by the Magellan orbiter. Using computer simulations they determined that the topography had changed during an 8-month interval, and have concluded that active volcanism was the cause . Until 2023 there had only been hints of active volcanism; announced in March 2023 scientists imaged a vent expanding in Magellan images which is the proof needed to announce active volcanism Types of volcanoes\nVenus has shield volcanoes, widespread lava flows and some unusual volcanoes called pancake domes and \"tick-like\" structures which are not present on Earth. Pancake dome volcanoes are up to 15 km (9.3 mi) in diameter and less than 1 km (0.62 mi) in height and are 100 times larger than lava domes formed on Earth. They are usually associated with coronae and tesserae (large regions of highly deformed terrain, folded and fractured in two or three dimensions, which are unique to Venus) . The pancakes are thought to be formed by highly viscous, silica-rich lava erupting under Venus's high atmospheric pressure. The \"tick-like\" structures are called scalloped margin domes. They are commonly called ticks because they appear as domes with numerous legs. They are thought to have undergone mass wasting events such as landslides on their margins. Sometimes deposits of debris can be seen scattered around them.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c83-93f6-6298-b169-4dee3b806255",
+    "metadata": {
+      "file_name": "wikieval_row_39.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ".The incident increased U.S.–China tensions. The United States called the balloon's presence a violation of its sovereignty, and its Secretary of State Antony Blinken postponed a long-awaited diplomatic visit to Beijing. Canada summoned the Chinese ambassador in response to the incident.In the United States, three other high-altitude objects, over Northern Alaska (February 10), Yukon (February 11), and Lake Huron (February 11–12) respectively, were detected and subsequently shot down; a later assessment said they had no relation to China. Background\nHistory and development of reconnaissance balloons Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for \"meteorological survey\" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests .Although mostly supplanted by surveillance satellites and unmanned aerial vehicles, balloons have retained some advantages, such as a lower cost of production and deployment. By 2019, the Pentagon had invested millions in COLD STAR (Covert Long Dwell Stratospheric Architecture), a project for stealthy balloons that are now being transitioned from narcotics surveillance into military service. China recognizes the importance of catching up to foreign countries in this domain . Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.",
+    "type": "Document"
+  },
+  {
+    "id": "1f119bf0-3dca-6084-8c0a-8508d8e95b5e",
+    "metadata": {
+      "file_name": "wikieval_row_10.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": ".Pink plaques have been unveiled in some UK locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow . == References == A blue plaque is a permanent sign installed in a public place in the UK and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the UK in two different senses . It may be used narrowly and specifically to refer to the \"official\" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the UK . The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term \"blue plaque\" is often used informally to encompass all such schemes . The \"official\" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c82-fcb1-683f-a970-6c96b28f628e",
+    "metadata": {
+      "file_name": "wikieval_row_36.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": "Attempts to sabotage competitors\nIn 2014, Uber employees were caught ordering and then quickly cancelling rides on competing services Lyft and Gett, in an attempt to disrupt these services. In 2014, Uber was also accused of recruiting people to use competing services for the sole purpose of recruiting their drivers to Uber, at which point the recruiter would receive a commission. Uber denied that it had any involvement with the cancellation of orders or the recruitment efforts. Wage disputes\nIn January 2017, Uber agreed to pay $20 million to the Federal Trade Commission to resolve allegations of having misled drivers about potential earnings.In 2017, a class action lawsuit was filed on behalf of thousands of Uber drivers, alleging that Uber’s “upfront prices” policy did not provide drivers with the 80% of fares to which they were entitled. The lawsuit was settled for $345,622, with each driver in the class getting at least $20 .In May 2017, after the New York Taxi Workers Alliance (NYTWA) filed a class-action lawsuit in federal court in New York, Uber admitted to underpaying New York City drivers tens of millions of dollars over 2.5 years by calculating driver commissions on a net amount. Uber agreed to pay the amounts owed plus interest. Boycott in the US\nIn late January 2017, GrabYourWallet advised to boycott Uber because the company did not join its Protests against Executive Order 13769, while Travis Kalanick, then CEO of Uber, was a member of Donald Trump's \"business advisory council\" and GrabYourWallet was advising boycotts of businesses with ties to Trump. Approximately 200,000 users deleted the Uber mobile app. On February 2, 2017, Kalanick resigned from the council, which disbanded in August 2017. Sexual harassment allegations and management shakeup (2017)",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c80-a276-6e8e-a0e0-07d5c3ac7391",
+    "metadata": {
+      "file_name": "wikieval_row_14.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Inter Expo Center (IEC) is a multi-purpose convention center in Sofia, Bulgaria. It consists of six exhibition halls, eight congress halls, and outdoor exhibition spaces. The center is the biggest convention and exhibition venue in the city. The development also includes an office tower above the main reception area and restaurants around the main entrance. History\nThe Inter Expo Center opened in 2001, initially featuring two exhibition halls and outdoor exhibition spaces alongside leasable office and trade spaces in an office tower above the halls and in public areas around the main entrance facing the street.The center had its first expansion in 2003, adding a congress center featuring eight congress halls, as well as an additional exhibition hall. In 2008, the center was expanded again with the opening of further exhibition halls. The Inter Expo Center – Tsarigradsko shose Metro Station, part of the Sofia Metro, opened in April 2012 . Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion. References\nExternal links\nOfficial website",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c81-e61a-6cc7-b59c-9a0dda41d74c",
+    "metadata": {
+      "file_name": "wikieval_row_29.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Tomb of Alexander Stewart (or Tomb of the Wolf of Badenoch) consists of a 15th-century tomb effigy and altar (or \"chest\") tomb, both of which are carved from marble. It is located in Dunkeld Cathedral, Perthshire, Scotland, and was built for Alexander Stewart, Earl of Buchan (1343 – c. 1394), who is buried underneath.The effigy is placed on top of the altar tomb, and shows Stuart in full and highly detailed knightly armour, with a lion (or dog) resting at his feet. It is in poor condition having been broken apart and defaced in the 16th century during the Scottish Reformation . The effigy is placed on top of an altar tomb lined with 22 pleurants (or \"weepers\"), who are also dressed in armour. Alexander Stewart, the Wolf of Badenoch\nStuart was the third surviving son  son of king Robert II of Scotland (1316 – 1390). He is known to history as the deeply unpopular \"Wolf of Badenoch\", a name given due to  his notorious cruelty, in particular for his destruction of the royal burgh of Elgin and its 13th-century cathedral in May 1370, for which he earned a reputation as \"an enemy of the Church\", and was described in 2017 as \"Scothland's vilest man\". Description\nThe tomb is inscribed with the year 1420.The monument remains in its origional position behind the choir screen at the east-end of the cathedral, while Stuart's grave is underneath.",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd7a-6c4e-b8be-fe1dfa78e8b4",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 51
+    },
+    "page_content": "## Data protection (the Data Protection Act (2018))\n\n- Is the work collecting or using personal data?\n\n- If so, how is it complying with the requirements of data protection legislation?\n\n- Note, this should also have been covered by your research ethics",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c84-43ca-6aa2-a1e6-961f8728614c",
+    "metadata": {
+      "file_name": "wikieval_row_43.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "Miss Grand Dominican Republic 2023 will be the second edition of the Miss Grand Dominican Republic pageant, scheduled to be held on August 4, 2023, at the Cibao Grand Theatre, Santiago de los Caballeros. Candidates from thirty-one provinces of the country will compete for the right to represent the country at its parent international stage, Miss Grand International 2023, to be held in Vietnam on October 25.This edition will be the first Miss Grand Dominican Republic contest managed by Alejandro Martínez and Jorge Cruz after they took over the license from a former licensee, Joe Amhed . Alejandro Martínez and Jorge Cruz were also the directors of another national pageant named Misses of Dominican Republic, in which the contest's winners were previously sent to compete in many international pageants, such as Miss Grand International, Miss Asia Pacific International, and Miss Supranational in 2021. Candidates\nAs of July 2023, nine candidates have been confirmed to participate.\n\nDistrito Nacional – Asia Ciaffarafa\nDominican communities in USA – Andreina Santos\nDuarte – \tZudeiny Cruz\nLa Vega – Ashly Santos\nPeravia – Arlin Basora Rojas\nSamaná – Elisabeth Perez\nSantiago – Skarxi Marie\nSan Francisco de Macorís – Karla Martínez\nValverde – Lisbette Payamps References\nExternal links\n Media related to Miss Grand Dominican Republic at Wikimedia Commons",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90e2-62f3-9d2c-3fde86f0b5e6",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 8
+    },
+    "page_content": "## Image Selection Guide :\n\nWhile you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c85-0ac5-6033-a904-bdcf66b4e157",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90e2-62f0-a38f-b7480081385f",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 7
+    },
+    "page_content": "## Dataset\n\nYou will be using the Naturalize dataset, consisting of 16,000 images, separated into 11 classes. For this pipeline we have selected 3 out of these 11 classes PMY , EO and ERB . Within your team you should analyse these images in each folder and make a decision as a team for the images to use for this pipeline. You must choose ONLY 5 images for each folder.\n\nEmpty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90dd-6ab3-9ab9-2d264359165e",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 0
+    },
+    "page_content": "<!-- image-uuid: 1f11733d-8e23-691f-a92a-34cc56d32737 -->\n\nModule Assessment Sheet for 2025-2026\n\n| Module             | Introduction to Image Processing (IIP) / COMP 2005 / Semester 2   |\n|--------------------|-------------------------------------------------------------------|\n| Assessment         | Coursework (100%)                                                 |\n| Module Convenor(s) | Magan Moemeni                                                     |\n\n| Programming and Conference Paper   | Group   |\n|------------------------------------|---------|",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-07T13:56:49.608911+00:00
+Answer Length: 609
+Answer:
+Pink plaques are a type of historical marker used in the United Kingdom to commemorate notable individuals, places, or events. They serve as a visual reminder of significant figures or landmarks and help preserve historical memory. Pink plaques are typically displayed on buildings, monuments, or other structures that hold cultural or historical significance. They are often placed in prominent locations to attract attention and encourage visitors to learn more about the subject matter. Pink plaques are distinct from blue plaques, which are primarily used in London to commemorate famous British citizens.
+==================================================

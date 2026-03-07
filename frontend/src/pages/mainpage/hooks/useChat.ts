@@ -35,6 +35,9 @@ export function useChat() {
     const [conversationsError, setConversationsError] = useState<string | null>(null);
     const [conversationMessagesError, setConversationMessagesError] = useState<string | null>(null);
     const [conversationId, setConversationId] = useState<string | null>(null);
+    const [conversationMessagesCursor, setConversationMessagesCursor] = useState<number | null>(null);
+    const [hasMoreConversationMessages, setHasMoreConversationMessages] = useState(false);
+    const [isLoadingMoreConversationMessages, setIsLoadingMoreConversationMessages] = useState(false);
 
     // Function to append a new message to the chat history
     const appendMessage = useCallback((message: ChatMessage) => {
@@ -100,7 +103,7 @@ export function useChat() {
             const response = await axios.get(`${API_BASE}/api/conversations/${targetConversationId}/messages`, {
                 params: {
                     user_email: userEmail,
-                    limit: 100,
+                    limit: 50,
                     cursor: 0,
                 },
             });
@@ -121,6 +124,9 @@ export function useChat() {
 
             setMessages(nextMessages);
             setConversationId(targetConversationId);
+            const nextCursor = Number(response.data?.nextCursor);
+            setConversationMessagesCursor(Number.isFinite(nextCursor) ? nextCursor : null);
+            setHasMoreConversationMessages(Boolean(response.data?.hasMore));
         } catch (error) {
             setConversationMessagesError("Failed to load selected conversation.");
         } finally {
@@ -128,10 +134,56 @@ export function useChat() {
         }
     }, []);
 
+    const loadMoreConversationMessages = useCallback(async () => {
+        const userEmail = getResolvedUserEmail();
+        if (!userEmail || !conversationId || conversationMessagesCursor === null || isLoadingMoreConversationMessages) {
+            return;
+        }
+
+        setIsLoadingMoreConversationMessages(true);
+        setConversationMessagesError(null);
+
+        try {
+            const response = await axios.get(`${API_BASE}/api/conversations/${conversationId}/messages`, {
+                params: {
+                    user_email: userEmail,
+                    limit: 50,
+                    cursor: conversationMessagesCursor,
+                },
+            });
+
+            const olderMessages = Array.isArray(response.data?.messages)
+                ? (response.data.messages as Array<
+                      ChatMessage & {
+                          messageId?: string;
+                      }
+                  >).map((message) => ({
+                      messageId: message.messageId,
+                      role: message.role,
+                      text: message.text,
+                      timestamp: message.timestamp,
+                      userEmail: message.userEmail,
+                  }))
+                : [];
+
+            setMessages((previousMessages) => [...olderMessages, ...previousMessages]);
+            const nextCursor = Number(response.data?.nextCursor);
+            setConversationMessagesCursor(Number.isFinite(nextCursor) ? nextCursor : null);
+            setHasMoreConversationMessages(Boolean(response.data?.hasMore));
+        } catch (error) {
+            setConversationMessagesError("Failed to load more conversation messages.");
+        } finally {
+            setIsLoadingMoreConversationMessages(false);
+        }
+    }, [conversationId, conversationMessagesCursor, isLoadingMoreConversationMessages]);
+
     const startNewConversation = useCallback(() => {// Function to start a new conversation, which clears the current messages and conversation ID from the state, effectively resetting the chat interface for a new conversation
         setConversationId(null);
         setMessages([]);
         setConversationMessagesError(null);
+        setConversationMessagesCursor(null);
+        setHasMoreConversationMessages(false);
+        setIsLoadingMoreConversationMessages(false);
     }, []);
 
     // Function to handle sending a query to the backend and updating the chat history with the response
@@ -199,6 +251,8 @@ export function useChat() {
         conversationsError,
         conversationMessagesError,
         conversationId,
+        hasMoreConversationMessages,
+        isLoadingMoreConversationMessages,
         userEmail: getResolvedUserEmail(),
         setInput,
         setTestUserEmail,
@@ -206,6 +260,7 @@ export function useChat() {
         appendMessage,
         refreshConversations,
         loadConversationMessages,
+        loadMoreConversationMessages,
         startNewConversation,
         handleQuery,
         handleKeyDown,

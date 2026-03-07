@@ -9,9 +9,19 @@ type ChatAreaProps = {
     messages: ChatMessage[]; // An array of chat messages to be displayed in the chat area
     isUploading: boolean;
     bottomRef: RefObject<HTMLDivElement | null>;
+    showLoadOlderMessages: boolean;
+    isLoadingOlderMessages: boolean;
+    onLoadOlderMessages: () => void;
 };
 
-export default function ChatArea({ messages, isUploading, bottomRef }: ChatAreaProps) {
+export default function ChatArea({
+    messages,
+    isUploading,
+    bottomRef,
+    showLoadOlderMessages,
+    isLoadingOlderMessages,
+    onLoadOlderMessages,
+}: ChatAreaProps) {
     return (
         <div className="chat-scroll-area">
             {!messages.length ? (
@@ -22,6 +32,18 @@ export default function ChatArea({ messages, isUploading, bottomRef }: ChatAreaP
                 </div>
             ) : (
                 <div className="messages-container">
+                    {showLoadOlderMessages && (
+                        <div className="load-older-messages-row">
+                            <button
+                                type="button"
+                                className="load-older-messages-btn"
+                                onClick={onLoadOlderMessages}
+                                disabled={isLoadingOlderMessages}
+                            >
+                                {isLoadingOlderMessages ? "Loading older messages..." : "Load older messages"}
+                            </button>
+                        </div>
+                    )}
                     {messages.map((msg, idx) => (
                         <div key={idx} className={`message ${msg.role}`}>
                             <div className="message-avatar">

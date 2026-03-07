@@ -36,6 +36,8 @@ export default function MainPage() {
         isQuerying,
         isLoadingConversations,
         isLoadingConversationMessages,
+        hasMoreConversationMessages,
+        isLoadingMoreConversationMessages,
         conversationsError,
         conversationMessagesError,
         conversationId,
@@ -43,6 +45,7 @@ export default function MainPage() {
         appendMessage,
         refreshConversations,
         loadConversationMessages,
+        loadMoreConversationMessages,
         startNewConversation,
         handleQuery,
         handleKeyDown,
@@ -226,7 +229,14 @@ export default function MainPage() {
                 </section>
 
                 {/* Chat area of the app (Responsible for showing messages from AI and the user question) */}
-                <ChatArea messages={messages} isUploading={isUploading} bottomRef={bottomRef} />
+                <ChatArea
+                    messages={messages}
+                    isUploading={isUploading}
+                    bottomRef={bottomRef}
+                    showLoadOlderMessages={hasMoreConversationMessages}
+                    isLoadingOlderMessages={isLoadingMoreConversationMessages}
+                    onLoadOlderMessages={loadMoreConversationMessages}
+                />
 
                 {/* Chat input area of the app */}
                 <ChatInput
