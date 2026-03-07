@@ -128,3 +128,1043 @@ Content: ISRO has achieved several significant milestones over the years. It suc
 Content: Background History and development of reconnaissance balloons
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the PSLV-C56?
+Timestamp: 2026-03-02T14:09:10.724074+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.851262]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.657259]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.651002]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.638243]
+Content: == References ==
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.627301]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.627007]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.626671]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.626283]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.625739]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623570]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.620149]
+Content: References External links Official website
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.618428]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.617555]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.617042]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.616063]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.616036]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.615737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.612584]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999862]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.000363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Rank 3 | BGE Score: 0.000298]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Rank 4 | BGE Score: 0.000168]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Rank 5 | BGE Score: 0.000149]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Rank 6 | BGE Score: 0.000144]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000137]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 8 | BGE Score: 0.000103]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Rank 9 | BGE Score: 0.000090]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Rank 10 | BGE Score: 0.000084]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 11 | BGE Score: 0.000042]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 12 | BGE Score: 0.000041]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Rank 13 | BGE Score: 0.000033]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+[Rank 14 | BGE Score: 0.000030]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Rank 15 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 16 | BGE Score: 0.000020]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Rank 17 | BGE Score: 0.000018]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 18 | BGE Score: 0.000016]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000016]
+Content: References External links Official website
+
+[Rank 20 | BGE Score: 0.000016]
+Content: == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the PSLV-C56?
+Timestamp: 2026-03-02T14:11:56.923991+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.851262]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.657259]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.651002]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.638243]
+Content: == References ==
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.627301]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.627007]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.626671]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.626283]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.625739]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623570]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.620149]
+Content: References External links Official website
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.618428]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.617555]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.617042]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.616063]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.616036]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.615737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.612584]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999862]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.000363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Rank 3 | BGE Score: 0.000298]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Rank 4 | BGE Score: 0.000168]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Rank 5 | BGE Score: 0.000149]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Rank 6 | BGE Score: 0.000144]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000137]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 8 | BGE Score: 0.000103]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Rank 9 | BGE Score: 0.000090]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Rank 10 | BGE Score: 0.000084]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 11 | BGE Score: 0.000042]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 12 | BGE Score: 0.000041]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Rank 13 | BGE Score: 0.000033]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+[Rank 14 | BGE Score: 0.000030]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Rank 15 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 16 | BGE Score: 0.000020]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Rank 17 | BGE Score: 0.000018]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 18 | BGE Score: 0.000016]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000016]
+Content: References External links Official website
+
+[Rank 20 | BGE Score: 0.000016]
+Content: == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the PSLV-C56?
+Timestamp: 2026-03-02T14:17:47.221396+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.851262]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.657259]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.651002]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.638243]
+Content: == References ==
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.627301]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.627007]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.626671]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.626283]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.625739]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623570]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.620149]
+Content: References External links Official website
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.618428]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.617555]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.617042]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.616063]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.616036]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.615737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.612584]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999862]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.000363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Rank 3 | BGE Score: 0.000298]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Rank 4 | BGE Score: 0.000168]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Rank 5 | BGE Score: 0.000149]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Rank 6 | BGE Score: 0.000144]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000137]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 8 | BGE Score: 0.000103]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Rank 9 | BGE Score: 0.000090]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Rank 10 | BGE Score: 0.000084]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 11 | BGE Score: 0.000042]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 12 | BGE Score: 0.000041]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Rank 13 | BGE Score: 0.000033]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+[Rank 14 | BGE Score: 0.000030]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Rank 15 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 16 | BGE Score: 0.000020]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Rank 17 | BGE Score: 0.000018]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 18 | BGE Score: 0.000016]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000016]
+Content: References External links Official website
+
+[Rank 20 | BGE Score: 0.000016]
+Content: == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the PSLV-C56?
+Timestamp: 2026-03-02T14:24:49.100227+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.851262]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.657259]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.651002]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.638243]
+Content: == References ==
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.627301]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.627007]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.626671]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.626283]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.625739]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623570]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.620149]
+Content: References External links Official website
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.618428]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.617555]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.617042]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.616063]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.616036]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.615737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.612584]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999862]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.000363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Rank 3 | BGE Score: 0.000298]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Rank 4 | BGE Score: 0.000168]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Rank 5 | BGE Score: 0.000149]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Rank 6 | BGE Score: 0.000144]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000137]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 8 | BGE Score: 0.000103]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Rank 9 | BGE Score: 0.000090]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Rank 10 | BGE Score: 0.000084]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 11 | BGE Score: 0.000042]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 12 | BGE Score: 0.000041]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Rank 13 | BGE Score: 0.000033]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+[Rank 14 | BGE Score: 0.000030]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Rank 15 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 16 | BGE Score: 0.000020]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Rank 17 | BGE Score: 0.000018]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 18 | BGE Score: 0.000016]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000016]
+Content: References External links Official website
+
+[Rank 20 | BGE Score: 0.000016]
+Content: == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the PSLV-C56?
+Timestamp: 2026-03-02T14:26:11.992387+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.851262]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.657259]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.651002]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.638243]
+Content: == References ==
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.627301]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.627007]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.626671]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.626283]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.625739]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623570]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.620149]
+Content: References External links Official website
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.618428]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.617555]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.617042]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.616063]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.616036]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.615737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.612584]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999862]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.000363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Rank 3 | BGE Score: 0.000298]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Rank 4 | BGE Score: 0.000168]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Rank 5 | BGE Score: 0.000149]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Rank 6 | BGE Score: 0.000144]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000137]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 8 | BGE Score: 0.000103]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Rank 9 | BGE Score: 0.000090]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Rank 10 | BGE Score: 0.000084]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 11 | BGE Score: 0.000042]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 12 | BGE Score: 0.000041]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Rank 13 | BGE Score: 0.000033]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+[Rank 14 | BGE Score: 0.000030]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Rank 15 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 16 | BGE Score: 0.000020]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Rank 17 | BGE Score: 0.000018]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 18 | BGE Score: 0.000016]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000016]
+Content: References External links Official website
+
+[Rank 20 | BGE Score: 0.000016]
+Content: == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the PSLV-C56?
+Timestamp: 2026-03-02T14:29:57.749647+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.851262]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.657259]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.651002]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.638243]
+Content: == References ==
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.628826]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.627301]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.627007]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.626671]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.626283]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.625739]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.623570]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.622363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.620149]
+Content: References External links Official website
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.618428]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.617555]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.617042]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.616063]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.616036]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.615737]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.612584]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.999862]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 2 | BGE Score: 0.000363]
+Content: Incident Balloon Size, propulsion, and payload The balloon carried an underslung payload described as a "technology bay" estimated to be the size of "two or three school buses" and was powered by sixteen solar arrays mounted on the payload. The balloon was 200 feet (61 m) tall according to U.S. General Glen D. VanHerck. AI startup Synthetaic, using image data from Planet Labs spacecraft, reported the balloon's diameter as 148 feet (45 m). USNORTHCOM and NORAD Commander, General Glen VanHerck, estimated the payload weighed more than 2,000 pounds (910 kg)
+
+[Rank 3 | BGE Score: 0.000298]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Rank 4 | BGE Score: 0.000168]
+Content: S. officials stated that the balloon carried intelligence gathering equipment but does not appear to have sent information back to China. U.S. president Biden described the balloon as carrying two railroad cars' equivalent of spy equipment; his government said the balloon had a propeller for maneuverability.When the object was first spotted, the Pentagon characterized it as a surveillance balloon. The Chinese government maintained it was a civilian (mainly meteorological) airship that had been blown off course. According to U.S
+
+[Rank 5 | BGE Score: 0.000149]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Rank 6 | BGE Score: 0.000144]
+Content: Measures Infrastructure and international development
+
+[Rank 7 | BGE Score: 0.000137]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 8 | BGE Score: 0.000103]
+Content: Aircraft The aircraft involved in the crash was a 15-year-old twin-engine turboprop ATR 72-500, with serial number 754 and registration 9N-ANC. It was first delivered to Kingfisher Airlines as VT-KAJ in 2007. In 2013, it was transferred to Nok Air as HS-DRD before being delivered to Yeti Airlines in 2019. The aircraft was powered by two Pratt & Whitney Canada PW127F engines.
+
+[Rank 9 | BGE Score: 0.000090]
+Content: Signals intelligence capabilities Experts noted that weather balloons typically are about 20 feet (6 m) wide, less than a quarter of the balloon's diameter. Those interviewed by BBC News said it was unusual for weather balloons to last as long as the one involved in the incident and that the balloon "might have been more sophisticated than China claims".Images from U-2 flybys and forensic analysis of the payload showed antennas that likely were used for collecting and transmitting signals intelligence. A publicly released U.S. State Department document, after the balloon was downed and debris collected, said that the balloon'
+
+[Rank 10 | BGE Score: 0.000084]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 11 | BGE Score: 0.000042]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 12 | BGE Score: 0.000041]
+Content: The line would operate as the Seaboard Air Line's Lewiston Subdivision.In 1967, the Seaboard Air Line merged with its rival, the Atlantic Coast Line Railroad (ACL). The merged company was named the Seaboard Coast Line Railroad (SCL). The Lewiston Subdivision connected with an ex-ACL line in Kelford. In 1980, the Seaboard Coast Line's parent company merged with the Chessie System, creating the CSX Corporation. The CSX Corporation initially operated the Chessie and Seaboard Systems separately until 1986, when they were merged into CSX Transportation.
+
+[Rank 13 | BGE Score: 0.000033]
+Content: Single-photon emission computed tomography Single-photon emission computed tomography (SPECT) is employed in theranostics, utilizing gamma rays emitted by a radiotracer to generate three-dimensional images of the body. SPECT imaging involves the injection of a radiotracer that emits single photons, which are detected by a gamma camera rotating around the patient.SPECT provides functional and anatomical information, allowing the assessment of organ structure, blood flow, and specific molecular targets. It is useful in evaluating diseases that involve altered blood flow or specific receptor expression
+
+[Rank 14 | BGE Score: 0.000030]
+Content: Citing a PLA procurement portal, a U.S. official said that the balloon was manufactured by a civilian Chinese defense contractor.
+
+[Rank 15 | BGE Score: 0.000023]
+Content: The Bund See also Transport in Shanghai Trolleybuses in Shanghai == References ==
+
+[Rank 16 | BGE Score: 0.000020]
+Content: External debt Until mid-2000s, the Sri Lankan debt was mainly from multilateral lending agencies, after which it was reoriented under the leadership of Mahinda Rajapaksa to foreign investors and lenders. Sri Lanka issues its first international sovereign bond in 2007, with high interest rates to incentivise investors. According to commentators, the money was used to fund vanity projects rather than projects of national utility.Sri Lanka's foreign debt increased substantially, going from US$11.3 billion in 2005 to $56.3 billion in 2020
+
+[Rank 17 | BGE Score: 0.000018]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 18 | BGE Score: 0.000016]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Rank 19 | BGE Score: 0.000016]
+Content: References External links Official website
+
+[Rank 20 | BGE Score: 0.000016]
+Content: == References ==
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What are pink plaques being used for?
+Timestamp: 2026-03-02T14:30:51.816778+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.773852]
+Content: Pink plaques Predating rainbow plaques, pink triangle plaque memorials have memorialised gay people killed in the Holocaust and victims of anti-gay violence. In the UK, the idea of pink plaques to more generally commemorate and celebrate LGBT heritage was promoted in a 1986 book, The Pink Plaque Guide to London, written by Michael Elliman and Frederick Roll and published by Gay Men's Press. Pink plaques were also discussed in Brighton in 2006, and a mobile phone app was later (2020) created to guide users to Brighton pink plaque locations
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.770961]
+Content: Pink plaques have been unveiled in some 英国 locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow. == References ==
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.682279]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.665893]
+Content: The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term "blue plaque" is often used informally to encompass all such schemes. The "official" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.659310]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.655663]
+Content: The pancakes are thought to be formed by highly viscous, silica-rich lava erupting under Venus's high atmospheric pressure.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.647790]
+Content: Additionally, PET imaging is utilized to determine the suitability of patients for targeted therapies based on specific molecular characteristics, enabling personalized treatment approaches.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.644697]
+Content: Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.639684]
+Content: 彩虹牌匾计划是英国的一项计划，旨在安装纪念牌匾，以彰显LGBTQIA+历史上的重要人物、地点和时刻。该计划效仿了由英格兰遗产委员会、地方当局和其他机构运营的现有英国蓝色牌匾计划，第一块永久性彩虹牌匾（一块蓝色圆形牌匾，圆周有六色彩虹）于2018年7月在约克揭幕。英国的一些LGBT地点则用粉色牌匾来标记，这个想法早于彩虹牌匾。历史 彩虹牌匾计划由约克公民信托基金和约克LGBT论坛于2018年发起，旨在纪念女同性恋日记作家安妮·李斯特（1791-1840）及其伴侣安·沃克。第一版牌匾于2018年7月24日揭幕，并于2019年2月更换为包含“女同性恋”一词的修订措辞。在2018年的约克和2019年的利兹的LGBT骄傲运动期间，临时纸板牌匾也被放置在关键地点。随后，这项永久性牌匾计划通过旺兹沃思LGBTQ+论坛和伏尔泰工作室在全国范围内推广，于2019年7月24日在克拉珀姆交汇火车站为奥斯卡·王尔德揭幕了永久性牌匾，并于2021年9月10日在南兰贝斯的威尔科克斯路为1980年代的电影《我美丽的洗衣店》揭幕了牌匾。2023年，在伦敦市长“未被讲述的故事基金”和旺兹沃思绿洲的支持下，伦敦宣布将再增设五块彩虹牌匾。
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.634624]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.628279]
+Content: == References ==
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.624685]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.624416]
+Content: The development of molecular imaging agents, such as superparamagnetic iron oxide nanoparticles, allows for targeted imaging and tracking of specific molecular entities.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.622248]
+Content: References External links Official website
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.622169]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.622076]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.620695]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.619652]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.618605]
+Content: These dikes form a symmetrical network around the central point where the lava emerged, where there may also be a depression caused by the collapse of the magma chamber.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.618252]
+Content: Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for "meteorological survey" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.944152]
+Content: Pink plaques have been unveiled in some 英国 locations to celebrate LGBT heritage. For example, the first pink plaque in Nottingham was unveiled at the New Foresters, a popular gay bar on St Ann's Street, on 17 September 2021. On 19 September 2021, a pink plaque commemorating Mary Wollstonecraft was due to be unveiled in Islington, London, near to a girls’ school she established in 1784, with plaques at other Islington locations to follow. == References ==
+
+[Rank 2 | BGE Score: 0.922984]
+Content: Pink plaques Predating rainbow plaques, pink triangle plaque memorials have memorialised gay people killed in the Holocaust and victims of anti-gay violence. In the UK, the idea of pink plaques to more generally commemorate and celebrate LGBT heritage was promoted in a 1986 book, The Pink Plaque Guide to London, written by Michael Elliman and Frederick Roll and published by Gay Men's Press. Pink plaques were also discussed in Brighton in 2006, and a mobile phone app was later (2020) created to guide users to Brighton pink plaque locations
+
+[Rank 3 | BGE Score: 0.178429]
+Content: 彩虹牌匾计划是英国的一项计划，旨在安装纪念牌匾，以彰显LGBTQIA+历史上的重要人物、地点和时刻。该计划效仿了由英格兰遗产委员会、地方当局和其他机构运营的现有英国蓝色牌匾计划，第一块永久性彩虹牌匾（一块蓝色圆形牌匾，圆周有六色彩虹）于2018年7月在约克揭幕。英国的一些LGBT地点则用粉色牌匾来标记，这个想法早于彩虹牌匾。历史 彩虹牌匾计划由约克公民信托基金和约克LGBT论坛于2018年发起，旨在纪念女同性恋日记作家安妮·李斯特（1791-1840）及其伴侣安·沃克。第一版牌匾于2018年7月24日揭幕，并于2019年2月更换为包含“女同性恋”一词的修订措辞。在2018年的约克和2019年的利兹的LGBT骄傲运动期间，临时纸板牌匾也被放置在关键地点。随后，这项永久性牌匾计划通过旺兹沃思LGBTQ+论坛和伏尔泰工作室在全国范围内推广，于2019年7月24日在克拉珀姆交汇火车站为奥斯卡·王尔德揭幕了永久性牌匾，并于2021年9月10日在南兰贝斯的威尔科克斯路为1980年代的电影《我美丽的洗衣店》揭幕了牌匾。2023年，在伦敦市长“未被讲述的故事基金”和旺兹沃思绿洲的支持下，伦敦宣布将再增设五块彩虹牌匾。
+
+[Rank 4 | BGE Score: 0.008564]
+Content: The plaques erected are made in a variety of designs, shapes, materials and colours: some are blue, others are not. However, the term "blue plaque" is often used informally to encompass all such schemes. The "official" scheme traces its origins to that launched in 1866 in London, on the initiative of the politician William Ewart, to mark the homes and workplaces of famous people. It has been administered succe
+
+[Rank 5 | BGE Score: 0.006776]
+Content: A blue plaque is a permanent sign installed in a public place in the United Kingdom and elsewhere to commemorate a link between that location and a famous person, event, or former building on the site, serving as a historical marker. The term is used in the United Kingdom in two different senses. It may be used narrowly and specifically to refer to the "official" scheme administered by English Heritage, and currently restricted to sites within Greater London; or it may be used less formally to encompass a number of similar schemes administered by organisations throughout the 英国
+
+[Rank 6 | BGE Score: 0.000081]
+Content: Balloons have been valued for their ability to observe the battlefield and direct artillery. Their usage peaked during World War I, after which they were increasingly replaced by airplanes. During the Cold War, the United States sent hundreds of high-altitude balloons, ostensibly for "meteorological survey" under Project Genetrix, over China and other Eastern Bloc countries to gain intelligence on their nuclear capabilities, drawing their protests
+
+[Rank 7 | BGE Score: 0.000038]
+Content: Its military publications have highlighted the use of balloons to assess the early warning and response capabilities of enemy air defenses and to enhance China's own defense capabilities.
+
+[Rank 8 | BGE Score: 0.000032]
+Content: Additionally, PET imaging is utilized to determine the suitability of patients for targeted therapies based on specific molecular characteristics, enabling personalized treatment approaches.
+
+[Rank 9 | BGE Score: 0.000023]
+Content: The development of molecular imaging agents, such as superparamagnetic iron oxide nanoparticles, allows for targeted imaging and tracking of specific molecular entities.
+
+[Rank 10 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 11 | BGE Score: 0.000016]
+Content: See also Electrical grid security in the United States Metcalf sniper attack
+
+[Rank 12 | BGE Score: 0.000016]
+Content: == References ==
+
+[Rank 13 | BGE Score: 0.000016]
+Content: References External links Official website
+
+[Rank 14 | BGE Score: 0.000016]
+Content: The effigy is placed on top of an altar tomb lined with 22 pleurants (or "weepers"), who are also dressed in armour.
+
+[Rank 15 | BGE Score: 0.000016]
+Content: Measures Infrastructure and international development
+
+[Rank 16 | BGE Score: 0.000016]
+Content: The pancakes are thought to be formed by highly viscous, silica-rich lava erupting under Venus's high atmospheric pressure.
+
+[Rank 17 | BGE Score: 0.000016]
+Content: It will improve trade, strengthen regional cooperation, and contribute to economic growth and development in Afghanistan and Pakistan
+
+[Rank 18 | BGE Score: 0.000016]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 19 | BGE Score: 0.000016]
+Content: These dikes form a symmetrical network around the central point where the lava emerged, where there may also be a depression caused by the collapse of the magma chamber.
+
+[Rank 20 | BGE Score: 0.000016]
+Content: Advances to Mariupol Preliminary shelling and advance on the city
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the ISRO?
+Timestamp: 2026-03-02T14:31:15.393134+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.736537]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.723309]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.710604]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.682500]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.680221]
+Content: == References ==
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.666486]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.660688]
+Content: References External links Official website
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.659434]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.657796]
+Content: The JIMO spacecraft JIMO was to have a large number of revolutionary features. Throughout its main voyage to the Jupiter moons, it was to be propelled by an ion propulsion system via either the High Power Electric Propulsion or NEXIS engine, and powered by a small fission reactor.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.655270]
+Content: More distant spatially resolved observations will also be carried out for several minor irregular satellites and the volcanically active moon Io.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.654193]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.652672]
+Content: The ITS booster was to be a 12 m-diameter (39 ft), 77.5 m-high (254 ft), reusable first stage powered by 42 engines, each producing 3,024 kilonewtons (680,000 lbf) of thrust. Total booster thrust would have been about 128 MN (29,000,000 lbf) at liftoff, several times the 36 MN (8,000,000 lbf) thrust of the Saturn V. The engine configuration included 21 engines in an outer ring and 14 in an inner ring. The center cluster of seven engines was to be gimbaled for directional control, although some directional control was to be performed via differential thrust on the fixed engines.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.649622]
+Content: Interplanetary Transport System In 2016, Musk changed the name of the Mars Colonial Transporter system to the Interplanetary Transport System (ITS), as he intended for the system to be capable of traveling beyond Mars. That same year he provided more details about the space mission architecture, launch vehicle, spacecraft, and Raptor engines. The first test firing of a Raptor engine on a test stand took place in September 2016. In October 2016, Musk indicated that the initial tank test article, made out of carbon-fiber pre-preg, and built with no sealing liner, had performed well in cryogenic fluid testing
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.649175]
+Content: Four 3-meter booms carry parts of the RPWI instrument. The other instruments are mounted on the spacecraft body, or for 3GM, within the spacecraft bus.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.647385]
+Content: Starship is a super heavy-lift launch vehicle under development by SpaceX. At 120 metres (394 feet) in height and with a liftoff mass of 5,000 metric tons (11,000,000 pounds), Starship is the largest and most powerful rocket ever flown, surpassing the thrust of NASA's Space Launch System and Saturn V, as well as the Soviet N1, which had previously held the record.The two-stage-to-orbit launch vehicle consists of the first-stage Super Heavy booster and the second-stage spacecraft also named Starship
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.645871]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.644054]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.643722]
+Content: A pressure test at about 2/3 of the design burst pressure was completed in November 2016. In July 2017, Musk indicated that the architecture design had evolved since 2016 in order to support commercial transport via Earth-orbit and cislunar launches.The ITS stack was to be composed of two stages, both powered by Raptor engines. A first stage booster, and a second stage that was to be either an "Interplanetary Spaceship" for crewed transport or an "ITS tanker" for orbital refueling
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.642437]
+Content: Therapeutic approaches Theranostics encompasses a range of therapeutic approaches that are designed to target and treat diseases with enhanced precision.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.642339]
+Content: Background The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO))
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.994251]
+Content: Launch It is Scheduled to get launched on Sunday, 30 July 2023 at 06:30 IST / 01:00 UTC from Satish Dhawan Space Centre, Sriharikota, Andhra Pradesh, India. The Indian Space Research Organisation (ISRO) is the space agency of the Government of India. It was established in 1969 with the aim of developing space technology and conducting space research. ISRO is responsible for the country's space program, which includes satellite launches, space exploration, and the development of space-related technologies.
+
+[Rank 2 | BGE Score: 0.218401]
+Content: ISRO has achieved several significant milestones over the years. It successfully launched its first satellite, Aryabhata, in 1975.
+
+[Rank 3 | BGE Score: 0.010543]
+Content: Measures Infrastructure and international development
+
+[Rank 4 | BGE Score: 0.001195]
+Content: Interplanetary Transport System In 2016, Musk changed the name of the Mars Colonial Transporter system to the Interplanetary Transport System (ITS), as he intended for the system to be capable of traveling beyond Mars. That same year he provided more details about the space mission architecture, launch vehicle, spacecraft, and Raptor engines. The first test firing of a Raptor engine on a test stand took place in September 2016. In October 2016, Musk indicated that the initial tank test article, made out of carbon-fiber pre-preg, and built with no sealing liner, had performed well in cryogenic fluid testing
+
+[Rank 5 | BGE Score: 0.000459]
+Content: The PSLV-C56 is the 58th mission of Indian Space Research Organisation's Polar Satellite Launch Vehicle (PSLV) and the 17th flight of the PSLV-CA variant, and will be get launched from Satish Dhawan Space Centre First Launch Pad ( FLP ).
+
+[Rank 6 | BGE Score: 0.000234]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+[Rank 7 | BGE Score: 0.000212]
+Content: A pressure test at about 2/3 of the design burst pressure was completed in November 2016. In July 2017, Musk indicated that the architecture design had evolved since 2016 in order to support commercial transport via Earth-orbit and cislunar launches.The ITS stack was to be composed of two stages, both powered by Raptor engines. A first stage booster, and a second stage that was to be either an "Interplanetary Spaceship" for crewed transport or an "ITS tanker" for orbital refueling
+
+[Rank 8 | BGE Score: 0.000177]
+Content: Background The mission started as a reformulation of the Jupiter Ganymede Orbiter proposal, which was to be ESA's component of the cancelled Europa Jupiter System Mission – Laplace (EJSM-Laplace). It became a candidate for the first L-class mission (L1) of the ESA Cosmic Vision Programme, and its selection was announced on 2 May 2012.In April 2012, JUICE was recommended over the proposed Advanced Telescope for High Energy Astrophysics (ATHENA) X-ray telescope and a gravitational wave observatory (New Gravitational wave Observatory (NGO))
+
+[Rank 9 | BGE Score: 0.000133]
+Content: More distant spatially resolved observations will also be carried out for several minor irregular satellites and the volcanically active moon Io.
+
+[Rank 10 | BGE Score: 0.000116]
+Content: In July 2015, Airbus Defence and Space was selected as the prime contractor to design and build the probe, to be assembled in Toulouse, France.
+
+[Rank 11 | BGE Score: 0.000108]
+Content: Starship is a super heavy-lift launch vehicle under development by SpaceX. At 120 metres (394 feet) in height and with a liftoff mass of 5,000 metric tons (11,000,000 pounds), Starship is the largest and most powerful rocket ever flown, surpassing the thrust of NASA's Space Launch System and Saturn V, as well as the Soviet N1, which had previously held the record.The two-stage-to-orbit launch vehicle consists of the first-stage Super Heavy booster and the second-stage spacecraft also named Starship
+
+[Rank 12 | BGE Score: 0.000044]
+Content: == References ==
+
+[Rank 13 | BGE Score: 0.000042]
+Content: References External links Official website
+
+[Rank 14 | BGE Score: 0.000035]
+Content: Four 3-meter booms carry parts of the RPWI instrument. The other instruments are mounted on the spacecraft body, or for 3GM, within the spacecraft bus.
+
+[Rank 15 | BGE Score: 0.000022]
+Content: The ITS booster was to be a 12 m-diameter (39 ft), 77.5 m-high (254 ft), reusable first stage powered by 42 engines, each producing 3,024 kilonewtons (680,000 lbf) of thrust. Total booster thrust would have been about 128 MN (29,000,000 lbf) at liftoff, several times the 36 MN (8,000,000 lbf) thrust of the Saturn V. The engine configuration included 21 engines in an outer ring and 14 in an inner ring. The center cluster of seven engines was to be gimbaled for directional control, although some directional control was to be performed via differential thrust on the fixed engines.
+
+[Rank 16 | BGE Score: 0.000021]
+Content: The JIMO spacecraft JIMO was to have a large number of revolutionary features. Throughout its main voyage to the Jupiter moons, it was to be propelled by an ion propulsion system via either the High Power Electric Propulsion or NEXIS engine, and powered by a small fission reactor.
+
+[Rank 17 | BGE Score: 0.000019]
+Content: Therapeutic approaches Theranostics encompasses a range of therapeutic approaches that are designed to target and treat diseases with enhanced precision.
+
+[Rank 18 | BGE Score: 0.000018]
+Content: In 2017 the company explored a float on the ASX. Notes == References ==
+
+[Rank 19 | BGE Score: 0.000018]
+Content: Both stages were to have been constructed of carbon fiber, including the cryogenic propellant tanks, a major change for SpaceX from the Falcon 9's aluminum-lithium alloy tank and structure material. Both stages were to be fully reusable and were to land vertically. Gross liftoff mass was to be 10,500 t (1,650,000 st) at a lift-off thrust of 128 meganewtons (29,000,000 lbf). ITS was planned to be able to carry a payload to low Earth orbit of 550 tonnes (1,210,000 lb) in expendable-mode and 300 tonnes (660,000 lb) in reusable mode.
+
+[Rank 20 | BGE Score: 0.000017]
+Content: Background History and development of reconnaissance balloons
+
+--------------------------------------------------
