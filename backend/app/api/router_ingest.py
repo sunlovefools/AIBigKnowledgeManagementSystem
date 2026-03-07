@@ -176,26 +176,31 @@ async def ingest_upload(file: FileUpload):
     - Docling branch only for PDFs when INGEST_PDF_EXTRACTOR=docling.
     - Legacy branch for everything else.
     """
+    try:
+        file_bytes = _decode_base64(file.data)
+        strategy = "legacy"
+        warnings: list[str] = []
+        run_id: str | None = None
 
-    file_bytes = _decode_base64(file.data)
-    strategy = "legacy"
-    warnings: list[str] = []
-    run_id: str | None = None
+        # Run the appropriate ingestion pipeline based on file type and environment configuration.
+        if _is_docling_pdf_strategy(file):
+            strategy = "docling"
+            (
+                parent_chunks_dicts,
+                child_chunks_dicts,
+                warnings,
+                run_id,
+            ) = _run_docling_pipeline(file, file_bytes)
+        else:
+            parent_chunks_dicts, child_chunks_dicts = _run_legacy_pipeline(file, file_bytes)
 
-    # Run the appropriate ingestion pipeline based on file type and environment configuration.
-    if _is_docling_pdf_strategy(file):
-        strategy = "docling"
-        (
-            parent_chunks_dicts,
-            child_chunks_dicts,
-            warnings,
-            run_id,
-        ) = _run_docling_pipeline(file, file_bytes)
-    else:
-        parent_chunks_dicts, child_chunks_dicts = _run_legacy_pipeline(file, file_bytes)
-
-    # Insert the chunks into the vector database.
-    await _upsert_chunks(parent_chunks_dicts, child_chunks_dicts)
+        # Insert the chunks into the vector database.
+        await _upsert_chunks(parent_chunks_dicts, child_chunks_dicts)
+    except Exception as e:
+        import traceback
+        print(f"\n[ERROR] Upload failed for '{file.fileName}': {type(e).__name__}: {str(e)}")
+        traceback.print_exc()
+        raise
 
     print(
         "[ingest-upload] file=%s strategy=%s parent_chunks=%s child_chunks=%s run_id=%s"
