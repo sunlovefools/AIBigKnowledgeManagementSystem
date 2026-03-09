@@ -2,11 +2,12 @@ import base64
 import binascii
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends  # ADDED: Depends
 from pydantic import BaseModel
 
 # Local imports
 from app.core.id_utils import generate_uuid_v6
+from app.core.dependencies import get_current_user  # ADDED: auth dependency
 from app.service.rag.ingestion.chunk_polisher import polish_chunks
 from app.service.rag.ingestion.chunker import split_parent_child_chunks
 from app.service.rag.ingestion.docling_chunker import (
@@ -147,13 +148,19 @@ def _run_docling_pipeline(
 
 
 async def _upsert_chunks(
-    parent_chunks: list[dict[str, Any]], child_chunks: list[dict[str, Any]]
+    parent_chunks: list[dict[str, Any]],
+    child_chunks: list[dict[str, Any]],
+    user_id: str,  # ADDED: passed down to upsert_documents so every chunk is tagged with its owner
 ) -> None:
     """
     Upsert the parent and child chunks into the vector database.
     """
     try:
-        await upsert_documents(parent_chunks=parent_chunks, child_chunks=child_chunks)
+        await upsert_documents(
+            parent_chunks=parent_chunks,
+            child_chunks=child_chunks,
+            user_id=user_id,  # ADDED: forwards user_id to vectordb for storage-level tagging
+        )
     except Exception:
         raise HTTPException(status_code=500, detail="upsert to vector store failed")
 
@@ -169,13 +176,18 @@ def ingest_health():
 
 
 @router.post("/upload", response_model=IngestUploadResponse)
-async def ingest_upload(file: FileUpload):
+async def ingest_upload(
+    file: FileUpload,
+    current_user: dict = Depends(get_current_user),  # ADDED: locks route + provides user_id
+):
     """
     Unified ingestion endpoint.
     Strategy:
     - Docling branch only for PDFs when INGEST_PDF_EXTRACTOR=docling.
     - Legacy branch for everything else.
     """
+
+    user_id = current_user["sub"]  # ADDED: extract user_id to tag all ingested chunks
 
     file_bytes = _decode_base64(file.data)
     strategy = "legacy"
@@ -195,7 +207,7 @@ async def ingest_upload(file: FileUpload):
         parent_chunks_dicts, child_chunks_dicts = _run_legacy_pipeline(file, file_bytes)
 
     # Insert the chunks into the vector database.
-    await _upsert_chunks(parent_chunks_dicts, child_chunks_dicts)
+    await _upsert_chunks(parent_chunks_dicts, child_chunks_dicts, user_id)  # ADDED: user_id
 
     print(
         "[ingest-upload] file=%s strategy=%s parent_chunks=%s child_chunks=%s run_id=%s"

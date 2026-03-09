@@ -20,7 +20,11 @@ PARENT_STORE = RAG_STORES['parent_store']  # LangChain AstraDBStore for Parent D
 _RERANKER_SERVICE = ZeRankerService(model_name="BAAI/bge-reranker-v2-m3")
 
 # --- Ingestion / Upsertion Operations ---
-async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
+async def upsert_documents(
+    parent_chunks: List[Dict[str, Any]],
+    child_chunks: List[Dict[str, Any]],
+    user_id: str  # ADDED: required so every stored chunk is tagged with its owner
+) -> None:
     """
     Inserts Parent (Context) documents and Child (Vector) chunks into the respective AstraDB stores.
 
@@ -42,6 +46,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
             if metadata_key not in ["content", "parent_chunk_id"]
         }
 
+        parent_metadata["user_id"] = user_id  # ADDED: tag parent doc with owner
 
         parent_doc = Document(
             page_content=parent_dict["content"],
@@ -70,6 +75,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         child_doc = Document(
             page_content=child_chunk_dict["content"],
             metadata={
+                "user_id": user_id,  # ADDED: tag child chunk with owner — this is what the search filter matches against
                 "file_metadata": child_chunk_dict["file_metadata"],
                 "child_chunk_metadata": child_chunk_dict["child_chunk_metadata"],
                 "content_flags": content_flags,
@@ -95,12 +101,13 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
 
 
 # --- Deletion Operations (for document updates) ---
-async def delete_children_by_parent_id(parent_id: str) -> int:
+async def delete_children_by_parent_id(parent_id: str, user_id: str) -> int:  # ADDED: user_id prevents cross-user deletion
     """
     Deletes all child chunks belonging to a specific parent document.
 
     Args:
         parent_id: The parent document ID whose children should be removed.
+        user_id: The owner of the document — ensures users can only delete their own chunks.
 
     Returns:
         int: Number of child chunks deleted.
@@ -110,6 +117,7 @@ async def delete_children_by_parent_id(parent_id: str) -> int:
         deleted = await VECTOR_STORE.adelete_by_metadata_filter(
             {
                 "child_chunk_metadata.parent_id": parent_id,
+                "user_id": user_id,  # ADDED: safety filter — can only delete own chunks
             }
         )
         print(f"  ✅ Deleted child chunks for parent_id={parent_id}")
@@ -119,17 +127,22 @@ async def delete_children_by_parent_id(parent_id: str) -> int:
         raise RuntimeError(f"Child chunk deletion failed: {e}")
 
 
-async def delete_parent_document(parent_id: str) -> None:
+async def delete_parent_document(parent_id: str, user_id: str) -> None:  # ADDED: user_id prevents cross-user deletion
     """
     Deletes a single parent document from the Parent Store.
 
     Args:
         parent_id: The parent document ID to delete.
+        user_id: The owner of the document — ensures users can only delete their own documents.
     """
     print(f"🗑️ Deleting parent document {parent_id}...")
     try:
         collection = PARENT_STORE.collection
-        await asyncio.to_thread(collection.delete_one, {"_id": parent_id})
+        # ADDED: user_id added to delete filter — prevents a user from deleting another user's parent doc
+        await asyncio.to_thread(
+            collection.delete_one,
+            {"_id": parent_id, "metadata.user_id": user_id}
+        )
         print(f"  ✅ Deleted parent document {parent_id}")
     except Exception as e:
         print(f"  ❌ Failed to delete parent document: {e}")
@@ -216,13 +229,18 @@ def _select_top_parent_ids_from_reranked_children(
 
 # --- Query/Retrieval Operations ---
 
-async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, Any]]:
+async def search_and_retrieve_context(
+    query: str,
+    top_k: int,
+    user_id: str  # ADDED: scopes vector search to current user's documents only
+) -> List[Dict[str, Any]]:
     """
     Performs vector search on child chunks and retrieves normalized parent document dicts.
 
     Args:
         query: The search query string.
         top_k: The number of top results to retrieve.
+        user_id: The authenticated user's ID — filters results to their documents only.
 
     Returns:
         List[Dict[str, Any]]: JSON-serializable parent documents with keys:
@@ -240,7 +258,11 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
 
     # 1. Search the Vector Store (Child Chunks)
     try:
-        child_documents_with_scores = await VECTOR_STORE.asimilarity_search_with_score(query, k=top_k * 2)
+        child_documents_with_scores = await VECTOR_STORE.asimilarity_search_with_score(
+            query,
+            k=top_k * 2,
+            filter={"metadata.user_id": user_id}  # ADDED: only retrieve this user's chunks
+        )
         print(f"Found {len(child_documents_with_scores)} relevant child chunks.")
     except Exception as error:
         print(f"Vector Store search failed: {error}")

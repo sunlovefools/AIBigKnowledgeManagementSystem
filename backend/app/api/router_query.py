@@ -1,10 +1,11 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends  # ADDED: Depends
 from pydantic import BaseModel
 
 # Local imports
 from app.service.rag.retrieval.query_refiner import refine_query
 from app.vectordb.vectordb import search_and_retrieve_context
 from app.service.rag.retrieval.answer_generator import generate_answer
+from app.core.dependencies import get_current_user  # ADDED: auth dependency
 
 # Setup the API router
 router = APIRouter()
@@ -34,13 +35,18 @@ def query_health():
     return {"query_service": "ok"}
 
 @router.post("/query", response_model=QueryResponse)
-async def query_documents(request: QueryRequest):
+async def query_documents(
+    request: QueryRequest,
+    current_user: dict = Depends(get_current_user)  # ADDED: locks route + provides user_id
+):
     """
     Full RAG Query Pipeline using the Parent-Child Retriever pattern:
     1. Refine the user query using LLM. (It is currently skipped as experiment)
     2. Search for relevant child chunks and retrieve associated parent document contents (LangChain/AstraDB).
     3. Generate an answer from the context using the Answer Generator LLM.
     """
+
+    user_id = current_user["sub"]  # ADDED: extract user_id for scoped vector search
 
     # --- Step 1: Retrieval of Parent Documents (Full Context) ---
     try:
@@ -49,7 +55,8 @@ async def query_documents(request: QueryRequest):
         effective_top_k = 20
         rag_docs = await search_and_retrieve_context(
             query=request.query,
-            top_k=effective_top_k
+            top_k=effective_top_k,
+            user_id=user_id  # ADDED: scopes search to current user's documents only
         )
 
         if not rag_docs:
