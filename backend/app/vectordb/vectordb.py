@@ -16,7 +16,7 @@ except ImportError:
 RAG_STORES = init_vector_db()  # A dictionary with 'vector_store' and 'parent_store' keys
 VECTOR_STORE = RAG_STORES['vector_store']  # LangChain AstraDBVectorStore for Child Chunks
 PARENT_STORE = RAG_STORES['parent_store']  # LangChain AstraDBStore for Parent Documents
-_RERANKER_SERVICE = ZeRankerService(model_name="BAAI/bge-reranker-v2-m3")
+_RERANKER_SERVICE = ZeRankerService()
 
 # --- Ingestion / Upsertion Operations ---
 async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
@@ -185,7 +185,7 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
 
     print(f"Reranking {len(child_texts)} candidates...")
 
-    # Rerank the retrieved child chunks using the BGE Reranker
+    # Rerank child chunks using the configured reranker model from .env
     reranked_pairs = await _RERANKER_SERVICE.rerank_documents(
         query=query,
         documents=child_texts,

@@ -6,7 +6,6 @@ from __future__ import annotations
 from typing import Any, Optional
 from typing_extensions import TypedDict
 
-
 # B04: single source of truth for the retry limit.
 # Previously defined separately in agent_nodes.py AND agent_graph.py,
 # risking the two values drifting out of sync.
