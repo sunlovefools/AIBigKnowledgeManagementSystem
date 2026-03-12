@@ -17,7 +17,9 @@ except ImportError:
 RAG_STORES = init_vector_db()  # A dictionary with 'vector_store' and 'parent_store' keys
 VECTOR_STORE = RAG_STORES['vector_store']  # LangChain AstraDBVectorStore for Child Chunks
 PARENT_STORE = RAG_STORES['parent_store']  # LangChain AstraDBStore for Parent Documents
+# Reranker for improved query relevance (uses BAAI/bge-reranker-v2-m3)
 _RERANKER_SERVICE = ZeRankerService(model_name="BAAI/bge-reranker-v2-m3")
+# _RERANKER_SERVICE = None  # Disabled for now
 
 # --- Ingestion / Upsertion Operations ---
 async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
@@ -254,23 +256,25 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
     child_documents = [doc for doc, _ in child_documents_with_scores]
     child_texts = [doc.page_content for doc in child_documents]
 
-    print(f"Reranking {len(child_texts)} candidates...")
-
-    rerank_top_k = top_k // 2
-
-    # Rerank the retrieved child chunks using the BGE Reranker
-    reranked_pairs = await _RERANKER_SERVICE.rerank_documents(
-        query=query,
-        documents=child_texts,
-        top_k=rerank_top_k,
-    )
-
-    reranked_child_docs = _map_reranked_pairs_to_child_docs(
-        child_documents=child_documents,
-        reranked_pairs=reranked_pairs,
-    )
-
-    log_reranker_results(reranked_docs=reranked_pairs[:top_k], top_k=top_k)
+    # Rerank child chunks if reranker is enabled
+    if _RERANKER_SERVICE is None:
+        print(f"Reranker disabled - using top {top_k} vector search results directly")
+        # Use original vector search order without reranking
+        reranked_child_docs = [(doc, score) for doc, score in child_documents_with_scores[:top_k]]
+    else:
+        print(f"Reranking {len(child_texts)} candidates...")
+        rerank_top_k = top_k // 2
+        # Rerank the retrieved child chunks using the BGE Reranker
+        reranked_pairs = await _RERANKER_SERVICE.rerank_documents(
+            query=query,
+            documents=child_texts,
+            top_k=rerank_top_k,
+        )
+        reranked_child_docs = _map_reranked_pairs_to_child_docs(
+            child_documents=child_documents,
+            reranked_pairs=reranked_pairs,
+        )
+        log_reranker_results(reranked_docs=reranked_pairs[:top_k], top_k=top_k)
 
     # 2. Extract top-k unique Parent IDs in reranked order.
     parent_ids = _select_top_parent_ids_from_reranked_children(
