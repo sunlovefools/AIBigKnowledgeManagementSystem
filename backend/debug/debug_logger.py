@@ -191,7 +191,7 @@ def log_reranker_results(reranked_docs: list, *, top_k: int = 5) -> None:
             content, score = _extract_doc_and_score(item)
             score_str = f"{score:.6f}" if isinstance(score, float) else "N/A"
 
-            lines.append(f"[Rank {index} | BGE Score: {score_str}]")
+            lines.append(f"[Rank {index} | Reranker Score: {score_str}]")
             lines.append(f"Content: {content}")
             lines.append("")
 
