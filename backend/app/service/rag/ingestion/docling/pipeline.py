@@ -12,7 +12,6 @@ Flow:
 from __future__ import annotations
 
 import json
-import os
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
@@ -36,7 +35,7 @@ from app.service.rag.ingestion.docling.storage import (
     local_artifacts_store,
     s3_upload,
 )
-from app.service.rag.ingestion.docling.utils import markdown_builder
+from app.service.rag.ingestion.docling.utils import markdown_builder, pdf_utils
 
 
 def _block_type_for_element(
@@ -65,6 +64,67 @@ def _block_type_for_element(
     return "other"
 
 
+def _persist_table_data_toon_artifacts(
+    *,
+    artifact_dir: Path | None,
+    table_image_vlm_jobs: list[table_image_vlm.TableImageVlmJob],
+    resolved_file_id: str,
+    file_name: str,
+    warnings: list[str],
+) -> None:
+    """Build TOON-wrapped table-data JSON artifacts and upload them to S3 when enabled."""
+
+    if artifact_dir is None or not table_image_vlm_jobs:
+        return
+
+    for job in table_image_vlm_jobs:
+        if job.result is not None and job.result.json_path:
+            extracted_json_path = Path(job.result.json_path)
+        else:
+            extracted_json_path = job.output_dir / "output.json"
+
+        if not extracted_json_path.exists():
+            continue
+
+        try:
+            # Extract the raw table data from the JSON file saved
+            # TODO: In the future it should not read from the JSON file, it should directly passed to here as a return value from the VLM runtime execution
+            extracted_payload = json.loads(extracted_json_path.read_text(encoding="utf-8"))
+            # Convert the raw extracted table data into a TOON-wrapped payload
+            wrapped_payload = s3_upload.build_toon_wrapped_table_payload(
+                extracted_table_json=extracted_payload,
+                file_id=resolved_file_id,
+                page_no=job.page_no,
+            )
+            # Create a local artifact for the TOON-wrapped table data
+            table_data_path = local_artifacts_store.table_data_file_path_from_uuid(
+                artifact_dir,
+                job.image_artifact.image_uuid,
+            )
+            # Write the TOON-wrapped table data to a local file
+            serialized = json.dumps(wrapped_payload, indent=2, ensure_ascii=False)
+            table_data_path.write_text(serialized, encoding="utf-8")
+
+            try:
+                s3_upload.upload_table_data_json_to_s3(
+                    json_bytes=serialized.encode("utf-8"),
+                    file_id=resolved_file_id,
+                    table_image_uuid=job.image_artifact.image_uuid,
+                    source_file_name=file_name,
+                    page_no=job.page_no,
+                )
+            except Exception as exc:
+                warnings.append(
+                    "Failed to upload table-data JSON to S3 "
+                    f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
+                )
+        except Exception as exc:
+            warnings.append(
+                "Failed to convert table-image JSON to TOON "
+                f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
+            )
+
+
 def parse_pdf_with_docling_preview(
     pdf_bytes: bytes,
     file_name: str,
@@ -80,6 +140,7 @@ def parse_pdf_with_docling_preview(
     if not pdf_bytes:
         raise ValueError("empty pdf payload")
 
+    # Decide which backend service to use for docling processing
     selected_backend = (backend or get_docling_backend_selection()).strip().lower()
     if selected_backend not in {"beam", "local"}:
         selected_backend = "beam"
@@ -87,8 +148,10 @@ def parse_pdf_with_docling_preview(
     print(f"[docling-pipeline] start file={file_name}")
     print(f"[docling-pipeline] backend selected: {selected_backend}")
 
+    # Create a file_id for the file being processed
     resolved_file_id = (file_id or str(uuid6())).strip()
 
+    # Prepare artifact directory and paths for markdown and extracted images.
     run_id, artifact_dir, markdown_path = local_artifacts_store.prepare_docling_preview_artifact_dir(
         file_name=file_name,
         artifact_root=artifact_root,
@@ -111,6 +174,7 @@ def parse_pdf_with_docling_preview(
     table_image_count = 0
 
     print("[docling-pipeline] loading raw layout...")
+    # Use the selected backend client to process the PDF.
     if selected_backend == "local":
         layout = local_client.build_local_layout(
             pdf_bytes=pdf_bytes,
@@ -128,6 +192,7 @@ def parse_pdf_with_docling_preview(
         )
     print(f"[docling-pipeline] layout loaded: items={len(layout['items'])}")
 
+    # Extract all the items out from the docling process
     picture_item_cls = layout["picture_item_cls"]
     table_item_cls = layout["table_item_cls"]
     list_item_cls = layout.get("list_item_cls")
@@ -135,6 +200,7 @@ def parse_pdf_with_docling_preview(
     title_item_cls = layout.get("title_item_cls")
     converted_chunks = layout.get("converted_chunks", 0)
 
+    # Build table-image VLM runtime (For using an LLM to build summary and extract the data out) if it is yet to be built.
     table_image_vlm_runtime = (
         table_image_vlm.build_table_image_vlm_runtime(
             artifact_dir=artifact_dir,
@@ -143,67 +209,14 @@ def parse_pdf_with_docling_preview(
         if artifacts_enabled and artifact_dir is not None
         else None
     )
+
+    # Create a thread pool to allow background worker to run table-image VLM jobs in parallel
     table_image_vlm_executor: ThreadPoolExecutor | None = None
     if table_image_vlm_runtime is not None:
         table_image_vlm_executor = ThreadPoolExecutor(
             max_workers=table_image_vlm_runtime.max_workers,
-            thread_name_prefix="table-vlm",
+            thread_name_prefix="table-vlm", # For logging and debugging purposes
         )
-
-    def _persist_table_data_toon_artifacts() -> None:
-        """
-        Build TOON-wrapped table-data JSON artifacts and upload them to S3 when enabled.
-        """
-
-        if not artifacts_enabled or artifact_dir is None:
-            return
-        if not table_image_vlm_jobs:
-            return
-
-        upload_enabled = (os.getenv("AWS_S3_UPLOAD_ENABLED") or "").strip().lower() == "true"
-
-        for job in table_image_vlm_jobs:
-            if job.result is not None and job.result.json_path:
-                extracted_json_path = Path(job.result.json_path)
-            else:
-                extracted_json_path = job.output_dir / "output.json"
-
-            if not extracted_json_path.exists():
-                continue
-
-            try:
-                extracted_payload = json.loads(extracted_json_path.read_text(encoding="utf-8"))
-                wrapped_payload = s3_upload.build_toon_wrapped_table_payload(
-                    extracted_table_json=extracted_payload,
-                    file_id=resolved_file_id,
-                    page_no=job.page_no,
-                )
-                table_data_path = local_artifacts_store.table_data_file_path_from_uuid(
-                    artifact_dir,
-                    job.image_artifact.image_uuid,
-                )
-                serialized = json.dumps(wrapped_payload, indent=2, ensure_ascii=False)
-                table_data_path.write_text(serialized, encoding="utf-8")
-
-                if upload_enabled:
-                    try:
-                        s3_upload.upload_table_data_json_to_s3(
-                            json_bytes=serialized.encode("utf-8"),
-                            file_id=resolved_file_id,
-                            table_image_uuid=job.image_artifact.image_uuid,
-                            source_file_name=file_name,
-                            page_no=job.page_no,
-                        )
-                    except Exception as exc:
-                        warnings.append(
-                            "Failed to upload table-data JSON to S3 "
-                            f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
-                        )
-            except Exception as exc:
-                warnings.append(
-                    "Failed to convert table-image JSON to TOON "
-                    f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
-                )
 
     pdf_doc: fitz.Document | None = None
     if selected_backend == "beam":
@@ -223,6 +236,7 @@ def parse_pdf_with_docling_preview(
                 picture_markdown_placeholder = DOCLING_IMAGE_CROP_FAILED_MARKER
                 picture_counter += 1
                 if artifacts_enabled and artifact_dir is not None:
+                    # Create an artifact for the extracted picture image
                     image_uuid = str(uuid6())
                     picture_name = local_artifacts_store.image_file_name_from_uuid(image_uuid)
                     picture_path = local_artifacts_store.image_file_path_from_uuid(
@@ -230,9 +244,11 @@ def parse_pdf_with_docling_preview(
                         image_uuid,
                     )
                     try:
+                        # TODO: unify the image extraction logic between beam and local backends so we don't have to condition on the backend here.
+                        # Extract the picture image bytes using the appropriate backend method
                         if selected_backend == "beam":
                             endpoint_item = item.get("endpoint_item", {})
-                            png_bytes = beam_client._crop_image_bytes_from_endpoint_item(
+                            png_bytes = pdf_utils.crop_image_bytes_from_endpoint_item(
                                 endpoint_item,
                                 pdf_doc,
                             )
@@ -248,6 +264,7 @@ def parse_pdf_with_docling_preview(
                             if not png_bytes:
                                 raise RuntimeError("Docling picture image unavailable.")
 
+                        # Write the extracted picture image to a local file
                         picture_path.write_bytes(png_bytes)
                         image_artifact = ExtractedImageArtifact(
                             kind="picture",
@@ -257,6 +274,7 @@ def parse_pdf_with_docling_preview(
                             page_no=page_no,
                             picture_index=picture_counter,
                         )
+                        # Upload the extracted picture image artifact to S3 if enabled
                         image_artifact = s3_upload.upload_image_artifact_to_s3(
                             image_artifact,
                             source_file_name=file_name,
@@ -274,6 +292,8 @@ def parse_pdf_with_docling_preview(
                             s3_upload_skipped_count += 1
 
                         images.append(image_artifact)
+
+                        # Create a markdown placeholder for the extracted image
                         picture_markdown_placeholder = markdown_builder.picture_uuid_marker(
                             image_artifact.image_uuid
                         )
@@ -287,15 +307,18 @@ def parse_pdf_with_docling_preview(
                         str(uuid6())
                     )
 
+            # TODO: Refactor the entire table image handling logic into a separate function to avoid having this large block of code in the middle of the main loop
             if is_table_item:
                 table_counter += 1
                 table_index = table_counter
                 num_rows = item.get("num_rows")
                 num_cols = item.get("num_cols")
 
+                # If the table has zero columns or rows then it is an table image
                 if num_rows == 0 or num_cols == 0:
                     table_image_count += 1
                     if artifacts_enabled and artifact_dir is not None:
+                        # Build the artifact for the extracted table image
                         image_uuid = str(uuid6())
                         table_image_name = local_artifacts_store.image_file_name_from_uuid(
                             image_uuid
@@ -305,9 +328,11 @@ def parse_pdf_with_docling_preview(
                             image_uuid,
                         )
                         try:
+                            # TODO: unify the image extraction logic between beam and local backends so we don't have to condition on the backend here.
+                            # Uses the appropriate backend method to extract the table imahe bytes
                             if selected_backend == "beam":
                                 endpoint_item = item.get("endpoint_item", {})
-                                png_bytes = beam_client._crop_image_bytes_from_endpoint_item(
+                                png_bytes = pdf_utils.crop_image_bytes_from_endpoint_item(
                                     endpoint_item,
                                     pdf_doc,
                                 )
@@ -351,6 +376,8 @@ def parse_pdf_with_docling_preview(
                                 s3_upload_skipped_count += 1
 
                             images.append(image_artifact)
+                            # Build the markdown block for the extracted table image, with optional summary placeholder if VLM is enabled
+                            # TODO: Should refactor into a function to avoid having this logic in the middle of the main loop and to unify the logic between table image blocks and picture blocks
                             table_markdown_lines = [
                                 "> **Table (image)**: Table exists in image form.",
                                 f"> {markdown_builder.table_image_uuid_marker(image_artifact.image_uuid)}",
@@ -432,6 +459,7 @@ def parse_pdf_with_docling_preview(
                     continue
 
             try:
+                # Serialise the element into markdown text (The element can be a text block, a picture, or a table etc.)
                 serialized_text = serializer.serialize(item=element).text.strip()
             except Exception as exc:
                 prefix = "local " if selected_backend == "local" else ""
@@ -440,6 +468,7 @@ def parse_pdf_with_docling_preview(
                 )
                 continue
 
+            # Inject the picture markdown placeholder 
             if picture_markdown_placeholder is not None:
                 serialized_text = markdown_builder.inject_marker_for_picture(
                     serialized_text,
@@ -462,6 +491,8 @@ def parse_pdf_with_docling_preview(
                     page_no=page_no,
                     is_table_image=False,
                 )
+
+                # Submit any pending table-image VLM jobs after adding a new block
                 table_image_vlm.submit_ready_table_image_vlm_jobs(
                     runtime=table_image_vlm_runtime,
                     executor=table_image_vlm_executor,
@@ -474,6 +505,7 @@ def parse_pdf_with_docling_preview(
             pdf_doc.close()
         if table_image_vlm_executor is not None:
             print("[docling-pipeline] finalizing queued table-image VLM jobs...")
+            # Submit the final batch of pending table-image VLM jobs
             table_image_vlm.submit_ready_table_image_vlm_jobs(
                 runtime=table_image_vlm_runtime,
                 executor=table_image_vlm_executor,
@@ -488,12 +520,19 @@ def parse_pdf_with_docling_preview(
                 markdown_parts=markdown_parts,
                 warnings=warnings,
             )
-            _persist_table_data_toon_artifacts()
+            _persist_table_data_toon_artifacts(
+                artifact_dir=artifact_dir,
+                table_image_vlm_jobs=table_image_vlm_jobs,
+                resolved_file_id=resolved_file_id,
+                file_name=file_name,
+                warnings=warnings,
+            )
             table_image_vlm_executor.shutdown(wait=True)
 
     print("[docling-pipeline] item processing complete")
 
     if not markdown_parts:
+        #TODO: I saw a lot of validation needed to do for based on the backend to show the error
         if selected_backend == "local":
             raise RuntimeError(
                 "No pages converted successfully with local Docling. "

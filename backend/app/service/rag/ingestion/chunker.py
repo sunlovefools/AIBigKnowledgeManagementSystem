@@ -204,6 +204,7 @@ def split_parent_child_chunks(
                         "parent_id": parent_id,
                         "child_chunk_number": child_global_index,
                         "page_number": 0,
+                        "has_preamble": False,
                         "ingested_at": child_ingested_at,
                     },
                     content_flags={

@@ -18,16 +18,9 @@ from app.service.storage.s3_image_store import (
 )
 
 
-def upload_image_artifact_to_s3(
-    image_artifact: ExtractedImageArtifact,
-    *,
-    source_file_name: str,
-    file_id: str | None = None,
-) -> ExtractedImageArtifact:
+def _require_s3_upload_enabled() -> bool:
     """
-    Best-effort S3 upload for a locally saved image artifact.
-
-    This function mutates and returns the image artifact with S3 metadata/status.
+    Validate AWS_S3_UPLOAD_ENABLED and return whether uploads should proceed.
     """
 
     raw_upload_enabled = os.getenv("AWS_S3_UPLOAD_ENABLED")
@@ -43,7 +36,22 @@ def upload_image_artifact_to_s3(
             f"got: {raw_upload_enabled!r}."
         )
 
-    if upload_enabled == "false":
+    return upload_enabled == "true"
+
+
+def upload_image_artifact_to_s3(
+    image_artifact: ExtractedImageArtifact,
+    *,
+    source_file_name: str,
+    file_id: str | None = None,
+) -> ExtractedImageArtifact:
+    """
+    Best-effort S3 upload for a locally saved image artifact.
+
+    This function mutates and returns the image artifact with S3 metadata/status.
+    """
+
+    if not _require_s3_upload_enabled():
         image_artifact.s3_upload_status = "skipped"
         image_artifact.s3_error = "S3 upload disabled (AWS_S3_UPLOAD_ENABLED=false)"
         print(
@@ -113,6 +121,13 @@ def upload_table_data_json_to_s3(
     """
     Best-effort upload for processed table-data JSON artifacts.
     """
+
+    if not _require_s3_upload_enabled():
+        print(
+            f"S3 upload skipped for table_image_uuid={table_image_uuid} "
+            "because AWS_S3_UPLOAD_ENABLED=false."
+        )
+        return None
 
     s3_config = _load_s3_config()
     if s3_config is None:

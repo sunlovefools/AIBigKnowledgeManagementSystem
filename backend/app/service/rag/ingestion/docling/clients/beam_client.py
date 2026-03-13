@@ -223,17 +223,6 @@ def _ordered_items_by_seq(ordered_items: Any) -> dict[int, dict[str, Any]]:
     return mapped
 
 
-def _crop_image_bytes_from_endpoint_item(
-    endpoint_item: dict[str, Any],
-    pdf_doc: Any,
-) -> bytes | None:
-    """
-    Wrapper used by pipeline/tests to crop endpoint-referenced image regions.
-    """
-
-    return pdf_utils.crop_image_bytes_from_endpoint_item(endpoint_item, pdf_doc)
-
-
 def build_beam_layout(
     *,
     pdf_bytes: bytes,

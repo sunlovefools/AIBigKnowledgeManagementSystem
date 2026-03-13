@@ -39,6 +39,7 @@ def test_split_parent_child_chunks_outputs_new_schema():
         assert payload["child_chunk_metadata"]["parent_id"]
         assert isinstance(payload["child_chunk_metadata"]["child_chunk_number"], int)
         assert isinstance(payload["child_chunk_metadata"]["page_number"], int)
+        assert payload["child_chunk_metadata"]["has_preamble"] is False
         assert payload["child_chunk_metadata"]["ingested_at"]
         assert payload["content_flags"] == {"is_image": False, "is_table_image": False}
         assert payload["artifact_refs"] == {"image_uuid": None, "table_image_uuid": None}

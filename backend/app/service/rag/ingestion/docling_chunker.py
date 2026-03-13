@@ -666,6 +666,7 @@ def _prefix_children_with_preamble(
         new_child = dict(child)
         content = str(new_child.get("content", "")).strip()
         new_child["content"] = f"{preamble_text}\n\n{content}".strip()
+        new_child["has_preamble"] = True
         prefixed.append(new_child)
     return prefixed
 
@@ -912,6 +913,7 @@ def split_parent_child_chunks_from_docling_blocks(
             if isinstance(table_image_uuid, str) and table_image_uuid.strip():
                 parent_table_image_uuids.add(table_image_uuid.strip())
 
+            # Create the child chunk model which are the metadata used for each child chunk
             child_chunks.append(
                 ChildChunkModel(
                     child_chunk_id=child_id,
@@ -924,6 +926,7 @@ def split_parent_child_chunks_from_docling_blocks(
                         "parent_id": parent_id,
                         "child_chunk_number": child_global_index,
                         "page_number": child_page_number,
+                        "has_preamble": bool(child_payload.get("has_preamble")),
                         "ingested_at": datetime.now(timezone.utc).isoformat(),
                     },
                     content_flags={

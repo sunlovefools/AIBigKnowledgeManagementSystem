@@ -63,6 +63,13 @@ def test_parent_flow_keeps_preamble_once_but_children_repeat_per_split_part(tmp_
     parent_two_id = parents[1].parent_chunk_id
     assert any("Main Title" in content for content in children_by_parent[parent_two_id])
     assert any("Section Alpha" in content for content in children_by_parent[parent_two_id])
+    parent_two_children = [
+        child for child in children if child.child_chunk_metadata["parent_id"] == parent_two_id
+    ]
+    assert parent_two_children
+    assert all(
+        child.child_chunk_metadata["has_preamble"] is True for child in parent_two_children
+    )
 
 
 def test_intro_parent_before_first_header(tmp_path):
@@ -81,6 +88,22 @@ def test_intro_parent_before_first_header(tmp_path):
     assert len(parents) == 2
     assert parents[0].content.startswith("Intro paragraph")
     assert parents[1].content.startswith("Section One")
+
+
+def test_child_metadata_has_preamble_false_when_no_injected_preamble(tmp_path):
+    blocks = [
+        _block(0, "text", "Intro paragraph before any heading."),
+        _block(1, "text", "More intro content."),
+    ]
+
+    _parents, children = split_parent_child_chunks_from_docling_blocks(
+        blocks=blocks,
+        file_name="sample.pdf",
+        artifact_dir=tmp_path,
+    )
+
+    assert children
+    assert all(child.child_chunk_metadata["has_preamble"] is False for child in children)
 
 
 def test_large_text_split_by_sentence_regex(tmp_path):

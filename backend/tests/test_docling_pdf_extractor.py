@@ -12,6 +12,7 @@ from app.service.rag.ingestion.docling.clients import beam_client
 from app.service.rag.ingestion.docling.clients import local_client
 from app.service.rag.ingestion.docling.storage import local_artifacts_store
 from app.service.rag.ingestion.docling.storage import s3_upload
+from app.service.rag.ingestion.docling.utils import pdf_utils
 from app.service.rag.ingestion import docling_table_image_vlm as table_image_vlm
 from app.service.rag.ingestion.docling.table_image_vlm import runtime as table_image_vlm_runtime
 
@@ -211,7 +212,7 @@ def test_parse_pdf_with_docling_preview_writes_markdown_images_and_manifest(monk
         errors=["warn-1"],
         server_notes=["retry used"],
     )
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
 
     result = extractor.parse_pdf_with_docling_preview(
@@ -274,7 +275,7 @@ def test_parse_pdf_with_docling_preview_skips_all_artifacts_when_disabled_in_bea
         _Table(page_no=1, num_rows=0, num_cols=0),
     ]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("DOCLING_ARTIFACTS_ENABLED", "false")
     monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
 
@@ -327,7 +328,7 @@ def test_parse_pdf_with_docling_preview_raises_when_endpoint_fails(monkeypatch, 
 def test_parse_pdf_with_docling_preview_picture_crop_failure_keeps_markdown(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: None)
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: None)
 
     result = extractor.parse_pdf_with_docling_preview(
         pdf_bytes=_minimal_pdf_bytes(),
@@ -429,7 +430,7 @@ def test_call_beam_docling_endpoint_raises_on_error_envelope(monkeypatch):
 def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
     monkeypatch.setattr(s3_upload, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
     monkeypatch.setattr(
@@ -463,7 +464,7 @@ def test_parse_pdf_with_docling_preview_records_s3_success(monkeypatch, tmp_path
 def test_parse_pdf_with_docling_preview_records_s3_failure_as_warning(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
     monkeypatch.setattr(s3_upload, "_load_s3_config", lambda: type("Cfg", (), {"prefix": "docling-previews"})())
     monkeypatch.setattr(
@@ -492,7 +493,7 @@ def test_parse_pdf_with_docling_preview_records_s3_failure_as_warning(monkeypatc
 def test_parse_pdf_with_docling_preview_marks_s3_skipped_when_disabled(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
 
     result = extractor.parse_pdf_with_docling_preview(
@@ -512,7 +513,7 @@ def test_docling_backend_selector_defaults_to_beam(monkeypatch):
 def test_parse_pdf_with_docling_preview_raises_when_AWS_S3_UPLOAD_ENABLED_env_missing(monkeypatch, tmp_path):
     items = [_Picture(page_no=1)]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.delenv("AWS_S3_UPLOAD_ENABLED", raising=False)
 
     with pytest.raises(RuntimeError, match="AWS_S3_UPLOAD_ENABLED is required"):
@@ -840,7 +841,7 @@ def test_beam_table_image_vlm_inserts_summary_and_json_marker(monkeypatch, tmp_p
         _Text("Context after table explains the totals.", page_no=1),
     ]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
     _install_fake_table_image_vlm_helper(monkeypatch, captured_contexts=captured_contexts)
 
@@ -876,7 +877,7 @@ def test_beam_table_image_vlm_summary_failure_keeps_json_marker(monkeypatch, tmp
         _Text("After text", page_no=1),
     ]
     _patch_endpoint_runtime(monkeypatch, items)
-    monkeypatch.setattr(beam_client, "_crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
+    monkeypatch.setattr(pdf_utils, "crop_image_bytes_from_endpoint_item", lambda *args, **kwargs: b"PNG")
     monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
     _install_fake_table_image_vlm_helper(monkeypatch, fail_summary=True)
 
