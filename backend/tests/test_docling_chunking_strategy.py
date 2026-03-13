@@ -63,6 +63,12 @@ def test_parent_flow_keeps_preamble_once_but_children_repeat_per_split_part(tmp_
     parent_two_id = parents[1].parent_chunk_id
     assert any("Main Title" in content for content in children_by_parent[parent_two_id])
     assert any("Section Alpha" in content for content in children_by_parent[parent_two_id])
+    parent_one_id = parents[0].parent_chunk_id
+    parent_one_children = [
+        child for child in children if child.child_chunk_metadata["parent_id"] == parent_one_id
+    ]
+    assert parent_one_children
+    assert parent_one_children[0].child_chunk_metadata["has_preamble"] is False
     parent_two_children = [
         child for child in children if child.child_chunk_metadata["parent_id"] == parent_two_id
     ]
@@ -125,6 +131,8 @@ def test_large_text_split_by_sentence_regex(tmp_path):
     assert len(children) == 2
     assert all("." in child.content for child in children)
     assert all(child.content.startswith("Section For Long Block") for child in children)
+    assert children[0].child_chunk_metadata["has_preamble"] is False
+    assert children[1].child_chunk_metadata["has_preamble"] is True
 
 
 def test_small_child_merges_within_parent_only(tmp_path):

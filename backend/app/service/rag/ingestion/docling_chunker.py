@@ -3,6 +3,10 @@ Provide structure-aware parent/child chunking for Docling blocks and emit
 traceability markdown artifacts for generated chunks.
 """
 
+
+# TODO: Refactor this entire module to be more testable and maintainable, as the current implementation is quite complex and hard to follow. 
+# TODO: Refactor the entire chunking into an interface to called from the router_ingest module
+
 from __future__ import annotations
 
 import re
@@ -172,7 +176,7 @@ def _split_section_into_parent_parts(
     preamble: list[DoclingStructuredBlock],
     body: list[DoclingStructuredBlock],
     parent_max_words: int,
-) -> list[dict[str, list[DoclingStructuredBlock]]]:
+) -> list[dict[str, Any]]:
     """
     Split one section into parent-size-bounded parts by whole blocks.
 
@@ -190,10 +194,11 @@ def _split_section_into_parent_parts(
                 "parent_blocks": list(preamble),
                 "child_blocks": list(preamble),
                 "child_preamble": [],
+                "is_first_part": True,
             }
         ]
 
-    parts: list[dict[str, list[DoclingStructuredBlock]]] = []
+    parts: list[dict[str, Any]] = []
     preamble_words = sum(_word_count(block.content) for block in preamble)
 
     current_body_blocks: list[DoclingStructuredBlock] = []
@@ -215,6 +220,7 @@ def _split_section_into_parent_parts(
                     "parent_blocks": parent_blocks,
                     "child_blocks": list(current_body_blocks),
                     "child_preamble": list(preamble),
+                    "is_first_part": is_first_part,
                 }
             )
             # Reset for the next part, but keep preamble for child generation.
@@ -238,6 +244,7 @@ def _split_section_into_parent_parts(
                 "parent_blocks": parent_blocks,
                 "child_blocks": list(current_body_blocks),
                 "child_preamble": list(preamble),
+                "is_first_part": is_first_part,
             }
         )
 
@@ -649,6 +656,8 @@ def _compact_parent_table_blocks_for_artifact(
 def _prefix_children_with_preamble(
     children: list[dict[str, Any]],
     preamble_blocks: list[DoclingStructuredBlock],
+    *,
+    first_child_has_preamble: bool,
 ) -> list[dict[str, Any]]:
     """Prefix each child chunk with section preamble text when preamble exists."""
 
@@ -662,11 +671,11 @@ def _prefix_children_with_preamble(
         return children
 
     prefixed: list[dict[str, Any]] = []
-    for child in children:
+    for index, child in enumerate(children):
         new_child = dict(child)
         content = str(new_child.get("content", "")).strip()
         new_child["content"] = f"{preamble_text}\n\n{content}".strip()
-        new_child["has_preamble"] = True
+        new_child["has_preamble"] = first_child_has_preamble or index > 0
         prefixed.append(new_child)
     return prefixed
 
@@ -819,7 +828,7 @@ def split_parent_child_chunks_from_docling_blocks(
     # the "child_blocks" is the list of blocks that will be used to generate the child chunks, 
     # and the "child_preamble" is the list of blocks that will be used as preamble for the child chunks 
     # (which is basically the same as the parent preamble but will be included in all child parts instead of just the first parent part).
-    parent_parts: list[dict[str, list[DoclingStructuredBlock]]] = []
+    parent_parts: list[dict[str, Any]] = []
 
     # For each section, split into parent chunks
     for section in sections:
@@ -840,10 +849,12 @@ def split_parent_child_chunks_from_docling_blocks(
     child_global_index = 0
     resolved_file_id = file_id or generate_uuid_v6()
 
+    # Loop through all the parent parts to form parent chunks and child chunks
     for parent_chunk_number, part in enumerate(parent_parts):
         parent_blocks = part["parent_blocks"]
         child_source_blocks = part["child_blocks"]
         child_preamble_blocks = part.get("child_preamble", [])
+        is_first_part = bool(part.get("is_first_part"))
         parent_id = generate_uuid_v6()
         parent_content = "\n\n".join(
             block.content.strip() for block in parent_blocks if block.content.strip()
@@ -883,6 +894,7 @@ def split_parent_child_chunks_from_docling_blocks(
         merged_children = _prefix_children_with_preamble(
             merged_children,
             child_preamble_blocks,
+            first_child_has_preamble=not is_first_part,
         )
 
         for child_payload in merged_children:
