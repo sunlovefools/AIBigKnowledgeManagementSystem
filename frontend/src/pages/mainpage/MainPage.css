@@ -650,6 +650,16 @@ html,
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
 }
 
+/* Preserve line breaks from LLM plain-text/markdown responses. */
+.message-content p {
+    white-space: pre-wrap;
+}
+
+/* Keep markdown lists compact and avoid extra spacing from preserved whitespace. */
+.message-content li {
+    white-space: normal;
+}
+
 .message.ai .message-content {
     background: #f8faff;
     border-color: #dbeafe;

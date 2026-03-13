@@ -13,6 +13,8 @@ class ParentChunkModel(BaseModel):
     content: str
     file_metadata: dict
     parent_chunk_metadata: dict
+    content_flags: dict
+    artifact_refs: dict
         
 class ChildChunkModel(BaseModel):
     """Schema for the small, embedded Child Chunks (Vector Store)."""
@@ -20,6 +22,8 @@ class ChildChunkModel(BaseModel):
     content: str
     file_metadata: dict
     child_chunk_metadata: dict
+    content_flags: dict
+    artifact_refs: dict
 
 # --- Helper function ---
 def _create_initial_child_chunks(text: str, file_name: str, chunk_size: int) -> List[Document]:
@@ -199,7 +203,16 @@ def split_parent_child_chunks(
                     child_chunk_metadata={
                         "parent_id": parent_id,
                         "child_chunk_number": child_global_index,
+                        "page_number": 0,
                         "ingested_at": child_ingested_at,
+                    },
+                    content_flags={
+                        "is_image": False,
+                        "is_table_image": False,
+                    },
+                    artifact_refs={
+                        "image_uuid": None,
+                        "table_image_uuid": None,
                     },
                 )
             )
@@ -217,7 +230,16 @@ def split_parent_child_chunks(
                 parent_chunk_metadata={
                     "child_chunks_ids": parent_child_ids,
                     "parent_chunk_number": parent_chunk_number,
+                    "page_number": [0],
                     "ingested_at": parent_ingested_at,
+                },
+                content_flags={
+                    "is_image": False,
+                    "is_table_image": False,
+                },
+                artifact_refs={
+                    "image_uuid": [],
+                    "table_image_uuid": [],
                 },
             )
         )

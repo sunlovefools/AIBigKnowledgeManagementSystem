@@ -1,0 +1,8 @@
+# Keep local virtualenv and caches out of Beam upload/watch context
+.venv
+.venv/
+.venv/**
+__pycache__
+__pycache__/
+*.pyc
+.git

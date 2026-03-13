@@ -2,6 +2,7 @@
 torch
 torchvision
 FlagEmbedding
+docling
 fastapi
 uvicorn[standard]
 python-dotenv
@@ -9,13 +10,17 @@ pydantic
 pandas
 astrapy
 bcrypt
+boto3
 email-validator
 requests
+py-toon-format
+ollama
 gunicorn
 langchain
 numpy
 PyMuPDF
 python-docx
+Pillow
 aiohttp
 langchain-core
 langchain-text-splitters
