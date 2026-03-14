@@ -1,0 +1,722 @@
+[
+  {
+    "question": "What is the role of the Dungeon Master in a D&D game?",
+    "answer": "In a D&D game, the Dungeon Master (DM) serves as the game's lead storyteller and referee. The DM creates adventures for the characters, describes the environment, and determines the consequences of the adventurers' actions. The DM also narrates what the players experience and can improvise to react to anything the players attempt, making the game infinitely flexible and exciting. The DM is the authority on the campaign and its setting, even if the setting is a published world.",
+    "source_file": "dnd_01_introduction_character_creation.pdf",
+    "topic": "D&D Introduction & Character Creation"
+  },
+  {
+    "question": "According to the Ability Scores and Modifiers table, what is the modifier for an ability score of 16-17?",
+    "answer": "The provided document does not contain an Ability Scores and Modifiers table, so the information requested about the modifier for an ability score of 16-17 cannot be answered based on the given text alone.",
+    "source_file": "dnd_01_introduction_character_creation.pdf",
+    "topic": "D&D Introduction & Character Creation"
+  },
+  {
+    "question": "How does D&D differ from traditional board games in terms of player freedom and storytelling?",
+    "answer": "Dungeons & Dragons (D&D) differs from traditional board games in that it is driven by imagination and storytelling, allowing for a high degree of player freedom. Unlike traditional board games, D&D does not have a fixed set of rules or outcomes for every situation. Instead, it uses dice rolls to determine the consequences of the adventurers' actions, making the game infinitely flexible and each adventure exciting and unexpected. The game has no real end, and players can continue their adventures indefinitely, creating an ongoing story called a campaign. This allows for the creation of a unique and evolving narrative where players can explore various worlds, solve puzzles, battle monsters, and discover treasures, all while their characters grow in power and capability. The Dungeon Master (DM) acts as the lead storyteller and referee, improvising to react to anything the players attempt, which further enhances the game's flexibility and unpredictability.",
+    "source_file": "dnd_01_introduction_character_creation.pdf",
+    "topic": "D&D Introduction & Character Creation"
+  },
+  {
+    "question": "Based on the Ability Scores and Modifiers table, what modifier would a character have if their Strength score is 8 or 9?",
+    "answer": "The document does not contain the Ability Scores and Modifiers table, so it does not provide the specific modifier for a Strength score of 8 or 9. Therefore, I cannot answer the question based on the information given in the document.",
+    "source_file": "dnd_01_introduction_character_creation.pdf",
+    "topic": "D&D Introduction & Character Creation"
+  },
+  {
+    "question": "What does the Age trait entry describe for each race in the racial traits section?",
+    "answer": "The age entry for each race in the racial traits section notes the age when a member of the race is considered an adult, as well as the race's expected lifespan. This information can help a player decide how old their character is at the start of the game. The age can provide an explanation for certain ability scores, such as a particularly low Strength or Constitution score for a young or very old character, or a high Intelligence or Wisdom score for an advanced age.",
+    "source_file": "dnd_02_races_dwarf_elf_halfling.pdf",
+    "topic": "D&D Races: Dwarf, Elf, Halfling"
+  },
+  {
+    "question": "According to the racial traits overview, what does the Ability Score Increase entry describe for every race?",
+    "answer": "According to the racial traits overview, the Ability Score Increase entry for every race describes an increase to one or more of a character’s ability scores.",
+    "source_file": "dnd_02_races_dwarf_elf_halfling.pdf",
+    "topic": "D&D Races: Dwarf, Elf, Halfling"
+  },
+  {
+    "question": "Why might a player choose a young or very old character age, and how could it explain certain ability scores?",
+    "answer": "When choosing a young or very old character age, a player can use their character's age to explain certain ability scores. For example, if a player decides to play a young character, they could have a particularly low Strength or Constitution score due to inexperience or not having fully developed physically. Conversely, if a player opts for a very old character, their advanced age could account for a high Intelligence or Wisdom score, reflecting accumulated knowledge and wisdom over a long lifetime.",
+    "source_file": "dnd_02_races_dwarf_elf_halfling.pdf",
+    "topic": "D&D Races: Dwarf, Elf, Halfling"
+  },
+  {
+    "question": "Based on the racial traits section, what entry would tell you how long a member of a race typically lives?",
+    "answer": "The age entry in the racial traits section would tell you how long a member of a race typically lives.",
+    "source_file": "dnd_02_races_dwarf_elf_halfling.pdf",
+    "topic": "D&D Races: Dwarf, Elf, Halfling"
+  },
+  {
+    "question": "What is the height and weight range described for humans in the race section?",
+    "answer": "The height range described for humans is from 5 feet to a little over 6 feet tall, and the weight range is from 125 to 250 pounds.",
+    "source_file": "dnd_03_races_human_dragonborn_gnome_others.pdf",
+    "topic": "D&D Races: Human, Dragonborn, Gnome, Half-Elf, Half-Orc, Tiefling"
+  },
+  {
+    "question": "According to the Human naming section, what are some of the listed male Damaran names?",
+    "answer": "According to the Human naming section, some of the listed male Damaran names are Bor, Fodel, Glar, Grigor, Igan, Ivor, Kosef, Mival, Orel, and Pavel.",
+    "source_file": "dnd_03_races_human_dragonborn_gnome_others.pdf",
+    "topic": "D&D Races: Human, Dragonborn, Gnome, Half-Elf, Half-Orc, Tiefling"
+  },
+  {
+    "question": "What drives humans to build empires and achieve great things compared to longer-lived races like elves and dwarves?",
+    "answer": "According to the document, humans strive to achieve as much as they can in the years they are given due to their shorter lifespans compared to elder races like dwarves, elves, and dragons. Additionally, humans might feel they have something to prove to these elder races, which drives them to build mighty empires through conquest and trade. Their ambition and desire to leave a lasting legacy fuel their innovations, achievements, and pioneering spirit.",
+    "source_file": "dnd_03_races_human_dragonborn_gnome_others.pdf",
+    "topic": "D&D Races: Human, Dragonborn, Gnome, Half-Elf, Half-Orc, Tiefling"
+  },
+  {
+    "question": "Based on the Shou naming conventions described, what comes first when writing a Shou character's full name — the family name or the given name?",
+    "answer": "Based on the Shou naming conventions described, the family name (or surname) comes first when writing a Shou character's full name, followed by the given name.",
+    "source_file": "dnd_03_races_human_dragonborn_gnome_others.pdf",
+    "topic": "D&D Races: Human, Dragonborn, Gnome, Half-Elf, Half-Orc, Tiefling"
+  },
+  {
+    "question": "How many rages does a Barbarian have at 1st level, and what is the rage damage bonus at that level?",
+    "answer": "At 1st level, a Barbarian has 2 rages. The rage damage bonus at 1st level is +2.",
+    "source_file": "dnd_04_classes_barbarian_bard_cleric.pdf",
+    "topic": "D&D Classes: Barbarian, Bard, Cleric"
+  },
+  {
+    "question": "According to the Barbarian class table, how many Rages and what Rage Damage bonus does a Barbarian have at level 9?",
+    "answer": "According to the Barbarian class table, at level 9, a Barbarian has 4 Rages and a Rage Damage bonus of +3.",
+    "source_file": "dnd_04_classes_barbarian_bard_cleric.pdf",
+    "topic": "D&D Classes: Barbarian, Bard, Cleric"
+  },
+  {
+    "question": "At what level does a Barbarian stop gaining additional rage uses, and how many rages do they have at that point?",
+    "answer": "A Barbarian stops gaining additional rage uses at level 20. At that point, they have unlimited rages.",
+    "source_file": "dnd_04_classes_barbarian_bard_cleric.pdf",
+    "topic": "D&D Classes: Barbarian, Bard, Cleric"
+  },
+  {
+    "question": "Looking at the Cleric spell slots table, at what level does a Cleric first gain access to 3rd-level spell slots?",
+    "answer": "The provided document does not contain a Cleric spell slots table, so there is no information to determine at what level a Cleric first gains access to 3rd-level spell slots based on the given text alone.",
+    "source_file": "dnd_04_classes_barbarian_bard_cleric.pdf",
+    "topic": "D&D Classes: Barbarian, Bard, Cleric"
+  },
+  {
+    "question": "What feature does a Fighter gain at 2nd level according to the class progression table?",
+    "answer": "The provided document does not contain information about the Fighter class or any feature a Fighter gains at 2nd level. The document focuses on the Druid class and its features. Therefore, based on the given text, there is no information to answer the question about the Fighter class.",
+    "source_file": "dnd_05_classes_druid_fighter_monk.pdf",
+    "topic": "D&D Classes: Druid, Fighter, Monk"
+  },
+  {
+    "question": "According to the Monk class table, what is the Martial Arts damage die and how many ki points does a Monk have at level 5?",
+    "answer": "The provided document does not contain any information about the Monk class table, Martial Arts damage die, or ki points for a Monk at level 5. The document is about the Druid class and does not mention the Monk class at all.",
+    "source_file": "dnd_05_classes_druid_fighter_monk.pdf",
+    "topic": "D&D Classes: Druid, Fighter, Monk"
+  },
+  {
+    "question": "At what level does a Fighter gain the ability to make multiple additional attacks, and how many total attacks can they make at level 20?",
+    "answer": "The provided document does not contain any information about a Fighter class or the number of attacks a Fighter can make at level 20. The document focuses on the Druid class and does not mention the Fighter class or the specified ability. Therefore, I cannot answer the question based on the given text.",
+    "source_file": "dnd_05_classes_druid_fighter_monk.pdf",
+    "topic": "D&D Classes: Druid, Fighter, Monk"
+  },
+  {
+    "question": "Based on the Fighter class table, at what level does the Fighter gain the Action Surge feature for the second time?",
+    "answer": "The provided document does not contain a Fighter class table or any information about the Action Surge feature for the Fighter class. Therefore, I cannot answer the question based on the given information.",
+    "source_file": "dnd_05_classes_druid_fighter_monk.pdf",
+    "topic": "D&D Classes: Druid, Fighter, Monk"
+  },
+  {
+    "question": "What feature does a Paladin gain at 2nd level according to the Paladin class table?",
+    "answer": "At 2nd level, a Paladin gains the Spellcasting feature according to the Paladin class table.",
+    "source_file": "dnd_06_classes_paladin_ranger_rogue.pdf",
+    "topic": "D&D Classes: Paladin, Ranger, Rogue"
+  },
+  {
+    "question": "According to the Rogue class table, what is the Sneak Attack damage at level 5, and what feature does the Rogue gain at that level?",
+    "answer": "The provided document does not contain any information about the Rogue class table, Sneak Attack damage at level 5, or features gained by a Rogue at that level. The document focuses on the Paladin class and its features. Therefore, I cannot answer the question based on the given information.",
+    "source_file": "dnd_06_classes_paladin_ranger_rogue.pdf",
+    "topic": "D&D Classes: Paladin, Ranger, Rogue"
+  },
+  {
+    "question": "At what level does a Paladin first gain access to 3rd-level spell slots?",
+    "answer": "A Paladin first gains access to 3rd-level spell slots at 5th level.",
+    "source_file": "dnd_06_classes_paladin_ranger_rogue.pdf",
+    "topic": "D&D Classes: Paladin, Ranger, Rogue"
+  },
+  {
+    "question": "Based on the Paladin spell slots table, at what level does a Paladin first get access to 3rd-level spell slots?",
+    "answer": "Based on the Paladin spell slots table provided, a Paladin first gets access to 3rd-level spell slots at 3rd level.",
+    "source_file": "dnd_06_classes_paladin_ranger_rogue.pdf",
+    "topic": "D&D Classes: Paladin, Ranger, Rogue"
+  },
+  {
+    "question": "At what level does a Sorcerer first gain the Metamagic feature, and how many sorcery points do they have at that level?",
+    "answer": "A Sorcerer first gains the Metamagic feature at 3rd level. At this level, a Sorcerer has 3 sorcery points.",
+    "source_file": "dnd_07_classes_sorcerer_warlock_wizard.pdf",
+    "topic": "D&D Classes: Sorcerer, Warlock, Wizard"
+  },
+  {
+    "question": "According to the Warlock class table, how many spell slots, at what slot level, and how many invocations known does a Warlock have at level 5?",
+    "answer": "There is no Warlock class table mentioned in the provided document. The document details the Sorcerer class instead. Therefore, I cannot answer the question based on the information given.",
+    "source_file": "dnd_07_classes_sorcerer_warlock_wizard.pdf",
+    "topic": "D&D Classes: Sorcerer, Warlock, Wizard"
+  },
+  {
+    "question": "How does the Warlock's spell slot progression differ from that of a Sorcerer as both classes level up?",
+    "answer": "The provided document does not contain any information about the Warlock's spell slot progression or how it differs from that of a Sorcerer. Therefore, I cannot answer the question based on the given text.",
+    "source_file": "dnd_07_classes_sorcerer_warlock_wizard.pdf",
+    "topic": "D&D Classes: Sorcerer, Warlock, Wizard"
+  },
+  {
+    "question": "Based on the Sorcerer class table, at what level does a Sorcerer first gain access to 6th-level spell slots, and how many sorcery points do they have at that level?",
+    "answer": "According to the Sorcerer class table, a Sorcerer first gains access to 6th-level spell slots at 13th level. At this level, the Sorcerer has 13 sorcery points.",
+    "source_file": "dnd_07_classes_sorcerer_warlock_wizard.pdf",
+    "topic": "D&D Classes: Sorcerer, Warlock, Wizard"
+  },
+  {
+    "question": "What does the Height Modifier column determine when rolling randomly for a character's height on the Random Height and Weight table?",
+    "answer": "The Height Modifier column determines the character’s extra height (in inches) beyond the base height when rolling randomly for a character's height on the Random Height and Weight table.",
+    "source_file": "dnd_08_personality_backgrounds.pdf",
+    "topic": "D&D Personality, Ideals, Bonds & Backgrounds"
+  },
+  {
+    "question": "According to the Standard Languages table, what languages can characters choose from when picking additional languages from their background?",
+    "answer": "According to the Standard Languages table, characters can choose from the following languages when picking additional languages from their background: Common, Dwarvish, Elvish, Giant, Gnomish, Goblin, Halfling, and Orc.",
+    "source_file": "dnd_08_personality_backgrounds.pdf",
+    "topic": "D&D Personality, Ideals, Bonds & Backgrounds"
+  },
+  {
+    "question": "How might a character's physical ability scores relate to their height and weight, according to this chapter?",
+    "answer": "According to this chapter, a character's physical ability scores might relate to their height and weight in the following ways: A weak but agile character might be thin, while a strong and tough character might be tall or just heavy.",
+    "source_file": "dnd_08_personality_backgrounds.pdf",
+    "topic": "D&D Personality, Ideals, Bonds & Backgrounds"
+  },
+  {
+    "question": "Based on the alignment examples of Tika and Artemis described in the chapter, what alignment is Artemis, and what does this say about his character?",
+    "answer": "Artemis is lawful evil. This alignment indicates that he methodically takes what he wants within the limits of a code of tradition, loyalty, or order. It reflects his disciplined and calculated approach to murder and his adherence to a structured way of life, even if it involves harming others. His lawful evil nature suggests he is unconcerned with the value of sentient life but maintains a professional approach to his actions.",
+    "source_file": "dnd_08_personality_backgrounds.pdf",
+    "topic": "D&D Personality, Ideals, Bonds & Backgrounds"
+  },
+  {
+    "question": "What penalties does a character suffer when wearing armor they are not proficient with?",
+    "answer": "When a character wears armor they are not proficient with, they suffer the following penalties: they have disadvantage on any ability check, saving throw, or attack roll that involves Strength or Dexterity, and they cannot cast spells.",
+    "source_file": "dnd_09_equipment_armor_weapons.pdf",
+    "topic": "D&D Equipment: Armor, Weapons & Gear"
+  },
+  {
+    "question": "According to the Weapons table, what is the cost, damage, weight, and properties of a Handaxe?",
+    "answer": "The document does not provide specific details about the Handaxe in the Weapons table. Therefore, I cannot provide the exact cost, damage, weight, and properties of a Handaxe based on the information given in the provided text.",
+    "source_file": "dnd_09_equipment_armor_weapons.pdf",
+    "topic": "D&D Equipment: Armor, Weapons & Gear"
+  },
+  {
+    "question": "Why do weapons and armor taken from defeated monsters typically not fetch a good price when sold at market?",
+    "answer": "Weapons and armor taken from defeated monsters typically do not fetch a good price when sold at market because they are rarely in good enough condition to sell, as stated in the document: \"Weapons and armor used by monsters are rarely in good enough condition to sell.\"",
+    "source_file": "dnd_09_equipment_armor_weapons.pdf",
+    "topic": "D&D Equipment: Armor, Weapons & Gear"
+  },
+  {
+    "question": "Based on the Adventuring Gear table, which item costs more — Alchemist's fire or Antitoxin, and by how much?",
+    "answer": "The document does not contain an \"Adventuring Gear table\" with prices for alchemist's fire or antitoxin. Therefore, I cannot provide the cost comparison requested for these items based on the information given in the document.",
+    "source_file": "dnd_09_equipment_armor_weapons.pdf",
+    "topic": "D&D Equipment: Armor, Weapons & Gear"
+  },
+  {
+    "question": "What ability score minimums must a Barbarian meet to multiclass into the Druid class?",
+    "answer": "To multiclass into the Druid class, a Barbarian must meet the ability score prerequisites for both classes. The Barbarian requires a Strength score of 13, and the Druid requires a Wisdom score of 13. Therefore, the Barbarian must have both a Strength score of 13 and a Wisdom score of 13 to qualify for the Druid class.",
+    "source_file": "dnd_10_customization_feats_multiclassing.pdf",
+    "topic": "D&D Customization: Feats & Multiclassing"
+  },
+  {
+    "question": "According to the Multiclassing Prerequisites table, what ability score minimum is required to multiclass into the Monk class?",
+    "answer": "According to the Multiclassing Prerequisites table, to multiclass into the Monk class, you must have both a Dexterity score of 13 and a Wisdom score of 13.",
+    "source_file": "dnd_10_customization_feats_multiclassing.pdf",
+    "topic": "D&D Customization: Feats & Multiclassing"
+  },
+  {
+    "question": "Why does multiclassing require higher-than-average ability scores compared to starting a new class fresh at character creation?",
+    "answer": "Multiclassing requires higher-than-average ability scores because, compared to a character who receives full training at the beginning of their adventuring career, a character who multiclasses must demonstrate a natural aptitude for their new class. This reflects the idea that the character is a quick study in their new class without the full initial training that a beginning character receives.",
+    "source_file": "dnd_10_customization_feats_multiclassing.pdf",
+    "topic": "D&D Customization: Feats & Multiclassing"
+  },
+  {
+    "question": "Based on the Multiclass Spellcaster spell slots table, how many 1st-level and 2nd-level spell slots does a multiclass spellcaster have at overall level 4?",
+    "answer": "Based on the information provided in the document, the number of 1st-level and 2nd-level spell slots for a multiclass spellcaster at overall level 4 is not explicitly stated. However, the document explains how to determine spell slots by adding together levels in certain classes and consulting the Multiclass Spellcaster table. Without the actual Multiclass Spellcaster table, the exact number of spell slots cannot be determined from the given text alone.",
+    "source_file": "dnd_10_customization_feats_multiclassing.pdf",
+    "topic": "D&D Customization: Feats & Multiclassing"
+  },
+  {
+    "question": "What are the six ability scores that provide a quick description of every creature's physical and mental characteristics?",
+    "answer": "The six ability scores that provide a quick description of every creature's physical and mental characteristics are:\n• Strength, measuring physical power\n• Dexterity, measuring agility\n• Constitution, measuring endurance\n• Intelligence, measuring reasoning and memory\n• Wisdom, measuring perception and insight\n• Charisma, measuring force of personality",
+    "source_file": "dnd_11_ability_scores_skills.pdf",
+    "topic": "D&D Using Ability Scores & Skills"
+  },
+  {
+    "question": "What is the formula for calculating an ability modifier from a raw ability score, as described in the rules?",
+    "answer": "To calculate an ability modifier from a raw ability score, you subtract 10 from the ability score and then divide the total by 2, rounding down.",
+    "source_file": "dnd_11_ability_scores_skills.pdf",
+    "topic": "D&D Using Ability Scores & Skills"
+  },
+  {
+    "question": "When a character has both advantage and disadvantage on a roll at the same time, what is the outcome?",
+    "answer": "When a character has both advantage and disadvantage on a roll at the same time, the character is considered to have neither of them, and only one d20 is rolled.",
+    "source_file": "dnd_11_ability_scores_skills.pdf",
+    "topic": "D&D Using Ability Scores & Skills"
+  },
+  {
+    "question": "Based on the ability score descriptions, which ability score governs a character's agility, reflexes, and ability to avoid being hit?",
+    "answer": "The ability score that governs a character's agility, reflexes, and ability to avoid being hit is Dexterity.",
+    "source_file": "dnd_11_ability_scores_skills.pdf",
+    "topic": "D&D Using Ability Scores & Skills"
+  },
+  {
+    "question": "How much does it cost per day to maintain a modest lifestyle between adventures?",
+    "answer": "The provided document does not contain any information about the cost to maintain a modest lifestyle between adventures.",
+    "source_file": "dnd_12_adventuring_combat.pdf",
+    "topic": "D&D Adventuring & Combat Rules"
+  },
+  {
+    "question": "What are the three steps that define the basic rhythm of play as outlined in the adventuring chapter?",
+    "answer": "The three steps that define the basic rhythm of play as outlined in the adventuring chapter are:\n1. The DM describes the environment.\n2. The players describe what they want to do.\n3. The DM narrates the results of their actions.",
+    "source_file": "dnd_12_adventuring_combat.pdf",
+    "topic": "D&D Adventuring & Combat Rules"
+  },
+  {
+    "question": "What is the main advantage and main drawback of splitting the adventuring party into multiple smaller groups?",
+    "answer": "The provided document does not contain information about the advantages and drawbacks of splitting an adventuring party into multiple smaller groups. Therefore, based on the given text, I cannot provide an answer to the question regarding the main advantage and main drawback of splitting the adventuring party.",
+    "source_file": "dnd_12_adventuring_combat.pdf",
+    "topic": "D&D Adventuring & Combat Rules"
+  },
+  {
+    "question": "Based on the lifestyle expenses rules, how can a character avoid paying the 1 gp per day modest lifestyle cost between adventures?",
+    "answer": "The provided document does not contain any information about lifestyle expenses rules or how a character can avoid paying the 1 gp per day modest lifestyle cost between adventures. The text focuses on the mechanics of movement, time tracking, and activities while traveling during adventures, but it does not discuss expenses or lifestyles.",
+    "source_file": "dnd_12_adventuring_combat.pdf",
+    "topic": "D&D Adventuring & Combat Rules"
+  },
+  {
+    "question": "What happens to a spell slot when a character uses it to cast a spell?",
+    "answer": "When a character uses a spell slot to cast a spell, they expend the slot of that spell’s level or higher, effectively \"filling\" the slot with the spell. For example, if Umara casts magic missile, a 1st-level spell, she spends one of her four 1st-level slots and has three remaining.",
+    "source_file": "dnd_13_spellcasting_spell_lists.pdf",
+    "topic": "D&D Spellcasting Rules & Spell Lists"
+  },
+  {
+    "question": "According to the spellcasting rules, how many 1st-level and 2nd-level spell slots does the example 3rd-level Wizard Umara have?",
+    "answer": "According to the document, the example 3rd-level Wizard Umara has four 1st-level spell slots and two 2nd-level spell slots.",
+    "source_file": "dnd_13_spellcasting_spell_lists.pdf",
+    "topic": "D&D Spellcasting Rules & Spell Lists"
+  },
+  {
+    "question": "Why does casting higher-level spells consume more resources, and how does the slot system reflect the physical and mental toll of magic use?",
+    "answer": "Casting higher-level spells consumes more resources because manipulating the fabric of magic and channeling its energy into even a simple spell is physically and mentally taxing. Higher-level spells are even more so, reflecting the increased physical and mental toll of their use. The slot system reflects this toll by limiting the number of spell slots a caster can use before needing to rest. Each spellcasting class's description includes a table showing how many spell slots of each spell level a character can use at each character level. When a character casts a spell, they expend a slot of that spell’s level or higher, effectively \"filling\" a slot with the spell. This system ensures that casters must rest and recover their expended spell slots, thereby accounting for the physical and mental exertion required to cast spells.",
+    "source_file": "dnd_13_spellcasting_spell_lists.pdf",
+    "topic": "D&D Spellcasting Rules & Spell Lists"
+  },
+  {
+    "question": "Based on the spell slot rules, if a character has no spell slots of the required level remaining, can they use a higher-level slot instead?",
+    "answer": "Yes, based on the spell slot rules provided, if a character has no spell slots of the required level remaining, they can use a higher-level slot instead. The document states, \"When a spellcaster casts a spell using a slot that is of a higher level than the spell, the spell assumes the higher level for that casting.\" This means that a character can cast a spell using a higher-level spell slot if they do not have any slots available at the spell's original level.",
+    "source_file": "dnd_13_spellcasting_spell_lists.pdf",
+    "topic": "D&D Spellcasting Rules & Spell Lists"
+  },
+  {
+    "question": "What does the Animal Messenger spell do, and how far does a flying animal messenger travel per 24 hours?",
+    "answer": "The Animal Messenger spell allows you to use an animal to deliver a message. You choose a Tiny beast within range, such as a squirrel, blue jay, or bat, and specify a location and recipient for the message. The target beast travels toward the specified location, covering about 50 miles per 24 hours for a flying messenger, or 25 miles for other animals. The messenger delivers the message to a creature matching the description you provided and then returns if it doesn't reach its destination before the spell ends.",
+    "source_file": "dnd_14_spells_compendium.pdf",
+    "topic": "D&D Spells Compendium (A–W)"
+  },
+  {
+    "question": "According to the Animal Shapes spell entry, what are its casting time, range, components, and duration?",
+    "answer": "The casting time for the Animal Shapes spell is 1 action, its range is 30 feet, the components required are V (verbal), S (somatic), and its duration is Concentration, up to 24 hours.",
+    "source_file": "dnd_14_spells_compendium.pdf",
+    "topic": "D&D Spells Compendium (A–W)"
+  },
+  {
+    "question": "What happens to the duration of the Animal Messenger spell when it is cast using a higher spell slot than its base level?",
+    "answer": "When the Animal Messenger spell is cast using a spell slot of 3rd level or higher, the duration of the spell increases by 48 hours for each slot level above 2nd.",
+    "source_file": "dnd_14_spells_compendium.pdf",
+    "topic": "D&D Spells Compendium (A–W)"
+  },
+  {
+    "question": "Based on the spell entries, what is the difference between a spell that requires Concentration and one that does not, in terms of how its duration works?",
+    "answer": "Based on the spell entries provided, a spell that requires Concentration has a duration that ends if the caster stops concentrating on it, whereas a spell that does not require Concentration maintains its duration independently of the caster's actions. For example, the spell \"Animate Objects\" has a duration of \"Concentration, up to 1 minute,\" meaning the spell ends if the caster stops concentrating before the 1-minute duration is up. In contrast, the spell \"Animal Messenger\" has a duration of \"24 hours,\" which is not dependent on the caster's concentration and continues to function regardless of the caster's actions during that time.",
+    "source_file": "dnd_14_spells_compendium.pdf",
+    "topic": "D&D Spells Compendium (A–W)"
+  },
+  {
+    "question": "What are the two combat effects that apply to a creature with the Blinded condition?",
+    "answer": "A creature with the Blinded condition cannot see and automatically fails any ability check that requires sight. Additionally, attack rolls against a blinded creature have advantage, and the creature’s attack rolls have disadvantage.",
+    "source_file": "dnd_15_appendices.pdf",
+    "topic": "D&D Appendices: Conditions, Gods, Planes, Creatures, Index"
+  },
+  {
+    "question": "According to the Deities of the Forgotten Realms table, what alignment, suggested domains, and symbol are listed for Bane, god of tyranny?",
+    "answer": "According to the Deities of the Forgotten Realms table, Bane, god of tyranny, has the following attributes:\n- Alignment: Lawful Evil (LE)\n- Suggested Domains: War\n- Symbol: Upright blade",
+    "source_file": "dnd_15_appendices.pdf",
+    "topic": "D&D Appendices: Conditions, Gods, Planes, Creatures, Index"
+  },
+  {
+    "question": "Under what conditions does the Grappled condition end on a creature?",
+    "answer": "The Grappled condition ends on a creature under the following conditions:\n- If the grappler is incapacitated.\n- If an effect removes the grappled creature from the reach of the grappler or grappling effect, such as when a creature is hurled away by the thunderwave spell.",
+    "source_file": "dnd_15_appendices.pdf",
+    "topic": "D&D Appendices: Conditions, Gods, Planes, Creatures, Index"
+  },
+  {
+    "question": "Based on the Forgotten Realms deities table, which deity would be the most fitting patron for a Cleric specialising in the Life domain?",
+    "answer": "Based on the Forgotten Realms deities table, the deity most fitting as a patron for a Cleric specialising in the Life domain would be Auril, goddess of winter. The table suggests that many deities associated with healing, protection, childbirth, nurturing, or fertility suggest the Life domain, and Auril is one of the deities listed under the Forgotten Realms section, suggesting the Nature domain which can encompass aspects related to life and nurturing.",
+    "source_file": "dnd_15_appendices.pdf",
+    "topic": "D&D Appendices: Conditions, Gods, Planes, Creatures, Index"
+  },
+  {
+    "question": "What greenhouse gas emissions reduction target does the Committee on Climate Change recommend for Wales by 2050?",
+    "answer": "The Committee on Climate Change recommends a 95% reduction in greenhouse gases by 2050 for Wales.",
+    "source_file": "netzero_01_executive_summary.pdf",
+    "topic": "Net Zero Report — Executive Summary (CCC, 2019)"
+  },
+  {
+    "question": "According to Figure 1, what year does the analysis in the report support as the UK net-zero GHG target date?",
+    "answer": "According to the document, the analysis in the report supports the UK net-zero GHG target date of 2050.",
+    "source_file": "netzero_01_executive_summary.pdf",
+    "topic": "Net Zero Report — Executive Summary (CCC, 2019)"
+  },
+  {
+    "question": "Which devolved nation is recommended to achieve net-zero earlier than the rest of the UK, and what capacity makes this feasible?",
+    "answer": "Scotland is recommended to achieve net-zero greenhouse gas emissions earlier than the rest of the UK, with a target date of 2045. This feasibility is attributed to Scotland's greater relative capacity to remove emissions compared to the UK as a whole.",
+    "source_file": "netzero_01_executive_summary.pdf",
+    "topic": "Net Zero Report — Executive Summary (CCC, 2019)"
+  },
+  {
+    "question": "What does the emissions pathway diagram indicate about the level of legislative ambition the UK government needs to adopt?",
+    "answer": "The document does not contain a direct reference to an \"emissions pathway diagram\" or specific details about what such a diagram indicates regarding legislative ambition for the UK government. However, based on the information provided, the document suggests that achieving a net-zero GHG target by 2050 requires a significant increase in legislative ambition and policy effort across all sectors of the economy. It emphasizes the need for clear, stable, and well-designed policies to reduce emissions further without delay, as current policies are insufficient for even the existing targets. The document highlights that many current plans are insufficiently ambitious or are proceeding too slowly, necessitating a major ramp-up in policy effort to meet the net-zero target.",
+    "source_file": "netzero_01_executive_summary.pdf",
+    "topic": "Net Zero Report — Executive Summary (CCC, 2019)"
+  },
+  {
+    "question": "What two developments does the Climate Change Act 2008 define as legitimate criteria for revising the UK's long-term emissions target?",
+    "answer": "The Climate Change Act 2008 defines two legitimate criteria for revising the UK's long-term emissions target: significant developments in scientific knowledge and significant changes in international law.",
+    "source_file": "netzero_02_chapter1_principles.pdf",
+    "topic": "Net Zero Report — Chapter 1: Principles and Approach"
+  },
+  {
+    "question": "What does Figure 1.1 illustrate about the connection between near-term carbon budget policy and the long-term 2050 climate target?",
+    "answer": "Figure 1.1 illustrates the connection between near-term carbon budget policy and the long-term 2050 climate target by showing that the Climate Change Act 2008 establishes a goal (the 2050 emissions target), a pathway (carbon budgets), and a toolkit (requirement for government policies to meet targets and monitoring by the Committee on Climate Change). This framework ensures that near-term policy is set to deliver the path to the long-term target, thereby integrating short-term actions with long-term climate objectives.",
+    "source_file": "netzero_02_chapter1_principles.pdf",
+    "topic": "Net Zero Report — Chapter 1: Principles and Approach"
+  },
+  {
+    "question": "Why does the Committee consider 2019 an appropriate moment to review the UK's long-term climate targets?",
+    "answer": "The Committee considers 2019 an appropriate moment to review the UK's long-term climate targets due to several significant developments since the original target was set in 2008. These include major changes in international circumstances, such as the Paris Agreement of 2015, and significant advancements in scientific knowledge, particularly the 2018 report of the Intergovernmental Panel on Climate Change (IPCC). Additionally, the Committee notes that falling costs for key technologies like renewable power and batteries for electric vehicles imply major changes to what is possible and at what cost, both in the UK and globally. These factors align with the criteria set in the Climate Change Act for reviewing long-term emissions targets.",
+    "source_file": "netzero_02_chapter1_principles.pdf",
+    "topic": "Net Zero Report — Chapter 1: Principles and Approach"
+  },
+  {
+    "question": "What does the policy timeline in Box 1.1 reveal about how the Government's advice request fits into the existing UK legislative framework?",
+    "answer": "The policy timeline in Box 1.1 reveals that the Government's advice request fits into the existing UK legislative framework by seeking an update to the advice on UK climate action following the Paris Agreement. This request is in line with the UK Government's previous statement that it is a matter of when, not if, a net-zero emissions target will be set. The request specifically asks for advice on the date by which the UK should achieve a net-zero greenhouse gas target or a net-zero carbon dioxide target, whether now is the right time to set such a target, the range of UK greenhouse gas emissions reductions needed by 2050, how these reductions might be delivered in key sectors of the economy, and the expected costs and benefits of meeting these targets. This aligns with the Climate Change Act 2008's requirement for regular reviews based on significant developments in scientific knowledge or international law, such as the Paris Agreement and the 2018 IPCC report.",
+    "source_file": "netzero_02_chapter1_principles.pdf",
+    "topic": "Net Zero Report — Chapter 1: Principles and Approach"
+  },
+  {
+    "question": "By how much has human activity already caused global average temperatures to rise above pre-industrial levels?",
+    "answer": "Human activity has already led to a 1°C rise in global average temperatures above pre-industrial levels.",
+    "source_file": "netzero_03_chapter2_climate_science.pdf",
+    "topic": "Net Zero Report — Chapter 2: Climate Science"
+  },
+  {
+    "question": "What does Figure 2.1 show about the relationship between observed global warming and the portion directly attributable to human activity?",
+    "answer": "Figure 2.1 shows the relationship between observed global warming and the portion directly attributable to human activity by plotting two lines: \"Observations\" and \"Human-induced warming.\" The \"Observations\" line represents the actual recorded global surface temperature anomalies relative to the 1850-1900 period, while the \"Human-induced warming\" line indicates the warming directly caused by human activities. The figure illustrates that human-induced warming has exceeded 1°C above pre-industrial levels and continues to increase at a rate of 0.2°C per decade, with observations closely tracking this trend.",
+    "source_file": "netzero_03_chapter2_climate_science.pdf",
+    "topic": "Net Zero Report — Chapter 2: Climate Science"
+  },
+  {
+    "question": "Does the chapter suggest that partial emissions reductions still provide meaningful climate protection even if full decarbonisation is not achieved?",
+    "answer": "Yes, the chapter suggests that partial emissions reductions still provide meaningful climate protection even if full decarbonisation is not achieved. It states that \"Any action to reduce emissions helps limit future climate risks. Risks can significantly increase even with relatively small increases in global average temperature. There are clear benefits from cutting global emissions faster and deeper whatever the currently expected level of warming.\" This indicates that reducing emissions, even if not achieving full decarbonisation, still offers significant benefits in terms of limiting future climate risks.",
+    "source_file": "netzero_03_chapter2_climate_science.pdf",
+    "topic": "Net Zero Report — Chapter 2: Climate Science"
+  },
+  {
+    "question": "What does the warming trajectory chart suggest would happen to global temperatures under a business-as-usual scenario by the end of the century?",
+    "answer": "The document states that under a business-as-usual scenario, the end-of-century projected warming was initially expected to be around 4 - 5°C. However, it notes that current policies have reduced this projection to approximately 3°C by the end of the century.",
+    "source_file": "netzero_03_chapter2_climate_science.pdf",
+    "topic": "Net Zero Report — Chapter 2: Climate Science"
+  },
+  {
+    "question": "What three lines of reasoning does the chapter present to justify the UK targeting more ambitious emissions reductions than the global average?",
+    "answer": "The chapter presents three lines of reasoning to justify the UK targeting more ambitious emissions reductions than the global average:\n\n1. **Capability**: The UK is well positioned to continue targeting and achieving emissions reductions that are more ambitious than those required by the world as a whole. It has rapidly reduced per person emissions since 1990, and UK emissions per person are now similar to the global average and are on a downward trajectory while global average per person emissions remain broadly constant. The Climate Change Act provides the stable institutional framework needed for the UK to continue setting and achieving long-term emissions reduction targets that are more ambitious than required of the world as a whole.\n\n2. **Equity**: An equal per person share of global emissions in 2050 would require a 72 - 93% reduction in UK greenhouse gas (GHG) emissions relative to 1990 for pathways that keep warming 'well-below' 2°C and an 85 - 104% reduction for 1.5°C. However, the UK has a large historical contribution to climate change, is a rich economy compared to the global average, and UK demand for goods and services currently adds to emissions overseas. These factors are reasons for the UK to go beyond the effort required from the world as a whole.\n\n3. **Supporting the global effort**: Setting and achieving more ambitious emissions reduction targets in the UK and other leading countries would have several advantages for the global effort. These include easing the pace of deployment of expensive decarbonisation options in developing countries and facilitating technology and institutional development and transfer. Pathways developed for this report that rebalance effort towards existing climate leaders and richer nations appear more plausible than many existing published pathways that imply that most of the required increase in effort would come from middle-income and developing countries.",
+    "source_file": "netzero_04_chapter3_uk_contribution.pdf",
+    "topic": "Net Zero Report — Chapter 3: UK Contribution to Global Effort"
+  },
+  {
+    "question": "What does Figure 3.1 show about the gap between current nationally determined contributions and the reductions needed to limit warming to 1.5°C?",
+    "answer": "Figure 3.1 illustrates the gap between current nationally determined contributions (NDCs) and the reductions needed to limit global warming to 1.5°C. According to the document, the aggregated global emissions under unconditional NDCs are projected to be 56 GtCO2e/yr (with a range of 52 - 58 GtCO2e/yr) in 2030. Conditional NDCs reduce this projection to 53 GtCO2e/yr (49 - 55 GtCO2e/yr). However, pathways consistent with limiting warming to 1.5°C would require global GHG emissions to be in the range of 22 - 30 GtCO2e/yr by 2030, indicating a significant gap between current commitments and the necessary reductions.",
+    "source_file": "netzero_04_chapter3_uk_contribution.pdf",
+    "topic": "Net Zero Report — Chapter 3: UK Contribution to Global Effort"
+  },
+  {
+    "question": "How does the Paris Agreement differ structurally from the Kyoto Protocol in how it assigns emissions reduction responsibilities to countries?",
+    "answer": "The Paris Agreement differs structurally from the Kyoto Protocol in that it does not allocate emissions reductions through a top-down system. Instead, it has a 'bottom-up' structure where individual countries determine their own emissions reduction goals, known as Nationally Determined Contributions (NDCs). These pledges are not legally binding until they are enshrined in national or territorial law. The Paris Agreement includes a five-yearly cycle of global stocktakes and new pledge submissions to increase ambition and move towards achieving the long-term temperature goal, whereas the Kyoto Protocol focused on creating a top-down structure that would allocate agreed emissions reductions to each Party.",
+    "source_file": "netzero_04_chapter3_uk_contribution.pdf",
+    "topic": "Net Zero Report — Chapter 3: UK Contribution to Global Effort"
+  },
+  {
+    "question": "What does the emissions gap chart suggest about whether unconditional national pledges made as of 2019 were sufficient to meet the Paris Agreement's temperature goals?",
+    "answer": "The emissions gap chart suggests that unconditional national pledges made as of 2019 were insufficient to meet the Paris Agreement's temperature goals. Specifically, the aggregated global emissions under unconditional NDCs were projected to be 56 GtCO2e/yr (with a range of 52 - 58 GtCO2e/yr) in 2030, which represents a 5% growth above 2017 levels by 2030. This level of emissions is higher than the levels consistent with limiting temperature rise to 'well-below' 2°C, which typically have 2030 global GHG emissions in the range of 38 - 45 GtCO2e/yr, and even further from the levels consistent with limiting warming to 1.5°C, which would be around 22 - 30 GtCO2e/yr. Therefore, the unconditional pledges fall short of the emissions reductions needed to meet the Paris Agreement's temperature goals.",
+    "source_file": "netzero_04_chapter3_uk_contribution.pdf",
+    "topic": "Net Zero Report — Chapter 3: UK Contribution to Global Effort"
+  },
+  {
+    "question": "What international aviation emissions scheme did ICAO member states agree to in 2016, and from what year does it become mandatory?",
+    "answer": "In 2016, ICAO member states agreed to the Carbon Offsetting and Reduction Scheme for International Aviation (CORSIA). However, the document does not specify from what year CORSIA becomes mandatory.",
+    "source_file": "netzero_05_chapter4_global_ambition.pdf",
+    "topic": "Net Zero Report — Chapter 4: Supporting Global Ambition"
+  },
+  {
+    "question": "According to Box 4.2, what is the estimated mitigation gap in GtCO2e that the CORSIA scheme needs to cover over its 2021–2035 operational period?",
+    "answer": "The provided document does not contain specific numerical data regarding the estimated mitigation gap in GtCO2e that the CORSIA scheme needs to cover over its 2021–2035 operational period. The information given in Box 4.2 focuses on the role of CORSIA in mitigating emissions from international aviation but does not provide the exact figures asked for in the question.",
+    "source_file": "netzero_05_chapter4_global_ambition.pdf",
+    "topic": "Net Zero Report — Chapter 4: Supporting Global Ambition"
+  },
+  {
+    "question": "Why is it in the UK's own national interest to help other countries reduce their greenhouse gas emissions?",
+    "answer": "It is in the UK's national interest to help other countries reduce their greenhouse gas emissions because global action on climate change reduces the exposure of the UK (and the world) to rising climate risks. Additionally, international collaboration can help the UK achieve its own emissions targets, for example, by ensuring strong governance is in place to develop genuinely sustainable supplies of biomass.",
+    "source_file": "netzero_05_chapter4_global_ambition.pdf",
+    "topic": "Net Zero Report — Chapter 4: Supporting Global Ambition"
+  },
+  {
+    "question": "What does Box 4.1's explanation of Article 6 mechanisms suggest were the main weaknesses of the Kyoto Protocol's Clean Development Mechanism?",
+    "answer": "According to Box 4.1's explanation, the main weaknesses of the Kyoto Protocol's Clean Development Mechanism (CDM) were:\n\n1. A failure to incentivize truly additional emissions reductions.\n2. Lack of transparency in governance.\n3. A general failure to contribute to sustainable development objectives.",
+    "source_file": "netzero_05_chapter4_global_ambition.pdf",
+    "topic": "Net Zero Report — Chapter 4: Supporting Global Ambition"
+  },
+  {
+    "question": "What percentage GHG reduction does the Committee's Further Ambition scenario achieve by 2050 relative to 1990 levels?",
+    "answer": "The Committee's Further Ambition scenario achieves a 96% GHG reduction by 2050 compared to 1990 levels.",
+    "source_file": "netzero_06_chapter5_reaching_netzero.pdf",
+    "topic": "Net Zero Report — Chapter 5: Reaching Net-Zero"
+  },
+  {
+    "question": "According to Figure 5.1, which sectors are shown contributing to UK greenhouse gas emissions in 2017 on the path toward the 2050 reduction target?",
+    "answer": "According to Figure 5.1, the sectors shown contributing to UK greenhouse gas emissions in 2017 on the path toward the 2050 reduction target are: International aviation and shipping (IAS), F-gases, Waste, Agriculture & LULUCF (Land Use, Land-Use Change, and Forestry), Transport, Buildings, Industry, and Power.",
+    "source_file": "netzero_06_chapter5_reaching_netzero.pdf",
+    "topic": "Net Zero Report — Chapter 5: Reaching Net-Zero"
+  },
+  {
+    "question": "What core measures does the chapter say UK government policy has already started to address on the path to the existing 80% target?",
+    "answer": "The chapter states that UK government policy has already begun to address the following core measures on the path to the existing 80% target: energy efficiency, the shift to low-carbon power, roll-out of electric vehicles and some low-carbon heating, some use of carbon capture usage and storage (CCUS) and electrification in industry, tree planting and on-farm measures, diversion of waste from landfill, and phasing out of fluorinated gases.",
+    "source_file": "netzero_06_chapter5_reaching_netzero.pdf",
+    "topic": "Net Zero Report — Chapter 5: Reaching Net-Zero"
+  },
+  {
+    "question": "Based on the emissions chart, which sector appears to represent the largest remaining challenge to eliminate in order to reach net-zero by 2050?",
+    "answer": "Based on the emissions chart and the information provided, the transport sector appears to represent a significant remaining challenge to eliminate in order to reach net-zero by 2050. The chart shows that transport emissions have increased since 1990 and have not shown significant reductions, with only 0.5% of kilometres driven being by low-carbon vehicles and biofuels having a 2% share. This indicates that substantial changes are needed in the transport sector to reduce its emissions effectively.",
+    "source_file": "netzero_06_chapter5_reaching_netzero.pdf",
+    "topic": "Net Zero Report — Chapter 5: Reaching Net-Zero"
+  },
+  {
+    "question": "By what factor must low-carbon electricity generation increase by 2050 according to the chapter's key delivery messages?",
+    "answer": "According to the chapter's key delivery messages, low-carbon electricity generation must quadruple by 2050.",
+    "source_file": "netzero_07_chapter6_delivering.pdf",
+    "topic": "Net Zero Report — Chapter 6: Delivering Net-Zero"
+  },
+  {
+    "question": "What does Figure 6.1 illustrate about the scale of transition implied by the Further Ambition scenario across the period to 2050?",
+    "answer": "The document does not provide specific details about Figure 6.1 or what it illustrates about the scale of transition implied by the Further Ambition scenario across the period to 2050. Therefore, I cannot provide a direct quote or specific details about the figure based on the information given. However, based on the context, it can be inferred that Figure 6.1 likely illustrates the necessity of strong near-term actions to avoid infeasible levels of disruption or the need for major scrappage schemes to achieve the Further Ambition scenario by 2050.",
+    "source_file": "netzero_07_chapter6_delivering.pdf",
+    "topic": "Net Zero Report — Chapter 6: Delivering Net-Zero"
+  },
+  {
+    "question": "What does the chapter say about the pace of current government plans relative to delivering even the existing 80% emissions reduction target?",
+    "answer": "The chapter states that many current government plans are insufficiently ambitious and others are proceeding too slowly, even for the current 80% target. Specifically, it mentions that:\n\n- 2040 is too late for the phase-out of petrol and diesel cars and vans, and current plans for delivering this are too vague.\n- Over ten years after the Climate Change Act was passed, there is still no serious plan for decarbonising UK heating systems and no large-scale trials have begun for either heat pumps or hydrogen.\n- Carbon capture and storage (CCUS), which is crucial to the delivery of net-zero GHG emissions and strategically important to the UK economy, is yet to get started.\n- Afforestation targets for 20,000 hectares/year across the UK nations (due to increase to 27,000 by 2025), are not being delivered, with less than 10,000 hectares planted on average over the last five years.\n- The voluntary approach that has been pursued so far for agriculture is not delivering reductions in emissions.",
+    "source_file": "netzero_07_chapter6_delivering.pdf",
+    "topic": "Net Zero Report — Chapter 6: Delivering Net-Zero"
+  },
+  {
+    "question": "What does the transition diagram suggest about the role of hydrogen and carbon capture and storage in the future UK energy system?",
+    "answer": "The document does not provide a specific transition diagram or detailed visual representation of the role of hydrogen and carbon capture and storage (CCS) in the future UK energy system. However, it does mention the importance of these technologies in achieving net-zero emissions. The text states that carbon capture and storage (CCS) is crucial to the delivery of net-zero greenhouse gas emissions and is strategically important to the UK economy. It also notes that there are currently no large-scale CCS projects in the UK, despite their global progress. Additionally, the document highlights the need for low-carbon hydrogen production, indicating that these technologies must be developed and integrated into the UK's energy infrastructure to meet the net-zero emissions target by 2050.",
+    "source_file": "netzero_07_chapter6_delivering.pdf",
+    "topic": "Net Zero Report — Chapter 6: Delivering Net-Zero"
+  },
+  {
+    "question": "What were the CCC's 2008 estimates for the annual cost of the 80% emissions reduction target by 2050, expressed as a percentage of GDP?",
+    "answer": "The CCC's 2008 estimates for the annual cost of the 80% emissions reduction target by 2050, expressed as a percentage of GDP, were 1 - 2% of GDP.",
+    "source_file": "netzero_08_chapter7_costs_benefits.pdf",
+    "topic": "Net Zero Report — Chapter 7: Costs and Benefits"
+  },
+  {
+    "question": "According to Box 7.1, why does the Expert Advisory Group consider static cost-benefit analysis unsuitable for evaluating deep decarbonisation?",
+    "answer": "According to the information provided in the document, not specifically Box 7.1, the Committee's judgment is that a static cost-benefit analysis is not a sensible approach for evaluating deep decarbonisation due to several reasons:\n\n1. The link from increased UK effort to reduced global warming is complicated, making it unclear whether to consider a reduction in warming from the current trajectory or the previous target.\n2. The incremental cost for a tighter UK target is based on a relatively static cost assessment, whereas in reality, cost development is much more dynamic.\n3. The uncertainties, irreversibility, and complex political economy involved in climate change make decisions over effort ill-suited to marginal cost-benefit analysis.\n4. The feedback from the expert Advisory Group also clearly supported this perspective.\n\nTherefore, the document suggests that the Expert Advisory Group considers static cost-benefit analysis unsuitable because of the dynamic nature of cost development, the complexity of the relationship between UK effort and global warming, and the inherent uncertainties and irreversibilities in climate change decisions.",
+    "source_file": "netzero_08_chapter7_costs_benefits.pdf",
+    "topic": "Net Zero Report — Chapter 7: Costs and Benefits"
+  },
+  {
+    "question": "What is the chapter's overall conclusion about whether pursuing net-zero is economically justified compared to the existing 80% target?",
+    "answer": "The chapter concludes that pursuing a net-zero greenhouse gas (GHG) target is economically justified compared to the existing 80% target. The overall economic impact of cutting emissions and the costs of increasing ambition to net-zero are likely to be small globally and in the UK and could turn out to be positive. The chapter emphasizes that accepting the cost of achieving net-zero is preferable to inaction given the range of risks from unchecked climate change. Additionally, rapid cost reductions for key technologies like offshore wind and batteries for electric vehicles mean the expected cost for the current target to reduce emissions by 80% by 2050 relative to 1990 has fallen significantly, making the net-zero target achievable within the same cost range as previously expected for the 80% target.",
+    "source_file": "netzero_08_chapter7_costs_benefits.pdf",
+    "topic": "Net Zero Report — Chapter 7: Costs and Benefits"
+  },
+  {
+    "question": "What does the Advisory Group's assessment in Box 7.1 imply about how a net-zero target could reduce the cost of capital and stimulate innovation?",
+    "answer": "The document does not provide specific details about how the Advisory Group's assessment in Box 7.1 implies that a net-zero target could reduce the cost of capital and stimulate innovation. The text mentions the Advisory Group supported a net-zero GHG target for the UK around 2050, citing benefits such as early investment in low-carbon technologies and approaches, which may deliver lower costs through learning-by-doing. However, it does not explicitly state how this would reduce the cost of capital or further stimulate innovation.",
+    "source_file": "netzero_08_chapter7_costs_benefits.pdf",
+    "topic": "Net Zero Report — Chapter 7: Costs and Benefits"
+  },
+  {
+    "question": "What specific legislative recommendation does the Committee make regarding UK greenhouse gas emissions and the target year to achieve them?",
+    "answer": "The Committee recommends that the UK should legislate as soon as possible to reach net-zero greenhouse gas emissions by 2050. The target should be legislated as a 100% reduction in greenhouse gases from 1990 and should cover all sectors of the economy, including international aviation and shipping.",
+    "source_file": "netzero_09_chapter8_recommendations.pdf",
+    "topic": "Net Zero Report — Chapter 8: Recommendations"
+  },
+  {
+    "question": "According to Figure 8.1, what net-zero target year is recommended for Scotland, and how does this differ from the UK-wide recommendation?",
+    "answer": "According to the document, Scotland should aim for net-zero GHGs by 2045, which is earlier than the UK-wide recommendation of 2050.",
+    "source_file": "netzero_09_chapter8_recommendations.pdf",
+    "topic": "Net Zero Report — Chapter 8: Recommendations"
+  },
+  {
+    "question": "Under what circumstances could international carbon credits serve as a contingency mechanism toward meeting the net-zero target?",
+    "answer": "According to the document, international carbon credits could serve as a contingency mechanism toward meeting the net-zero target only in the situation that, despite appropriate policy and effort, the expected emissions reduction does not ensue.",
+    "source_file": "netzero_09_chapter8_recommendations.pdf",
+    "topic": "Net Zero Report — Chapter 8: Recommendations"
+  },
+  {
+    "question": "What does the summary diagram in Figure 8.1 reveal about the different levels of climate ambition recommended for the UK's devolved nations?",
+    "answer": "The document does not provide specific details about a summary diagram in Figure 8.1 regarding different levels of climate ambition for the UK's devolved nations. However, the text does mention recommendations for Wales and Scotland separately:\n\n- Wales should set a target for a 95% reduction in emissions by 2050 relative to 1990, due to less opportunity for CO2 storage and relatively high agricultural emissions that are hard to reduce.\n- Scotland has proportionately greater potential for emissions removal and can adopt a more ambitious target. It should aim for net-zero GHGs by 2045, with interim targets of 70% by 2030 and 90% by 2040.\n\nTherefore, while Figure 8.1 is not detailed in the provided text, the recommendations for Wales and Scotland indicate different levels of ambition based on their unique circumstances.",
+    "source_file": "netzero_09_chapter8_recommendations.pdf",
+    "topic": "Net Zero Report — Chapter 8: Recommendations"
+  },
+  {
+    "question": "What was the total value of financial support issued by UK Export Finance in 2024/25, and how many UK exporters did it support?",
+    "answer": "In the 2024/25 period, UK Export Finance (UKEF) issued a total value of £14.5 billion in financial support and supported 667 UK exporters.",
+    "source_file": "ukef_01_foreword_and_overview.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Foreword & Performance Overview"
+  },
+  {
+    "question": "According to the Year in Figures summary, how many UK jobs were supported through UKEF's activities in 2024/25?",
+    "answer": "According to the Year in Figures summary, UKEF's activities in 2024/25 supported 70,000 UK jobs.",
+    "source_file": "ukef_01_foreword_and_overview.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Foreword & Performance Overview"
+  },
+  {
+    "question": "What was the largest single defence deal UKEF backed in 2024/25, which country was it for, and what was its approximate value?",
+    "answer": "The largest single defence deal UKEF backed in 2024/25 was for Poland, providing a financial commitment of £7.7 billion to Poland’s NAREW air defence programme.",
+    "source_file": "ukef_01_foreword_and_overview.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Foreword & Performance Overview"
+  },
+  {
+    "question": "What does the headline metrics summary indicate about UKEF's net financial return to the UK government beyond its direct export support activities?",
+    "answer": "The headline metrics summary indicates that UKEF returned £146 million in profit to the exchequer, highlighting its contribution towards fiscal responsibility in the UK government beyond its direct export support activities.",
+    "source_file": "ukef_01_foreword_and_overview.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Foreword & Performance Overview"
+  },
+  {
+    "question": "How many SMEs did UKEF support in 2024/25, and what is the five-year milestone target for annual SME support by 2029?",
+    "answer": "In 2024/25, UKEF supported 496 SMEs. The five-year milestone target is to support 1,000 SMEs per year by 2029.",
+    "source_file": "ukef_02_performance_analysis.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Performance Analysis"
+  },
+  {
+    "question": "According to the impact highlights table, how many countries were reached by UKEF-supported exports in 2024/25?",
+    "answer": "According to the impact highlights table, UKEF-supported exports reached 41 countries in 2024/25.",
+    "source_file": "ukef_02_performance_analysis.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Performance Analysis"
+  },
+  {
+    "question": "What new digital tool did UKEF launch to reduce friction for small businesses applying for export credit insurance, and what did it replace?",
+    "answer": "UKEF launched an online portal to streamline credit insurance applications, which removes PDF forms from the process, making it easier and faster for businesses, particularly SMEs, to secure government-backed export insurance. This new digital tool replaced the previous PDF forms used in the application process.",
+    "source_file": "ukef_02_performance_analysis.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Performance Analysis"
+  },
+  {
+    "question": "What does the performance metrics summary indicate about the estimated total impact of UKEF's activities on UK economic activity in 2024/25?",
+    "answer": "The performance metrics summary indicates that UKEF's activities had an estimated impact of £5.4 billion on UK economic activity in 2024/25.",
+    "source_file": "ukef_02_performance_analysis.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Performance Analysis"
+  },
+  {
+    "question": "What body sets the statutory limit on the commitments UKEF may enter into, and what framework governs its risk management consent?",
+    "answer": "The statutory limit on the commitments UKEF may enter into is set by Parliament. UKEF’s powers to operate within these limits require the consent of HM Treasury, which provides parameters within which UKEF can operate without needing explicit approval. The framework governing this risk management consent is the enterprise risk management framework designed, implemented, and reviewed by UKEF to manage and mitigate risk exposures.",
+    "source_file": "ukef_03_risk_and_environment.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Risk Management & TCFD"
+  },
+  {
+    "question": "What is UKEF's maximum annual exposure figure as reported in the key financial metrics?",
+    "answer": "UKEF's maximum annual exposure figure, as reported in the key financial metrics, is a total amount of nominal credit risk exposure set at £60 billion by HM Treasury, which will increase to £80 billion from April 2025.",
+    "source_file": "ukef_03_risk_and_environment.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Risk Management & TCFD"
+  },
+  {
+    "question": "How does UKEF ensure that all risks across the organisation are consistently identified, assessed, and mitigated?",
+    "answer": "UKEF ensures that all risks across the organisation are consistently identified, assessed, and mitigated by designing, implementing, and constantly reviewing the enterprise risk management framework. This framework allows all risks to be reviewed in a structured, consistent, and logical way, facilitating sound operational and strategic decision-making. Additionally, UKEF has a defined control environment to manage and mitigate risk exposures, and the Enterprise Risk and Credit Committee (ERiCC) comprises representatives of all relevant stakeholders within UKEF, working together to ensure that primary risks are appropriately managed within the suite of policies, procedures, and controls covering day-to-day operations.",
+    "source_file": "ukef_03_risk_and_environment.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Risk Management & TCFD"
+  },
+  {
+    "question": "What does UKEF's enterprise risk management framework suggest about how the department balances strategic objectives with operational risk controls?",
+    "answer": "UKEF's enterprise risk management framework suggests that the department balances strategic objectives with operational risk controls through a structured approach that involves three lines of defence. The framework identifies six primary risk categories, including strategic and business risk, financial risk, and operational risk, among others. Each primary risk is owned by one or more members of the Executive Committee, who oversee and manage these risks within UKEF’s risk appetite. For operational risk, the framework includes specific subcategories such as people, process, and infrastructure & cyber, each with designated oversight. This ensures that while strategic objectives are pursued, operational risks are managed via an embedded control framework that operates across the department. The framework remains dynamic and appropriate for the risks under management, with policies and risk management practices reviewed and enhanced as needed to adapt to a changing risk environment.",
+    "source_file": "ukef_03_risk_and_environment.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Risk Management & TCFD"
+  },
+  {
+    "question": "Who is the Chair of the UKEF Board, and who serves as Chief Executive Officer and Accounting Officer?",
+    "answer": "The Chair of the UKEF Board is Robert Gillespie, who also serves as the Chair of the Remuneration and Nominations Committee until June 2025, after which Jackie Keogh will become the Chair of the People Committee. The Chief Executive Officer and Accounting Officer of UKEF is Tim Reid.",
+    "source_file": "ukef_04_accountability_governance.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Accountability & Governance"
+  },
+  {
+    "question": "According to the board member listing, which committee does Jackie Keogh chair from June 2025?",
+    "answer": "According to the board member listing, Jackie Keogh chairs the People Committee from June 2025.",
+    "source_file": "ukef_04_accountability_governance.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Accountability & Governance"
+  },
+  {
+    "question": "How is ministerial responsibility for UKEF distributed across different government roles and departments?",
+    "answer": "Ministerial responsibility for UKEF is distributed across different government roles and departments as follows:\n\n- **Department for Business and Trade (DBT):** Provides a single, coherent voice for business inside government, focusing on growing the economy, new trade deals abroad, and a renewed culture of enterprise at home. UKEF has a Memorandum of Understanding with DBT to achieve shared objectives around economic growth, increasing UK exports, and contributing to the government’s wider trade agenda.\n\n- **HM Treasury:** Protects the taxpayer from excessive loss resulting from UKEF’s lending or contingent liabilities and the UK economy from economic detriment. HM Treasury exercises this role primarily by monitoring UKEF’s performance against spending plans, financial objectives agreed by ministers, and policy parameters set for UKEF.\n\n- **UK Government Investments (UKGI):** Provides advice to ministers with responsibility for UKEF on the exercise of ministerial responsibility. UKGI focuses on corporate governance, financial and operating performance, risk management, business planning, and strategic direction. A UKGI representative is an ex-officio member of UKEF’s Board.\n\n- **Export Guarantees Advisory Council (EGAC):** Provides advice to ministers and senior officials on the effectiveness of UKEF policies on a range of issues. The Chair of the EGAC sits on the UKEF Board as an ex-officio member.\n\nThese roles and departments work together to ensure effective governance and oversight of UKEF’s operations and objectives.",
+    "source_file": "ukef_04_accountability_governance.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Accountability & Governance"
+  },
+  {
+    "question": "Based on the board composition listing, how does UKEF distribute oversight responsibilities across its audit, risk, and people sub-committees?",
+    "answer": "Based on the document, UKEF distributes oversight responsibilities across its audit, risk, and people sub-committees as follows:\n\n- **Audit Committee**: \n  - Charlotte Morgan serves as the Chair of the Audit Committee.\n  - Jackie Keogh, Tim Frost, Kimberley Wiehl, and Vanessa Havard-Williams are also members of the Audit Committee.\n  - The committee reviews UKEF’s financial and operating performance, key performance indicators, and risk management processes.\n\n- **Risk Committee**: \n  - Tim Frost serves as the Chair of the Risk Committee.\n  - Jackie Keogh, Charlotte Morgan, and Kimberley Wiehl are also members of the Risk Committee.\n  - The committee focuses on reviewing UKEF’s risk management function and processes.\n\n- **People Committee (formerly Remuneration and Nominations Committee)**:\n  - Jackie Keogh serves as the Chair of the People Committee from June 2025.\n  - Charlotte Morgan, Tim Frost, and Kimberley Wiehl are also members of the People Committee.\n  - The committee handles remuneration and staff-related matters.\n\nEach committee has a specific focus, with the Audit Committee overseeing financial and operational performance, the Risk Committee managing risk processes, and the People Committee handling personnel and remuneration issues.",
+    "source_file": "ukef_04_accountability_governance.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Accountability & Governance"
+  },
+  {
+    "question": "What was UKEF's net premium income for 2024/25, and how did it compare to the prior year 2023/24?",
+    "answer": "UKEF's net premium income for 2024/25 was £1,062,260,000, which is an increase from the prior year 2023/24 when it was £15,578,000.",
+    "source_file": "ukef_05_financial_statements.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Financial Statements"
+  },
+  {
+    "question": "According to the Statement of Comprehensive Net Income, what was UKEF's total net operating income for the year ended 31 March 2025?",
+    "answer": "According to the Statement of Comprehensive Net Income, UKEF's total net operating income for the year ended 31 March 2025 was £147,202,000. This figure is derived from the \"Total recognised income and expense for 2024/25\" section, which shows a net income of £147,202,000 after accounting for movements in reserves and non-cash adjustments.",
+    "source_file": "ukef_05_financial_statements.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Financial Statements"
+  },
+  {
+    "question": "What does the income statement reveal about UKEF's overall profitability in 2024/25 compared to the previous financial year?",
+    "answer": "The income statement reveals that UKEF's overall profitability improved in 2024/25 compared to the previous financial year. Specifically, the income statement shows a comprehensive net income of £147,202,000 for 2024/25, which is an increase from the previous year's comprehensive net income of £49,301,000. This significant increase in profitability is primarily due to higher income from financial guarantee and insurance contracts, as well as higher income from investments and other financial instruments.",
+    "source_file": "ukef_05_financial_statements.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Financial Statements"
+  },
+  {
+    "question": "Based on the expense breakdown in the financial statements, which cost category saw the most significant increase between 2023/24 and 2024/25?",
+    "answer": "Based on the expense breakdown in the financial statements, the cost category that saw the most significant increase between 2023/24 and 2024/25 is \"Auditors' remuneration\" (as part of Non-Cash Adjustments in the Statement of Changes in Taxpayers’ Equity). The amount increased from £527 in 2023/24 to £828 in 2024/25. However, it is important to note that this is a relatively small category compared to others, and the largest expense categories (such as those related to insurance liabilities and financial guarantee liabilities) are not detailed in the provided summary.",
+    "source_file": "ukef_05_financial_statements.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Financial Statements"
+  },
+  {
+    "question": "What product type and maximum liability was provided by UKEF for the solar projects construction deal involving Kalyon Insaat in Abu Dhabi?",
+    "answer": "The product type provided by UKEF for the solar projects construction deal involving Kalyon Insaat in Abu Dhabi is \"General Export Facility\". The maximum liability for this deal is not explicitly stated in the provided document. However, it is mentioned in the business supported tables that the maximum liability for this deal is part of the figures provided there, which shows a total of £88,848,633.05 for the General Export Facility product type under the United States section, but the specific amount for Kalyon Insaat is not disclosed due to commercial confidentiality.",
+    "source_file": "ukef_06_annexes.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Annexes: Business Supported Tables"
+  },
+  {
+    "question": "According to the business supported tables, what was the maximum liability for the Airbus deal supporting Ethiopian Airlines, and what guarantee product was used?",
+    "answer": "According to the business supported tables, the maximum liability for the Airbus deal supporting Ethiopian Airlines was £21,808,535.15, and the guarantee product used was Asset Based Guarantee.",
+    "source_file": "ukef_06_annexes.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Annexes: Business Supported Tables"
+  },
+  {
+    "question": "What pattern emerges from the business supported annex regarding the industries and sectors where UKEF's export financing is most concentrated?",
+    "answer": "From the business supported annex, the following pattern emerges regarding the industries and sectors where UKEF's export financing is most concentrated:\n\n1. **Manufacturing**: This sector is heavily supported, with a significant number of exporters and a substantial maximum liability. The manufacturing sector includes various sub-sectors such as mining equipment, aerospace, and other industrial goods.\n\n2. **Professional, Scientific and Technical Activities**: This sector also receives considerable support, with a high number of exporters and a large maximum liability. This likely includes sectors such as engineering, consultancy, and technology services.\n\n3. **Information and Communication**: This sector is also prominently supported, with a high number of exporters and a notable maximum liability. This could include telecommunications, software, and IT services.\n\n4. **Water Supply, Sewerage, Waste Management and Remediation Activities**: This sector receives significant support, with a high number of exporters and a substantial maximum liability. This indicates support for environmental and infrastructure projects.\n\n5. **Transportation and Storage**: Although the number of exporters is lower, the maximum liability is still significant, indicating support for transportation-related projects and services.\n\n6. **Construction**: This sector receives notable support, with a high number of exporters and a substantial maximum liability, likely supporting infrastructure and building projects abroad.\n\nThese sectors indicate that UKEF's export financing is concentrated in industries that involve high-value goods and services, infrastructure projects, and technology-driven solutions.",
+    "source_file": "ukef_06_annexes.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Annexes: Business Supported Tables"
+  },
+  {
+    "question": "Based on the annex data, which aerospace transaction carries the highest maximum liability, and which exporter was involved?",
+    "answer": "The aerospace transaction with the highest maximum liability is an asset-based guarantee for Airbus S.A.S. to Aviation Capital Group LLC, carrying a maximum liability of £21,808,535.15.",
+    "source_file": "ukef_06_annexes.pdf",
+    "topic": "UKEF Annual Report 2024/25 — Annexes: Business Supported Tables"
+  }
+]

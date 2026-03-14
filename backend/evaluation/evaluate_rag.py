@@ -55,10 +55,10 @@ METRIC_REGISTRY = {
 # Toggle metrics here using True/False.
 METRIC_ENABLED = {
     "faithfulness": True,
-    "answer_relevancy": False,
-    "answer_correctness": False,
-    "context_precision": False,
-    "context_recall": False,
+    "answer_relevancy": True,
+    "answer_correctness": True,
+    "context_precision": True,
+    "context_recall": True,
 }
 
 
@@ -406,7 +406,7 @@ async def generate_rag_responses(dataset_path: str):
     with open(dataset_path, "r") as f:
         golden_data = json.load(f)
     
-    golden_data = golden_data[:50]
+    golden_data = golden_data[:120]
     
     questions = []
     ground_truths = []
@@ -501,6 +501,10 @@ def run_evaluation(data_dict):
         run_config=my_run_config
     )
 
+    import time
+    time.sleep(1)
+    sys.stdout.flush()
+
     print("\n✅ Evaluation Complete!")
     print(results)
 
@@ -543,7 +547,7 @@ def run_evaluation(data_dict):
     print(f"💾 Detailed results (with averages on line 1) saved to: {output_file}")
 
 async def main():
-    dataset_path = os.path.join(current_dir, "data", "wikieval_golden_dataset.json")
+    dataset_path = os.path.join(current_dir, "data", "golden_dataset.json")
     rag_data = await generate_rag_responses(dataset_path)
     run_evaluation(rag_data)
 
