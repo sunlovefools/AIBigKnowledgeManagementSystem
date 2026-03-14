@@ -119,6 +119,38 @@ async def delete_children_by_parent_id(parent_id: str) -> int:
         raise RuntimeError(f"Child chunk deletion failed: {e}")
 
 
+async def delete_children_by_file_id(file_id: str) -> int:
+    """
+    Delete all child chunks that belong to the same logical file.
+
+    This uses `file_metadata.file_id` directly so file deletion does not need to
+    iterate over every parent chunk just to clear vector rows.
+    """
+    print(f"Deleting child chunks for file_id={file_id}...")
+    try:
+        deleted = await VECTOR_STORE.adelete_by_metadata_filter(
+            {
+                "file_metadata.file_id": file_id,
+            }
+        )
+        if isinstance(deleted, (int, float)):
+            deleted_count = int(deleted)
+        elif isinstance(deleted, dict):
+            deleted_count = int(
+                deleted.get("deleted_count")
+                or deleted.get("deletedCount")
+                or deleted.get("n")
+                or 0
+            )
+        else:
+            deleted_count = int(bool(deleted))
+        print(f"  Deleted {deleted_count} child chunks for file_id={file_id}")
+        return deleted_count
+    except Exception as e:
+        print(f"  Failed to delete child chunks for file_id={file_id}: {e}")
+        raise RuntimeError(f"Child chunk deletion by file_id failed: {e}")
+
+
 async def delete_parent_document(parent_id: str) -> None:
     """
     Deletes a single parent document from the Parent Store.
@@ -134,6 +166,39 @@ async def delete_parent_document(parent_id: str) -> None:
     except Exception as e:
         print(f"  ❌ Failed to delete parent document: {e}")
         raise RuntimeError(f"Parent document deletion failed: {e}")
+
+
+async def delete_parent_documents_by_file_id(file_id: str) -> int:
+    """
+    Delete every parent document row for a logical file ID.
+
+    We pre-count matching rows first so callers get a stable deleted count even
+    if Astra's raw `delete_many` response format varies.
+    """
+
+    def _delete_rows() -> int:
+        collection = PARENT_STORE.collection
+        filter_doc = {"value.metadata.file_metadata.file_id": file_id}
+        rows = [row for row in collection.find(filter_doc) if isinstance(row, dict)]
+        if not rows:
+            return 0
+        if hasattr(collection, "delete_many"):
+            collection.delete_many(filter_doc)
+        else:
+            for row in rows:
+                parent_id = str(row.get("_id", "")).strip()
+                if parent_id:
+                    collection.delete_one({"_id": parent_id})
+        return len(rows)
+
+    print(f"Deleting parent documents for file_id={file_id}...")
+    try:
+        deleted_count = await asyncio.to_thread(_delete_rows)
+        print(f"  Deleted {deleted_count} parent documents for file_id={file_id}")
+        return deleted_count
+    except Exception as e:
+        print(f"  Failed to delete parent documents for file_id={file_id}: {e}")
+        raise RuntimeError(f"Parent document deletion by file_id failed: {e}")
 
 
 def _normalize_parent_document(raw_doc: Any) -> Dict[str, Any] | None:

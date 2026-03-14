@@ -192,6 +192,26 @@ def _get_client_for_config(config: S3Config) -> Any:
     )
 
 
+def _is_s3_upload_enabled() -> bool:
+    """
+    Treat S3 cleanup as opt-in.
+
+    Deletion should be skipped quietly when uploads were never enabled for the
+    environment, because many files may have been ingested without any S3 sidecar
+    artifacts to clean up.
+    """
+    return (os.getenv("AWS_S3_UPLOAD_ENABLED") or "").strip().lower() == "true"
+
+
+def _build_docling_file_prefix(file_id: str, prefix: str | None = None) -> str:
+    normalized_file_id = (file_id or "").strip()
+    if not normalized_file_id:
+        raise ValueError("file_id is required to build a Docling S3 prefix.")
+
+    root_prefix = (prefix or "docling-previews").strip("/ ")
+    return f"{root_prefix}/{normalized_file_id}/"
+
+
 def upload_bytes_to_s3(
     data: bytes,
     key: str,
@@ -282,3 +302,92 @@ def generate_presigned_get_url(
         Params={"Bucket": resolved_bucket, "Key": key},
         ExpiresIn=ttl,
     )
+
+
+def delete_docling_artifacts_by_file_id(file_id: str) -> dict[str, Any]:
+    """
+    Best-effort cleanup for Docling S3 artifacts under one file prefix.
+
+    Vector DB deletion is the source of truth for removing a file. S3 cleanup is
+    advisory and must not block success when uploads were disabled, the prefix is
+    empty, or the bucket no longer contains those objects.
+    """
+    if not _is_s3_upload_enabled():
+        print(f"S3 cleanup skipped for file_id={file_id} because uploads are disabled.")
+        return {
+            "s3Status": "skipped",
+            "s3DeletedObjects": 0,
+            "warnings": [],
+        }
+
+    deleted_objects = 0
+    try:
+        config = _load_s3_config()
+        if config is None:
+            return {
+                "s3Status": "skipped",
+                "s3DeletedObjects": 0,
+                "warnings": [],
+            }
+
+        client = _get_client_for_config(config)
+        prefix = _build_docling_file_prefix(file_id=file_id, prefix=config.prefix)
+
+        keys: list[str] = []
+        continuation_token: str | None = None
+        while True:
+            params: dict[str, Any] = {
+                "Bucket": config.bucket,
+                "Prefix": prefix,
+            }
+            if continuation_token:
+                params["ContinuationToken"] = continuation_token
+
+            response = client.list_objects_v2(**params)
+            contents = response.get("Contents") or []
+            keys.extend(
+                str(item.get("Key"))
+                for item in contents
+                if isinstance(item, dict) and item.get("Key")
+            )
+
+            if not response.get("IsTruncated"):
+                break
+            continuation_token = response.get("NextContinuationToken")
+
+        if not keys:
+            print(f"No S3 artifacts found for file_id={file_id} under prefix={prefix}")
+            return {
+                "s3Status": "not_found",
+                "s3DeletedObjects": 0,
+                "warnings": [],
+            }
+
+        for index in range(0, len(keys), 1000):
+            batch = keys[index:index + 1000]
+            delete_response = client.delete_objects(
+                Bucket=config.bucket,
+                Delete={
+                    "Objects": [{"Key": key} for key in batch],
+                    "Quiet": True,
+                },
+            )
+            deleted_objects += len(delete_response.get("Deleted") or [])
+            delete_errors = delete_response.get("Errors") or []
+            if delete_errors:
+                raise RuntimeError(f"S3 reported delete errors: {delete_errors}")
+
+        print(f"Deleted {deleted_objects} S3 artifact(s) for file_id={file_id}")
+        return {
+            "s3Status": "deleted",
+            "s3DeletedObjects": deleted_objects,
+            "warnings": [],
+        }
+    except Exception as exc:
+        warning = f"S3 cleanup failed for file_id={file_id}: {exc}"
+        print(warning)
+        return {
+            "s3Status": "failed",
+            "s3DeletedObjects": deleted_objects,
+            "warnings": [warning],
+        }

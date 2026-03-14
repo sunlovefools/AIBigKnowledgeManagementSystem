@@ -165,3 +165,94 @@ def test_upload_bytes_requires_explicit_config():
 def test_generate_presigned_requires_explicit_config():
     with pytest.raises(ValueError, match="S3 config is required"):
         store.generate_presigned_get_url(key="k")
+
+
+def test_delete_docling_artifacts_skips_when_upload_disabled(monkeypatch):
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "false")
+    result = store.delete_docling_artifacts_by_file_id("file-uuid-1")
+    assert result["s3Status"] == "skipped"
+    assert result["s3DeletedObjects"] == 0
+    assert result["warnings"] == []
+
+
+def test_delete_docling_artifacts_returns_not_found_when_prefix_empty(monkeypatch):
+    class _FakeClient:
+        def list_objects_v2(self, **kwargs):
+            return {"Contents": [], "IsTruncated": False}
+
+    cfg = store.S3Config(
+        bucket="bucket-a",
+        region="ap-southeast-1",
+        access_key_id="ak",
+        secret_access_key="sk",
+        prefix="docling-previews",
+        upload_enabled=True,
+    )
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setattr(store, "_load_s3_config", lambda: cfg)
+    monkeypatch.setattr(store, "_get_client_for_config", lambda _cfg: _FakeClient())
+
+    result = store.delete_docling_artifacts_by_file_id("file-uuid-1")
+    assert result["s3Status"] == "not_found"
+    assert result["s3DeletedObjects"] == 0
+    assert result["warnings"] == []
+
+
+def test_delete_docling_artifacts_deletes_all_keys(monkeypatch):
+    class _FakeClient:
+        def __init__(self):
+            self.deleted_batches = []
+
+        def list_objects_v2(self, **kwargs):
+            return {
+                "Contents": [
+                    {"Key": "docling-previews/file-uuid-1/images/a.png"},
+                    {"Key": "docling-previews/file-uuid-1/table_data/a.json"},
+                ],
+                "IsTruncated": False,
+            }
+
+        def delete_objects(self, **kwargs):
+            self.deleted_batches.append(kwargs["Delete"]["Objects"])
+            return {"Deleted": kwargs["Delete"]["Objects"]}
+
+    fake_client = _FakeClient()
+    cfg = store.S3Config(
+        bucket="bucket-a",
+        region="ap-southeast-1",
+        access_key_id="ak",
+        secret_access_key="sk",
+        prefix="docling-previews",
+        upload_enabled=True,
+    )
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setattr(store, "_load_s3_config", lambda: cfg)
+    monkeypatch.setattr(store, "_get_client_for_config", lambda _cfg: fake_client)
+
+    result = store.delete_docling_artifacts_by_file_id("file-uuid-1")
+    assert result["s3Status"] == "deleted"
+    assert result["s3DeletedObjects"] == 2
+    assert len(fake_client.deleted_batches) == 1
+
+
+def test_delete_docling_artifacts_returns_failed_when_client_errors(monkeypatch):
+    class _FakeClient:
+        def list_objects_v2(self, **kwargs):
+            raise RuntimeError("list failed")
+
+    cfg = store.S3Config(
+        bucket="bucket-a",
+        region="ap-southeast-1",
+        access_key_id="ak",
+        secret_access_key="sk",
+        prefix="docling-previews",
+        upload_enabled=True,
+    )
+    monkeypatch.setenv("AWS_S3_UPLOAD_ENABLED", "true")
+    monkeypatch.setattr(store, "_load_s3_config", lambda: cfg)
+    monkeypatch.setattr(store, "_get_client_for_config", lambda _cfg: _FakeClient())
+
+    result = store.delete_docling_artifacts_by_file_id("file-uuid-1")
+    assert result["s3Status"] == "failed"
+    assert result["s3DeletedObjects"] == 0
+    assert result["warnings"]

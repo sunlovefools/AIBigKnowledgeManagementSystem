@@ -7,6 +7,7 @@ type ModificationPanelProps = {
     activeTabState: FileTabState | null;
     openTabs: string[];            // fileIds
     isLoadingFiles: boolean;
+    deletingFileId: string | null;
     editingContent: string;
     isEditing: boolean;
     isSaving: boolean;
@@ -28,6 +29,7 @@ type ModificationPanelProps = {
     onTabClose: (fileId: string) => void;
     onLoadMoreActiveTab: () => void;
     onStartEditing: () => void;
+    onDeleteActiveFile: () => void;
     onEditingContentChange: (nextContent: string) => void;
     onCancelEditing: () => void;
     onSaveEditing: () => void;
@@ -43,6 +45,7 @@ export default function ModificationPanel({
     activeTabState,
     openTabs,
     isLoadingFiles,
+    deletingFileId,
     editingContent,
     isEditing,
     isSaving,
@@ -64,6 +67,7 @@ export default function ModificationPanel({
     onTabClose,
     onLoadMoreActiveTab,
     onStartEditing,
+    onDeleteActiveFile,
     onEditingContentChange,
     onCancelEditing,
     onSaveEditing,
@@ -78,6 +82,7 @@ export default function ModificationPanel({
         .map((chunk) => chunk.content)
         .join("\n\n")
         .trim();
+    const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
 
     const handleContentScroll = () => {
         if (!contentRef.current || !activeTabState || activeTabState.isLoading || !activeTabState.hasMore) return;
@@ -288,14 +293,24 @@ export default function ModificationPanel({
                             <div className="preview-header">
                                 <h4>Full Text</h4>
                                 {!isEditing && (
-                                    <button
-                                        className="edit-btn"
-                                        type="button"
-                                        onClick={onStartEditing}
-                                        disabled={isSaving || activeTabState.isLoading}
-                                    >
-                                        Edit
-                                    </button>
+                                    <div className="document-action-group">
+                                        <button
+                                            className="edit-btn"
+                                            type="button"
+                                            onClick={onStartEditing}
+                                            disabled={isSaving || isDeletingActiveFile || activeTabState.isLoading}
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            className="delete-btn"
+                                            type="button"
+                                            onClick={onDeleteActiveFile}
+                                            disabled={isSaving || isDeletingActiveFile || activeTabState.isLoading}
+                                        >
+                                            {isDeletingActiveFile ? "Deleting..." : "Delete"}
+                                        </button>
+                                    </div>
                                 )}
                             </div>
 

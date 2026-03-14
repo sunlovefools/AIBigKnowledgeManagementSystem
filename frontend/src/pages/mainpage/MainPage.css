@@ -377,6 +377,8 @@ html,
 .sidebar-document-item {
     text-align: left;
     width: 100%;
+    flex: 1;
+    min-width: 0;
     border: 1px solid var(--border-color);
     background: var(--panel);
     border-radius: 10px;
@@ -828,6 +830,95 @@ html,
     display: none;
 }
 
+.delete-confirm-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    background: rgba(15, 23, 42, 0.28);
+    backdrop-filter: blur(4px);
+}
+
+.delete-confirm-dialog {
+    width: min(420px, 100%);
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    border-radius: 18px;
+    box-shadow: 0 22px 60px rgba(15, 23, 42, 0.18);
+    padding: 22px 22px 18px;
+}
+
+.delete-confirm-eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #b42318;
+    margin-bottom: 10px;
+}
+
+.delete-confirm-title {
+    margin: 0;
+    font-size: 1.05rem;
+    line-height: 1.35;
+    color: var(--text-primary);
+}
+
+.delete-confirm-text {
+    margin: 10px 0 0;
+    font-size: 0.88rem;
+    line-height: 1.55;
+    color: var(--text-secondary);
+}
+
+.delete-confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 18px;
+}
+
+.delete-confirm-cancel,
+.delete-confirm-submit {
+    border-radius: 999px;
+    padding: 8px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, color 0.2s, opacity 0.2s;
+}
+
+.delete-confirm-cancel {
+    background: transparent;
+    border: 1px solid #dbe2ea;
+    color: var(--text-secondary);
+}
+
+.delete-confirm-cancel:hover:not(:disabled) {
+    background: #f8fafc;
+    color: var(--text-primary);
+}
+
+.delete-confirm-submit {
+    background: #111827;
+    border: 1px solid #111827;
+    color: white;
+}
+
+.delete-confirm-submit:hover:not(:disabled) {
+    background: #1f2937;
+    border-color: #1f2937;
+}
+
+.delete-confirm-cancel:disabled,
+.delete-confirm-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
 @media (max-width: 1024px) {
     .resize-handle {
         display: none;
@@ -1131,22 +1222,59 @@ html,
   font-weight: 600;
 }
 
-.edit-btn {
-  background: var(--accent-color);
-  color: white;
-  border: none;
-  padding: 4px 10px;
-  border-radius: 6px;
+.document-action-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+  padding: 6px 14px;
+  border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s, border-color 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
-.edit-btn:hover {
-  background: var(--accent-hover);
+.edit-btn {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  color: white;
+  border: 1px solid #2563eb;
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.16);
+}
+
+.edit-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1d4ed8, #1e40af);
+  border-color: #1d4ed8;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(37, 99, 235, 0.22);
+}
+
+.delete-btn {
+  background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+  color: #b42318;
+  border: 1px solid #fda4af;
+  box-shadow: 0 4px 10px rgba(244, 63, 94, 0.12);
+}
+
+.delete-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #ffe4e6, #fecdd3);
+  border-color: #fb7185;
+  color: #9f1239;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(244, 63, 94, 0.18);
+}
+
+.edit-btn:disabled,
+.delete-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 .edit-textarea {
@@ -1236,7 +1364,7 @@ html,
 /* Sidebar: checkbox + wrapper */
 .sidebar-document-item-wrapper {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 8px;
     padding: 2px 0;
 }
@@ -1247,7 +1375,7 @@ html,
 }
 
 .sidebar-file-checkbox {
-    margin-top: 10px;
+    margin-top: 0;
     flex-shrink: 0;
     width: 16px;
     height: 16px;

@@ -10,12 +10,15 @@ from typing import Any
 
 from app.vectordb.vectordb import (
     PARENT_STORE,
+    delete_children_by_file_id,
     delete_children_by_parent_id,
+    delete_parent_documents_by_file_id,
     delete_parent_document,
     upsert_documents,
 )
 from app.service.rag.ingestion.chunker import split_parent_child_chunks
 from app.service.rag.ingestion.chunk_polisher import polish_chunks
+from app.service.storage.s3_image_store import delete_docling_artifacts_by_file_id
 from debug.debug_logger import log_vector_db_result
 
 
@@ -76,6 +79,25 @@ class ReconstructionService:
             "content": content,
             "chunkNumber": chunk_number_int,
         }
+
+    @staticmethod
+    async def _find_first_parent_row_for_file_id(file_id: str) -> dict | None:
+        """
+        Fetch a single parent row for a file ID.
+
+        File-level operations only need one representative row to validate
+        existence and recover the human-readable file name.
+        """
+
+        def _find_one() -> dict | None:
+            collection = PARENT_STORE.collection
+            cursor = collection.find({"value.metadata.file_metadata.file_id": file_id})
+            for row in cursor:
+                if isinstance(row, dict):
+                    return row
+            return None
+
+        return await asyncio.to_thread(_find_one)
 
     # ------------------------------------------------------------------
     # Pagination: parent chunks per fileId
@@ -294,17 +316,7 @@ class ReconstructionService:
             if not file_id:
                 continue
             try:
-                def _find_one(fid: str = file_id) -> dict | None:
-                    collection = PARENT_STORE.collection
-                    cursor = collection.find(
-                        {"value.metadata.file_metadata.file_id": fid}
-                    )
-                    for row in cursor:
-                        if isinstance(row, dict):
-                            return row
-                    return None
-
-                row = await asyncio.to_thread(_find_one)
+                row = await ReconstructionService._find_first_parent_row_for_file_id(file_id)
                 if row:
                     fields = ReconstructionService._extract_parent_row_fields(row)
                     if fields:
@@ -313,6 +325,59 @@ class ReconstructionService:
                 print(f"⚠️  Could not resolve fileName for file_id={file_id}: {error}")
                 result[file_id] = "unknown"
         return result
+
+    @staticmethod
+    async def delete_file(file_id: str) -> dict:
+        """
+        Delete one logical file from Astra and then attempt S3 cleanup.
+
+        The database delete is authoritative. S3 cleanup is best-effort so a
+        missing prefix or disabled upload setting does not resurrect the file.
+        """
+        print(f"Deleting file, file_id={file_id}...")
+
+        try:
+            row = await ReconstructionService._find_first_parent_row_for_file_id(file_id)
+            if row is None:
+                raise FileNotFoundError(f"No parent chunks found for file_id={file_id}")
+
+            fields = ReconstructionService._extract_parent_row_fields(row) or {}
+            file_name = str(fields.get("fileName") or "Unknown")
+
+            deleted_child_chunks = await delete_children_by_file_id(file_id)
+            deleted_parent_chunks = await delete_parent_documents_by_file_id(file_id)
+
+            if deleted_parent_chunks <= 0:
+                raise RuntimeError(
+                    f"Parent chunk deletion removed no rows for file_id={file_id}"
+                )
+
+            s3_cleanup = delete_docling_artifacts_by_file_id(file_id)
+
+            print(
+                "Delete completed for file_id=%s (parents=%s children=%s s3=%s)"
+                % (
+                    file_id,
+                    deleted_parent_chunks,
+                    deleted_child_chunks,
+                    s3_cleanup["s3Status"],
+                )
+            )
+            return {
+                "fileId": file_id,
+                "fileName": file_name,
+                "deletedParentChunks": deleted_parent_chunks,
+                "deletedChildChunks": deleted_child_chunks,
+                "s3Status": s3_cleanup["s3Status"],
+                "s3DeletedObjects": s3_cleanup["s3DeletedObjects"],
+                "warnings": list(s3_cleanup.get("warnings", [])),
+            }
+        except FileNotFoundError:
+            raise
+        except Exception as error:
+            print(f"Failed to delete file {file_id}: {error}")
+            traceback.print_exc()
+            raise RuntimeError(f"File deletion failed: {str(error)}")
 
     @staticmethod
     async def get_document_by_id(parent_id: str) -> dict | None:

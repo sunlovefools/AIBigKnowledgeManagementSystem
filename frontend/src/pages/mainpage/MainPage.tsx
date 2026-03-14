@@ -16,6 +16,7 @@ export default function MainPage() {
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
+    const [pendingDeleteFile, setPendingDeleteFile] = useState<{ fileId: string; fileName: string } | null>(null);
 
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -38,10 +39,12 @@ export default function MainPage() {
         files,
         isLoadingFiles,
         fileListError,
+        deletingFileId,
         openTabs,
         activeTab,
         activeTabState,
         handleRefreshDocuments,
+        deleteFile,
         openDocumentTab,
         closeDocumentTab,
         setActiveDocumentTab,
@@ -107,6 +110,48 @@ export default function MainPage() {
             void handleComposerSend();
         }
     };
+
+    const handleConfirmDeleteFile = useCallback(async () => {
+        if (!pendingDeleteFile) return;
+        const { fileId, fileName } = pendingDeleteFile;
+        const result = await deleteFile(fileId);
+        if (!result.ok || !result.data) {
+            appendMessage({
+                role: "ai",
+                text: result.error ?? `Failed to delete "${fileName}".`,
+            });
+            return;
+        }
+
+        setSelectedFileIds((prev) => {
+            if (!prev.has(fileId)) return prev;
+            const next = new Set(prev);
+            next.delete(fileId);
+            return next;
+        });
+
+        const warningText = result.data.warnings.length > 0
+            ? ` Warnings: ${result.data.warnings.join(" ")}`
+            : "";
+        appendMessage({
+            role: "ai",
+            text:
+                `Deleted "${result.data.fileName}" from the knowledge base ` +
+                `(${result.data.deletedParentChunks} parent chunks, ${result.data.deletedChildChunks} child chunks). ` +
+                `S3 cleanup: ${result.data.s3Status}.${warningText}`,
+        });
+        setPendingDeleteFile(null);
+    }, [appendMessage, deleteFile, pendingDeleteFile]);
+
+    const handleRequestDeleteFile = useCallback((fileId: string) => {
+        const fileName = files.find((file) => file.fileId === fileId)?.fileName ?? fileId;
+        setPendingDeleteFile({ fileId, fileName });
+    }, [files]);
+
+    const handleCancelDeleteFile = useCallback(() => {
+        if (deletingFileId) return;
+        setPendingDeleteFile(null);
+    }, [deletingFileId]);
 
     const { selectedFile, isUploading, handleFileSelect, handleUpload, clearFile } = useFileUpload({
         onUploadMessage: (message) => appendMessage({ role: "ai", text: message }),
@@ -238,6 +283,7 @@ export default function MainPage() {
                     activeTab={activeTab}
                     activeTabState={activeTabState}
                     isLoadingFiles={isLoadingFiles}
+                    deletingFileId={deletingFileId}
                     editingContent={editingDocumentContent}
                     isEditing={isEditingActiveDocument}
                     isSaving={isSavingActiveDocument}
@@ -251,6 +297,7 @@ export default function MainPage() {
                     onTabClose={closeDocumentTab}
                     onLoadMoreActiveTab={loadMoreActiveTab}
                     onStartEditing={startEditingActiveDocument}
+                    onDeleteActiveFile={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
                     onEditingContentChange={setActiveEditingDocumentContent}
                     onCancelEditing={cancelEditingActiveDocument}
                     onSaveEditing={() => { void saveEditingActiveDocument(); }}
@@ -274,6 +321,48 @@ export default function MainPage() {
             )}
             {isMobile && isSidebarOpen && (
                 <button className="panel-backdrop" onClick={closeSidebar} aria-label="Close sidebar" />
+            )}
+
+            {pendingDeleteFile && (
+                <div
+                    className="delete-confirm-overlay"
+                    onClick={handleCancelDeleteFile}
+                    role="presentation"
+                >
+                    <div
+                        className="delete-confirm-dialog"
+                        onClick={(event) => event.stopPropagation()}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="delete-confirm-title"
+                    >
+                        <div className="delete-confirm-eyebrow">Delete file</div>
+                        <h3 id="delete-confirm-title" className="delete-confirm-title">
+                            Remove "{pendingDeleteFile.fileName}"?
+                        </h3>
+                        <p className="delete-confirm-text">
+                            This removes the file from the Knowledge Base.
+                        </p>
+                        <div className="delete-confirm-actions">
+                            <button
+                                className="delete-confirm-cancel"
+                                type="button"
+                                onClick={handleCancelDeleteFile}
+                                disabled={Boolean(deletingFileId)}
+                            >
+                                Keep file
+                            </button>
+                            <button
+                                className="delete-confirm-submit"
+                                type="button"
+                                onClick={() => { void handleConfirmDeleteFile(); }}
+                                disabled={Boolean(deletingFileId)}
+                            >
+                                {deletingFileId ? "Deleting..." : "Delete"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
         </div>
     );

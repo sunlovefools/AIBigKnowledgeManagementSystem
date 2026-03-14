@@ -4,6 +4,7 @@ Handles file update operations.
 """
 
 import traceback
+from typing import Literal
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
 
@@ -45,6 +46,17 @@ class UpdateFileResponse(BaseModel):
     size: int
     parentChunks: int
     chunks: int
+
+
+class DeleteFileResponse(BaseModel):
+    """Response for deleting one merged file and its sidecar artifacts."""
+    fileId: str
+    fileName: str
+    deletedParentChunks: int
+    deletedChildChunks: int
+    s3Status: Literal["deleted", "not_found", "skipped", "failed"]
+    s3DeletedObjects: int
+    warnings: list[str] = []
 
 
 class LlmEditPreviewRequest(BaseModel):
@@ -216,4 +228,36 @@ async def update_file(file_id: str, payload: UpdateFileRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update file: {str(e)}",
+        )
+
+# Endpoint to delete one merged file by file ID from vector database and best-effort S3.
+@router.delete("/files/{file_id}", response_model=DeleteFileResponse)
+async def delete_file_by_id(file_id: str):
+    """Delete one merged file by file ID from Astra and best-effort S3."""
+    try:
+        deleted = await ReconstructionService.delete_file(file_id=file_id)
+        return DeleteFileResponse(
+            fileId=deleted["fileId"],
+            fileName=deleted["fileName"],
+            deletedParentChunks=deleted["deletedParentChunks"],
+            deletedChildChunks=deleted["deletedChildChunks"],
+            s3Status=deleted["s3Status"],
+            s3DeletedObjects=deleted["s3DeletedObjects"],
+            warnings=deleted["warnings"],
+        )
+    except FileNotFoundError as error:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=str(error),
+        )
+    except RuntimeError as error:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database service error: {str(error)}",
+        )
+    except Exception as error:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to delete file: {str(error)}",
         )

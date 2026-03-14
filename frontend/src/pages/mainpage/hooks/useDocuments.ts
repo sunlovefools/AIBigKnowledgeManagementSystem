@@ -24,6 +24,16 @@ type UpdateFileResponse = {
     chunks: number;
 };
 
+type DeleteFileResponse = {
+    fileId: string;
+    fileName: string;
+    deletedParentChunks: number;
+    deletedChildChunks: number;
+    s3Status: "deleted" | "not_found" | "skipped" | "failed";
+    s3DeletedObjects: number;
+    warnings: string[];
+};
+
 type AgentModifyResponse = {
     intention: string;
     proposals: AgentProposal[];
@@ -32,6 +42,12 @@ type AgentModifyResponse = {
 type RequestAgentResult = {
     ok: boolean;
     summary?: string;
+    error?: string;
+};
+
+type DeleteFileResult = {
+    ok: boolean;
+    data?: DeleteFileResponse;
     error?: string;
 };
 
@@ -65,6 +81,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
     const [editingDraftByFileId, setEditingDraftByFileId] = useState<Record<string, string>>({});
     const [savingFileId, setSavingFileId] = useState<string | null>(null);
+    const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
 
     // Agent state
@@ -254,6 +271,92 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     }, [confirmDiscardUnsavedChanges, fetchFiles]);
 
     const invalidateDocumentCache = useCallback(() => setIsDocsCached(false), []);
+
+    const deleteFile = useCallback(
+        async (fileId: string): Promise<DeleteFileResult> => {
+            if (!fileId) return { ok: false, error: "Missing file ID." };
+            if (deletingFileId) return { ok: false, error: "Another delete is already in progress." };
+
+            setDeletingFileId(fileId);
+            setSaveError(null);
+
+            try {
+                const response = await axios.delete<DeleteFileResponse>(
+                    `${API_BASE}/api/modifications/files/${fileId}`
+                );
+                const deleted = response.data;
+
+                // Capture the current file-scoped parent IDs once so every state
+                // cleanup step removes the same stale proposal/document entries.
+                const parentIdsForFile = new Set<string>([
+                    ...(tabStates[fileId]?.chunks ?? []).map((chunk) => chunk.parentId),
+                    ...agentProposals
+                        .filter((proposal) => proposal.fileId === fileId)
+                        .map((proposal) => proposal.parentId),
+                    ...Array.from(agentAcceptedMap.values())
+                        .filter((proposal) => proposal.fileId === fileId)
+                        .map((proposal) => proposal.parentId),
+                ]);
+
+                setFiles((prev) => prev.filter((file) => file.fileId !== fileId));
+                setOpenTabs((prev) => {
+                    const idx = prev.indexOf(fileId);
+                    if (idx < 0) return prev;
+                    const next = prev.filter((id) => id !== fileId);
+                    setActiveTab((prevActive) => {
+                        if (prevActive !== fileId) return prevActive;
+                        return next.length === 0 ? null : next[Math.min(idx, next.length - 1)];
+                    });
+                    return next;
+                });
+                setTabStates((prev) => {
+                    const next = { ...prev };
+                    delete next[fileId];
+                    return next;
+                });
+                setEditingDraftByFileId((prev) => {
+                    const next = { ...prev };
+                    delete next[fileId];
+                    return next;
+                });
+                setEditingFileId((prev) => (prev === fileId ? null : prev));
+                setSavingFileId((prev) => (prev === fileId ? null : prev));
+
+                setAgentProposals((prev) => prev.filter((proposal) => proposal.fileId !== fileId));
+                setAgentAcceptedMap((prev) => {
+                    const next = new Map(prev);
+                    for (const [parentId, proposal] of next.entries()) {
+                        if (proposal.fileId === fileId) next.delete(parentId);
+                    }
+                    return next;
+                });
+                setAgentSavedIds((prev) =>
+                    new Set([...prev].filter((parentId) => !parentIdsForFile.has(parentId)))
+                );
+                setAgentRejectedIds((prev) =>
+                    new Set([...prev].filter((parentId) => !parentIdsForFile.has(parentId)))
+                );
+                setAgentSavingIds((prev) =>
+                    new Set([...prev].filter((parentId) => !parentIdsForFile.has(parentId)))
+                );
+
+                return { ok: true, data: deleted };
+            } catch (error) {
+                const detail = axios.isAxiosError(error)
+                    ? typeof error.response?.data?.detail === "string"
+                        ? error.response.data.detail
+                        : null
+                    : null;
+                return {
+                    ok: false,
+                    error: detail ?? "Failed to delete file from the knowledge base.",
+                };
+            } finally {
+                setDeletingFileId(null);
+            }
+        },
+        [agentAcceptedMap, agentProposals, deletingFileId, tabStates]
+    );
 
     const activeTabState = useMemo(
         () => (activeTab ? tabStates[activeTab] ?? createEmptyTabState() : null),
@@ -654,12 +757,14 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         files,
         isLoadingFiles,
         fileListError,
+        deletingFileId,
         openTabs,
         activeTab,
         activeTabState,
         fetchFiles,
         handleRefreshDocuments,
         invalidateDocumentCache,
+        deleteFile,
         openDocumentTab,
         closeDocumentTab,
         setActiveDocumentTab,
