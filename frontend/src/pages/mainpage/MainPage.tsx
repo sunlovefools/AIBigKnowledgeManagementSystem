@@ -33,7 +33,6 @@ export default function MainPage() {
         toggleSidebar,
         closeSidebar,
         startSidebarResize,
-        startModPanelResize,
     } = useResizableLayout();
 
     const { messages, input, isQuerying, setInput, appendMessage, handleQuery } = useChat();
@@ -176,6 +175,13 @@ export default function MainPage() {
     const activeChunkSignature = activeTabState?.chunks
         .map((chunk) => `${chunk.parentId}:${chunk.size}`)
         .join("|") ?? "";
+    const hasSelectedDocument = Boolean(activeTab);
+    const isDesktopWorkspaceActive = !isMobile && isModificationPanelOpen && hasSelectedDocument;
+    const chatEmptyStateMode = isEditMode && !hasSelectedDocument ? "no-document" : "welcome";
+    const activeFileName = activeTab
+        ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
+        : "No file selected";
+    const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -198,7 +204,7 @@ export default function MainPage() {
             setHighlightedSelection(null);
             setSelectionError(null);
         }
-    }, [activeChunkSignature]);
+    }, [activeChunkSignature, highlightedSelection, selectionError]);
 
     const handleSelectionChange = useCallback((selection: HighlightedSelection | null) => {
         setHighlightedSelection(selection);
@@ -248,6 +254,97 @@ export default function MainPage() {
         localStorage.removeItem("token");
         navigate("/register");
     };
+
+    const modificationPanel = (
+        <ModificationPanel
+            files={files}
+            openTabs={openTabs}
+            activeTab={activeTab}
+            activeTabState={activeTabState}
+            isLoadingFiles={isLoadingFiles}
+            deletingFileId={deletingFileId}
+            editingContent={editingDocumentContent}
+            isEditing={isEditingActiveDocument}
+            isSaving={isSavingActiveDocument}
+            isDirty={isActiveDocumentDirty}
+            saveError={saveError}
+            isEditMode={isEditMode}
+            selectedFileIds={selectedFileIds}
+            highlightedSelection={highlightedSelection}
+            selectionError={selectionError}
+            onRefreshDocuments={handleRefreshDocuments}
+            onClose={handleCloseModificationPanel}
+            onTabSelect={(fileId) => { void setActiveDocumentTab(fileId); }}
+            onTabClose={closeDocumentTab}
+            onLoadMoreActiveTab={loadMoreActiveTab}
+            onStartEditing={startEditingActiveDocument}
+            onDeleteActiveFile={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
+            onEditingContentChange={setActiveEditingDocumentContent}
+            onCancelEditing={cancelEditingActiveDocument}
+            onSaveEditing={() => { void saveEditingActiveDocument(); }}
+            onHighlightedSelectionChange={handleSelectionChange}
+            onSelectionErrorChange={handleSelectionErrorChange}
+            isAgentGenerating={isAgentGenerating}
+            agentProposals={agentProposals}
+            agentAcceptedMap={agentAcceptedMap}
+            agentSavedIds={agentSavedIds}
+            agentRejectedIds={agentRejectedIds}
+            agentSavingIds={agentSavingIds}
+            agentError={agentError}
+            agentIntention={agentIntention}
+            onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
+            onSaveAgentProposal={(proposal) => { void saveAgentProposal(proposal); }}
+            onRejectAgentProposal={rejectAgentProposal}
+            onClearAgentProposals={clearAgentState}
+        />
+    );
+
+    const desktopModificationPanel = (
+        <ModificationPanel
+            files={files}
+            openTabs={openTabs}
+            activeTab={activeTab}
+            activeTabState={activeTabState}
+            isLoadingFiles={isLoadingFiles}
+            deletingFileId={deletingFileId}
+            editingContent={editingDocumentContent}
+            isEditing={isEditingActiveDocument}
+            isSaving={isSavingActiveDocument}
+            isDirty={isActiveDocumentDirty}
+            saveError={saveError}
+            isEditMode={isEditMode}
+            selectedFileIds={selectedFileIds}
+            highlightedSelection={highlightedSelection}
+            selectionError={selectionError}
+            hideTabs
+            hideHeader
+            hideDocumentToolbar
+            onRefreshDocuments={handleRefreshDocuments}
+            onClose={handleCloseModificationPanel}
+            onTabSelect={(fileId) => { void setActiveDocumentTab(fileId); }}
+            onTabClose={closeDocumentTab}
+            onLoadMoreActiveTab={loadMoreActiveTab}
+            onStartEditing={startEditingActiveDocument}
+            onDeleteActiveFile={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
+            onEditingContentChange={setActiveEditingDocumentContent}
+            onCancelEditing={cancelEditingActiveDocument}
+            onSaveEditing={() => { void saveEditingActiveDocument(); }}
+            onHighlightedSelectionChange={handleSelectionChange}
+            onSelectionErrorChange={handleSelectionErrorChange}
+            isAgentGenerating={isAgentGenerating}
+            agentProposals={agentProposals}
+            agentAcceptedMap={agentAcceptedMap}
+            agentSavedIds={agentSavedIds}
+            agentRejectedIds={agentRejectedIds}
+            agentSavingIds={agentSavingIds}
+            agentError={agentError}
+            agentIntention={agentIntention}
+            onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
+            onSaveAgentProposal={(proposal) => { void saveAgentProposal(proposal); }}
+            onRejectAgentProposal={rejectAgentProposal}
+            onClearAgentProposals={clearAgentState}
+        />
+    );
 
     return (
         <div
@@ -309,75 +406,187 @@ export default function MainPage() {
                     </div>
                 </header>
 
-                <ChatArea messages={messages} isUploading={isUploading} bottomRef={bottomRef} />
+                {isMobile ? (
+                    <>
+                        <ChatArea
+                            messages={messages}
+                            isUploading={isUploading}
+                            bottomRef={bottomRef}
+                            emptyStateMode={chatEmptyStateMode}
+                        />
 
-                <ChatInput
-                    input={input}
-                    isQuerying={isQuerying || isAgentGenerating}
-                    isModificationPanelOpen={isModificationPanelOpen}
-                    isEditMode={isEditMode}
-                    highlightedSelection={highlightedSelection}
-                    onInputChange={setInput}
-                    onInputKeyDown={handleComposerKeyDown}
-                    onToggleModificationPanel={handleToggleModificationPanel}
-                    onClearHighlightedSelection={clearHighlightedSelection}
-                    onSend={() => { void handleComposerSend(); }}
-                />
+                        <ChatInput
+                            input={input}
+                            isQuerying={isQuerying || isAgentGenerating}
+                            isModificationPanelOpen={isModificationPanelOpen}
+                            isEditMode={isEditMode}
+                            highlightedSelection={highlightedSelection}
+                            onInputChange={setInput}
+                            onInputKeyDown={handleComposerKeyDown}
+                            onToggleModificationPanel={handleToggleModificationPanel}
+                            onClearHighlightedSelection={clearHighlightedSelection}
+                            onSend={() => { void handleComposerSend(); }}
+                        />
+                    </>
+                ) : isDesktopWorkspaceActive ? (
+                    <div className="desktop-edit-workspace" aria-live="polite">
+                        <section className="desktop-modification-stage">
+                            <div className="desktop-stage-tabs" role="tablist" aria-label="Opened documents">
+                                {openTabs.length === 0 ? (
+                                    <div className="mod-panel-tabs-empty">Open a file from the sidebar to view full content.</div>
+                                ) : (
+                                    openTabs.map((fileId) => {
+                                        const fileName = files.find((file) => file.fileId === fileId)?.fileName ?? fileId;
+                                        return (
+                                            <div key={fileId} className={`mod-panel-tab ${activeTab === fileId ? "active" : ""}`}>
+                                                <button
+                                                    className="mod-panel-tab-label"
+                                                    onClick={() => { void setActiveDocumentTab(fileId); }}
+                                                    type="button"
+                                                >
+                                                    {fileName}
+                                                </button>
+                                                <button
+                                                    className="mod-panel-tab-close"
+                                                    onClick={() => closeDocumentTab(fileId)}
+                                                    aria-label={`Close ${fileName}`}
+                                                    type="button"
+                                                >
+                                                    x
+                                                </button>
+                                            </div>
+                                        );
+                                    })
+                                )}
+                            </div>
+
+                            <div className="desktop-stage-header">
+                                <div className="desktop-stage-header-main">
+                                    <h3 className="desktop-stage-file-name">{activeFileName}</h3>
+                                    {isEditMode && (
+                                        <span className="mod-panel-edit-mode-badge">
+                                            Edit - {selectedFileIds.size > 0 ? `${selectedFileIds.size} file(s) selected` : "All files"}
+                                        </span>
+                                    )}
+                                </div>
+
+                                <div className="desktop-stage-header-actions">
+                                    {isEditingActiveDocument ? (
+                                        <>
+                                            <span className="mod-panel-editing-indicator">Editing mode</span>
+                                            <div className="document-action-group">
+                                                <button
+                                                    className="save-btn"
+                                                    type="button"
+                                                    onClick={() => { void saveEditingActiveDocument(); }}
+                                                    disabled={isSavingActiveDocument || !isActiveDocumentDirty}
+                                                >
+                                                    {isSavingActiveDocument ? "Saving..." : "Save"}
+                                                </button>
+                                                <button
+                                                    className="cancel-btn"
+                                                    type="button"
+                                                    onClick={cancelEditingActiveDocument}
+                                                    disabled={isSavingActiveDocument}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="document-action-group">
+                                            <button
+                                                className="edit-btn"
+                                                type="button"
+                                                onClick={startEditingActiveDocument}
+                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabState?.isLoading)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="delete-btn"
+                                                type="button"
+                                                onClick={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
+                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabState?.isLoading)}
+                                            >
+                                                {isDeletingActiveFile ? "Deleting..." : "Delete"}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <button
+                                        className="mod-panel-refresh-btn"
+                                        onClick={handleRefreshDocuments}
+                                        disabled={isLoadingFiles}
+                                        aria-label="Refresh documents"
+                                        title="Refresh from database"
+                                    >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                            <polyline points="23 4 23 10 17 10"></polyline>
+                                            <polyline points="1 20 1 14 7 14"></polyline>
+                                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
+                                        </svg>
+                                    </button>
+                                    <button className="mod-panel-close-btn" onClick={handleCloseModificationPanel} aria-label="Close modifications panel">
+                                        x
+                                    </button>
+                                </div>
+                            </div>
+
+                            {desktopModificationPanel}
+                        </section>
+                        <section className="desktop-assistant-stage">
+                            <ChatArea
+                                messages={messages}
+                                isUploading={isUploading}
+                                bottomRef={bottomRef}
+                                emptyStateMode="welcome"
+                            />
+
+                            <ChatInput
+                                input={input}
+                                isQuerying={isQuerying || isAgentGenerating}
+                                isModificationPanelOpen={isModificationPanelOpen}
+                                isEditMode={isEditMode}
+                                highlightedSelection={highlightedSelection}
+                                onInputChange={setInput}
+                                onInputKeyDown={handleComposerKeyDown}
+                                onToggleModificationPanel={handleToggleModificationPanel}
+                                onClearHighlightedSelection={clearHighlightedSelection}
+                                onSend={() => { void handleComposerSend(); }}
+                            />
+                        </section>
+                    </div>
+                ) : (
+                    <div className="desktop-chat-focus-stage" aria-live="polite">
+                        <ChatArea
+                            messages={messages}
+                            isUploading={isUploading}
+                            bottomRef={bottomRef}
+                            emptyStateMode={chatEmptyStateMode}
+                        />
+
+                        <ChatInput
+                            input={input}
+                            isQuerying={isQuerying || isAgentGenerating}
+                            isModificationPanelOpen={isEditMode}
+                            isEditMode={isEditMode}
+                            highlightedSelection={highlightedSelection}
+                            onInputChange={setInput}
+                            onInputKeyDown={handleComposerKeyDown}
+                            onToggleModificationPanel={handleToggleModificationPanel}
+                            onClearHighlightedSelection={clearHighlightedSelection}
+                            onSend={() => { void handleComposerSend(); }}
+                        />
+                    </div>
+                )}
             </main>
 
-            {!isMobile && isModificationPanelOpen && (
-                <div
-                    className="resize-handle resize-handle-mod-panel"
-                    onMouseDown={(event) => startModPanelResize(event.clientX)}
-                    role="separator"
-                    aria-orientation="vertical"
-                    aria-label="Resize modifications panel"
-                />
+            {isMobile && (
+                <div className={`mod-panel-container ${isModificationPanelOpen ? "open" : "closed"}`}>
+                    {modificationPanel}
+                </div>
             )}
-
-            <div className={`mod-panel-container ${isModificationPanelOpen ? "open" : "closed"}`}>
-                <ModificationPanel
-                    files={files}
-                    openTabs={openTabs}
-                    activeTab={activeTab}
-                    activeTabState={activeTabState}
-                    isLoadingFiles={isLoadingFiles}
-                    deletingFileId={deletingFileId}
-                    editingContent={editingDocumentContent}
-                    isEditing={isEditingActiveDocument}
-                    isSaving={isSavingActiveDocument}
-                    isDirty={isActiveDocumentDirty}
-                    saveError={saveError}
-                    isEditMode={isEditMode}
-                    selectedFileIds={selectedFileIds}
-                    highlightedSelection={highlightedSelection}
-                    selectionError={selectionError}
-                    onRefreshDocuments={handleRefreshDocuments}
-                    onClose={handleCloseModificationPanel}
-                    onTabSelect={(fileId) => { void setActiveDocumentTab(fileId); }}
-                    onTabClose={closeDocumentTab}
-                    onLoadMoreActiveTab={loadMoreActiveTab}
-                    onStartEditing={startEditingActiveDocument}
-                    onDeleteActiveFile={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
-                    onEditingContentChange={setActiveEditingDocumentContent}
-                    onCancelEditing={cancelEditingActiveDocument}
-                    onSaveEditing={() => { void saveEditingActiveDocument(); }}
-                    onHighlightedSelectionChange={handleSelectionChange}
-                    onSelectionErrorChange={handleSelectionErrorChange}
-                    isAgentGenerating={isAgentGenerating}
-                    agentProposals={agentProposals}
-                    agentAcceptedMap={agentAcceptedMap}
-                    agentSavedIds={agentSavedIds}
-                    agentRejectedIds={agentRejectedIds}
-                    agentSavingIds={agentSavingIds}
-                    agentError={agentError}
-                    agentIntention={agentIntention}
-                    onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
-                    onSaveAgentProposal={(proposal) => { void saveAgentProposal(proposal); }}
-                    onRejectAgentProposal={rejectAgentProposal}
-                    onClearAgentProposals={clearAgentState}
-                />
-            </div>
 
             {isMobile && isModificationPanelOpen && (
                 <button className="panel-backdrop" onClick={handleCloseModificationPanel} aria-label="Close modifications panel" />

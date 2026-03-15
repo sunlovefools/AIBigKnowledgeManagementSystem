@@ -9,16 +9,31 @@ type ChatAreaProps = {
     messages: ChatMessage[]; // An array of chat messages to be displayed in the chat area
     isUploading: boolean;
     bottomRef: RefObject<HTMLDivElement | null>;
+    emptyStateMode?: "welcome" | "no-document";
 };
 
-export default function ChatArea({ messages, isUploading, bottomRef }: ChatAreaProps) {
+export default function ChatArea({
+    messages,
+    isUploading,
+    bottomRef,
+    emptyStateMode = "welcome",
+}: ChatAreaProps) {
     return (
         <div className="chat-scroll-area">
             {!messages.length ? (
                 <div className="welcome-screen">
-                    <div className="welcome-icon">*</div>
-                    <h2>Start the conversation</h2>
-                    <p>Upload a document from the left panel, then ask anything about it.</p>
+                    {emptyStateMode === "no-document" ? (
+                        <>
+                            <h2>No document selected</h2>
+                            <p>Upload or choose a file to begin editing</p>
+                        </>
+                    ) : (
+                        <>
+                            <div className="welcome-icon">*</div>
+                            <h2>Start the conversation</h2>
+                            <p>Upload a document from the left panel, then ask anything about it.</p>
+                        </>
+                    )}
                 </div>
             ) : (
                 <div className="messages-container">

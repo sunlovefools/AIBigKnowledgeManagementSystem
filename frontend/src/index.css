@@ -27,6 +27,17 @@ body {
     min-height: 100vh;
 }
 
+* {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+    display: none;
+}
+
 h1 {
     font-size: 3.2em;
     line-height: 1.1;

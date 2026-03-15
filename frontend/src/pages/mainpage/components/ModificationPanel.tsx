@@ -1,4 +1,5 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
+import MarkdownEditor from "./FileViewingAndModification";
 import type {
     AgentProposal,
     FileTabState,
@@ -30,6 +31,9 @@ type ModificationPanelProps = {
     agentSavingIds: Set<string>;
     agentError: string | null;
     agentIntention: string | null;
+    hideTabs?: boolean;
+    hideHeader?: boolean;
+    hideDocumentToolbar?: boolean;
     onRefreshDocuments: () => void;
     onClose: () => void;
     onTabSelect: (fileId: string) => void;
@@ -51,6 +55,23 @@ type ModificationPanelProps = {
 function getContainerElement(node: Node): HTMLElement | null {
     if (node instanceof HTMLElement) return node;
     return node.parentElement;
+}
+
+type PageChunkSegment = {
+    parentId: string;
+    content: string;
+};
+
+type PageGroup = {
+    pageNumber: number;
+    segments: PageChunkSegment[];
+};
+
+function normalizePageNumbers(pageNumbers: number[] | undefined): number[] {
+    if (!pageNumbers || pageNumbers.length === 0) return [0];
+    const deduped = Array.from(new Set(pageNumbers.filter((value) => Number.isFinite(value))));
+    if (!deduped.length) return [0];
+    return deduped.sort((a, b) => a - b);
 }
 
 export default function ModificationPanel({
@@ -77,6 +98,9 @@ export default function ModificationPanel({
     agentSavingIds,
     agentError,
     agentIntention,
+    hideTabs = false,
+    hideHeader = false,
+    hideDocumentToolbar = false,
     onRefreshDocuments,
     onClose,
     onTabSelect,
@@ -187,6 +211,29 @@ export default function ModificationPanel({
     const editScopeLabel = selectedFileIds.size > 0
         ? `${selectedFileIds.size} file(s) selected`
         : "All files";
+    const activeFileName = activeTab
+        ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
+        : "No file selected";
+
+    const pageGroups = useMemo<PageGroup[]>(() => {
+        if (!activeTabState?.chunks.length) return [];
+
+        const grouped = new Map<number, PageGroup>();
+        activeTabState.chunks.forEach((chunk) => {
+            const pages = normalizePageNumbers(chunk.pageNumbers);
+            pages.forEach((pageNumber) => {
+                if (!grouped.has(pageNumber)) {
+                    grouped.set(pageNumber, { pageNumber, segments: [] });
+                }
+                grouped.get(pageNumber)?.segments.push({
+                    parentId: chunk.parentId,
+                    content: chunk.content,
+                });
+            });
+        });
+
+        return Array.from(grouped.values()).sort((a, b) => a.pageNumber - b.pageNumber);
+    }, [activeTabState]);
 
     const showAgentSection = isEditMode && (
         isAgentGenerating ||
@@ -197,54 +244,58 @@ export default function ModificationPanel({
 
     return (
         <aside className="modification-panel">
-            <div className="mod-panel-header">
-                <div className="mod-panel-header-title">
-                    <h3>Full View</h3>
-                    {isEditMode && (
-                        <span className="mod-panel-edit-mode-badge">
-                            Edit - {editScopeLabel}
-                        </span>
+            {!hideTabs && (
+                <div className="mod-panel-tabs" role="tablist" aria-label="Opened documents">
+                    {openTabs.length === 0 ? (
+                        <div className="mod-panel-tabs-empty">Open a file from the sidebar to view full content.</div>
+                    ) : (
+                        openTabs.map((fileId) => {
+                            const fileName = files.find((f) => f.fileId === fileId)?.fileName ?? fileId;
+                            return (
+                                <div key={fileId} className={`mod-panel-tab ${activeTab === fileId ? "active" : ""}`}>
+                                    <button className="mod-panel-tab-label" onClick={() => void onTabSelect(fileId)} type="button">
+                                        {fileName}
+                                    </button>
+                                    <button className="mod-panel-tab-close" onClick={() => onTabClose(fileId)} aria-label={`Close ${fileName}`} type="button">
+                                        x
+                                    </button>
+                                </div>
+                            );
+                        })
                     )}
                 </div>
-                <div className="mod-panel-header-actions">
-                    <button
-                        className="mod-panel-refresh-btn"
-                        onClick={onRefreshDocuments}
-                        disabled={isLoadingFiles}
-                        aria-label="Refresh documents"
-                        title="Refresh from database"
-                    >
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                            <polyline points="23 4 23 10 17 10"></polyline>
-                            <polyline points="1 20 1 14 7 14"></polyline>
-                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
-                        </svg>
-                    </button>
-                    <button className="mod-panel-close-btn" onClick={onClose} aria-label="Close modifications panel">
-                        x
-                    </button>
-                </div>
-            </div>
+            )}
 
-            <div className="mod-panel-tabs" role="tablist" aria-label="Opened documents">
-                {openTabs.length === 0 ? (
-                    <div className="mod-panel-empty">Open a file from the sidebar to view full content.</div>
-                ) : (
-                    openTabs.map((fileId) => {
-                        const fileName = files.find((f) => f.fileId === fileId)?.fileName ?? fileId;
-                        return (
-                            <div key={fileId} className={`mod-panel-tab ${activeTab === fileId ? "active" : ""}`}>
-                                <button className="mod-panel-tab-label" onClick={() => void onTabSelect(fileId)} type="button">
-                                    {fileName}
-                                </button>
-                                <button className="mod-panel-tab-close" onClick={() => onTabClose(fileId)} aria-label={`Close ${fileName}`} type="button">
-                                    x
-                                </button>
-                            </div>
-                        );
-                    })
-                )}
-            </div>
+            {!hideHeader && (
+                <div className="mod-panel-header">
+                    <div className="mod-panel-header-title">
+                        <h3>{activeFileName}</h3>
+                        {isEditMode && (
+                            <span className="mod-panel-edit-mode-badge">
+                                Edit - {editScopeLabel}
+                            </span>
+                        )}
+                    </div>
+                    <div className="mod-panel-header-actions">
+                        <button
+                            className="mod-panel-refresh-btn"
+                            onClick={onRefreshDocuments}
+                            disabled={isLoadingFiles}
+                            aria-label="Refresh documents"
+                            title="Refresh from database"
+                        >
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="23 4 23 10 17 10"></polyline>
+                                <polyline points="1 20 1 14 7 14"></polyline>
+                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
+                            </svg>
+                        </button>
+                        <button className="mod-panel-close-btn" onClick={onClose} aria-label="Close modifications panel">
+                            x
+                        </button>
+                    </div>
+                </div>
+            )}
 
             <div className="mod-panel-content" ref={contentRef} onScroll={handleContentScroll}>
                 {showAgentSection && (
@@ -375,36 +426,59 @@ export default function ModificationPanel({
                     !isEditMode && <div className="mod-panel-empty">No file tab selected.</div>
                 ) : activeTabState?.error ? (
                     <div className="mod-panel-empty">{activeTabState.error}</div>
-                ) : activeTabState?.chunks.length ? (
+                ) : pageGroups.length ? (
                     <>
-                        <section className="mod-panel-document-window">
-                            <div className="preview-header">
-                                <h4>Full Text</h4>
-                                {!isEditing && (
-                                    <div className="document-action-group">
-                                        <button
-                                            className="edit-btn"
-                                            type="button"
-                                            onClick={onStartEditing}
-                                            disabled={isSaving || isDeletingActiveFile || activeTabState.isLoading}
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            className="delete-btn"
-                                            type="button"
-                                            onClick={onDeleteActiveFile}
-                                            disabled={isSaving || isDeletingActiveFile || activeTabState.isLoading}
-                                        >
-                                            {isDeletingActiveFile ? "Deleting..." : "Delete"}
-                                        </button>
-                                    </div>
-                                )}
-                            </div>
+                        <section className={`mod-panel-document-window ${isEditing ? "editing" : ""}`}>
+                            {!hideDocumentToolbar && (
+                                <div className="mod-panel-document-toolbar">
+                                    {isEditing ? (
+                                        <>
+                                            <span className="mod-panel-editing-indicator">Editing mode</span>
+                                            <div className="document-action-group">
+                                                <button
+                                                    className="save-btn"
+                                                    type="button"
+                                                    onClick={onSaveEditing}
+                                                    disabled={isSaving || !isDirty}
+                                                >
+                                                    {isSaving ? "Saving..." : "Save"}
+                                                </button>
+                                                <button
+                                                    className="cancel-btn"
+                                                    type="button"
+                                                    onClick={onCancelEditing}
+                                                    disabled={isSaving}
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                        </>
+                                    ) : (
+                                        <div className="document-action-group">
+                                            <button
+                                                className="edit-btn"
+                                                type="button"
+                                                onClick={onStartEditing}
+                                                disabled={isSaving || isDeletingActiveFile || Boolean(activeTabState?.isLoading)}
+                                            >
+                                                Edit
+                                            </button>
+                                            <button
+                                                className="delete-btn"
+                                                type="button"
+                                                onClick={onDeleteActiveFile}
+                                                disabled={isSaving || isDeletingActiveFile || Boolean(activeTabState?.isLoading)}
+                                            >
+                                                {isDeletingActiveFile ? "Deleting..." : "Delete"}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
 
                             {isEditMode && !isEditing && (
                                 <div className="mod-panel-selection-hint">
-                                    Highlight text inside a single chunk to edit it directly.
+                                    Highlight text within a single page block to edit directly.
                                 </div>
                             )}
 
@@ -414,50 +488,46 @@ export default function ModificationPanel({
 
                             {isEditing ? (
                                 <>
-                                    <textarea
-                                        className="edit-textarea"
-                                        value={editingContent}
-                                        onChange={(e) => onEditingContentChange(e.target.value)}
-                                        disabled={isSaving}
-                                        rows={20}
+                                    <MarkdownEditor
+                                        markdown={editingContent}
+                                        editable={!isSaving}
+                                        onChange={onEditingContentChange}
+                                        className="mod-panel-active-editor"
                                     />
-                                    <div className="edit-actions">
-                                        <button
-                                            className="save-btn"
-                                            type="button"
-                                            onClick={onSaveEditing}
-                                            disabled={isSaving || !isDirty}
-                                        >
-                                            {isSaving ? "Saving..." : "Save"}
-                                        </button>
-                                        <button
-                                            className="cancel-btn"
-                                            type="button"
-                                            onClick={onCancelEditing}
-                                            disabled={isSaving}
-                                        >
-                                            Cancel
-                                        </button>
-                                    </div>
                                 </>
                             ) : (
                                 <div
-                                    className="mod-panel-document-chunks"
+                                    className="mod-panel-document-pages"
                                     onMouseUp={handleDocumentSelection}
                                     onKeyUp={handleDocumentSelection}
                                 >
-                                    {activeTabState.chunks.map((chunk, index) => (
+                                    {pageGroups.map((group) => (
                                         <section
-                                            key={chunk.parentId}
-                                            className={`mod-panel-document-chunk ${
-                                                highlightedSelection?.parentId === chunk.parentId ? "selected" : ""
-                                            }`}
-                                            data-parent-id={chunk.parentId}
+                                            key={`page-${group.pageNumber}`}
+                                            className="mod-panel-document-page"
                                         >
-                                            <div className="mod-panel-document-chunk-header">
-                                                Chunk {index + 1}
+                                            <div className="mod-panel-document-page-content">
+                                                {group.segments.map((segment, index) => (
+                                                    <article
+                                                        key={`${group.pageNumber}-${segment.parentId}-${index}`}
+                                                        className={`mod-panel-document-segment ${
+                                                            highlightedSelection?.parentId === segment.parentId ? "selected" : ""
+                                                        }`}
+                                                        data-parent-id={segment.parentId}
+                                                    >
+                                                            <div className="mod-panel-document-text">
+                                                                <MarkdownEditor
+                                                                    markdown={segment.content}
+                                                                    editable={false}
+                                                                    className="mod-panel-segment-editor"
+                                                                />
+                                                            </div>
+                                                    </article>
+                                                ))}
                                             </div>
-                                            <pre className="mod-panel-document-text">{chunk.content}</pre>
+                                            <div className="mod-panel-document-page-label">
+                                                Page {group.pageNumber + 1}
+                                            </div>
                                         </section>
                                     ))}
                                 </div>
@@ -466,10 +536,10 @@ export default function ModificationPanel({
                             {saveError && <div className="mod-panel-save-error">{saveError}</div>}
                         </section>
 
-                        {activeTabState.isLoading && (
+                        {activeTabState?.isLoading && (
                             <div className="mod-panel-loading">Loading more chunks...</div>
                         )}
-                        {!activeTabState.hasMore && (
+                        {activeTabState && !activeTabState.hasMore && (
                             <div className="mod-panel-end">End of document</div>
                         )}
                     </>

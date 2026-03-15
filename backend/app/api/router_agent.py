@@ -99,8 +99,7 @@ async def agent_modify(request: AgentModifyRequest):
         "_session": None,  # B03: populated below inside the session context manager
     }
 
-    print(f"\n{'='*50}")
-    print(f"🚀 Agent pipeline started")
+    print(f"[Agentic Modification] Agent pipeline started")
     print(f"   Instruction: {request.instruction}")
     scope = f"{len(file_ids)} file(s)" if file_ids else "all files"
     print(f"   Scope: {scope}")

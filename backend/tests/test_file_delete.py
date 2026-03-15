@@ -209,3 +209,71 @@ def test_delete_file_endpoint_returns_503_on_runtime_error(monkeypatch):
         asyncio.run(router_modifications.delete_file_by_id("file-1"))
 
     assert exc.value.status_code == 503
+
+
+def test_reconstruction_service_update_file_noop_when_content_unchanged(monkeypatch):
+    class _FakeCollection:
+        def find(self, _query):
+            return iter(
+                [
+                    {
+                        "_id": "parent-2",
+                        "value": {
+                            "page_content": "second chunk",
+                            "metadata": {
+                                "file_metadata": {
+                                    "file_id": "file-1",
+                                    "file_name": "Report.pdf",
+                                },
+                                "parent_chunk_metadata": {
+                                    "parent_chunk_number": 1,
+                                },
+                            },
+                        },
+                    },
+                    {
+                        "_id": "parent-1",
+                        "value": {
+                            "page_content": "first chunk",
+                            "metadata": {
+                                "file_metadata": {
+                                    "file_id": "file-1",
+                                    "file_name": "Report.pdf",
+                                },
+                                "parent_chunk_metadata": {
+                                    "parent_chunk_number": 0,
+                                },
+                            },
+                        },
+                    },
+                ]
+            )
+
+    monkeypatch.setattr(rs, "PARENT_STORE", types.SimpleNamespace(collection=_FakeCollection()))
+
+    async def _unexpected_delete_children(_parent_id: str):
+        raise AssertionError("delete_children_by_parent_id should not be called for no-op update")
+
+    async def _unexpected_delete_parent(_parent_id: str):
+        raise AssertionError("delete_parent_document should not be called for no-op update")
+
+    def _unexpected_split(*args, **kwargs):
+        raise AssertionError("split_parent_child_chunks should not be called for no-op update")
+
+    monkeypatch.setattr(rs, "delete_children_by_parent_id", _unexpected_delete_children)
+    monkeypatch.setattr(rs, "delete_parent_document", _unexpected_delete_parent)
+    monkeypatch.setattr(rs, "split_parent_child_chunks", _unexpected_split)
+
+    result = asyncio.run(
+        rs.ReconstructionService.update_file(
+            file_id="file-1",
+            new_content="first chunk\n\nsecond chunk",
+            file_name="Report.pdf",
+        )
+    )
+
+    assert result["fileId"] == "file-1"
+    assert result["previousFileId"] == "file-1"
+    assert result["content"] == "first chunk\n\nsecond chunk"
+    assert result["parentChunks"] == 2
+    assert result["chunks"] == 0

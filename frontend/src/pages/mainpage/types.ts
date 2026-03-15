@@ -20,6 +20,7 @@ export type ParentChunkContent = {
     parentId: string;
     content: string;
     size: number;
+    pageNumbers: number[];
 };
 
 export type HighlightedSelection = {

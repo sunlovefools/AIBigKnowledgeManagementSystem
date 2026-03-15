@@ -73,12 +73,25 @@ class ReconstructionService:
         if isinstance(chunk_number, (int, float)):
             chunk_number_int = int(chunk_number)
 
+        raw_page_numbers = parent_chunk_metadata.get("page_number")
+        page_numbers: list[int] = []
+        if isinstance(raw_page_numbers, list):
+            for value in raw_page_numbers:
+                if isinstance(value, (int, float)):
+                    page_numbers.append(int(value))
+        elif isinstance(raw_page_numbers, (int, float)):
+            page_numbers.append(int(raw_page_numbers))
+
+        if not page_numbers:
+            page_numbers = [0]
+
         return {
             "parentId": parent_id,
             "fileId": file_id,
             "fileName": str(file_name),
             "content": content,
             "chunkNumber": chunk_number_int,
+            "pageNumbers": page_numbers,
         }
 
     @staticmethod
@@ -151,6 +164,7 @@ class ReconstructionService:
                     "parentId": fields["parentId"],
                     "content": fields["content"],
                     "size": len(fields["content"]),
+                    "pageNumbers": fields["pageNumbers"],
                 }
             )
 
@@ -162,7 +176,12 @@ class ReconstructionService:
         next_cursor = str(page_rows[-1]["chunkNumber"]) if has_more and page_rows else None
 
         chunks = [
-            {"parentId": r["parentId"], "content": r["content"], "size": r["size"]}
+            {
+                "parentId": r["parentId"],
+                "content": r["content"],
+                "size": r["size"],
+                "pageNumbers": r["pageNumbers"],
+            }
             for r in page_rows
         ]
         return chunks, has_more, next_cursor
@@ -494,20 +513,51 @@ class ReconstructionService:
         try:
             parent_collection = PARENT_STORE.collection
 
-            def _find_parent_ids_for_file() -> list[str]:
+            def _load_existing_file_state() -> tuple[list[str], str]:
                 cursor = parent_collection.find({"value.metadata.file_metadata.file_id": file_id})
-                parent_ids: list[str] = []
+                sortable_rows: list[dict[str, Any]] = []
                 for row in cursor:
-                    if isinstance(row, dict):
-                        parent_id = str(row.get("_id", "")).strip()
-                        if parent_id:
-                            parent_ids.append(parent_id)
-                return parent_ids
+                    if not isinstance(row, dict):
+                        continue
 
-            parent_ids = await asyncio.to_thread(_find_parent_ids_for_file)
+                    fields = ReconstructionService._extract_parent_row_fields(row)
+                    if not fields:
+                        continue
+
+                    parent_id = str(fields.get("parentId") or "").strip()
+                    if not parent_id:
+                        continue
+
+                    chunk_number = fields.get("chunkNumber")
+                    sortable_rows.append(
+                        {
+                            "parentId": parent_id,
+                            "chunkNumber": int(chunk_number) if isinstance(chunk_number, int) else 10**9,
+                            "content": str(fields.get("content") or ""),
+                        }
+                    )
+
+                sortable_rows.sort(key=lambda item: (item["chunkNumber"], item["parentId"]))
+                parent_ids = [item["parentId"] for item in sortable_rows]
+                merged_content = "\n\n".join(item["content"] for item in sortable_rows).strip()
+                return parent_ids, merged_content
+
+            parent_ids, existing_content = await asyncio.to_thread(_load_existing_file_state)
 
             if not parent_ids:
                 raise RuntimeError(f"No parent chunks found for file_id={file_id}")
+
+            if new_content.strip() == existing_content:
+                print(f"ℹ️ No changes detected for file_id={file_id}; skipping delete/re-ingest.")
+                return {
+                    "fileId": file_id,
+                    "previousFileId": file_id,
+                    "fileName": file_name,
+                    "content": existing_content,
+                    "size": len(existing_content),
+                    "parentChunks": len(parent_ids),
+                    "chunks": 0,
+                }
 
             # 1) Delete all old children + parents for this fileId
             for parent_id in parent_ids:

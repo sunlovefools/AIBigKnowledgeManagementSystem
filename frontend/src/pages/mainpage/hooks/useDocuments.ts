@@ -423,7 +423,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         const original = getFullDocumentContent(activeTab);
         const draft = editingDraftByFileId[activeTab] ?? original;
         if (!draft.trim()) { setSaveError("Content cannot be empty."); return false; }
-        if (draft === original) { setEditingFileId(null); return true; }
+        if (draft === original) { return false; }
 
         setSavingFileId(activeTab);
         setSaveError(null);
@@ -451,7 +451,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                         ...rest,
                         [updated.fileId]: {
                             ...(_old ?? createEmptyTabState()),
-                            chunks: [{ parentId: localParentId, content: updated.content, size: updated.size }],
+                            chunks: [{ parentId: localParentId, content: updated.content, size: updated.size, pageNumbers: [0] }],
                             hasMore: false, nextCursor: null, isLoading: false, isInitialized: true, error: null,
                         },
                     };
@@ -461,7 +461,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                     ...prev,
                     [activeTab]: {
                         ...(prev[activeTab] ?? createEmptyTabState()),
-                        chunks: [{ parentId: localParentId, content: updated.content, size: updated.size }],
+                        chunks: [{ parentId: localParentId, content: updated.content, size: updated.size, pageNumbers: [0] }],
                         hasMore: false, nextCursor: null, isLoading: false, isInitialized: true, error: null,
                     },
                 }));

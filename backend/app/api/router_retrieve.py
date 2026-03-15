@@ -42,6 +42,7 @@ class ParentChunkContent(BaseModel):
     parentId: str
     content: str
     size: int
+    pageNumbers: List[int]
 
 
 class FileChunksResponse(BaseModel):
@@ -100,6 +101,7 @@ async def get_file_chunks(
                     parentId=chunk["parentId"],
                     content=chunk["content"],
                     size=chunk["size"],
+                    pageNumbers=chunk.get("pageNumbers", [0]),
                 )
                 for chunk in result["chunks"]
             ],
