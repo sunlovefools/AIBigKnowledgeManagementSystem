@@ -22,6 +22,15 @@ export type ParentChunkContent = {
     size: number;
 };
 
+export type HighlightedSelection = {
+    fileId: string;
+    fileName: string;
+    parentId: string;
+    selectedText: string;
+    startOffset: number;
+    endOffset: number;
+};
+
 // Type for tab state of an opened file.
 export type FileTabState = {
     chunks: ParentChunkContent[];
@@ -55,6 +64,9 @@ export type AgentProposal = {
     parentId: string;
     original: string;
     proposed: string;
+    source?: "agent" | "selection";
+    selectionStart?: number;
+    selectionEnd?: number;
     /**
      * Byte offset of `original` within the chunk content at accept time.
      * Set by acceptAgentProposal and read by rejectAgentProposal for precise

@@ -1,11 +1,16 @@
-import { useRef } from "react";
-import type { AgentProposal, FileTabState, SidebarFileSummary } from "../types";
+import { useEffect, useRef } from "react";
+import type {
+    AgentProposal,
+    FileTabState,
+    HighlightedSelection,
+    SidebarFileSummary,
+} from "../types";
 
 type ModificationPanelProps = {
-    files: SidebarFileSummary[];   // needed to resolve fileId → fileName for tab labels
-    activeTab: string | null;      // fileId
+    files: SidebarFileSummary[];
+    activeTab: string | null;
     activeTabState: FileTabState | null;
-    openTabs: string[];            // fileIds
+    openTabs: string[];
     isLoadingFiles: boolean;
     deletingFileId: string | null;
     editingContent: string;
@@ -15,6 +20,8 @@ type ModificationPanelProps = {
     saveError: string | null;
     isEditMode: boolean;
     selectedFileIds: Set<string>;
+    highlightedSelection: HighlightedSelection | null;
+    selectionError: string | null;
     isAgentGenerating: boolean;
     agentProposals: AgentProposal[];
     agentAcceptedMap: Map<string, AgentProposal>;
@@ -33,11 +40,18 @@ type ModificationPanelProps = {
     onEditingContentChange: (nextContent: string) => void;
     onCancelEditing: () => void;
     onSaveEditing: () => void;
+    onHighlightedSelectionChange: (selection: HighlightedSelection | null) => void;
+    onSelectionErrorChange: (message: string | null) => void;
     onAcceptAgentProposal: (proposal: AgentProposal) => Promise<void>;
     onSaveAgentProposal: (proposal: AgentProposal) => void;
     onRejectAgentProposal: (parentId: string) => void;
     onClearAgentProposals: () => void;
 };
+
+function getContainerElement(node: Node): HTMLElement | null {
+    if (node instanceof HTMLElement) return node;
+    return node.parentElement;
+}
 
 export default function ModificationPanel({
     files,
@@ -53,6 +67,8 @@ export default function ModificationPanel({
     saveError,
     isEditMode,
     selectedFileIds,
+    highlightedSelection,
+    selectionError,
     isAgentGenerating,
     agentProposals,
     agentAcceptedMap,
@@ -71,23 +87,101 @@ export default function ModificationPanel({
     onEditingContentChange,
     onCancelEditing,
     onSaveEditing,
+    onHighlightedSelectionChange,
+    onSelectionErrorChange,
     onAcceptAgentProposal,
     onSaveAgentProposal,
     onRejectAgentProposal,
     onClearAgentProposals,
 }: ModificationPanelProps) {
     const contentRef = useRef<HTMLDivElement | null>(null);
+    const previousProposalCountRef = useRef(0);
 
-    const fullDocumentContent = (activeTabState?.chunks ?? [])
-        .map((chunk) => chunk.content)
-        .join("\n\n")
-        .trim();
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
+
+    useEffect(() => {
+        const previousCount = previousProposalCountRef.current;
+        if (agentProposals.length > 0 && agentProposals.length !== previousCount) {
+            contentRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+        }
+        previousProposalCountRef.current = agentProposals.length;
+    }, [agentProposals.length]);
 
     const handleContentScroll = () => {
         if (!contentRef.current || !activeTabState || activeTabState.isLoading || !activeTabState.hasMore) return;
         const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
         if (scrollHeight - scrollTop - clientHeight < 120) void onLoadMoreActiveTab();
+    };
+
+    const handleDocumentSelection = () => {
+        if (!isEditMode || isEditing || !activeTab || !activeTabState?.chunks.length) return;
+
+        const selection = window.getSelection();
+        if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !selection.toString().trim()) {
+            onHighlightedSelectionChange(null);
+            onSelectionErrorChange(null);
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const startElement = getContainerElement(range.startContainer);
+        const endElement = getContainerElement(range.endContainer);
+        const startChunk = startElement?.closest<HTMLElement>("[data-parent-id]");
+        const endChunk = endElement?.closest<HTMLElement>("[data-parent-id]");
+
+        if (!startChunk || !endChunk) {
+            onHighlightedSelectionChange(null);
+            onSelectionErrorChange(null);
+            return;
+        }
+
+        if (startChunk.dataset.parentId !== endChunk.dataset.parentId) {
+            onSelectionErrorChange("Highlight text within a single chunk only.");
+            onHighlightedSelectionChange(null);
+            selection.removeAllRanges();
+            return;
+        }
+
+        const parentId = startChunk.dataset.parentId ?? "";
+        const textRoot = startChunk.querySelector<HTMLElement>(".mod-panel-document-text");
+        if (
+            !parentId ||
+            !textRoot ||
+            !textRoot.contains(range.startContainer) ||
+            !textRoot.contains(range.endContainer)
+        ) {
+            onSelectionErrorChange("Highlight text inside the chunk body only.");
+            onHighlightedSelectionChange(null);
+            selection.removeAllRanges();
+            return;
+        }
+
+        const prefixRange = range.cloneRange();
+        prefixRange.selectNodeContents(textRoot);
+        prefixRange.setEnd(range.startContainer, range.startOffset);
+
+        const selectedText = range.toString();
+        const startOffset = prefixRange.toString().length;
+        const endOffset = startOffset + selectedText.length;
+        const chunk = activeTabState.chunks.find((item) => item.parentId === parentId);
+
+        if (!chunk || chunk.content.slice(startOffset, endOffset) !== selectedText) {
+            onSelectionErrorChange("The current selection does not match the stored chunk content.");
+            onHighlightedSelectionChange(null);
+            selection.removeAllRanges();
+            return;
+        }
+
+        const fileName = files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab;
+        onSelectionErrorChange(null);
+        onHighlightedSelectionChange({
+            fileId: activeTab,
+            fileName,
+            parentId,
+            selectedText,
+            startOffset,
+            endOffset,
+        });
     };
 
     const editScopeLabel = selectedFileIds.size > 0
@@ -103,14 +197,12 @@ export default function ModificationPanel({
 
     return (
         <aside className="modification-panel">
-
-            {/* ── Header ── */}
             <div className="mod-panel-header">
                 <div className="mod-panel-header-title">
                     <h3>Full View</h3>
                     {isEditMode && (
                         <span className="mod-panel-edit-mode-badge">
-                            ✏️ Edit — {editScopeLabel}
+                            Edit - {editScopeLabel}
                         </span>
                     )}
                 </div>
@@ -134,7 +226,6 @@ export default function ModificationPanel({
                 </div>
             </div>
 
-            {/* ── Tabs ── */}
             <div className="mod-panel-tabs" role="tablist" aria-label="Opened documents">
                 {openTabs.length === 0 ? (
                     <div className="mod-panel-empty">Open a file from the sidebar to view full content.</div>
@@ -142,23 +233,20 @@ export default function ModificationPanel({
                     openTabs.map((fileId) => {
                         const fileName = files.find((f) => f.fileId === fileId)?.fileName ?? fileId;
                         return (
-                        <div key={fileId} className={`mod-panel-tab ${activeTab === fileId ? "active" : ""}`}>
-                            <button className="mod-panel-tab-label" onClick={() => void onTabSelect(fileId)} type="button">
-                                {fileName}
-                            </button>
-                            <button className="mod-panel-tab-close" onClick={() => onTabClose(fileId)} aria-label={`Close ${fileName}`} type="button">
-                                ×
-                            </button>
-                        </div>
+                            <div key={fileId} className={`mod-panel-tab ${activeTab === fileId ? "active" : ""}`}>
+                                <button className="mod-panel-tab-label" onClick={() => void onTabSelect(fileId)} type="button">
+                                    {fileName}
+                                </button>
+                                <button className="mod-panel-tab-close" onClick={() => onTabClose(fileId)} aria-label={`Close ${fileName}`} type="button">
+                                    x
+                                </button>
+                            </div>
                         );
                     })
                 )}
             </div>
 
-            {/* ── Scrollable content ── */}
             <div className="mod-panel-content" ref={contentRef} onScroll={handleContentScroll}>
-
-                {/* ── Agent proposals ── */}
                 {showAgentSection && (
                     <section className="mod-panel-agent-section">
                         <div className="preview-header">
@@ -190,7 +278,7 @@ export default function ModificationPanel({
                                 <em>
                                     {selectedFileIds.size > 0
                                         ? `Will search ${selectedFileIds.size} selected file(s).`
-                                        : "Will search all files — or check files in sidebar to narrow scope."}
+                                        : "Will search all files - or check files in sidebar to narrow scope."}
                                 </em>
                             </div>
                         )}
@@ -199,23 +287,26 @@ export default function ModificationPanel({
                             const isAccepted = agentAcceptedMap.has(proposal.parentId);
                             const isSaved = agentSavedIds.has(proposal.parentId);
                             const isRejected = agentRejectedIds.has(proposal.parentId);
-                            const isSaving = agentSavingIds.has(proposal.parentId);
+                            const isSavingProposal = agentSavingIds.has(proposal.parentId);
                             const isPending = !isAccepted && !isRejected;
 
                             return (
                                 <div
-                                    key={proposal.parentId}
+                                    key={`${proposal.parentId}-${proposal.selectionStart ?? "full"}`}
                                     className={`agent-proposal-card ${isAccepted && !isSaved ? "previewing" : ""} ${isSaved ? "saved" : ""} ${isRejected ? "rejected" : ""}`}
                                 >
-                                    {/* Header */}
                                     <div className="agent-proposal-header">
-                                        <span className="agent-proposal-filename">📄 {proposal.fileName}</span>
-                                        {isSaved && <span className="agent-proposal-status saved">✓ Saved to database</span>}
-                                        {isAccepted && !isSaved && <span className="agent-proposal-status previewing">👁 Previewing — not saved yet</span>}
-                                        {isRejected && <span className="agent-proposal-status rejected">✗ Rejected</span>}
+                                        <span className="agent-proposal-filename">{proposal.fileName}</span>
+                                        <div className="agent-proposal-meta">
+                                            {proposal.source === "selection" && (
+                                                <span className="agent-proposal-source">Selection</span>
+                                            )}
+                                            {isSaved && <span className="agent-proposal-status saved">Saved to database</span>}
+                                            {isAccepted && !isSaved && <span className="agent-proposal-status previewing">Previewing</span>}
+                                            {isRejected && <span className="agent-proposal-status rejected">Rejected</span>}
+                                        </div>
                                     </div>
 
-                                    {/* Before / After diff — hidden after accept since full doc is visible in tab */}
                                     {!isAccepted && !isRejected && (
                                         <div className="agent-diff-blocks">
                                             <div className="agent-diff-block del-block">
@@ -229,14 +320,12 @@ export default function ModificationPanel({
                                         </div>
                                     )}
 
-                                    {/* After accept: remind user the full doc is visible in the tab above */}
                                     {isAccepted && !isSaved && (
                                         <div className="agent-preview-hint">
                                             Changes applied locally. Review the full document in the tab above, then save when ready.
                                         </div>
                                     )}
 
-                                    {/* Actions */}
                                     {isPending && (
                                         <div className="ai-preview-actions">
                                             <button
@@ -262,15 +351,15 @@ export default function ModificationPanel({
                                                 className="save-btn"
                                                 type="button"
                                                 onClick={() => onSaveAgentProposal(proposal)}
-                                                disabled={isSaving}
+                                                disabled={isSavingProposal}
                                             >
-                                                {isSaving ? "Saving..." : "Save to database"}
+                                                {isSavingProposal ? "Saving..." : "Save to database"}
                                             </button>
                                             <button
                                                 className="cancel-btn"
                                                 type="button"
                                                 onClick={() => onRejectAgentProposal(proposal.parentId)}
-                                                disabled={isSaving}
+                                                disabled={isSavingProposal}
                                             >
                                                 Discard
                                             </button>
@@ -282,7 +371,6 @@ export default function ModificationPanel({
                     </section>
                 )}
 
-                {/* ── Document view ── */}
                 {!activeTab ? (
                     !isEditMode && <div className="mod-panel-empty">No file tab selected.</div>
                 ) : activeTabState?.error ? (
@@ -314,6 +402,16 @@ export default function ModificationPanel({
                                 )}
                             </div>
 
+                            {isEditMode && !isEditing && (
+                                <div className="mod-panel-selection-hint">
+                                    Highlight text inside a single chunk to edit it directly.
+                                </div>
+                            )}
+
+                            {selectionError && (
+                                <div className="mod-panel-selection-error">{selectionError}</div>
+                            )}
+
                             {isEditing ? (
                                 <>
                                     <textarea
@@ -343,7 +441,26 @@ export default function ModificationPanel({
                                     </div>
                                 </>
                             ) : (
-                                <pre className="mod-panel-document-text">{fullDocumentContent}</pre>
+                                <div
+                                    className="mod-panel-document-chunks"
+                                    onMouseUp={handleDocumentSelection}
+                                    onKeyUp={handleDocumentSelection}
+                                >
+                                    {activeTabState.chunks.map((chunk, index) => (
+                                        <section
+                                            key={chunk.parentId}
+                                            className={`mod-panel-document-chunk ${
+                                                highlightedSelection?.parentId === chunk.parentId ? "selected" : ""
+                                            }`}
+                                            data-parent-id={chunk.parentId}
+                                        >
+                                            <div className="mod-panel-document-chunk-header">
+                                                Chunk {index + 1}
+                                            </div>
+                                            <pre className="mod-panel-document-text">{chunk.content}</pre>
+                                        </section>
+                                    ))}
+                                </div>
                             )}
 
                             {saveError && <div className="mod-panel-save-error">{saveError}</div>}
@@ -361,7 +478,6 @@ export default function ModificationPanel({
                 ) : (
                     <div className="mod-panel-empty">No content available for this file.</div>
                 )}
-
             </div>
         </aside>
     );

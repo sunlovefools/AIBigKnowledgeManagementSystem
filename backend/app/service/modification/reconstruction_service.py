@@ -40,9 +40,10 @@ class ReconstructionService:
     @staticmethod
     def _extract_parent_row_fields(row: dict) -> dict[str, Any] | None:
         """
-        Extract common fields from a raw Astra parent-collection row.
+        Extract common fields from a raw Astra parent-collection row and return a structured dictionary.
         Returns None if row is not usable.
         """
+        # TODO: This extraction method loses a lot of metadata, we may need to preserve more of it in the future
         if not isinstance(row, dict):
             return None
 
@@ -388,6 +389,9 @@ class ReconstructionService:
         """
         try:
             def _find_row() -> dict | None:
+                """
+                Inner helper function called by the async wrapper to perform the blocking DB call in a thread.
+                """
                 collection = PARENT_STORE.collection
                 cursor = collection.find({"_id": parent_id})
                 for row in cursor:
@@ -395,10 +399,12 @@ class ReconstructionService:
                         return row
                 return None
 
+            # Asyncally run the blocking DB call in a thread to avoid FastAPI event loop issues.
             row = await asyncio.to_thread(_find_row)
             if row is None:
                 return None
             return ReconstructionService._extract_parent_row_fields(row)
+        
         except Exception as error:
             print(f"❌ Failed to look up document {parent_id}: {error}")
             traceback.print_exc()

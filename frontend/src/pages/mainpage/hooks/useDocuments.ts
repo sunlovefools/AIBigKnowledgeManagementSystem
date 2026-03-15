@@ -1,6 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import axios from "axios";
-import type { AgentProposal, FileTabState, ParentChunkContent, SidebarFileSummary } from "../types";
+import type {
+    AgentProposal,
+    FileTabState,
+    HighlightedSelection,
+    ParentChunkContent,
+    SidebarFileSummary,
+} from "../types";
 
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 const PAGE_SIZE = 7;
@@ -37,6 +43,16 @@ type DeleteFileResponse = {
 type AgentModifyResponse = {
     intention: string;
     proposals: AgentProposal[];
+};
+
+type SelectionEditPreviewResponse = {
+    fileId: string;
+    fileName: string;
+    parentId: string;
+    selectedText: string;
+    proposedText: string;
+    startOffset: number;
+    endOffset: number;
 };
 
 type RequestAgentResult = {
@@ -518,6 +534,71 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         [isAgentGenerating]
     );
 
+    const requestSelectionEditPreview = useCallback(
+        async (instruction: string, selection: HighlightedSelection): Promise<RequestAgentResult> => {
+            const trimmed = instruction.trim();
+            if (!trimmed) return { ok: false, error: "Instruction cannot be empty." };
+            if (isAgentGenerating) return { ok: false, error: "Agent is already running." };
+
+            setOpenTabs((prev) => prev.includes(selection.fileId) ? prev : [...prev, selection.fileId]);
+            setActiveTab(selection.fileId);
+            setIsAgentGenerating(true);
+            setAgentError(null);
+            setAgentProposals([]);
+            setAgentAcceptedMap(new Map());
+            setAgentSavedIds(new Set());
+            setAgentRejectedIds(new Set());
+            setAgentSavingIds(new Set());
+            setAgentIntention("selection");
+
+            try {
+                const response = await axios.post<SelectionEditPreviewResponse>(
+                    `${API_BASE}/api/modifications/selection-edit-preview`,
+                    {
+                        fileId: selection.fileId,
+                        fileName: selection.fileName,
+                        parentId: selection.parentId,
+                        selectedText: selection.selectedText,
+                        startOffset: selection.startOffset,
+                        endOffset: selection.endOffset,
+                        instruction: trimmed,
+                    }
+                );
+
+                const preview = response.data;
+                setAgentProposals([
+                    {
+                        fileId: preview.fileId,
+                        fileName: preview.fileName,
+                        parentId: preview.parentId,
+                        original: preview.selectedText,
+                        proposed: preview.proposedText,
+                        source: "selection",
+                        selectionStart: preview.startOffset,
+                        selectionEnd: preview.endOffset,
+                    },
+                ]);
+
+                const summary = preview.proposedText.trim().endsWith("?")
+                    ? "The editor asked for clarification. Review the proposal in the edit panel."
+                    : "Selection edit preview generated. Review the proposal in the edit panel.";
+                return { ok: true, summary };
+            } catch (error) {
+                const detail = axios.isAxiosError(error)
+                    ? typeof error.response?.data?.detail === "string"
+                        ? error.response.data.detail
+                        : null
+                    : null;
+                const requestError = detail ?? "Selected-text edit failed. Please try again.";
+                setAgentError(requestError);
+                return { ok: false, error: requestError };
+            } finally {
+                setIsAgentGenerating(false);
+            }
+        },
+        [isAgentGenerating]
+    );
+
     // Accept: apply partial text replacement locally. Does NOT write to DB yet.
     // Auto-loads the file's chunks if not yet in tabStates, so the user never
     // has to manually open a file before clicking Accept.
@@ -540,26 +621,40 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             return;
         }
 
-        // B01: use indexOf to find exact position instead of .replace().
-        // .replace(a, b) only changes the first occurrence silently; indexOf lets us
-        // verify existence, count duplicates, and record the precise offset for revert.
-        const offset = targetChunk.content.indexOf(proposal.original);
-        if (offset === -1) {
-            // Original text no longer exists in the chunk (e.g. stale proposal after
-            // another edit). Reject silently rather than writing corrupt content.
-            setSaveError(`原文未在文档中找到（可能是过期的 proposal），已跳过。`);
-            return;
-        }
+        let offset: number;
+        if (
+            proposal.source === "selection" &&
+            proposal.selectionStart !== undefined &&
+            proposal.selectionEnd !== undefined
+        ) {
+            offset = proposal.selectionStart;
+            const currentSelection = targetChunk.content.slice(proposal.selectionStart, proposal.selectionEnd);
+            if (currentSelection !== proposal.original) {
+                setSaveError("The highlighted text no longer matches the current document content.");
+                return;
+            }
+        } else {
+            // B01: use indexOf to find exact position instead of .replace().
+            // .replace(a, b) only changes the first occurrence silently; indexOf lets us
+            // verify existence, count duplicates, and record the precise offset for revert.
+            offset = targetChunk.content.indexOf(proposal.original);
+            if (offset === -1) {
+                // Original text no longer exists in the chunk (e.g. stale proposal after
+                // another edit). Reject silently rather than writing corrupt content.
+                setSaveError(`原文未在文档中找到（可能是过期的 proposal），已跳过。`);
+                return;
+            }
 
-        // Warn when the original appears more than once so the user is aware only
-        // the first occurrence will be patched.
-        const matchCount = targetChunk.content.split(proposal.original).length - 1;
-        if (matchCount > 1) {
-            console.warn(
-                `[B01] "${proposal.original.slice(0, 60)}…" appears ${matchCount} times ` +
-                `in chunk ${proposal.parentId}. Only the first occurrence (offset=${offset}) ` +
-                `will be replaced.`
-            );
+            // Warn when the original appears more than once so the user is aware only
+            // the first occurrence will be patched.
+            const matchCount = targetChunk.content.split(proposal.original).length - 1;
+            if (matchCount > 1) {
+                console.warn(
+                    `[B01] "${proposal.original.slice(0, 60)}…" appears ${matchCount} times ` +
+                    `in chunk ${proposal.parentId}. Only the first occurrence (offset=${offset}) ` +
+                    `will be replaced.`
+                );
+            }
         }
 
         // Store offset alongside the proposal so rejectAgentProposal can restore
@@ -789,6 +884,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         agentError,
         agentIntention,
         requestAgentEditPreview,
+        requestSelectionEditPreview,
         acceptAgentProposal,
         saveAgentProposal,
         rejectAgentProposal,

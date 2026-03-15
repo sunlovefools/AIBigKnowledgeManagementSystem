@@ -1,13 +1,16 @@
 import { useCallback, useLayoutEffect, useRef, type KeyboardEvent } from "react";
+import type { HighlightedSelection } from "../types";
 
 type ChatInputProps = {
     input: string;
     isQuerying: boolean;
     isModificationPanelOpen: boolean;
-    isEditMode: boolean;                 // NEW: changes placeholder text
+    isEditMode: boolean;
+    highlightedSelection: HighlightedSelection | null;
     onInputChange: (value: string) => void;
     onInputKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
     onToggleModificationPanel: () => void;
+    onClearHighlightedSelection: () => void;
     onSend: () => void;
 };
 
@@ -16,9 +19,11 @@ export default function ChatInput({
     isQuerying,
     isModificationPanelOpen,
     isEditMode,
+    highlightedSelection,
     onInputChange,
     onInputKeyDown,
     onToggleModificationPanel,
+    onClearHighlightedSelection,
     onSend,
 }: ChatInputProps) {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
@@ -38,12 +43,35 @@ export default function ChatInput({
     }, [input, adjustTextareaHeight]);
 
     const placeholder = isEditMode
-        ? "Enter edit instruction (e.g. Change X to Y)..."
+        ? highlightedSelection
+            ? "Describe how to modify the selected text..."
+            : "Enter edit instruction (e.g. Change X to Y)..."
         : "Ask something about your files...";
+
+    const selectionPreview = highlightedSelection?.selectedText.replace(/\s+/g, " ").trim() ?? "";
 
     return (
         <div className="input-area-wrapper">
             <div className={`input-container ${isEditMode ? "edit-mode-active" : ""}`}>
+                {highlightedSelection && (
+                    <div className="input-selection-chip">
+                        <div className="input-selection-chip-meta">
+                            <span className="input-selection-chip-label">Selected text</span>
+                            <span className="input-selection-chip-file">{highlightedSelection.fileName}</span>
+                        </div>
+                        <div className="input-selection-chip-text">
+                            {selectionPreview.length > 140 ? `${selectionPreview.slice(0, 140)}...` : selectionPreview}
+                        </div>
+                        <button
+                            className="input-selection-chip-clear"
+                            type="button"
+                            onClick={onClearHighlightedSelection}
+                            aria-label="Clear selected text"
+                        >
+                            x
+                        </button>
+                    </div>
+                )}
                 <textarea
                     ref={textareaRef}
                     className="chat-input"
@@ -95,7 +123,9 @@ export default function ChatInput({
             </div>
             <div className="input-hint">
                 {isEditMode
-                    ? "Edit mode — AI will modify documents | Enter to send"
+                    ? highlightedSelection
+                        ? "Edit mode - highlighted text will be sent directly to the editor | Enter to send"
+                        : "Edit mode - AI will modify documents | Enter to send"
                     : "Enter to send | Shift+Enter for a new line"}
             </div>
         </div>

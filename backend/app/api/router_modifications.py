@@ -73,6 +73,28 @@ class LlmEditPreviewResponse(BaseModel):
     warnings: list[str] = []
 
 
+class SelectionEditPreviewRequest(BaseModel):
+    """Payload for requesting an LLM-driven edit preview for highlighted text."""
+    fileId: str
+    fileName: str
+    parentId: str
+    selectedText: str
+    startOffset: int
+    endOffset: int
+    instruction: str
+
+
+class SelectionEditPreviewResponse(BaseModel):
+    """Response payload for selected-text edit preview."""
+    fileId: str
+    fileName: str
+    parentId: str
+    selectedText: str
+    proposedText: str
+    startOffset: int
+    endOffset: int
+
+
 # --- API Endpoints ---
 
 @router.get("/health")
@@ -130,6 +152,131 @@ async def llm_edit_preview(payload: LlmEditPreviewRequest):
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate LLM edit preview: {str(e)}",
+        )
+
+
+@router.post("/selection-edit-preview", response_model=SelectionEditPreviewResponse)
+async def selection_edit_preview(payload: SelectionEditPreviewRequest):
+    """Generate a non-persistent edit preview for a highlighted text selection."""
+
+    print(f"[Selection Edit Preview] Received request for modification with instruction: '{payload.instruction}' on fileId: '{payload.fileId}', parentId: '{payload.parentId}'")
+
+    try:
+        file_id = payload.fileId.strip()
+        file_name = payload.fileName.strip()
+        parent_id = payload.parentId.strip()
+        selected_text = payload.selectedText
+        instruction = payload.instruction.strip()
+        start_offset = payload.startOffset
+        end_offset = payload.endOffset
+
+        if not file_id:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="fileId must not be empty",
+            )
+
+        if not file_name:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="fileName must not be empty",
+            )
+
+        if not parent_id:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="parentId must not be empty",
+            )
+
+        if not selected_text:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="selectedText must not be empty",
+            )
+
+        if not instruction:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="instruction must not be empty",
+            )
+
+        if start_offset < 0 or end_offset <= start_offset:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="startOffset/endOffset must describe a non-empty range",
+            )
+
+        # Note: although the parent chunk content is not sent to the LLM in this
+        # flow, we still fetch it to validate that the chunk exists and that the
+        # selected text and offsets still match the current stored content.
+        existing_doc = await ReconstructionService.get_document_by_id(parent_id)
+        if not existing_doc:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Document with parent ID '{parent_id}' not found",
+            )
+
+        existing_file_id = str(existing_doc.get("fileId") or "").strip()
+        existing_file_name = str(existing_doc.get("fileName") or "Unknown")
+        existing_content = str(existing_doc.get("content") or "")
+
+        if existing_file_id and existing_file_id != file_id:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    f"parent ID '{parent_id}' belongs to file ID '{existing_file_id}', "
+                    f"not '{file_id}'"
+                ),
+            )
+
+        if existing_file_name != file_name:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    f"parent ID '{parent_id}' belongs to '{existing_file_name}', "
+                    f"not '{file_name}'"
+                ),
+            )
+
+        if end_offset > len(existing_content):
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="Selection offsets are out of range for the parent chunk",
+            )
+
+        if existing_content[start_offset:end_offset] != selected_text:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="selectedText does not match the current content at the provided offsets",
+            )
+
+        preview = await LlmEditorService.generate_selection_edit_preview(
+            file_name=file_name,
+            selected_text=selected_text,
+            instruction=instruction,
+        )
+
+        return SelectionEditPreviewResponse(
+            fileId=file_id,
+            fileName=file_name,
+            parentId=parent_id,
+            selectedText=selected_text,
+            proposedText=preview["proposedText"],
+            startOffset=start_offset,
+            endOffset=end_offset,
+        )
+    except HTTPException:
+        raise
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"LLM service error: {str(e)}",
+        )
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate selection edit preview: {str(e)}",
         )
 
 # Endpoint that is yet to be implemented in the frontend

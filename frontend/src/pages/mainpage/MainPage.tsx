@@ -10,12 +10,15 @@ import { useChat } from "./hooks/useChat";
 import { useDocuments } from "./hooks/useDocuments";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
+import type { HighlightedSelection } from "./types";
 
 export default function MainPage() {
     const navigate = useNavigate();
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
+    const [highlightedSelection, setHighlightedSelection] = useState<HighlightedSelection | null>(null);
+    const [selectionError, setSelectionError] = useState<string | null>(null);
     const [pendingDeleteFile, setPendingDeleteFile] = useState<{ fileId: string; fileName: string } | null>(null);
 
     const bottomRef = useRef<HTMLDivElement | null>(null);
@@ -68,6 +71,7 @@ export default function MainPage() {
         agentError,
         agentIntention,
         requestAgentEditPreview,
+        requestSelectionEditPreview,
         acceptAgentProposal,
         saveAgentProposal,
         rejectAgentProposal,
@@ -90,14 +94,22 @@ export default function MainPage() {
         if (isEditMode) {
             appendMessage({ role: "user", text: textInput });
             setInput("");
-            const fileIds = selectedFileIds.size > 0 ? Array.from(selectedFileIds) : null;
-            const result = await requestAgentEditPreview(textInput, fileIds);
+            const result = highlightedSelection
+                ? await requestSelectionEditPreview(textInput, highlightedSelection)
+                : await requestAgentEditPreview(
+                    textInput,
+                    selectedFileIds.size > 0 ? Array.from(selectedFileIds) : null
+                );
             appendMessage({
                 role: "ai",
                 text: result.ok
                     ? result.summary ?? "Review the proposals in the edit panel."
                     : `Edit failed: ${result.error ?? "Unknown error"}`,
             });
+            if (result.ok && highlightedSelection) {
+                setHighlightedSelection(null);
+                setSelectionError(null);
+            }
             return;
         }
 
@@ -161,9 +173,52 @@ export default function MainPage() {
         },
     });
 
+    const activeChunkSignature = activeTabState?.chunks
+        .map((chunk) => `${chunk.parentId}:${chunk.size}`)
+        .join("|") ?? "";
+
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isQuerying, isUploading]);
+
+    useEffect(() => {
+        if (!isEditMode || isEditingActiveDocument) {
+            setHighlightedSelection(null);
+            setSelectionError(null);
+        }
+    }, [isEditMode, isEditingActiveDocument]);
+
+    useEffect(() => {
+        setHighlightedSelection(null);
+        setSelectionError(null);
+    }, [activeTab]);
+
+    useEffect(() => {
+        if (highlightedSelection || selectionError) {
+            setHighlightedSelection(null);
+            setSelectionError(null);
+        }
+    }, [activeChunkSignature]);
+
+    const handleSelectionChange = useCallback((selection: HighlightedSelection | null) => {
+        setHighlightedSelection(selection);
+        if (selection) {
+            setSelectionError(null);
+        }
+    }, []);
+
+    const handleSelectionErrorChange = useCallback((message: string | null) => {
+        setSelectionError(message);
+        if (message) {
+            setHighlightedSelection(null);
+        }
+    }, []);
+
+    const clearHighlightedSelection = useCallback(() => {
+        window.getSelection()?.removeAllRanges();
+        setHighlightedSelection(null);
+        setSelectionError(null);
+    }, []);
 
     // Pencil button:
     // - Panel closed           → open panel in edit mode
@@ -178,6 +233,7 @@ export default function MainPage() {
         } else {
             setIsEditMode(false);
             setSelectedFileIds(new Set());
+            clearHighlightedSelection();
         }
     };
 
@@ -185,6 +241,7 @@ export default function MainPage() {
         setIsModificationPanelOpen(false);
         setIsEditMode(false);
         setSelectedFileIds(new Set());
+        clearHighlightedSelection();
     };
 
     const handleLogout = () => {
@@ -259,9 +316,11 @@ export default function MainPage() {
                     isQuerying={isQuerying || isAgentGenerating}
                     isModificationPanelOpen={isModificationPanelOpen}
                     isEditMode={isEditMode}
+                    highlightedSelection={highlightedSelection}
                     onInputChange={setInput}
                     onInputKeyDown={handleComposerKeyDown}
                     onToggleModificationPanel={handleToggleModificationPanel}
+                    onClearHighlightedSelection={clearHighlightedSelection}
                     onSend={() => { void handleComposerSend(); }}
                 />
             </main>
@@ -291,6 +350,8 @@ export default function MainPage() {
                     saveError={saveError}
                     isEditMode={isEditMode}
                     selectedFileIds={selectedFileIds}
+                    highlightedSelection={highlightedSelection}
+                    selectionError={selectionError}
                     onRefreshDocuments={handleRefreshDocuments}
                     onClose={handleCloseModificationPanel}
                     onTabSelect={(fileId) => { void setActiveDocumentTab(fileId); }}
@@ -301,6 +362,8 @@ export default function MainPage() {
                     onEditingContentChange={setActiveEditingDocumentContent}
                     onCancelEditing={cancelEditingActiveDocument}
                     onSaveEditing={() => { void saveEditingActiveDocument(); }}
+                    onHighlightedSelectionChange={handleSelectionChange}
+                    onSelectionErrorChange={handleSelectionErrorChange}
                     isAgentGenerating={isAgentGenerating}
                     agentProposals={agentProposals}
                     agentAcceptedMap={agentAcceptedMap}
