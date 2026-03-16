@@ -17,6 +17,7 @@ from app.vectordb.vectordb import (
     upsert_documents,
 )
 from app.service.rag.ingestion.chunker import split_parent_child_chunks
+from app.service.rag.ingestion.markdown_chunker import split_parent_child_chunks_from_markdown
 from app.service.rag.ingestion.chunk_polisher import polish_chunks
 from app.service.storage.s3_image_store import delete_docling_artifacts_by_file_id
 from debug.debug_logger import log_vector_db_result
@@ -609,3 +610,245 @@ class ReconstructionService:
             print(f"❌ Failed to update file {file_id}: {e}")
             traceback.print_exc()
             raise RuntimeError(f"File update failed: {str(e)}")
+
+    @staticmethod
+    async def update_parent_chunks_batch(
+        file_id: str,
+        file_name: str,
+        updates: list[dict[str, str]],
+    ) -> dict:
+        """
+        Batch update parent chunks for one logical file scope.
+
+        This is a low-latency orchestration layer that validates ownership first,
+        then updates chunks in parallel. It is intentionally conservative and
+        reuses update_document for correctness.
+        """
+        if not updates:
+            return {
+                "fileId": file_id,
+                "fileName": file_name,
+                "updatedCount": 0,
+                "results": [],
+            }
+
+        print(
+            f"📝 Batch updating {len(updates)} parent chunks for file_id={file_id} ({file_name})..."
+        )
+
+        try:
+            # 1. Restructure the updates list into a dict for easy lookup, and validate input format.
+            deduped_updates: dict[str, str] = {}
+            for item in updates:
+                parent_id = str(item.get("parentId") or "").strip()
+                content = str(item.get("content") or "")
+                if not parent_id:
+                    raise ValueError("Each update item must include a non-empty parentId")
+                if not content.strip():
+                    raise ValueError(f"content must not be empty for parent_id={parent_id}")
+                deduped_updates[parent_id] = content
+
+            def _load_file_rows() -> list[dict]:
+                """
+                Internal helper function called by the async wrapper to perform the blocking DB call in a thread.
+                """
+                collection = PARENT_STORE.collection
+                rows = collection.find({"value.metadata.file_metadata.file_id": file_id})
+                result: list[dict] = []
+                for row in rows:
+                    if isinstance(row, dict):
+                        result.append(row)
+                return result
+
+            # 2. Load all the parent chunks using the file_id and process them into a sortable structure
+            raw_rows = await asyncio.to_thread(_load_file_rows)
+            if not raw_rows:
+                raise FileNotFoundError(f"No parent chunks found for file_id={file_id}")
+
+            sortable_rows: list[dict[str, Any]] = []
+            for row in raw_rows:
+                fields = ReconstructionService._extract_parent_row_fields(row)
+                if not fields:
+                    continue
+
+                parent_id = str(fields.get("parentId") or "").strip()
+                if not parent_id:
+                    continue
+
+                row_file_name = str(fields.get("fileName") or "Unknown")
+                if row_file_name != file_name:
+                    raise RuntimeError(
+                        f"file ID '{file_id}' belongs to '{row_file_name}', not '{file_name}'"
+                    )
+
+                chunk_number = fields.get("chunkNumber")
+                sortable_rows.append(
+                    {
+                        "parentId": parent_id,
+                        "chunkNumber": int(chunk_number) if isinstance(chunk_number, int) else 10**9,
+                        "content": str(fields.get("content") or ""),
+                        "row": row,
+                    }
+                )
+
+            # 2.5. Sort the rows using chunkNumber and parentId to ensure deterministic ordering
+            sortable_rows.sort(key=lambda item: (item["chunkNumber"], item["parentId"]))
+            if not sortable_rows:
+                raise RuntimeError(f"No usable parent chunks found for file_id={file_id}")
+
+            parent_index = {
+                item["parentId"]: index for index, item in enumerate(sortable_rows)
+            }
+
+            unknown_parent_ids = [
+                parent_id for parent_id in deduped_updates.keys() if parent_id not in parent_index
+            ]
+            if unknown_parent_ids:
+                raise FileNotFoundError(
+                    f"Unknown parent IDs for file_id={file_id}: {', '.join(unknown_parent_ids)}"
+                )
+
+            # 3. Detect which parent chunks are actually changed by comparing with the existing content and store their ID
+            changed_parent_ids = [
+                parent_id
+                for parent_id, next_content in deduped_updates.items()
+                if next_content != str(sortable_rows[parent_index[parent_id]]["content"])
+            ]
+            if not changed_parent_ids:
+                return {
+                    "fileId": file_id,
+                    "fileName": file_name,
+                    "updatedCount": 0,
+                    "results": [],
+                }
+            
+            print(f"  → Detected {len(changed_parent_ids)} changed parent chunks (out of {len(deduped_updates)})")
+            # 4. For each changed parent chunk, re-chunk the new content and prepare replacement models
+            replacements_by_parent: dict[str, dict[str, Any]] = {}
+            for parent_id in changed_parent_ids:
+                replacement_parent_models, replacement_child_models = split_parent_child_chunks_from_markdown(
+                    deduped_updates[parent_id],
+                    file_name=file_name,
+                    file_id=file_id,
+                    parent_max_words=500,
+                    child_max_words=80,
+                    min_child_words=20,
+                )
+                if not replacement_parent_models:
+                    raise ValueError(
+                        f"content produced no chunks for parent_id={parent_id}"
+                    )
+
+                # 4.5) Insert the existing file_id back into the new chunk models
+                for parent_chunk in replacement_parent_models:
+                    if isinstance(parent_chunk.file_metadata, dict):
+                        parent_chunk.file_metadata["file_id"] = file_id
+                for child_chunk in replacement_child_models:
+                    if isinstance(child_chunk.file_metadata, dict):
+                        child_chunk.file_metadata["file_id"] = file_id
+
+                replacements_by_parent[parent_id] = {
+                    "parents": replacement_parent_models,
+                    "children": replacement_child_models,
+                }
+
+            # 5. Build a new sequence of parent chunks for the file, the sequence include both unchanged and replacement chunks
+            next_sequence: list[dict[str, Any]] = []
+            for item in sortable_rows:
+                parent_id = item["parentId"]
+                replacement = replacements_by_parent.get(parent_id)
+                if replacement is None:
+                    next_sequence.append({"type": "existing", "item": item})
+                    continue
+
+                for model in replacement["parents"]:
+                    next_sequence.append({"type": "replacement", "parentId": parent_id, "model": model})
+
+            # 6. Update parent_chunk_number in metadata for all chunks in the new sequence based on their position
+            for index, entry in enumerate(next_sequence):
+                target_chunk_number = index
+                if entry["type"] == "existing":
+                    item = entry["item"]
+                    row = item["row"]
+                    parent_doc = row.get("value") or {}
+                    metadata = parent_doc.get("metadata") if isinstance(parent_doc, dict) else {}
+                    if not isinstance(metadata, dict):
+                        metadata = {}
+                    parent_meta = metadata.get("parent_chunk_metadata")
+                    if not isinstance(parent_meta, dict):
+                        parent_meta = {}
+                    parent_meta["parent_chunk_number"] = target_chunk_number
+                    metadata["parent_chunk_metadata"] = parent_meta
+                    parent_doc["metadata"] = metadata
+                    row["value"] = parent_doc
+                else:
+                    model = entry["model"]
+                    if isinstance(model.parent_chunk_metadata, dict):
+                        model.parent_chunk_metadata["parent_chunk_number"] = target_chunk_number
+
+            # 7. Delete all old child chunks + parent chunks for the changed parents
+            for parent_id in changed_parent_ids:
+                await delete_children_by_parent_id(parent_id)
+                await delete_parent_document(parent_id)
+
+            child_chunks_dicts: list[dict[str, Any]] = []
+            for parent_id in changed_parent_ids:
+                replacement = replacements_by_parent[parent_id]
+                child_chunks_dicts.extend(
+                    [model.model_dump(by_alias=False) for model in replacement["children"]]
+                )
+            polished_child_chunks = polish_chunks(child_chunks_dicts)
+
+            replacement_parent_chunks_dicts: list[dict[str, Any]] = []
+            for entry in next_sequence:
+                if entry["type"] != "replacement":
+                    continue
+                model = entry["model"]
+                replacement_parent_chunks_dicts.append(model.model_dump(by_alias=True))
+
+            if replacement_parent_chunks_dicts or polished_child_chunks:
+                await upsert_documents(
+                    parent_chunks=replacement_parent_chunks_dicts,
+                    child_chunks=polished_child_chunks,
+                )
+
+            # 8. Prepare the list of existing parent chunks that were not changed, to update their parent_chunk_number in batch
+            existing_parent_pairs: list[tuple[str, dict]] = []
+            for entry in next_sequence:
+                if entry["type"] != "existing":
+                    continue
+                row = entry["item"]["row"]
+                parent_id = str(row.get("_id") or "").strip()
+                parent_value = row.get("value")
+                if not parent_id or not isinstance(parent_value, dict):
+                    continue
+                existing_parent_pairs.append((parent_id, parent_value))
+
+            if existing_parent_pairs:
+                await PARENT_STORE.amset(existing_parent_pairs)
+
+            results: list[dict[str, Any]] = []
+            for parent_id in changed_parent_ids:
+                replacement = replacements_by_parent[parent_id]
+                first_parent = replacement["parents"][0].model_dump(by_alias=True)
+                results.append(
+                    {
+                        "parentId": first_parent["parent_chunk_id"],
+                        "previousParentId": parent_id,
+                        "fileName": file_name,
+                        "content": deduped_updates[parent_id],
+                        "size": len(deduped_updates[parent_id]),
+                        "chunks": len(replacement["children"]),
+                    }
+                )
+
+            return {
+                "fileId": file_id,
+                "fileName": file_name,
+                "updatedCount": len(results),
+                "results": results,
+            }
+        except Exception as error:
+            print(f"❌ Failed batch parent update for file_id={file_id}: {error}")
+            traceback.print_exc()
+            raise RuntimeError(f"Batch parent chunk update failed: {str(error)}")

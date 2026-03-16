@@ -43,7 +43,7 @@ class AgentModifyResponse(BaseModel):
     intention: "edit" or "locate"
     proposals: List of proposed modifications.
                Frontend renders diff view and calls
-               PUT /api/modifications/parent-chunks/{parentId} on approve.
+               POST /api/modifications/parent-chunks/batch-update on approve.
     """
     intention: str
     proposals: list[ProposalItem]

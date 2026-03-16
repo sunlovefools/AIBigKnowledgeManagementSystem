@@ -25,6 +25,7 @@ sys.modules["app.vectordb.vectordb"] = fake_vectordb
 
 from app.api import router_modifications
 from app.service.modification import reconstruction_service as rs
+from app.service.rag.ingestion.chunker import ChildChunkModel, ParentChunkModel
 
 
 def test_reconstruction_service_delete_file_removes_db_rows_and_returns_s3_status(monkeypatch):
@@ -277,3 +278,222 @@ def test_reconstruction_service_update_file_noop_when_content_unchanged(monkeypa
     assert result["content"] == "first chunk\n\nsecond chunk"
     assert result["parentChunks"] == 2
     assert result["chunks"] == 0
+
+
+def test_reconstruction_service_update_parent_chunks_batch_noop_when_all_updates_unchanged(monkeypatch):
+    class _FakeCollection:
+        def find(self, _query):
+            return iter(
+                [
+                    {
+                        "_id": "parent-1",
+                        "value": {
+                            "page_content": "chunk one",
+                            "metadata": {
+                                "file_metadata": {
+                                    "file_id": "file-1",
+                                    "file_name": "Report.md",
+                                },
+                                "parent_chunk_metadata": {
+                                    "parent_chunk_number": 0,
+                                },
+                            },
+                        },
+                    },
+                    {
+                        "_id": "parent-2",
+                        "value": {
+                            "page_content": "chunk two",
+                            "metadata": {
+                                "file_metadata": {
+                                    "file_id": "file-1",
+                                    "file_name": "Report.md",
+                                },
+                                "parent_chunk_metadata": {
+                                    "parent_chunk_number": 1000,
+                                },
+                            },
+                        },
+                    },
+                ]
+            )
+
+    class _FakeParentStore:
+        def __init__(self):
+            self.collection = _FakeCollection()
+
+        async def amset(self, _pairs):
+            raise AssertionError("amset should not be called for all-unchanged batch update")
+
+    monkeypatch.setattr(rs, "PARENT_STORE", _FakeParentStore())
+
+    async def _unexpected_delete_children(_parent_id: str):
+        raise AssertionError("delete_children_by_parent_id should not be called for unchanged batch update")
+
+    async def _unexpected_delete_parent(_parent_id: str):
+        raise AssertionError("delete_parent_document should not be called for unchanged batch update")
+
+    async def _unexpected_upsert(*, parent_chunks, child_chunks):
+        raise AssertionError("upsert_documents should not be called for unchanged batch update")
+
+    def _unexpected_split(*args, **kwargs):
+        raise AssertionError("split_parent_child_chunks_from_markdown should not be called for unchanged batch update")
+
+    monkeypatch.setattr(rs, "delete_children_by_parent_id", _unexpected_delete_children)
+    monkeypatch.setattr(rs, "delete_parent_document", _unexpected_delete_parent)
+    monkeypatch.setattr(rs, "upsert_documents", _unexpected_upsert)
+    monkeypatch.setattr(rs, "split_parent_child_chunks_from_markdown", _unexpected_split)
+
+    result = asyncio.run(
+        rs.ReconstructionService.update_parent_chunks_batch(
+            file_id="file-1",
+            file_name="Report.md",
+            updates=[
+                {"parentId": "parent-1", "content": "chunk one"},
+                {"parentId": "parent-2", "content": "chunk two"},
+            ],
+        )
+    )
+
+    assert result["fileId"] == "file-1"
+    assert result["updatedCount"] == 0
+    assert result["results"] == []
+
+
+def test_reconstruction_service_update_parent_chunks_batch_rewrites_only_touched_parents(monkeypatch):
+    class _FakeCollection:
+        def find(self, _query):
+            return iter(
+                [
+                    {
+                        "_id": "parent-1",
+                        "value": {
+                            "page_content": "chunk one",
+                            "metadata": {
+                                "file_metadata": {
+                                    "file_id": "file-1",
+                                    "file_name": "Report.md",
+                                },
+                                "parent_chunk_metadata": {
+                                    "parent_chunk_number": 0,
+                                },
+                            },
+                        },
+                    },
+                    {
+                        "_id": "parent-2",
+                        "value": {
+                            "page_content": "chunk two",
+                            "metadata": {
+                                "file_metadata": {
+                                    "file_id": "file-1",
+                                    "file_name": "Report.md",
+                                },
+                                "parent_chunk_metadata": {
+                                    "parent_chunk_number": 1000,
+                                },
+                            },
+                        },
+                    },
+                ]
+            )
+
+    calls = {
+        "split": [],
+        "delete_children": [],
+        "delete_parent": [],
+        "upsert": [],
+        "amset": [],
+        "polish": [],
+    }
+
+    class _FakeParentStore:
+        def __init__(self):
+            self.collection = _FakeCollection()
+
+        async def amset(self, pairs):
+            calls["amset"].append(list(pairs))
+
+    def _split_markdown(new_content: str, file_name: str, **kwargs):
+        calls["split"].append(new_content)
+        replacement_parent_id = "parent-1-replacement"
+        parent_model = ParentChunkModel(
+            parent_chunk_id=replacement_parent_id,
+            content=new_content,
+            file_metadata={"file_name": file_name, "file_id": kwargs.get("file_id", "file-1")},
+            parent_chunk_metadata={
+                "child_chunks_ids": ["child-r1"],
+                "parent_chunk_number": 0,
+                "page_number": [0],
+                "ingested_at": "2026-01-01T00:00:00+00:00",
+            },
+            content_flags={"is_image": False, "is_table_image": False},
+            artifact_refs={"image_uuid": [], "table_image_uuid": []},
+        )
+        child_model = ChildChunkModel(
+            child_chunk_id="child-r1",
+            content=f"child::{new_content}",
+            file_metadata={"file_name": file_name, "file_id": kwargs.get("file_id", "file-1")},
+            child_chunk_metadata={
+                "parent_id": replacement_parent_id,
+                "child_chunk_number": 0,
+                "page_number": 0,
+                "has_preamble": False,
+                "ingested_at": "2026-01-01T00:00:00+00:00",
+            },
+            content_flags={"is_image": False, "is_table_image": False},
+            artifact_refs={"image_uuid": None, "table_image_uuid": None},
+        )
+        return [parent_model], [child_model]
+
+    async def _delete_children(parent_id: str):
+        calls["delete_children"].append(parent_id)
+
+    async def _delete_parent(parent_id: str):
+        calls["delete_parent"].append(parent_id)
+
+    async def _upsert_documents(*, parent_chunks, child_chunks):
+        calls["upsert"].append({"parents": parent_chunks, "children": child_chunks})
+
+    def _polish_chunks(child_chunks):
+        calls["polish"].append(child_chunks)
+        return child_chunks
+
+    monkeypatch.setattr(rs, "PARENT_STORE", _FakeParentStore())
+    monkeypatch.setattr(rs, "split_parent_child_chunks_from_markdown", _split_markdown)
+    monkeypatch.setattr(rs, "delete_children_by_parent_id", _delete_children)
+    monkeypatch.setattr(rs, "delete_parent_document", _delete_parent)
+    monkeypatch.setattr(rs, "upsert_documents", _upsert_documents)
+    monkeypatch.setattr(rs, "polish_chunks", _polish_chunks)
+
+    result = asyncio.run(
+        rs.ReconstructionService.update_parent_chunks_batch(
+            file_id="file-1",
+            file_name="Report.md",
+            updates=[
+                {"parentId": "parent-1", "content": "chunk one updated"},
+                {"parentId": "parent-2", "content": "chunk two"},
+            ],
+        )
+    )
+
+    assert calls["split"] == ["chunk one updated"]
+    assert calls["delete_children"] == ["parent-1"]
+    assert calls["delete_parent"] == ["parent-1"]
+    assert len(calls["upsert"]) == 1
+    assert len(calls["amset"]) == 1
+
+    upsert_payload = calls["upsert"][0]
+    assert len(upsert_payload["parents"]) == 1
+    assert len(upsert_payload["children"]) == 1
+    assert upsert_payload["parents"][0]["parent_chunk_id"] == "parent-1-replacement"
+    assert upsert_payload["children"][0]["child_chunk_id"] == "child-r1"
+
+    untouched_pairs = calls["amset"][0]
+    assert len(untouched_pairs) == 1
+    assert untouched_pairs[0][0] == "parent-2"
+
+    assert result["fileId"] == "file-1"
+    assert result["updatedCount"] == 1
+    assert result["results"][0]["previousParentId"] == "parent-1"
+    assert result["results"][0]["parentId"] == "parent-1-replacement"

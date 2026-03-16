@@ -2,27 +2,20 @@
   Type definitions for the main page of the frontend application.
 */
 
-// Type for a chat message, which can be from the user or the AI.
+// Chat message exchanged between the user and AI.
 export type ChatMessage = {
     role: "user" | "ai";
     text: string;
 };
 
-// Type for a sidebar file item (merged by uploaded filename).
+// One file item shown in the sidebar.
 export type SidebarFileSummary = {
     fileId: string;
     fileName: string;
     previewTexts: string;
 };
 
-// Type for one parent chunk payload in full-view mode.
-export type ParentChunkContent = {
-    parentId: string;
-    content: string;
-    size: number;
-    pageNumbers: number[];
-};
-
+// Text selection captured from one parent chunk.
 export type HighlightedSelection = {
     fileId: string;
     fileName: string;
@@ -32,15 +25,47 @@ export type HighlightedSelection = {
     endOffset: number;
 };
 
-// Type for tab state of an opened file.
-export type FileTabState = {
-    chunks: ParentChunkContent[];
-    hasMore: boolean;
-    nextCursor: string | null;
+export type FileContentAsyncState = {
     isLoading: boolean;
     isInitialized: boolean;
     error: string | null;
 };
+
+// One parent chunk payload in full-view mode.
+export type ParentChunkContent = {
+    parentId: string;
+    content: string;
+    size: number;
+    pageNumbers: number[];
+};
+
+// Loaded content and pagination state for one file.
+export type FileContentState = {
+    chunks: ParentChunkContent[];
+    hasMore: boolean;
+    nextCursor: string | null;
+};
+
+// Top-level store for the document workspace.
+// byId holds file objects, while ID arrays define UI ordering and active selection.
+export type FilesState = {
+    byId: Record<string, FileEntry>;
+    sidebarFileIds: string[];
+    openTabIds: string[];
+    activeFileId: string | null;
+};
+
+// Unified frontend model for a file shown in the sidebar and document panel.
+export type FileEntry = {
+    fileId: string;
+    fileName: string;
+    previewTexts: string;
+    contentState: FileContentState;
+};
+
+// Backward-compatible alias for places that still read the currently active file's content state as a tab state.
+export type FileTabState = FileContentState;
+export type FileTabAsyncState = FileContentAsyncState;
 
 // Type for a single diff segment in a unified diff display.
 export type DiffSegment = {

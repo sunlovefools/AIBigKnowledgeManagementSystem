@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import MarkdownEditor from "./FileViewingAndModification";
 import type {
     AgentProposal,
+    FileTabAsyncState,
     FileTabState,
     HighlightedSelection,
     SidebarFileSummary,
@@ -10,7 +11,8 @@ import type {
 type ModificationPanelProps = {
     files: SidebarFileSummary[];
     activeTab: string | null;
-    activeTabState: FileTabState | null;
+    activeTabData: FileTabState | null;
+    activeTabAsync: FileTabAsyncState | null;
     openTabs: string[];
     isLoadingFiles: boolean;
     deletingFileId: string | null;
@@ -77,7 +79,8 @@ function normalizePageNumbers(pageNumbers: number[] | undefined): number[] {
 export default function ModificationPanel({
     files,
     activeTab,
-    activeTabState,
+    activeTabData,
+    activeTabAsync,
     openTabs,
     isLoadingFiles,
     deletingFileId,
@@ -132,13 +135,13 @@ export default function ModificationPanel({
     }, [agentProposals.length]);
 
     const handleContentScroll = () => {
-        if (!contentRef.current || !activeTabState || activeTabState.isLoading || !activeTabState.hasMore) return;
+        if (!contentRef.current || !activeTabData || activeTabAsync?.isLoading || !activeTabData.hasMore) return;
         const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
         if (scrollHeight - scrollTop - clientHeight < 120) void onLoadMoreActiveTab();
     };
 
     const handleDocumentSelection = () => {
-        if (!isEditMode || isEditing || !activeTab || !activeTabState?.chunks.length) return;
+        if (!isEditMode || isEditing || !activeTab || !activeTabData?.chunks.length) return;
 
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !selection.toString().trim()) {
@@ -187,7 +190,7 @@ export default function ModificationPanel({
         const selectedText = range.toString();
         const startOffset = prefixRange.toString().length;
         const endOffset = startOffset + selectedText.length;
-        const chunk = activeTabState.chunks.find((item) => item.parentId === parentId);
+        const chunk = activeTabData.chunks.find((item) => item.parentId === parentId);
 
         if (!chunk || chunk.content.slice(startOffset, endOffset) !== selectedText) {
             onSelectionErrorChange("The current selection does not match the stored chunk content.");
@@ -216,10 +219,10 @@ export default function ModificationPanel({
         : "No file selected";
 
     const pageGroups = useMemo<PageGroup[]>(() => {
-        if (!activeTabState?.chunks.length) return [];
+        if (!activeTabData?.chunks.length) return [];
 
         const grouped = new Map<number, PageGroup>();
-        activeTabState.chunks.forEach((chunk) => {
+        activeTabData.chunks.forEach((chunk) => {
             const pages = normalizePageNumbers(chunk.pageNumbers);
             pages.forEach((pageNumber) => {
                 if (!grouped.has(pageNumber)) {
@@ -233,7 +236,7 @@ export default function ModificationPanel({
         });
 
         return Array.from(grouped.values()).sort((a, b) => a.pageNumber - b.pageNumber);
-    }, [activeTabState]);
+    }, [activeTabData]);
 
     const showAgentSection = isEditMode && (
         isAgentGenerating ||
@@ -424,8 +427,8 @@ export default function ModificationPanel({
 
                 {!activeTab ? (
                     !isEditMode && <div className="mod-panel-empty">No file tab selected.</div>
-                ) : activeTabState?.error ? (
-                    <div className="mod-panel-empty">{activeTabState.error}</div>
+                ) : activeTabAsync?.error ? (
+                    <div className="mod-panel-empty">{activeTabAsync.error}</div>
                 ) : pageGroups.length ? (
                     <>
                         <section className={`mod-panel-document-window ${isEditing ? "editing" : ""}`}>
@@ -459,7 +462,7 @@ export default function ModificationPanel({
                                                 className="edit-btn"
                                                 type="button"
                                                 onClick={onStartEditing}
-                                                disabled={isSaving || isDeletingActiveFile || Boolean(activeTabState?.isLoading)}
+                                                disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
                                             >
                                                 Edit
                                             </button>
@@ -467,7 +470,7 @@ export default function ModificationPanel({
                                                 className="delete-btn"
                                                 type="button"
                                                 onClick={onDeleteActiveFile}
-                                                disabled={isSaving || isDeletingActiveFile || Boolean(activeTabState?.isLoading)}
+                                                disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
                                             >
                                                 {isDeletingActiveFile ? "Deleting..." : "Delete"}
                                             </button>
@@ -536,14 +539,14 @@ export default function ModificationPanel({
                             {saveError && <div className="mod-panel-save-error">{saveError}</div>}
                         </section>
 
-                        {activeTabState?.isLoading && (
+                        {activeTabAsync?.isLoading && (
                             <div className="mod-panel-loading">Loading more chunks...</div>
                         )}
-                        {activeTabState && !activeTabState.hasMore && (
+                        {activeTabData && !activeTabData.hasMore && (
                             <div className="mod-panel-end">End of document</div>
                         )}
                     </>
-                ) : activeTabState?.isLoading ? (
+                ) : activeTabAsync?.isLoading ? (
                     <div className="mod-panel-loading">Loading full content...</div>
                 ) : (
                     <div className="mod-panel-empty">No content available for this file.</div>

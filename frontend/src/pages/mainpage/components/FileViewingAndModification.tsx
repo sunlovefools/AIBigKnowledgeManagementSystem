@@ -6,14 +6,10 @@ import { TableRow } from '@tiptap/extension-table-row'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableCell } from '@tiptap/extension-table-cell'
 import { marked } from 'marked'
-import TurndownService from 'turndown'
-import { gfm } from 'turndown-plugin-gfm'
-
-// Configure marked (marked is used to convert markdown to HTML) because tiptap need HTML for rendering
-marked.setOptions({
-  gfm: true, // Set GitHub Flavored Markdown (GFM) support
-  breaks: true, // Convert single line breaks to <br> tags
-})
+import {
+  htmlToEditorMarkdown,
+  normalizeEditorHtmlForMarkdown,
+} from '../utils/markdownEditor'
 
 // Type definitions for the MarkdownEditor component props
 type MarkdownEditorProps = {
@@ -31,19 +27,6 @@ export default function MarkdownEditor({
   className,
 }: MarkdownEditorProps) {
   const lastEmittedContentRef = useRef<string | null>(null)
-
-  // Creation of a turndown service instance (Only once)
-  const turndownService = useMemo(() => {
-    const service = new TurndownService({
-      headingStyle: 'atx',
-      bulletListMarker: '-',
-      codeBlockStyle: 'fenced',
-      emDelimiter: '*',
-      strongDelimiter: '**',
-    })
-    service.use(gfm)
-    return service
-  }, [])
 
   // Whenever the markdown prop changes, then convert it to HTML and update the editor content. 
   const html = useMemo(() => {
@@ -68,10 +51,8 @@ export default function MarkdownEditor({
     onUpdate: ({ editor: currentEditor }) => {
       if (!editable || !onChange) return
 
-      const nextContent = turndownService
-        .turndown(currentEditor.getHTML())
-        .replace(/\n{3,}/g, '\n\n')
-        .trimEnd()
+      const normalizedHtml = normalizeEditorHtmlForMarkdown(currentEditor.getHTML())
+      const nextContent = htmlToEditorMarkdown(normalizedHtml)
 
       if (lastEmittedContentRef.current === nextContent) return
 

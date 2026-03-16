@@ -44,7 +44,8 @@ export default function MainPage() {
         deletingFileId,
         openTabs,
         activeTab,
-        activeTabState,
+        activeTabData,
+        activeTabAsync,
         handleRefreshDocuments,
         deleteFile,
         openDocumentTab,
@@ -172,7 +173,7 @@ export default function MainPage() {
         },
     });
 
-    const activeChunkSignature = activeTabState?.chunks
+    const activeChunkSignature = activeTabData?.chunks
         .map((chunk) => `${chunk.parentId}:${chunk.size}`)
         .join("|") ?? "";
     const hasSelectedDocument = Boolean(activeTab);
@@ -260,7 +261,8 @@ export default function MainPage() {
             files={files}
             openTabs={openTabs}
             activeTab={activeTab}
-            activeTabState={activeTabState}
+            activeTabData={activeTabData}
+            activeTabAsync={activeTabAsync}
             isLoadingFiles={isLoadingFiles}
             deletingFileId={deletingFileId}
             editingContent={editingDocumentContent}
@@ -304,7 +306,8 @@ export default function MainPage() {
             files={files}
             openTabs={openTabs}
             activeTab={activeTab}
-            activeTabState={activeTabState}
+            activeTabData={activeTabData}
+            activeTabAsync={activeTabAsync}
             isLoadingFiles={isLoadingFiles}
             deletingFileId={deletingFileId}
             editingContent={editingDocumentContent}
@@ -499,7 +502,7 @@ export default function MainPage() {
                                                 className="edit-btn"
                                                 type="button"
                                                 onClick={startEditingActiveDocument}
-                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabState?.isLoading)}
+                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
                                             >
                                                 Edit
                                             </button>
@@ -507,7 +510,7 @@ export default function MainPage() {
                                                 className="delete-btn"
                                                 type="button"
                                                 onClick={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
-                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabState?.isLoading)}
+                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
                                             >
                                                 {isDeletingActiveFile ? "Deleting..." : "Delete"}
                                             </button>
