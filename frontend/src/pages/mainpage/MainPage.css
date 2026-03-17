@@ -501,6 +501,12 @@ html,
     padding-bottom: 2px;
 }
 
+.conversation-chip-wrapper {
+    display: flex;
+    align-items: stretch;
+    position: relative;
+}
+
 .conversation-chip {
     min-width: 170px;
     max-width: 240px;
@@ -513,6 +519,34 @@ html,
     display: flex;
     flex-direction: column;
     gap: 4px;
+}
+
+.conversation-rename-trigger {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--text-secondary);
+    line-height: 0;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.95;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conversation-rename-trigger:hover:not(:disabled) {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background: #eef2ff;
+}
+
+.conversation-rename-trigger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .conversation-chip:hover:not(:disabled) {
@@ -552,6 +586,80 @@ html,
     font-size: 0.7rem;
     color: var(--text-secondary);
     white-space: nowrap;
+}
+
+.conversation-chip-rename {
+    min-width: 170px;
+    max-width: 240px;
+    border: 1px solid var(--accent-color);
+    border-radius: 10px;
+    background: var(--panel);
+    padding: 6px 8px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.rename-input {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 0.84rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.rename-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.rename-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.rename-btn {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--panel);
+    color: var(--text-secondary);
+    padding: 4px 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    min-width: 24px;
+}
+
+.rename-btn:hover:not(:disabled) {
+    color: var(--text-primary);
+    background: #eef2ff;
+}
+
+.rename-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.rename-confirm {
+    color: #22c55e;
+}
+
+.rename-confirm:hover:not(:disabled) {
+    background: #f0fdf4;
+    border-color: #22c55e;
+}
+
+.rename-cancel {
+    color: #ef4444;
+}
+
+.rename-cancel:hover:not(:disabled) {
+    background: #fef2f2;
+    border-color: #ef4444;
 }
 
 /* Chat Scroll Area */

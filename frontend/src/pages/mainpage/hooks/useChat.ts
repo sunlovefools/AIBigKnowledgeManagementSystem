@@ -186,6 +186,33 @@ export function useChat() {
         setIsLoadingMoreConversationMessages(false);
     }, []);
 
+    const renameConversation = useCallback(async (targetConversationId: string, newTitle: string) => {
+        const userEmail = getResolvedUserEmail();
+        if (!userEmail) {
+            setConversationsError("Set a test user email to rename conversations.");
+            return false;
+        }
+
+        if (!newTitle.trim()) {
+            setConversationsError("Title cannot be empty.");
+            return false;
+        }
+
+        try {
+            await axios.patch(`${API_BASE}/api/conversations/${targetConversationId}/title`, 
+                { title: newTitle.trim() },
+                { params: { user_email: userEmail } }
+            );
+            
+            // Refresh conversations to reflect the renamed title
+            void refreshConversations();
+            return true;
+        } catch (error) {
+            setConversationsError("Failed to rename conversation.");
+            return false;
+        }
+    }, [refreshConversations]);
+
     // Function to handle sending a query to the backend and updating the chat history with the response
     const handleQuery = useCallback(async () => {
         const textInput = input.trim();
@@ -261,6 +288,7 @@ export function useChat() {
         refreshConversations,
         loadConversationMessages,
         loadMoreConversationMessages,
+        renameConversation,
         startNewConversation,
         handleQuery,
         handleKeyDown,

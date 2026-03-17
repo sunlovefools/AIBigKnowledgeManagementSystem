@@ -90,6 +90,16 @@ class ConversationMessagesResponse(BaseModel):#response model for conversation m
   nextCursor: int | None = None#the cursor value to use for the next page of messages (if hasMore is True), null if no more pages
 
 
+class RenameConversationRequest(BaseModel):#request model for renaming a conversation
+  title: str = Field(..., min_length=1, max_length=200)#new title, required, between 1 and 200 characters
+
+
+class RenameConversationResponse(BaseModel):#response model for rename conversation endpoint
+  conversationId: str#ID of the renamed conversation
+  title: str#new title of the conversation
+  updatedAt: str#timestamp when the conversation was last updated
+
+
 @router.get("/conversations", response_model=ConversationsListResponse)#endpoint to list conversations for a user, with pagination support
 def list_conversations(#query parameter for user email, required and must be at least 3 characters long; query parameter for limit of conversations to return, default 50, must be between 1 and 200
   user_email: str = Query(..., min_length=3),
@@ -175,4 +185,42 @@ def get_conversation_messages(#path parameter for conversation ID; query paramet
     ],
     hasMore=has_more,
     nextCursor=next_cursor,
+  )
+
+
+@router.patch("/conversations/{conversation_id}/title", response_model=RenameConversationResponse)#endpoint to rename a conversation
+def rename_conversation(#path parameter for conversation ID; query parameter for user email; request body with new title
+  conversation_id: str,
+  user_email: str = Query(..., min_length=3),
+  request: RenameConversationRequest = None,
+):
+  if request is None:
+    raise HTTPException(status_code=400, detail="Request body required")
+  
+  conversations_collection = _get_conversations_collection()
+  if conversations_collection is None:
+    raise HTTPException(status_code=500, detail="Conversations store is unavailable")
+
+  conversation = conversations_collection.find_one({"conversationId": conversation_id})
+  if conversation is None:
+    raise HTTPException(status_code=404, detail="Conversation not found")
+
+  if conversation.get("userEmail") != user_email:
+    raise HTTPException(status_code=403, detail="Forbidden for this conversation")
+
+  from datetime import datetime, timezone
+  timestamp = datetime.now(timezone.utc).isoformat()
+
+  update_result = conversations_collection.update_one(
+    {"conversationId": conversation_id},
+    {"$set": {"title": request.title.strip(), "updatedAt": timestamp}}
+  )
+
+  if update_result is None:
+    raise HTTPException(status_code=500, detail="Failed to update conversation")
+
+  return RenameConversationResponse(
+    conversationId=conversation_id,
+    title=request.title.strip(),
+    updatedAt=timestamp,
   )

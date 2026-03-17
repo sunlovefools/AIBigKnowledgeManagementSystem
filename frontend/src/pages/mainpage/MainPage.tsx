@@ -38,6 +38,9 @@ import { useResizableLayout } from "./hooks/useResizableLayout";
 export default function MainPage() {
     const navigate = useNavigate();
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
+    const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
+    const [renameTitle, setRenameTitle] = useState("");
+    const [isRenamingConversation, setIsRenamingConversation] = useState(false);
     const bottomRef = useRef<HTMLDivElement | null>(null); // Ref to scroll to the bottom of the chat area
     const {
         sidebarWidth,
@@ -69,6 +72,7 @@ export default function MainPage() {
         refreshConversations,
         loadConversationMessages,
         loadMoreConversationMessages,
+        renameConversation,
         startNewConversation,
         handleQuery,
         handleKeyDown,
@@ -120,6 +124,31 @@ export default function MainPage() {
     // Handler to toggle the modification panel open state
     const handleToggleModificationPanel = () => {
         setIsModificationPanelOpen((prev) => !prev);
+    };
+
+    const handleStartRename = (conversationId: string, currentTitle: string) => { // Begins renaming process by setting new/renamed title to be the current title, and storing convo's id
+        setRenamingConversationId(conversationId);
+        setRenameTitle(currentTitle);
+    };
+
+    const handleCancelRename = () => { // If renaming canceled, then clear the renamed title to empty string and clear convo id stored for renaming (reset)
+        setRenamingConversationId(null);
+        setRenameTitle("");
+    };
+
+    const handleSubmitRename = async () => { // When rename is entered/submitted
+        if (!renamingConversationId || !renameTitle.trim()) { //return(do nothing) if missing convo id or title is empty (after trimming whitespace via trim())
+            return;
+        }
+
+        setIsRenamingConversation(true);// Set renaming state to true to disable input and buttons while processing rename
+        const success = await renameConversation(renamingConversationId, renameTitle); // Perform the ranem using renameConversation() function passing in id and new title, store if success in "success" variable
+        setIsRenamingConversation(false);// Finish rename process, set renaming state back to false to re-enable input and buttons
+
+        if (success) { // If rename was successful, reset renaming state (convo id and new title)
+            setRenamingConversationId(null);
+            setRenameTitle("");
+        }
     };
 
     const handleLogout = () => {
@@ -230,25 +259,101 @@ export default function MainPage() {
                     ) : (
                         <div className="conversation-chip-list">
                             {conversations.map((conversation) => (
-                                <button
+                                <div
                                     key={conversation.conversationId}
-                                    className={`conversation-chip ${conversationId === conversation.conversationId ? "active" : ""}`}
-                                    onClick={() => {
-                                        void loadConversationMessages(conversation.conversationId);
-                                    }}
-                                    disabled={isLoadingConversationMessages}
-                                    type="button"
+                                    className={`conversation-chip-wrapper ${renamingConversationId === conversation.conversationId ? "renaming" : ""}`}
                                 >
-                                    <div className="conversation-chip-title">{conversation.title || "New conversation"}</div>
-                                    <div className="conversation-chip-meta">
-                                        <span>{conversation.messageCount ?? 0} msgs</span>
-                                        {conversation.lastMessage?.timestamp && (
-                                            <span className="conversation-chip-timestamp">
-                                                {formatRelativeTime(conversation.lastMessage.timestamp)}
-                                            </span>
-                                        )}
-                                    </div>
-                                </button>
+                                    {renamingConversationId === conversation.conversationId ? (
+                                        <div className="conversation-chip-rename">
+                                            <input
+                                                type="text"
+                                                value={renameTitle}
+                                                onChange={(e) => setRenameTitle(e.target.value)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === "Enter") {
+                                                        void handleSubmitRename();
+                                                    } else if (e.key === "Escape") {
+                                                        handleCancelRename();
+                                                    }
+                                                }}
+                                                autoFocus
+                                                disabled={isRenamingConversation}
+                                                className="rename-input"
+                                            />
+                                            <div className="rename-buttons">
+                                                <button
+                                                    onClick={() => void handleSubmitRename()}
+                                                    disabled={isRenamingConversation || !renameTitle.trim()}
+                                                    className="rename-btn rename-confirm"
+                                                    type="button"
+                                                    title="Save (Enter)"
+                                                >
+                                                    ✓
+                                                </button>
+                                                <button
+                                                    onClick={handleCancelRename}
+                                                    disabled={isRenamingConversation}
+                                                    className="rename-btn rename-cancel"
+                                                    type="button"
+                                                    title="Cancel (Esc)"
+                                                >
+                                                    ✕
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <>
+                                            <button
+                                                className={`conversation-chip ${conversationId === conversation.conversationId ? "active" : ""}`}
+                                                onClick={() => {
+                                                    void loadConversationMessages(conversation.conversationId);
+                                                }}
+                                                disabled={isLoadingConversationMessages}
+                                                type="button"
+                                            >
+                                                <div className="conversation-chip-title">{conversation.title || "New conversation"}</div>
+                                                <div className="conversation-chip-meta">
+                                                    <span>{conversation.messageCount ?? 0} msgs</span>
+                                                    {conversation.lastMessage?.timestamp && (
+                                                        <span className="conversation-chip-timestamp">
+                                                            {formatRelativeTime(conversation.lastMessage.timestamp)}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            </button>
+                                            <button
+                                                className="conversation-rename-trigger"
+                                                type="button"
+                                                onClick={(event) => {
+                                                    event.preventDefault();
+                                                    event.stopPropagation();
+                                                    handleStartRename(
+                                                        conversation.conversationId,
+                                                        conversation.title || "New conversation"
+                                                    );
+                                                }}
+                                                disabled={isLoadingConversationMessages}
+                                                title="Rename conversation"
+                                                aria-label="Rename conversation"
+                                            >
+                                                <svg
+                                                    width="14"
+                                                    height="14"
+                                                    viewBox="0 0 24 24"
+                                                    fill="none"
+                                                    stroke="currentColor"
+                                                    strokeWidth="2"
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    aria-hidden
+                                                >
+                                                    <path d="M12 20h9" />
+                                                    <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
+                                                </svg>
+                                            </button>
+                                        </>
+                                    )}
+                                </div>
                             ))}
                         </div>
                     )}
