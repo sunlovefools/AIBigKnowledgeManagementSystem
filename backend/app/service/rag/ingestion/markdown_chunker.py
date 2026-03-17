@@ -175,13 +175,28 @@ def _split_section_into_parent_parts(
             }
         ]
 
+    expanded_body: list[MarkdownBlock] = []
+    for block in body:
+        content = block.content.strip()
+        if (
+            block.block_type in {"text", "header"}
+            and _word_count(content) > parent_max_words
+        ):
+            split_parts = _split_large_text_block(content, parent_max_words)
+            expanded_body.extend(
+                MarkdownBlock(block_type=block.block_type, content=part)
+                for part in split_parts
+            )
+        else:
+            expanded_body.append(block)
+
     parts: list[dict[str, object]] = []
     preamble_words = sum(_word_count(block.content) for block in preamble)
     current_body_blocks: list[MarkdownBlock] = []
     current_words = preamble_words
     is_first_part = True
 
-    for block in body:
+    for block in expanded_body:
         block_words = _word_count(block.content)
         if current_body_blocks and (current_words + block_words > parent_max_words):
             parent_blocks = (

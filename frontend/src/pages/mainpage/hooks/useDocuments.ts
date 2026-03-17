@@ -282,6 +282,9 @@ function collectBoundaryTouchedParentIds(
     const startHitsBoundary = boundaryPositions.has(edit.start);
     const endHitsBoundary = boundaryPositions.has(edit.end);
     const isInsertion = edit.start === edit.end;
+    const crossesInternalBoundary = Array.from(boundaryPositions).some(
+        (position) => position > edit.start && position < edit.end
+    );
     const overlapsAnyChunk = isInsertion
         ? ranges.some((range) => range.start < edit.start && edit.start < range.end)
         : ranges.some((range) => range.start < edit.end && edit.start < range.end);
@@ -299,8 +302,14 @@ function collectBoundaryTouchedParentIds(
         edit.end <= next.start &&
         !overlapsAnyChunk;
 
-    if (!startHitsBoundary && !endHitsBoundary && !insideGap) {
+    if (!startHitsBoundary && !endHitsBoundary && !insideGap && !crossesInternalBoundary) {
         return [];
+    }
+
+    if (crossesInternalBoundary) {
+        ranges
+            .filter((range) => range.end > edit.start && range.start < edit.end)
+            .forEach((range) => touched.add(range.parentId));
     }
 
     if (previous) touched.add(previous.parentId);
@@ -893,13 +902,23 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                 const editPart = computeSingleReplaceEdit(original, normalizedDraft);
 
                 if (editPart) {
-                    // 
+                    const touchedRanges = findTouchedRangesForEdit(ranges, editPart);
                     const boundaryTouchedParentIds = collectBoundaryTouchedParentIds(
                         ranges,
                         editPart,
                         original.length
                     );
-                    const shouldUseBoundaryRechunk = boundaryTouchedParentIds.length > 0;
+                    const touchedParentIds = Array.from(
+                        new Set(touchedRanges.map((range) => range.parentId))
+                    );
+                    // If an edit spans multiple parents, chunk-boundary semantics have changed.
+                    // Force boundary re-chunk instead of slicing text by old parent lengths.
+                    const shouldUseBoundaryRechunk =
+                        boundaryTouchedParentIds.length > 0 || touchedParentIds.length > 1;
+                    const boundaryParentsForRequest =
+                        boundaryTouchedParentIds.length > 0
+                            ? boundaryTouchedParentIds
+                            : touchedParentIds;
 
                     if (shouldUseBoundaryRechunk) {
                         const batchResp = await axios.post<BatchUpdateParentChunksResponse>(
@@ -909,7 +928,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                                 fileName,
                                 mode: "boundary_rechunk",
                                 fullContent: normalizedDraft,
-                                touchedParentIds: boundaryTouchedParentIds,
+                                touchedParentIds: boundaryParentsForRequest,
                             }
                         );
 
@@ -918,11 +937,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                             await loadFileChunks(activeTab, true);
                         }
                     } else {
-                    // Multi-chunk update path: distribute edited window across touched chunks,
-                    // then let backend re-chunk only the touched parent IDs.
-                    // Get a list of chunks that are being edited based on the diff result
-                    const touchedRanges = findTouchedRangesForEdit(ranges, editPart);
-
+                    // Fast update path for non-boundary edits scoped to existing chunk windows.
                     if (touchedRanges.length > 0) {
                         const firstTouchedChunk = touchedRanges[0];
                         const lastTouchedChunk = touchedRanges[touchedRanges.length - 1];

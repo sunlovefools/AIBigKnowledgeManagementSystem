@@ -11,6 +11,10 @@ def _words(prefix: str, count: int, *, period: bool = False) -> str:
     return f"{body}." if period else body
 
 
+def _word_count(text: str) -> int:
+    return len(" ".join((text or "").split()).split())
+
+
 def test_markdown_chunker_header_preamble_in_first_parent_only():
     content = "\n\n".join(
         [
@@ -58,6 +62,53 @@ def test_markdown_chunker_splits_large_text_by_sentence_and_merges_tiny_tail():
     assert len(parents) == 1
     assert len(children) >= 2
     assert all(child.content.strip() for child in children)
+
+
+def test_markdown_chunker_splits_oversized_parent_blocks_by_sentence():
+    long_sentences = " ".join(
+        [
+            _words("p1", 35, period=True),
+            _words("p2", 35, period=True),
+            _words("p3", 35, period=True),
+        ]
+    )
+
+    parents, _children = split_parent_child_chunks_from_markdown(
+        long_sentences,
+        file_name="parent-split.md",
+        parent_max_words=70,
+        child_max_words=200,
+        min_child_words=20,
+    )
+
+    assert len(parents) == 2
+    assert all(_word_count(parent.content) <= 70 for parent in parents)
+
+
+def test_markdown_chunker_parent_sentence_split_keeps_bold_token_intact():
+    content = "\n".join(
+        [
+            "## Section 2: Science & Technology",
+            "1. The first programmable general-purpose computer, the ENIAC , weighed over 27 tons .",
+            "2.Bluetooth technology was named after King Harald 'Bluetooth' Gormsson, a 10th-century Scandinavian king who united tribes - symbolically similar to how Bluetooth unites devices.",
+            "3. Glass is actually a slow-moving liquid , not a true solid; its particles continue to move extremely slowly over long periods.",
+            "4. The speed of light in a vacuum is exactly **299,792,458 meters** per second .",
+        ]
+    )
+
+    parents, _children = split_parent_child_chunks_from_markdown(
+        content,
+        file_name="section2.md",
+        parent_max_words=80,
+        child_max_words=200,
+        min_child_words=20,
+    )
+
+    assert len(parents) >= 2
+    assert any(
+        "**299,792,458 meters** per second ." in parent.content
+        for parent in parents
+    )
 
 
 def test_markdown_chunker_assigns_sequential_parent_numbers():

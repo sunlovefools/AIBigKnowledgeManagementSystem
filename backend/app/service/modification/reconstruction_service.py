@@ -684,6 +684,15 @@ class ReconstructionService:
         return keys
 
     @staticmethod
+    def _to_int(value: Any) -> int | None:
+        """Best-effort int conversion helper for metadata counters."""
+        if isinstance(value, bool):
+            return int(value)
+        if isinstance(value, (int, float)):
+            return int(value)
+        return None
+
+    @staticmethod
     async def _update_parent_chunks_batch_fast(
         *,
         file_id: str,
@@ -728,6 +737,10 @@ class ReconstructionService:
             if next_content != str(sortable_rows[parent_index[parent_id]]["normalizedContent"])
         ]
         if not changed_parent_ids:
+            print(
+                "  → Fast update stats: deleted_parents=0 deleted_children=0 "
+                "inserted_parents=0 inserted_children=0 parent_chunk_number_only_updates=0"
+            )
             return {
                 "fileId": file_id,
                 "fileName": file_name,
@@ -773,6 +786,7 @@ class ReconstructionService:
             for model in replacement["parents"]:
                 next_sequence.append({"type": "replacement", "parentId": parent_id, "model": model})
 
+        parent_chunk_number_only_updates = 0
         for index, entry in enumerate(next_sequence):
             target_chunk_number = index
             if entry["type"] == "existing":
@@ -784,6 +798,9 @@ class ReconstructionService:
                 parent_meta = metadata.get("parent_chunk_metadata")
                 if not isinstance(parent_meta, dict):
                     parent_meta = {}
+                previous_chunk_number = ReconstructionService._to_int(parent_meta.get("parent_chunk_number"))
+                if previous_chunk_number is not None and previous_chunk_number != target_chunk_number:
+                    parent_chunk_number_only_updates += 1
                 parent_meta["parent_chunk_number"] = target_chunk_number
                 metadata["parent_chunk_metadata"] = parent_meta
                 parent_doc["metadata"] = metadata
@@ -794,8 +811,10 @@ class ReconstructionService:
                     model.parent_chunk_metadata["parent_chunk_number"] = target_chunk_number
 
         # 6) Replace only changed parent rows.
+        deleted_child_chunks_count = 0
         for parent_id in changed_parent_ids:
-            await delete_children_by_parent_id(parent_id)
+            deleted_children = await delete_children_by_parent_id(parent_id)
+            deleted_child_chunks_count += ReconstructionService._to_int(deleted_children) or 0
             await delete_parent_document(parent_id)
 
         child_chunks_dicts: list[dict[str, Any]] = []
@@ -828,6 +847,18 @@ class ReconstructionService:
             existing_parent_pairs.append((parent_id, parent_value))
         if existing_parent_pairs:
             await PARENT_STORE.amset(existing_parent_pairs)
+
+        deleted_parent_count = len(changed_parent_ids)
+        inserted_parent_count = len(replacement_parent_chunks_dicts)
+        inserted_child_count = len(polished_child_chunks)
+        print(
+            "  → Fast update stats: "
+            f"deleted_parents={deleted_parent_count} "
+            f"deleted_children={deleted_child_chunks_count} "
+            f"inserted_parents={inserted_parent_count} "
+            f"inserted_children={inserted_child_count} "
+            f"parent_chunk_number_only_updates={parent_chunk_number_only_updates}"
+        )
 
         results: list[dict[str, Any]] = []
         for parent_id in changed_parent_ids:
@@ -877,6 +908,10 @@ class ReconstructionService:
 
         existing_content = normalize_markdown_for_modification("\n\n".join(str(item["content"]) for item in sortable_rows))
         if existing_content == normalized_full_content:
+            print(
+                "  → Boundary re-chunk stats: deleted_parents=0 deleted_children=0 "
+                "inserted_parents=0 inserted_children=0 parent_chunk_number_only_updates=0"
+            )
             return {
                 "fileId": file_id,
                 "fileName": file_name,
@@ -940,9 +975,11 @@ class ReconstructionService:
 
         # 2) Delete only changed/removed old parents.
         deleted_parent_ids: list[str] = []
+        deleted_child_chunks_count = 0
         for old_index in sorted(old_changed_indices):
             old_parent_id = str(sortable_rows[old_index]["parentId"])
-            await delete_children_by_parent_id(old_parent_id)
+            deleted_children = await delete_children_by_parent_id(old_parent_id)
+            deleted_child_chunks_count += ReconstructionService._to_int(deleted_children) or 0
             await delete_parent_document(old_parent_id)
             deleted_parent_ids.append(old_parent_id)
 
@@ -970,6 +1007,7 @@ class ReconstructionService:
             await upsert_documents(parent_chunks=parent_dicts_to_upsert, child_chunks=polished_children)
 
         # 4) Re-number preserved parents to match the new sequence.
+        parent_chunk_number_only_updates = 0
         existing_parent_pairs: list[tuple[str, dict]] = []
         for old_index, new_index in sorted(preserved_old_to_new.items(), key=lambda pair: pair[1]):
             row = sortable_rows[old_index]["row"]
@@ -980,6 +1018,9 @@ class ReconstructionService:
 
             metadata = parent_value.get("metadata") if isinstance(parent_value.get("metadata"), dict) else {}
             parent_meta = metadata.get("parent_chunk_metadata") if isinstance(metadata.get("parent_chunk_metadata"), dict) else {}
+            previous_chunk_number = ReconstructionService._to_int(parent_meta.get("parent_chunk_number"))
+            if previous_chunk_number is not None and previous_chunk_number != new_index:
+                parent_chunk_number_only_updates += 1
             parent_meta["parent_chunk_number"] = new_index
             metadata["parent_chunk_metadata"] = parent_meta
             parent_value["metadata"] = metadata
@@ -1006,9 +1047,16 @@ class ReconstructionService:
                 }
             )
 
+        inserted_parent_count = len(parent_dicts_to_upsert)
+        inserted_child_count = len(polished_children)
         print(
-            f"  → Boundary re-chunk complete: deleted={len(deleted_parent_ids)} "
-            f"inserted_or_replaced={len(new_changed_indices)} preserved={len(preserved_old_to_new)}"
+            "  → Boundary re-chunk stats: "
+            f"deleted_parents={len(deleted_parent_ids)} "
+            f"deleted_children={deleted_child_chunks_count} "
+            f"inserted_parents={inserted_parent_count} "
+            f"inserted_children={inserted_child_count} "
+            f"parent_chunk_number_only_updates={parent_chunk_number_only_updates} "
+            f"preserved_parents={len(preserved_old_to_new)}"
         )
         return {
             "fileId": file_id,

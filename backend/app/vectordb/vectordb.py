@@ -305,7 +305,7 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
 
     # 1. Search the Vector Store (Child Chunks)
     try:
-        child_documents_with_scores = await VECTOR_STORE.asimilarity_search_with_score(query, k=top_k * 2)
+        child_documents_with_scores = await VECTOR_STORE.asimilarity_search_with_score(query, k=top_k)
         print(f"Found {len(child_documents_with_scores)} relevant child chunks.")
     except Exception as error:
         print(f"Vector Store search failed: {error}")
