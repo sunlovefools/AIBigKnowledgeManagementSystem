@@ -46,7 +46,7 @@ export function useDocumentEditing({
     clearAgentStateForFile,
 }: UseDocumentEditingParams) {
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
-    const [editingDraftByFileId, setEditingDraftByFileId] = useState<Record<string, string>>({});
+    const [editingDraftByFileId, setEditingDraftByFileId] = useState<Record<string, string>>({}); // Store the draft content for each file being edited
     const [savingFileId, setSavingFileId] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
 

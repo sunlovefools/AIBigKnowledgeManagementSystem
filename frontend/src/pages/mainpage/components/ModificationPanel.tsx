@@ -122,6 +122,7 @@ export default function ModificationPanel({
         if (scrollHeight - scrollTop - clientHeight < 120) void onLoadMoreActiveTab();
     };
 
+    // Handler to detect the user's text selection within the document for selection-based edits.
     const handleDocumentSelection = () => {
         if (!isEditMode || isEditing || !activeTab || !activeTabData?.chunks.length) return;
 

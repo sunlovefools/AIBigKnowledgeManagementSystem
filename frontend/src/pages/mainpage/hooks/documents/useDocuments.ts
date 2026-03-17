@@ -1,3 +1,6 @@
+// The main orchestrator hook used by components
+// Contain of all the facade hooks related to document file management, editing, and agent interactions.
+
 import { useCallback, useRef } from "react";
 import { deleteKnowledgeFile, getAxiosErrorDetail, type DeleteFileResponse } from "./api/documentsApi";
 import { removeFileFromState, closeTabState, openTabState } from "./state/transitions";
@@ -12,10 +15,11 @@ type DeleteFileResult = {
     error?: string;
 };
 
-// Composes document file loading, editing, and agent proposal flows into one hook.
+// Deal with file and chunk state
 export function useDocuments(isModificationPanelOpen: boolean) {
     const fileDomain = useDocumentFiles({ isModificationPanelOpen });
 
+    // function to get the full content of a document by file ID
     const getFullDocumentContent = useCallback(
         (fileId: string | null) => {
             if (!fileId) return "";
@@ -23,6 +27,8 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         },
         [fileDomain]
     );
+
+    // function to get the baseline content for the editor, which is used for diffing and agent proposals
     const getEditorBaselineContent = useCallback(
         (fileId: string | null) => {
             if (!fileId) return "";
