@@ -49,18 +49,22 @@ export default function ChatInput({
         : "Ask something about your files...";
 
     const selectionPreview = highlightedSelection?.selectedText.replace(/\s+/g, " ").trim() ?? "";
+    const compactSelectionPreview =
+        selectionPreview.length > 56 ? `${selectionPreview.slice(0, 56)}...` : selectionPreview || "Selected text";
 
     return (
         <div className="input-area-wrapper">
             <div className={`input-container ${isEditMode ? "edit-mode-active" : ""}`}>
                 {highlightedSelection && (
                     <div className="input-selection-chip">
-                        <div className="input-selection-chip-meta">
-                            <span className="input-selection-chip-label">Selected text</span>
-                            <span className="input-selection-chip-file">{highlightedSelection.fileName}</span>
-                        </div>
+                        <span className="input-selection-chip-file" title={highlightedSelection.fileName}>
+                            {highlightedSelection.fileName}
+                        </span>
+                        <span className="input-selection-chip-separator" aria-hidden="true">
+                            :
+                        </span>
                         <div className="input-selection-chip-text">
-                            {selectionPreview.length > 140 ? `${selectionPreview.slice(0, 140)}...` : selectionPreview}
+                            {compactSelectionPreview}
                         </div>
                         <button
                             className="input-selection-chip-clear"

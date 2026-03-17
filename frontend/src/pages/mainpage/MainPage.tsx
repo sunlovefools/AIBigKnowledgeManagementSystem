@@ -85,6 +85,7 @@ export default function MainPage() {
         });
     }, []);
 
+    // Handler to send the user's query edit query either to selection-based edit or agent-based edit
     const handleComposerSend = async () => {
         const textInput = input.trim();
         if (!textInput) return;
@@ -92,7 +93,8 @@ export default function MainPage() {
         if (isEditMode) {
             appendMessage({ role: "user", text: textInput });
             setInput("");
-            const result = highlightedSelection
+            const result = highlightedSelection // If there is a highlightSelection then requestSelectionEditPreview
+                // TODO: We should chanege the name without Preview once it is done testing
                 ? await requestSelectionEditPreview(textInput, highlightedSelection)
                 : await requestAgentEditPreview(
                     textInput,

@@ -145,6 +145,8 @@ export async function requestSelectionPreview(
             selectedText: selection.selectedText,
             startOffset: selection.startOffset,
             endOffset: selection.endOffset,
+            startChunkNumber: selection.startChunkNumber,
+            endChunkNumber: selection.endChunkNumber,
             instruction,
         }
     );

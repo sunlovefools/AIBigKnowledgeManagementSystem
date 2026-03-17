@@ -170,33 +170,13 @@ class ReconstructionService:
 
         def _query_rows() -> list[dict]:
             collection = PARENT_STORE.collection
-            chunk_number_field = "value.metadata.parent_chunk_metadata.parent_chunk_number"
             filter_doc: dict[str, Any] = {
                 "value.metadata.file_metadata.file_id": file_id,
             }
 
-            # Cursor over (chunkNumber, _id):
-            # - chunkNumber strictly increases
-            # - for ties, parentId (_id) strictly increases
-            if current_chunk_number >= 0 and current_parent_id:
-                filter_doc["$or"] = [
-                    {chunk_number_field: {"$gt": current_chunk_number}},
-                    {
-                        chunk_number_field: current_chunk_number,
-                        "_id": {"$gt": current_parent_id},
-                    },
-                ]
-            else:
-                filter_doc[chunk_number_field] = {"$gt": current_chunk_number}
-
-            cursor = collection.find(
-                filter=filter_doc,
-                sort={
-                    chunk_number_field: 1,
-                    "_id": 1,
-                },
-                limit=max(limit, 1) + 1,
-            )
+            # Astra rejects sort-by-_id unless _id is explicitly indexed.
+            # Keep query un-sorted, then apply deterministic tuple cursor logic in-memory.
+            cursor = collection.find(filter=filter_doc)
             rows: list[dict] = []
             for row in cursor:
                 if isinstance(row, dict):
@@ -226,8 +206,28 @@ class ReconstructionService:
                 }
             )
 
-        page_rows = sortable[: max(limit, 1)]
-        has_more = len(sortable) > len(page_rows)
+        sortable.sort(key=lambda item: (item["chunkNumber"], item["parentId"]))
+
+        # Cursor over (chunkNumber, parentId):
+        # - chunkNumber strictly increases
+        # - for ties, parentId strictly increases
+        filtered_rows: list[dict[str, Any]] = []
+        for item in sortable:
+            item_chunk = int(item["chunkNumber"])
+            item_parent_id = str(item["parentId"])
+
+            if item_chunk > current_chunk_number:
+                filtered_rows.append(item)
+                continue
+
+            if item_chunk < current_chunk_number:
+                continue
+
+            if current_parent_id and item_parent_id > current_parent_id:
+                filtered_rows.append(item)
+
+        page_rows = filtered_rows[: max(limit, 1)]
+        has_more = len(filtered_rows) > len(page_rows)
         next_cursor = (
             ReconstructionService._encode_parent_chunks_cursor(
                 page_rows[-1]["chunkNumber"], page_rows[-1]["parentId"]
@@ -498,6 +498,66 @@ class ReconstructionService:
         sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name)
         return "\n\n".join(str(item.get("content") or "") for item in sortable_rows)
 
+    @staticmethod
+    async def get_file_chunk_window_content(
+        file_id: str,
+        file_name: str,
+        start_chunk_number: int,
+        end_chunk_number: int,
+    ) -> tuple[str, int]:
+        """
+        Build merged content for a chunk-number window plus its absolute file offset.
+
+        start_chunk_number/end_chunk_number are 1-based and inclusive in the API
+        contract. Stored parent_chunk_number values are 0-based.
+        """
+        if start_chunk_number < 1:
+            raise ValueError("startChunkNumber must be >= 1")
+        if end_chunk_number < start_chunk_number:
+            raise ValueError("endChunkNumber must be >= startChunkNumber")
+
+        start_chunk_number_zero = start_chunk_number - 1
+        end_chunk_number_zero = end_chunk_number - 1
+        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name)
+        available_chunk_numbers = {
+            int(item["chunkNumber"])
+            for item in sortable_rows
+            if int(item["chunkNumber"]) < 10**9
+        }
+        missing_chunk_numbers = [
+            chunk_number
+            for chunk_number in range(start_chunk_number_zero, end_chunk_number_zero + 1)
+            if chunk_number not in available_chunk_numbers
+        ]
+        if missing_chunk_numbers:
+            raise ValueError(
+                "Requested chunk range does not exist for this file: "
+                f"{start_chunk_number}-{end_chunk_number}"
+            )
+
+        prefix_rows = [
+            item
+            for item in sortable_rows
+            if int(item["chunkNumber"]) < start_chunk_number_zero
+        ]
+        selected_rows = [
+            item
+            for item in sortable_rows
+            if start_chunk_number_zero <= int(item["chunkNumber"]) <= end_chunk_number_zero
+        ]
+        if not selected_rows:
+            raise ValueError(
+                "Requested chunk range resolved to no content: "
+                f"{start_chunk_number}-{end_chunk_number}"
+            )
+
+        window_content = "\n\n".join(str(item.get("content") or "") for item in selected_rows)
+        window_absolute_start = (
+            sum(len(str(item.get("content") or "")) for item in prefix_rows) +
+            (2 * len(prefix_rows))
+        )
+        return window_content, window_absolute_start
+
     async def update_document(parent_id: str, new_content: str, file_name: str) -> dict:
         """
         Update a single parent chunk and its children, preserving the original file_id.
@@ -700,6 +760,7 @@ class ReconstructionService:
                     result.append(row)
             return result
 
+        print(f"Loading parent chunks with file_id={file_id}")
         raw_rows = await asyncio.to_thread(_load_file_rows)
         if not raw_rows:
             raise FileNotFoundError(f"No parent chunks found for file_id={file_id}")

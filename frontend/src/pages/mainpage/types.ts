@@ -20,9 +20,12 @@ export type HighlightedSelection = {
     fileId: string;
     fileName: string;
     selectedText: string;
-    // File-level offsets in the merged document text.
+    // Offsets captured from rendered text relative to startChunkNumber.
     startOffset: number;
     endOffset: number;
+    // 1-based chunk numbers (inclusive) of the selected rendered window.
+    startChunkNumber: number;
+    endChunkNumber: number;
 };
 
 export type FileContentAsyncState = {

@@ -57,6 +57,100 @@ function getContainerElement(node: Node): HTMLElement | null {
     return node.parentElement;
 }
 
+function projectMarkdownToPlain(markdown: string): string {
+    const plainChars: string[] = [];
+    let index = 0;
+    let lineStart = true;
+    let inFence = false;
+
+    while (index < markdown.length) {
+        if (lineStart) {
+            if (markdown.startsWith("```", index)) {
+                const newlineIndex = markdown.indexOf("\n", index);
+                if (newlineIndex === -1) break;
+                inFence = !inFence;
+                plainChars.push("\n");
+                index = newlineIndex + 1;
+                lineStart = true;
+                continue;
+            }
+
+            if (!inFence) {
+                const leadingSpacesMatch = markdown.slice(index).match(/^[ ]{0,3}/);
+                const leadingSpaces = leadingSpacesMatch ? leadingSpacesMatch[0] : "";
+                const markerStart = index + leadingSpaces.length;
+                let markerConsumed = 0;
+
+                if (markerStart < markdown.length && markdown[markerStart] === ">") {
+                    markerConsumed = 1;
+                    if (
+                        markerStart + markerConsumed < markdown.length &&
+                        markdown[markerStart + markerConsumed] === " "
+                    ) {
+                        markerConsumed += 1;
+                    }
+                } else {
+                    const headingMatch = markdown.slice(markerStart).match(/^#{1,6}[ \t]+/);
+                    const unorderedListMatch = markdown.slice(markerStart).match(/^[-*+][ \t]+/);
+                    const orderedListMatch = markdown.slice(markerStart).match(/^\d+[.)][ \t]+/);
+                    if (headingMatch) markerConsumed = headingMatch[0].length;
+                    else if (unorderedListMatch) markerConsumed = unorderedListMatch[0].length;
+                    else if (orderedListMatch) markerConsumed = orderedListMatch[0].length;
+                }
+
+                if (markerConsumed > 0) {
+                    index = markerStart + markerConsumed;
+                    lineStart = false;
+                    continue;
+                }
+            }
+        }
+
+        const current = markdown[index];
+        if (!inFence && (markdown.startsWith("**", index) || markdown.startsWith("__", index) || markdown.startsWith("~~", index))) {
+            index += 2;
+            continue;
+        }
+        if (!inFence && (current === "*" || current === "_" || current === "`")) {
+            index += 1;
+            continue;
+        }
+        if (current === "\\" && index + 1 < markdown.length) {
+            plainChars.push(markdown[index + 1]);
+            lineStart = markdown[index + 1] === "\n";
+            index += 2;
+            continue;
+        }
+
+        plainChars.push(current);
+        lineStart = current === "\n";
+        index += 1;
+    }
+
+    return plainChars.join("");
+}
+
+function findNearestOccurrence(haystack: string, needle: string, expectedOffset: number): number {
+    if (!needle) return -1;
+    const first = haystack.indexOf(needle);
+    if (first === -1) return -1;
+
+    let best = first;
+    let bestDistance = Math.abs(first - expectedOffset);
+    let cursor = first;
+    while (cursor !== -1) {
+        const next = haystack.indexOf(needle, cursor + 1);
+        if (next === -1) break;
+        const distance = Math.abs(next - expectedOffset);
+        if (distance < bestDistance) {
+            best = next;
+            bestDistance = distance;
+        }
+        cursor = next;
+    }
+    return best;
+}
+
 export default function ModificationPanel({
     files,
     activeTab,
@@ -155,14 +249,51 @@ export default function ModificationPanel({
         prefixRange.setEnd(range.startContainer, range.startOffset);
 
         const selectedText = range.toString();
-        const startOffset = prefixRange.toString().length;
-        const endOffset = startOffset + selectedText.length;
-        if (activeDocumentView.fullText.slice(startOffset, endOffset) !== selectedText) {
-            onSelectionErrorChange("The current selection does not match the stored chunk content.");
+        const viewStartOffset = prefixRange.toString().length;
+        const viewEndOffset = viewStartOffset + selectedText.length;
+        const plainChunkTexts = activeTabData.chunks.map((chunk) => projectMarkdownToPlain(chunk.content));
+        const plainFullText = plainChunkTexts.join("\n\n");
+
+        let resolvedStartOffset = viewStartOffset;
+        let resolvedEndOffset = viewEndOffset;
+        if (plainFullText.slice(resolvedStartOffset, resolvedEndOffset) !== selectedText) {
+            const nearestStart = findNearestOccurrence(plainFullText, selectedText, viewStartOffset);
+            if (nearestStart === -1) {
+                onSelectionErrorChange("The current selection does not match the stored chunk content.");
+                onHighlightedSelectionChange(null);
+                selection.removeAllRanges();
+                return;
+            }
+            resolvedStartOffset = nearestStart;
+            resolvedEndOffset = nearestStart + selectedText.length;
+        }
+
+        let cursor = 0;
+        const plainRanges = plainChunkTexts.map((chunkText, index) => {
+            const start = cursor;
+            const end = start + chunkText.length;
+            cursor = end;
+            if (index < plainChunkTexts.length - 1) cursor += 2;
+            return { start, end };
+        });
+
+        const touchedRangeIndexes = plainRanges
+            .map((chunkRange, index) =>
+                chunkRange.start < resolvedEndOffset && resolvedStartOffset < chunkRange.end ? index : -1
+            )
+            .filter((index) => index >= 0);
+        if (touchedRangeIndexes.length === 0) {
+            onSelectionErrorChange("The current selection is outside known chunk boundaries.");
             onHighlightedSelectionChange(null);
             selection.removeAllRanges();
             return;
         }
+
+        const firstTouchedIndex = touchedRangeIndexes[0];
+        const lastTouchedIndex = touchedRangeIndexes[touchedRangeIndexes.length - 1];
+        const firstTouchedRange = plainRanges[firstTouchedIndex];
+        const rangeLocalStartOffset = resolvedStartOffset - firstTouchedRange.start;
+        const rangeLocalEndOffset = resolvedEndOffset - firstTouchedRange.start;
 
         const fileName = files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab;
         onSelectionErrorChange(null);
@@ -170,8 +301,10 @@ export default function ModificationPanel({
             fileId: activeTab,
             fileName,
             selectedText,
-            startOffset,
-            endOffset,
+            startOffset: rangeLocalStartOffset,
+            endOffset: rangeLocalEndOffset,
+            startChunkNumber: firstTouchedIndex + 1,
+            endChunkNumber: lastTouchedIndex + 1,
         });
     };
 

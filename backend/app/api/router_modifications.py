@@ -4,6 +4,7 @@ Handles file update operations.
 """
 
 import traceback
+import re
 from typing import Literal
 from fastapi import APIRouter, HTTPException, status
 from pydantic import BaseModel
@@ -97,6 +98,8 @@ class SelectionEditPreviewRequest(BaseModel):
     fileId: str
     fileName: str
     selectedText: str
+    startChunkNumber: int
+    endChunkNumber: int
     startOffset: int
     endOffset: int
     instruction: str
@@ -111,6 +114,234 @@ class SelectionEditPreviewResponse(BaseModel):
     proposedText: str
     startOffset: int
     endOffset: int
+
+
+def _build_markdown_plain_projection(markdown: str) -> tuple[str, list[int]]:
+    """
+    Project markdown into approximately rendered plain text while keeping a map
+    from each projected character to its original markdown index.
+    """
+    plain_chars: list[str] = []
+    plain_to_markdown: list[int] = []
+    index = 0
+    line_start = True
+    in_fence = False
+
+    while index < len(markdown):
+        if line_start:
+            # Strip common line-level markdown markers from projected text.
+            if markdown.startswith("```", index):
+                newline_index = markdown.find("\n", index)
+                if newline_index == -1:
+                    break
+                in_fence = not in_fence
+                plain_chars.append("\n")
+                plain_to_markdown.append(newline_index)
+                index = newline_index + 1
+                line_start = True
+                continue
+
+            if not in_fence:
+                leading_space_match = re.match(r"[ ]{0,3}", markdown[index:])
+                leading_spaces = leading_space_match.group(0) if leading_space_match else ""
+                line_marker_start = index + len(leading_spaces)
+                marker_consumed = 0
+
+                if line_marker_start < len(markdown) and markdown[line_marker_start] == ">":
+                    marker_consumed = 1
+                    if (
+                        line_marker_start + marker_consumed < len(markdown)
+                        and markdown[line_marker_start + marker_consumed] == " "
+                    ):
+                        marker_consumed += 1
+                else:
+                    heading_match = re.match(r"#{1,6}[ \t]+", markdown[line_marker_start:])
+                    unordered_list_match = re.match(r"[-*+][ \t]+", markdown[line_marker_start:])
+                    ordered_list_match = re.match(r"\d+[.)][ \t]+", markdown[line_marker_start:])
+                    if heading_match:
+                        marker_consumed = len(heading_match.group(0))
+                    elif unordered_list_match:
+                        marker_consumed = len(unordered_list_match.group(0))
+                    elif ordered_list_match:
+                        marker_consumed = len(ordered_list_match.group(0))
+
+                if marker_consumed > 0:
+                    index = line_marker_start + marker_consumed
+                    line_start = False
+                    continue
+
+        current = markdown[index]
+
+        # Strip inline markdown markers.
+        if not in_fence and markdown.startswith(("**", "__", "~~"), index):
+            index += 2
+            continue
+        if not in_fence and current in ("*", "_", "`"):
+            index += 1
+            continue
+
+        # Preserve escaped characters but drop the escape slash.
+        if current == "\\" and index + 1 < len(markdown):
+            escaped_index = index + 1
+            plain_chars.append(markdown[escaped_index])
+            plain_to_markdown.append(escaped_index)
+            line_start = markdown[escaped_index] == "\n"
+            index += 2
+            continue
+
+        plain_chars.append(current)
+        plain_to_markdown.append(index)
+        line_start = current == "\n"
+        index += 1
+
+    return "".join(plain_chars), plain_to_markdown
+
+
+def _map_plain_range_to_markdown_range(
+    plain_to_markdown: list[int],
+    markdown_length: int,
+    start_offset: int,
+    end_offset: int,
+) -> tuple[int, int] | None:
+    if start_offset < 0 or end_offset <= start_offset:
+        return None
+    if not plain_to_markdown:
+        return None
+    if start_offset >= len(plain_to_markdown):
+        return None
+    if end_offset > len(plain_to_markdown):
+        return None
+
+    markdown_start = plain_to_markdown[start_offset]
+    if end_offset == len(plain_to_markdown):
+        markdown_end = markdown_length
+    else:
+        markdown_end = plain_to_markdown[end_offset - 1] + 1
+
+    if markdown_end <= markdown_start:
+        return None
+
+    return markdown_start, markdown_end
+
+
+def _find_nearest_occurrence(haystack: str, needle: str, expected_offset: int) -> int:
+    if not needle:
+        return -1
+    first = haystack.find(needle)
+    if first == -1:
+        return -1
+
+    best = first
+    best_distance = abs(first - expected_offset)
+    cursor = first
+    while cursor != -1:
+        next_index = haystack.find(needle, cursor + 1)
+        if next_index == -1:
+            break
+        distance = abs(next_index - expected_offset)
+        if distance < best_distance:
+            best = next_index
+            best_distance = distance
+        cursor = next_index
+    return best
+
+
+def _expand_selection_to_balanced_markers(
+    markdown: str,
+    start_offset: int,
+    end_offset: int,
+) -> tuple[int, int]:
+    """
+    Expand the mapped range to include adjacent markdown style markers when the
+    range crosses out of a formatted span. This prevents dangling markers after
+    replacement.
+    """
+    start = start_offset
+    end = end_offset
+    markers = ("**", "__", "~~", "*", "_", "`")
+
+    for marker in markers:
+        marker_len = len(marker)
+        if start >= marker_len and markdown[start - marker_len:start] == marker:
+            closing_index = markdown.find(marker, start)
+            if closing_index != -1 and closing_index < end:
+                start -= marker_len
+
+        if end + marker_len <= len(markdown) and markdown[end:end + marker_len] == marker:
+            opening_index = markdown.rfind(marker, start, end)
+            if opening_index != -1:
+                end += marker_len
+
+    return start, end
+
+
+def _resolve_selection_offsets(
+    existing_content: str,
+    selected_text_from_view: str,
+    start_offset_from_view: int,
+    end_offset_from_view: int,
+) -> tuple[int, int, str] | None:
+    """
+    Resolve the markdown offsets for a user's text selection in the document view.
+    """
+
+    # Fast path: caller already provided markdown-accurate offsets and text. Directly compare
+    if (
+        0 <= start_offset_from_view < end_offset_from_view <= len(existing_content)
+        and existing_content[start_offset_from_view:end_offset_from_view] == selected_text_from_view
+    ):
+        return start_offset_from_view, end_offset_from_view, selected_text_from_view
+
+    projected_plain, plain_to_markdown = _build_markdown_plain_projection(existing_content)
+    if not projected_plain or not plain_to_markdown:
+        return None
+
+    # First try direct plain-text offsets from rendered document.
+    if (
+        0 <= start_offset_from_view < end_offset_from_view <= len(projected_plain)
+        and projected_plain[start_offset_from_view:end_offset_from_view] == selected_text_from_view
+    ):
+        mapped = _map_plain_range_to_markdown_range(
+            plain_to_markdown=plain_to_markdown,
+            markdown_length=len(existing_content),
+            start_offset=start_offset_from_view,
+            end_offset=end_offset_from_view,
+        )
+        if mapped:
+            mapped_start, mapped_end = mapped
+            mapped_start, mapped_end = _expand_selection_to_balanced_markers(
+                markdown=existing_content,
+                start_offset=mapped_start,
+                end_offset=mapped_end,
+            )
+            return mapped_start, mapped_end, existing_content[mapped_start:mapped_end]
+
+    # Fallback: locate the selected plain text nearest the expected offset.
+    nearest_start = _find_nearest_occurrence(
+        haystack=projected_plain,
+        needle=selected_text_from_view,
+        expected_offset=max(0, start_offset_from_view),
+    )
+    if nearest_start == -1:
+        return None
+
+    nearest_end = nearest_start + len(selected_text_from_view)
+    mapped = _map_plain_range_to_markdown_range(
+        plain_to_markdown=plain_to_markdown,
+        markdown_length=len(existing_content),
+        start_offset=nearest_start,
+        end_offset=nearest_end,
+    )
+    if not mapped:
+        return None
+
+    mapped_start, mapped_end = mapped
+    mapped_start, mapped_end = _expand_selection_to_balanced_markers(
+        markdown=existing_content,
+        start_offset=mapped_start,
+        end_offset=mapped_end,
+    )
+    return mapped_start, mapped_end, existing_content[mapped_start:mapped_end]
 
 
 # --- API Endpoints ---
@@ -189,6 +420,8 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
         instruction = payload.instruction.strip()
         start_offset = payload.startOffset
         end_offset = payload.endOffset
+        start_chunk_number = payload.startChunkNumber
+        end_chunk_number = payload.endChunkNumber
 
         if not file_id:
             raise HTTPException(
@@ -219,16 +452,34 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="startOffset/endOffset must describe a non-empty range",
             )
+        if start_chunk_number < 1:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="startChunkNumber must be >= 1",
+            )
+        if end_chunk_number < start_chunk_number:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail="endChunkNumber must be >= startChunkNumber",
+            )
 
         try:
-            existing_content = await ReconstructionService.get_file_merged_content(
+            # Resolve only the requested chunk window, not the whole file.
+            window_content, window_absolute_start = await ReconstructionService.get_file_chunk_window_content(
                 file_id=file_id,
                 file_name=file_name,
+                start_chunk_number=start_chunk_number,
+                end_chunk_number=end_chunk_number,
             )
         except FileNotFoundError:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"No parent chunks found for file ID '{file_id}'",
+            )
+        except ValueError as e:
+            raise HTTPException(
+                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                detail=str(e),
             )
         except RuntimeError as e:
             detail = str(e)
@@ -239,18 +490,23 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
                 )
             raise
 
-        if end_offset > len(existing_content):
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Selection offsets are out of range for the current file content",
-            )
-
-        if existing_content[start_offset:end_offset] != selected_text:
+        # Resolve range-local offsets against the selected chunk window content.
+        resolved_selection = _resolve_selection_offsets(
+            existing_content=window_content,
+            selected_text_from_view=selected_text,
+            start_offset_from_view=start_offset,
+            end_offset_from_view=end_offset,
+        )
+        if not resolved_selection:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="selectedText does not match the current content at the provided offsets",
             )
+        resolved_start_offset_local, resolved_end_offset_local, selected_text_for_patch = resolved_selection
+        resolved_start_offset = window_absolute_start + resolved_start_offset_local
+        resolved_end_offset = window_absolute_start + resolved_end_offset_local
 
+        # Generate the edit result from LLM based on the selectiion and instruction
         preview = await LlmEditorService.generate_selection_edit_preview(
             file_name=file_name,
             selected_text=selected_text,
@@ -260,11 +516,11 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
         return SelectionEditPreviewResponse(
             fileId=file_id,
             fileName=file_name,
-            selectionId=f"selection:{start_offset}:{end_offset}",
-            selectedText=selected_text,
+            selectionId=f"selection:{resolved_start_offset}:{resolved_end_offset}",
+            selectedText=selected_text_for_patch,
             proposedText=preview["proposedText"],
-            startOffset=start_offset,
-            endOffset=end_offset,
+            startOffset=resolved_start_offset,
+            endOffset=resolved_end_offset,
         )
     except HTTPException:
         raise

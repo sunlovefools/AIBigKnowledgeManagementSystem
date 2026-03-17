@@ -352,6 +352,9 @@ async def _generate_selection_via_openrouter(
     instruction: str,
     run_id: str,
 ) -> dict[str, Any]:
+    """
+    Generate an edit preview for a highlighted text selection based on the user's instruction.
+    """
     if not cfg.openrouter_api_key:
         raise RuntimeError("OPENROUTER_API_KEY is required when LLM_EDITOR_PROVIDER=OPENROUTER.")
 
@@ -545,6 +548,9 @@ class LlmEditorService:
         selected_text: str,
         instruction: str,
     ) -> dict:
+        """
+        Generate an edit preview for a highlighted text selection based on the user's instruction.
+        """
         print(f"[Selection Edit Preview] Sending requests to LLM for editing the selected text.")
         cfg = _load_config()
         run_id = uuid4().hex
