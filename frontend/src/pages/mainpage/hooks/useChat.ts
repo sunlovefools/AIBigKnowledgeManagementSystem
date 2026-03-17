@@ -134,7 +134,7 @@ export function useChat() {
         }
     }, []);
 
-    const loadMoreConversationMessages = useCallback(async () => {
+    const loadMoreConversationMessages = useCallback(async () => {//pagination function to load more messages for the current conversation when user clicks "Load older messages" button, using the conversationMessagesCursor to keep track of pagination state and appending the newly loaded messages to the existing list in the state
         const userEmail = getResolvedUserEmail();
         if (!userEmail || !conversationId || conversationMessagesCursor === null || isLoadingMoreConversationMessages) {
             return;
