@@ -1,5 +1,6 @@
 """
-View chat messages stored in Astra DB.
+View chat messages stored in Astra DB via TERMINAL.
+!!!USED FOR TESTING AND DEBUGGING ONLY - NOT AN API ENDPOINT!!!
 Usage: python scripts/view_chat_messages.py
 """
 
@@ -29,11 +30,11 @@ def view_chat_messages():
     collection = database.get_collection(collection_name)
     
     # Get all messages (limit to recent 50)
-    print("📊 Fetching recent chat messages...\n")
+    print("Fetching recent chat messages...\n")
     messages = list(collection.find({}, limit=50))
     
     if not messages:
-        print("⚠️  No messages found in collection.")
+        print("!!!No messages found in collection.")
         print("   Try sending a chat message from the frontend first!")
         return
     
@@ -50,7 +51,7 @@ def view_chat_messages():
     
     # Display each conversation
     for conv_id, msgs in conversations.items():
-        print(f"\n📝 Conversation: {conv_id}")
+        print(f"\nConversation: {conv_id}")
         print(f"   User: {msgs[0].get('userEmail', 'unknown')}")
         print(f"   Messages: {len(msgs)}")
         print("-" * 80)
@@ -75,7 +76,7 @@ def view_chat_messages():
     
     # Show sample document structure
     if messages:
-        print("\n📋 Sample document structure:")
+        print("\n Sample document structure:")
         sample = messages[0]
         print(f"   _id: {sample.get('_id')}")
         print(f"   conversationId: {sample.get('conversationId')}")

@@ -24,10 +24,6 @@ def create_conversations_collection():
     if not endpoint or not token:
         raise ValueError(
             "Missing required environment variables!\n"
-            "Please set in backend/.env:\n"
-            "  ASTRA_CHAT_DB_URL (or ASTRA_DB_URL)\n"
-            "  ASTRA_CHAT_DB_TOKEN (or ASTRA_DB_TOKEN)\n"
-            "  ASTRA_CHAT_KEYSPACE (or ASTRA_DB_KEYSPACE)"
         )
 
     print("🔌 Connecting to Astra DB...")
@@ -44,16 +40,6 @@ def create_conversations_collection():
     print(f"🔨 Creating collection '{collection_name}'...")
     collection = database.create_collection(collection_name)
     print(f"✅ Collection '{collection_name}' created successfully!")
-    print("📑 Collection is ready for conversation metadata.")
-    print("\nCollection document shape:")
-    print("  - conversationId: string")
-    print("  - userEmail: string")
-    print("  - title: string")
-    print("  - createdAt: string (ISO timestamp)")
-    print("  - updatedAt: string (ISO timestamp)")
-    print("  - messageCount: number")
-    print("  - lastMessage: { role, text, timestamp }")
-
     return collection
 
 

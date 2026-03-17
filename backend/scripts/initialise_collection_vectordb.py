@@ -57,12 +57,12 @@ def get_database():
 def ensure_collection(database, name: str, definition: CollectionDefinition):
     existing_names = set(database.list_collection_names())
     if name in existing_names:
-        print(f"✓ Collection already exists: {name}")
+        print(f"!!!Collection already exists: {name}")
         return database.get_collection(name)
 
-    print(f"+ Creating collection: {name}")
+    print(f"Creating collection: {name}")
     coll = database.create_collection(name, definition=definition)
-    print(f"✓ Created: {name}")
+    print(f"Created: {name}")
     return coll
 
 

@@ -2282,3 +2282,373 @@ Answer Length: 609
 Answer:
 Pink plaques are a type of historical marker used in the United Kingdom to commemorate notable individuals, places, or events. They serve as a visual reminder of significant figures or landmarks and help preserve historical memory. Pink plaques are typically displayed on buildings, monuments, or other structures that hold cultural or historical significance. They are often placed in prominent locations to attract attention and encourage visitors to learn more about the subject matter. Pink plaques are distinct from blue plaques, which are primarily used in London to commemorate famous British citizens.
 ==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-10T11:35:35.717720+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 15475
+
+<QUERY>
+Tell me about internal examienrs
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f11b0e8-dc1a-69b5-8551-00459dc54162",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 1
+    },
+    "page_content": "## Internal and external examiners\n\n- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).\n\n- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.\n\n- Students must be informed when/how results will be released and what stages are involved.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c80-a276-6e8e-a0e0-07d5c3ac7391",
+    "metadata": {
+      "file_name": "wikieval_row_14.txt",
+      "parent_chunk_number": 0
+    },
+    "page_content": "The Inter Expo Center (IEC) is a multi-purpose convention center in Sofia, Bulgaria. It consists of six exhibition halls, eight congress halls, and outdoor exhibition spaces. The center is the biggest convention and exhibition venue in the city. The development also includes an office tower above the main reception area and restaurants around the main entrance. History\nThe Inter Expo Center opened in 2001, initially featuring two exhibition halls and outdoor exhibition spaces alongside leasable office and trade spaces in an office tower above the halls and in public areas around the main entrance facing the street.The center had its first expansion in 2003, adding a congress center featuring eight congress halls, as well as an additional exhibition hall. In 2008, the center was expanded again with the opening of further exhibition halls. The Inter Expo Center – Tsarigradsko shose Metro Station, part of the Sofia Metro, opened in April 2012 . Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion. References\nExternal links\nOfficial website",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bccf-be52-6bb3-a325-845d25c4fbde",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 7
+    },
+    "page_content": "## Examination attendance and late arrival\n\n- Students must attend all examinations and provide photographic ID for in-person exams.\n\n- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11b0e9-907a-6b6a-813e-9e1ff187fd14",
+    "metadata": {
+      "file_name": "Extenuating_Circumstances_Pack.pdf",
+      "parent_chunk_number": 8
+    },
+    "page_content": "## 2.1.7 EC claim deadlines\n\n- Coursework: submit before the original coursework deadline.\n\n- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).\n\nLate claims are only accepted in limited circumstances: (1) compelling evidence of inability to submit on time (e.g., severe incapacitation), (2) new evidence after an EC decision that could not reasonably have been known earlier, or (3) late diagnosis of a disability/long-term condition within the current academic year (Equality Ac 2010) where reasonable adjustments were not in place.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c80-6505-6632-9124-7f7f6a41ef3c",
+    "metadata": {
+      "file_name": "wikieval_row_11.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": ". Its surface was paved with stones in sandy and muddy areas. In addition, it was equipped with necessary amenities and facilities such as wells, ponds, and dams. Signages, lighthouses, beacons, and stoves were also set up to mark its path and guide travellers.The Zubaydah Trail stretches over a distance of 1,300 kilometres and is connected to 27 main stations, most of which are concentrated in Saudi Arabia. Furthermore, 58 subsidiary stations called Muta'asha, which are rest stops, were established between every two main stations . The average distance between each main station and the next is approximately 50 kilometres. Naming\nThe trail was named after Queen Zubaydah, the daughter of Caliph Abu Ja'far al-Mansur and wife of Caliph Harun al-Rashid, who played a significant role in its development. She made significant contributions towards the construction of the trail, and alongside her husband, dedicated a considerable amount of their wealth towards the comfort of pilgrims and travellers. The idea for establishing the trail came after she experienced great hardships on her journey to perform the Hajj pilgrimage in the year 176 AH . She then ordered the construction of rest areas and ponds along the routes of valleys in a well-organized manner that helped collect rainwater, streams, and runoff within water canals. == References ==",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bcd6-82b1-6b63-b912-7d1a2f8944f3",
+    "metadata": {
+      "file_name": "Extenuating_Circumstances_Pack.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## 2.1.2 How assessment type affects EC\n\nFor EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).\n\nExams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).\n\nCoursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c84-58bd-6c1a-aa05-6f7536f9a3d3",
+    "metadata": {
+      "file_name": "wikieval_row_44.txt",
+      "parent_chunk_number": 2
+    },
+    "page_content": ". It played a significant role during Russia's military intervention in the Syrian civil war, providing support to Syrian president Bashar al-Assad, and has participated in conflicts in Mali, Libya, and the Central African Republic. Wagner has garnered infamy due to its ruthless methods and its participation in war crimes throughout Africa, the Middle East, and Ukraine, perpetrating atrocities with impunity .The group maintains close ties with multiple African governments, enjoying considerable autonomy to exploit the natural resources of these nations in return for supporting local forces in their battle against anti-government rebels. Wagner's economic endeavors in Africa witnessed an upward trajectory even amidst the Russian invasion of Ukraine, as the funds generated were channeled towards financing the conflicts in Ukraine and other regions. Internal tensions during the invasion of Ukraine\nOrder to integrate Wagner In mid-June 2023, the MoD ordered Wagner to sign contracts with the military before 1 July. This move effectively integrated Wagner as a subordinate unit within the regular command structure, thereby diminishing the influence of Prigozhin. However, Prigozhin declined to sign the agreement, alleging incompetence on the part of Shoigu. Reports from the independent Russian news outlet Meduza indicated that this development would undermine Prigozhin's hold over Wagner and jeopardize the group's profitable operations in Africa",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c85-4414-6366-98b6-ef7e69a36f46",
+    "metadata": {
+      "file_name": "wikieval_row_49.txt",
+      "parent_chunk_number": 3
+    },
+    "page_content": "Arrival at the Jovian system\nWhen it arrives in Jupiter's system in July 2031, JUICE will first perform a flyby of Ganymede in preparation for Jupiter orbital insertion about 7.5 hours later. The first orbit will be elongated, with subsequent orbits gradually lowered over time, resulting in a circular orbit around Jupiter.The first Europa flyby will take place in July 2032. JUICE will enter a high inclination orbit to allow exploration of Jupiter's polar regions and to study Jupiter's magnetosphere. Orbital insertion on Ganymede\nIn December 2034, JUICE will enter an elliptical orbit around Ganymede. The first orbit will be at a distance of 5,000 km (3,100 mi). In 2035, JUICE will enter a circular orbit 500 km (310 mi) above the surface of Ganymede. JUICE will study Ganymede's composition and magnetosphere among other things.\n\nPlanned deorbit on Ganymede\nWhen the spacecraft consumes its remaining propellant, JUICE is planned to be deorbited and impact Ganymede at the end of 2035. Science objectives\nThe JUICE orbiter will perform detailed investigations on Ganymede and evaluate its potential to support life. Investigations of Europa and Callisto will complete a comparative picture of these Galilean moons. The three moons are thought to harbour internal liquid water oceans, and so are central to understanding the habitability of icy worlds.\nThe main science objectives for Ganymede, and to a lesser extent for Callisto, are:\nCharacterisation of the ocean layers and detection of putative subsurface water reservoirs Topographical, geological and compositional mapping of the surface\nStudy of the physical properties of the icy crusts\nCharacterisation of the internal mass distribution, dynamics and evolution of the interiors\nInvestigation of Ganymede's tenuous atmosphere",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68c1-9ad9-b7778db496f0",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 62
+    },
+    "page_content": "## 4.1 Individual Report - Reflective Statement\n\nYour individual report focusses on your work within the group and the challenges that you may have faced. Its main purpose of is to reflect on the quality of your own contribution, the experience you had in the team, and lessons learned from it for the future. Your report should focus on both the technical contributions that you have made as well as the interpersonal role that you have played. Please contextualise your achievements against the requirements for the project.\n\nA template for your individual report (that must be followed) is available on Moodle.  The template contains five sections:\n\n- Why the group applied for the project ,  focusing  on how the interest, technical skills,  past experience, and future aspirations influenced the choice for this project. This should reflect the team's view as well as your own personal perspective.\n\n- The accuracy of the original project description , giving you the opportunity to express how, in your own view, the original project description and requirements have evolved during the course of the project. This gives you an opportunity to demonstrate your own understanding of the project.\n\n- The role that you have played within the team, focusing in a concise manner on the technical, administrative, managerial, and interpersonal contributions that you have made to the project and team. Your focus should be on your key contributions and, where possible, be supported by contextual ' evidence ' .  How did you use your strengths to the benefit of the team and project? What were the different roles that you took on within the team? Were you primarily technical, managerial, or both? Were you a key player in the successful completion of the project and the operation of the team, a regular contributor? Was your work rate consistent? What initiatives did you take, how was your time management, how did you collaborate with other members to help them to achieve their best?\n\n- Difficulties that you experienced within your role, focusing the technical challenges that you encountered as well as in any other aspects of your role.\n\n- Difficulties  that  you  may  have  experienced  working  in  this  group  and  constructive  actions taken to resolve  these  challenges ,  documenting  any challenges that  were  encountered  by yourself  or  the  whole  team,  and  the  constructive  /  proactive  measures  that  you  took  to address concerns to the benefit of the team. Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90e6-6bce-b684-31686ccaa187",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 15
+    },
+    "page_content": "## ExamSys Test\n\n## Individual 30%\n\n| Description        | Focuses on theories covered in the lectures and practical exercises   |\n|--------------------|-----------------------------------------------------------------------|\n| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |",
+    "type": "Document"
+  },
+  {
+    "id": "1f115c85-0ac5-6033-a904-bdcf66b4e157",
+    "metadata": {
+      "file_name": "wikieval_row_48.txt",
+      "parent_chunk_number": 1
+    },
+    "page_content": "MERS-CoV/NeoCoV alert\nIn January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35% . This 'MERS-CoV-2' therefore represents a risk to biosafety and potential zoonotic spillover. The study emphasized the need for pathogen/spillover surveillance to further understand any possible threat from related viruses. The WHO stated that further study is needed to find out \"whether the virus detected in the study will pose a risk for humans\". Monkeypox\nOn 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk. Measures\nInfrastructure and international development",
+    "type": "Document"
+  },
+  {
+    "id": "1f11b0e8-dc1a-69bd-a087-957068acb053",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 5
+    },
+    "page_content": "## School responsibilities (summary)\n\n- Set assessment at the appropriate academic level and standard.\n\n- Ensure student performance is judged equitably against standards (marking/grading, classification, external examining).\n\n- Publicise assessment principles/procedures to students and staff via suitable channels.\n\n- Ensure in-house tests/exams are secure and do not conflict with other teaching requirements.\n\n- Consider needs of students with dyslexia, disabilities and/or long-term medical conditions (include in handbooks).\n\n- Provide timely, constructive feedback and clear criteria to support good academic practice.\n\n- Inform students about anonymity protections in marking-by-number systems.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-10T11:36:15.569165+00:00
+Answer Length: 322
+Answer:
+All assessments leading to a University award involve internal examiner(s) and independent external examiner(s). Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training. Students must be informed when/how results will be released and what stages are involved.
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-10T11:40:10.101351+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 5789
+
+<QUERY>
+What happens if I miss an assessment?
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f11bd69-5e80-6e53-b2f8-83eae9297d86",
+    "metadata": {
+      "file_name": "Extenuating_Circumstances_Pack.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## 2.1.2 How assessment type affects EC\n\nFor EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).\n\nExams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).\n\nCoursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bccf-be53-6072-b2f3-087d54f4d22f",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 8
+    },
+    "page_content": "## Missed assessments and late penalties\n\nStudents may submit EC claims for circumstances affecting performance or missed assessments. If an assessment is missed without sufficient cause, a mark of 0% is awarded.\n\nLate submission penalty (Regulation 8): coursework marks are reduced by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bccf-be52-6bb3-a325-845d25c4fbde",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 7
+    },
+    "page_content": "## Examination attendance and late arrival\n\n- Students must attend all examinations and provide photographic ID for in-person exams.\n\n- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11b0e8-dc1a-69c3-918f-8941f3bb32e2",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 8
+    },
+    "page_content": "## Missed assessments and late penalties\n\nStudents may submit EC claims for circumstances affecting performance or missed assessments. If an assessment is missed without sufficient cause, a mark of 0% is awarded.\n\nLate submission penalty (Regulation 8): coursework marks are reduced by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bd9e-167d-6e35-b2c7-fd41518d1d6e",
+    "metadata": {
+      "file_name": "Extenuating_Circumstances_Pack.pdf",
+      "parent_chunk_number": 15
+    },
+    "page_content": "## First sit vs resit (student guidance)\n\nA first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).\n\nA resit is offered after failure. For undergraduate degrees, resit marks appear on the transcript as a second attempt and are used for progression, but do not contribute to final degree classification calculations. For tau postgraduates, resit marks count for Pass only (not Merit/Distinction).",
+    "type": "Document"
+  },
+  {
+    "id": "1f116fd4-bd84-68eb-8103-53256fd61d7f",
+    "metadata": {
+      "file_name": "Project Handbooks.pdf",
+      "parent_chunk_number": 72
+    },
+    "page_content": "## 5.5 Re-assessment\n\nIf you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:\n\n- Consider  the  code  and  documentation  (report,  manual,  etc.)  that  have  been  submitted already, and the initial and adopted requirements.\n\n- Add a useful fix or addition to the code\n\n- Update the documentation appropriately\n\n- Provide a brief (1-3 page) report summarising what you changed, why it was changed, what effect it had\n\n- A  reflection  upon  what  you  have  done  and  (if  you  so  wish,  to  enhance  the  potential  for reflection) within the initial project duration.\n\nYour additional work should demonstrate:\n\n- ability to work with (i.e. adapt/improve) the code and documentation already provided by others (and you)\n\n- knowledge of software engineering methodologies\n\n- ability to understand the requirements and specifications (as originally given or adapted)\n\n- ability to select and deploy tools and techniques\n\n- the ability to reflect upon your own progress, strengths and weaknesses\n\nThe marking criteria for the regular assessment will be used as a guide to evaluate your work.\n\nAll  code  changes  should  be  pushed  to  Git,  and  the  report  should  be  submitted  to  the  relevant submission system on Moodle.\n\nNote that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bccf-be52-6754-a2cc-c3d0fcbc59f1",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 6
+    },
+    "page_content": "## Assessment regulations (selected key points)\n\n## Assessed coursework\n\n- Coursework must be submitted electronically except where physically impossible due to format.\n\n- Standard deadline is 15:00 local time; recommended deadlines Mon-Thu.",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-10T11:40:44.892363+00:00
+Answer Length: 361
+Answer:
+If you miss an assessment without sufficient cause, a mark of 0% is awarded. The late submission penalty applies to coursework marks, reducing them by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-11T11:46:37.243322+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 6316
+
+<QUERY>
+tell me about catered halls
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f11bdfe-dfb0-69a1-8b5d-5cedb6815ef8",
+    "metadata": {
+      "file_name": "student_living_accommodation_sample.pptx",
+      "parent_chunk_number": 1
+    },
+    "page_content": "What this booklet covers\n\n- On-campus living across three campuses\n- Catered vs self-catered options\n- Benefits (bills included, security, quieter living, insurance)\n- MealPass and Active Living package\n- Hall options (on-campus + partner halls) and example prices",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bdfe-dfb0-6f73-9614-d88baf3523b6",
+    "metadata": {
+      "file_name": "student_living_accommodation_sample.pptx",
+      "parent_chunk_number": 2
+    },
+    "page_content": "On-campus living\n\n- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered\n- Jubilee Campus: modern en-suites; community kitchens; Atrium food court\n- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bdff-27e8-6f26-b304-887304637f07",
+    "metadata": {
+      "file_name": "student_living_accommodation_sample.xlsx",
+      "parent_chunk_number": 0
+    },
+    "page_content": "| Section                | Key points                                                                                                              |\n| On-campus living       | University Park, Jubilee Campus, Sutton Bonington; catered and self-catered options; close to academic + social spaces. |\n| Benefits               | Free buses; 365-day security; all-inclusive bills + contents insurance; quieter living options.                         |\n| Catering (MealPass)    | 12 meals/week; flexible dining; £25 weekly retail allowance; sustainable ingredients.                                   |\n| Active Living          | Gym, courts, pitches, pool, sauna; events + classes; included for some halls (campus halls + Dagfa).                    |\n| Residential Experience | Support 7 days/week; wellbeing + community; inclusivity; individual needs email provided.                               |\n| Booking                | Firm choice first; wait 48h; pick 3 preferences; applications usually open early April.                                 |\n\n| Hall                       | Campus/Notes                                                        | Weeks   | Catering             | From (£)   |\n| Ancaster Hall              | University Park; close to Humanities; many en-suites; social spaces | 39      | Catered              | 234        |\n| Bonington Student Village  | Sutton Bonington; variety of room types; outdoor spaces             | 44 & 51 | Self-catered         | 137        |\n| Cavendish Hall             | University Park; many en-suites; lively social spaces               | 39      | Catered              | 277        |\n| Cripps Hall                | University Park; overlooking The Downs; variety of budgets          | 39      | Catered              | 227        |\n| Cripps Hall                | University Park; self-catered option                                | 44 & 51 | Self-catered         | 137        |\n| Dagfa House                | University Park; former school grounds; ~5 min walk                 | 44 & 51 | —                    |            |\n| Derby Hall                 | University Park; refurbished; variety of rooms                      | 39      | Catered              | 227        |\n| Eviton House               | Sutton Bonington; nature; en-suite & studio                         | 44      | Self-catered         | 227        |\n| Florence Boot Hall         | University Park; refurbished; study + social spaces                 | 39      | Catered              | 245        |\n| Florence Boot Hall         | University Park; self-catered option                                | —       | Self-catered         | 183        |\n| Lenton and Wortley Hall    | University Park; green spaces; next to Cripps Health Centre         | 39      | Catered              | 223        |\n| Lincoln Hall               | University Park; quieter living available                           | 39      | Catered              | 206        |\n| Newark Hall                | Jubilee; near Education + Computer Science; Atrium                  | 39      | Catered/Self-catered | 134        |\n| Nightingale Hall           | University Park; near David Ross Sports Village                     | 39      | Catered              | 239        |\n| Rutland Hall               | University Park; near David Ross Sports Village; iconic spire       | 39      | Catered              | 223        |\n| Sherwood Hall              | University Park; value rooms; opposite Sports Village               | 39      | Catered              | 223        |\n| Southwell Hall             | Jubilee; community kitchens; self-catered                           | 39      | Self-catered         | 132        |\n| University Park Townhouses | University Park; communal living; variety of rooms                  | 39      | Catered              | 175        |",
+    "type": "Document"
+  },
+  {
+    "id": "1f11cc6c-5a01-6104-8533-934feb26e8cd",
+    "metadata": {
+      "file_name": "backend/_local_uploads/student_living_accommodation_sample_WITH_TABLE.pptx",
+      "parent_chunk_number": 4
+    },
+    "page_content": "Outstanding catering (MealPass)\n\n- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)\n- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)\n- Flexible dining across halls\n- Weekly £25 spending allowance at campus retail sites",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bdfe-dfb2-6082-8c37-9dc705473080",
+    "metadata": {
+      "file_name": "student_living_accommodation_sample.pptx",
+      "parent_chunk_number": 8
+    },
+    "page_content": "Halls at a glance (examples)\n\n- Ancaster Hall — 39 weeks | Catered | From £234\n- Cavendish Hall — 39 weeks | Catered | From £277\n- Cripps Hall — 39 weeks | Catered | From £227; 44/51 weeks | Self-catered | From £137\n- Southwell Hall — 39 weeks | Self-catered | From £132\n- Newark Hall — 39 weeks | Catered/Self-catered | From £134\n- Raleigh Park (partner hall) — 44 weeks | Self-catered | From £125",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-11T11:47:10.941454+00:00
+Answer Length: 517
+Answer:
+Catered halls offer residents access to freshly prepared meals throughout the week. These meals typically include five breakfasts, five dinners (Monday through Friday), and two weekend meals (breakfast or dinner). The catering service ensures fresh ingredients such as free-range eggs, Red Tractor meat, and responsibly farmed fish. Additionally, there is a weekly £25 spending allowance available at campus retail sites. This type of accommodation provides convenience and flexibility while ensuring a balanced diet.
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-11T11:58:05.572069+00:00
+Provider: BEAM
+Model: N/A
+Context Length: 3852
+
+<QUERY>
+tell me about exams
+</QUERY>
+
+<CONTEXT>
+[
+  {
+    "id": "1f11b0e0-4eee-6633-af14-e93361b898b1",
+    "metadata": {
+      "file_name": "Extenuating_Circumstances_Pack.pdf",
+      "parent_chunk_number": 19
+    },
+    "page_content": "## 2. Roles and responsibilities\n\n## Students\n\n- Tell University staff as early as possible when circumstances affect study/assessments.\n\n- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.\n\n- For exams: decide whether you are fit enough to attend.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bcd6-82b1-6b63-b912-7d1a2f8944f3",
+    "metadata": {
+      "file_name": "Extenuating_Circumstances_Pack.pdf",
+      "parent_chunk_number": 3
+    },
+    "page_content": "## 2.1.2 How assessment type affects EC\n\nFor EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).\n\nExams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).\n\nCoursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11bccf-be52-6bb3-a325-845d25c4fbde",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 7
+    },
+    "page_content": "## Examination attendance and late arrival\n\n- Students must attend all examinations and provide photographic ID for in-person exams.\n\n- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11b0e9-907a-6b6a-813e-9e1ff187fd14",
+    "metadata": {
+      "file_name": "Extenuating_Circumstances_Pack.pdf",
+      "parent_chunk_number": 8
+    },
+    "page_content": "## 2.1.7 EC claim deadlines\n\n- Coursework: submit before the original coursework deadline.\n\n- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).\n\nLate claims are only accepted in limited circumstances: (1) compelling evidence of inability to submit on time (e.g., severe incapacitation), (2) new evidence after an EC decision that could not reasonably have been known earlier, or (3) late diagnosis of a disability/long-term condition within the current academic year (Equality Ac 2010) where reasonable adjustments were not in place.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11b0e8-dc1a-69b5-8551-00459dc54162",
+    "metadata": {
+      "file_name": "Assessment_and_Marking_Pack.pdf",
+      "parent_chunk_number": 1
+    },
+    "page_content": "## Internal and external examiners\n\n- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).\n\n- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.\n\n- Students must be informed when/how results will be released and what stages are involved.",
+    "type": "Document"
+  },
+  {
+    "id": "1f11733d-90e6-6bce-b684-31686ccaa187",
+    "metadata": {
+      "file_name": "COMP2005_2026_CWBrief.pdf",
+      "parent_chunk_number": 15
+    },
+    "page_content": "## ExamSys Test\n\n## Individual 30%\n\n| Description        | Focuses on theories covered in the lectures and practical exercises   |\n|--------------------|-----------------------------------------------------------------------|\n| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |",
+    "type": "Document"
+  }
+]
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-11T11:58:40.474271+00:00
+Answer Length: 1153
+Answer:
+Exams are categorized into two types: coursework and exams. Coursework includes assessments completed over days/weeks/months, such as essays, reports, and PGR progression reports, which are typically submitted via Moodle/Turnitin. Exams can be further divided into various categories including in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews treated as exams for EC purposes. The process involves submitting coursework before its original deadline and exams ideally before they begin but no later than 5 working days after the exam, with exceptions for compelling evidence of inability to submit on time, new evidence after an EC decision, or late diagnosis of a disability/long-term condition within the same academic year. Additionally, students must attend all examinations and provide photographic ID for in-person exams. Late arrivals are allowed up to one hour before the examination starts, but students who arrive after this period are not permitted to sit. Results are usually released at the end of the semester.
+==================================================

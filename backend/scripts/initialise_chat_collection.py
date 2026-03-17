@@ -17,7 +17,7 @@ load_dotenv()
 def create_chat_collection():
     """Create the chat_messages collection in Astra DB."""
     
-    # Load credentials - prioritize chat-specific database
+    # Load credentials for chat collection, if fail then load main database credentials
     endpoint = os.environ.get("ASTRA_CHAT_DB_URL") or os.environ.get("ASTRA_DB_URL")
     token = os.environ.get("ASTRA_CHAT_DB_TOKEN") or os.environ.get("ASTRA_DB_TOKEN")
     keyspace = os.environ.get("ASTRA_CHAT_KEYSPACE") or os.environ.get("ASTRA_DB_KEYSPACE")
@@ -26,20 +26,16 @@ def create_chat_collection():
     if not endpoint or not token:
         raise ValueError(
             "Missing required environment variables!\n"
-            "Please set in backend/.env:\n"
-            "  ASTRA_CHAT_DB_URL (or ASTRA_DB_URL)\n"
-            "  ASTRA_CHAT_DB_TOKEN (or ASTRA_DB_TOKEN)\n"
-            "  ASTRA_CHAT_KEYSPACE (or ASTRA_DB_KEYSPACE)"
         )
     
     # Show which database is being used
     if os.environ.get("ASTRA_CHAT_DB_URL"):
-        print(f"📂 Using chat-specific database: ASTRA_CHAT_DB_URL")
+        print(f"Using chat-specific database: ASTRA_CHAT_DB_URL")
     else:
-        print(f"📂 Using main database: ASTRA_DB_URL")
+        print(f"Using main database: ASTRA_DB_URL")
     
     print(f"🔌 Connecting to Astra DB...")
-    print(f"   Keyspace: {keyspace}")
+    print(f"Keyspace: {keyspace}")
     client = DataAPIClient()
     database = client.get_database(endpoint, token=token, keyspace=keyspace)
     print(f"✅ Connected to database: {database.info().name}")
@@ -47,24 +43,15 @@ def create_chat_collection():
     # Check if collection already exists
     existing_collections = database.list_collection_names()
     if collection_name in existing_collections:
-        print(f"ℹ️  Collection '{collection_name}' already exists.")
+        print(f"Collection '{collection_name}' already exists.")
         collection = database.get_collection(collection_name)
-        print(f"✅ Using existing collection.")
+        print(f"Using existing collection.")
         return collection
     
     # Create new collection (no vector field needed for chat history)
     print(f"🔨 Creating collection '{collection_name}'...")
     collection = database.create_collection(collection_name)
     print(f"✅ Collection '{collection_name}' created successfully!")
-    
-    # Create an index on conversationId for faster queries
-    print(f"📑 Collection is ready for chat message storage.")
-    print(f"\nCollection will store documents with structure:")
-    print(f"  - conversationId: string")
-    print(f"  - userEmail: string")
-    print(f"  - role: string ('user' or 'ai')")
-    print(f"  - text: string")
-    print(f"  - timestamp: string (ISO format)")
     
     return collection
 

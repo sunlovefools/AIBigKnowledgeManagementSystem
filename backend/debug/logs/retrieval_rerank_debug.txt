@@ -3228,3 +3228,1237 @@ Content: ## Dataset
 Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: Tell me about internal examienrs
+Timestamp: 2026-03-10T11:35:27.332882+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.764583]
+Content: ## Internal and external examiners
+
+- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).
+
+- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.
+
+- Students must be informed when/how results will be released and what stages are involved.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.764583]
+Content: ## Internal and external examiners
+
+- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).
+
+- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.
+
+- Students must be informed when/how results will be released and what stages are involved.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.719525]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.691897]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.691897]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.686204]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.686204]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.686204]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.686204]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.686204]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.685884]
+Content: == References ==
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.684757]
+Content: References External links Official website
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.683071]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.682094]
+Content: ## School responsibilities (summary)
+
+- Set assessment at the appropriate academic level and standard.
+
+- Ensure student performance is judged equitably against standards (marking/grading, classification, external examining).
+
+- Publicise assessment principles/procedures to students and staff via suitable channels.
+
+- Ensure in-house tests/exams are secure and do not conflict with other teaching requirements.
+
+- Consider needs of students with dyslexia, disabilities and/or long-term medical conditions (include in handbooks).
+
+- Provide timely, constructive feedback and clear criteria to support good academic practice.
+
+- Inform students about anonymity protections in marking-by-number systems.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.682094]
+Content: ## School responsibilities (summary)
+
+- Set assessment at the appropriate academic level and standard.
+
+- Ensure student performance is judged equitably against standards (marking/grading, classification, external examining).
+
+- Publicise assessment principles/procedures to students and staff via suitable channels.
+
+- Ensure in-house tests/exams are secure and do not conflict with other teaching requirements.
+
+- Consider needs of students with dyslexia, disabilities and/or long-term medical conditions (include in handbooks).
+
+- Provide timely, constructive feedback and clear criteria to support good academic practice.
+
+- Inform students about anonymity protections in marking-by-number systems.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.681941]
+Content: Measures Infrastructure and international development
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.679603]
+Content: ## ExamSys Test
+
+## Individual 30%
+
+| Description        | Focuses on theories covered in the lectures and practical exercises   |
+|--------------------|-----------------------------------------------------------------------|
+| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.676854]
+Content: Topographical, geological and compositional mapping of the surface Study of the physical properties of the icy crusts Characterisation of the internal mass distribution, dynamics and evolution of the interiors Investigation of Ganymede's tenuous atmosphere
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.671881]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.671881]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.746439]
+Content: ## Internal and external examiners
+
+- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).
+
+- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.
+
+- Students must be informed when/how results will be released and what stages are involved.
+
+[Rank 2 | BGE Score: 0.746439]
+Content: ## Internal and external examiners
+
+- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).
+
+- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.
+
+- Students must be informed when/how results will be released and what stages are involved.
+
+[Rank 3 | BGE Score: 0.002341]
+Content: ## School responsibilities (summary)
+
+- Set assessment at the appropriate academic level and standard.
+
+- Ensure student performance is judged equitably against standards (marking/grading, classification, external examining).
+
+- Publicise assessment principles/procedures to students and staff via suitable channels.
+
+- Ensure in-house tests/exams are secure and do not conflict with other teaching requirements.
+
+- Consider needs of students with dyslexia, disabilities and/or long-term medical conditions (include in handbooks).
+
+- Provide timely, constructive feedback and clear criteria to support good academic practice.
+
+- Inform students about anonymity protections in marking-by-number systems.
+
+[Rank 4 | BGE Score: 0.002341]
+Content: ## School responsibilities (summary)
+
+- Set assessment at the appropriate academic level and standard.
+
+- Ensure student performance is judged equitably against standards (marking/grading, classification, external examining).
+
+- Publicise assessment principles/procedures to students and staff via suitable channels.
+
+- Ensure in-house tests/exams are secure and do not conflict with other teaching requirements.
+
+- Consider needs of students with dyslexia, disabilities and/or long-term medical conditions (include in handbooks).
+
+- Provide timely, constructive feedback and clear criteria to support good academic practice.
+
+- Inform students about anonymity protections in marking-by-number systems.
+
+[Rank 5 | BGE Score: 0.001226]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Rank 6 | BGE Score: 0.001226]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Rank 7 | BGE Score: 0.000397]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 8 | BGE Score: 0.000397]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 9 | BGE Score: 0.000397]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 10 | BGE Score: 0.000397]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 11 | BGE Score: 0.000397]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 12 | BGE Score: 0.000113]
+Content: Internal tensions during the invasion of Ukraine Order to integrate Wagner
+
+[Rank 13 | BGE Score: 0.000094]
+Content: ## 4.1 Individual Report - Reflective Statement
+
+Are there any things that you would do different in hindsight, what lessons have you learned for the future, how would you expect your current experience to influence your future work.
+
+[Rank 14 | BGE Score: 0.000069]
+Content: Topographical, geological and compositional mapping of the surface Study of the physical properties of the icy crusts Characterisation of the internal mass distribution, dynamics and evolution of the interiors Investigation of Ganymede's tenuous atmosphere
+
+[Rank 15 | BGE Score: 0.000067]
+Content: ## ExamSys Test
+
+## Individual 30%
+
+| Description        | Focuses on theories covered in the lectures and practical exercises   |
+|--------------------|-----------------------------------------------------------------------|
+| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |
+
+[Rank 16 | BGE Score: 0.000026]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 17 | BGE Score: 0.000026]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 18 | BGE Score: 0.000022]
+Content: == References ==
+
+[Rank 19 | BGE Score: 0.000016]
+Content: References External links Official website
+
+[Rank 20 | BGE Score: 0.000016]
+Content: Measures Infrastructure and international development
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What happens if I miss an assessment?
+Timestamp: 2026-03-10T11:40:05.149899+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.804025]
+Content: ## Missed assessments and late penalties
+
+Students may submit EC claims for circumstances affecting performance or missed assessments. If an assessment is missed without sufficient cause, a mark of 0% is awarded.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.804025]
+Content: ## Missed assessments and late penalties
+
+Students may submit EC claims for circumstances affecting performance or missed assessments. If an assessment is missed without sufficient cause, a mark of 0% is awarded.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.755776]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.753195]
+Content: ## Missed assessments and late penalties
+
+Late submission penalty (Regulation 8): coursework marks are reduced by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.753195]
+Content: ## Missed assessments and late penalties
+
+Late submission penalty (Regulation 8): coursework marks are reduced by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.729340]
+Content: ## Assessment regulations (selected key points)
+
+## Assessed coursework
+
+- Coursework must be submitted electronically except where physically impossible due to format.
+
+- Standard deadline is 15:00 local time; recommended deadlines Mon-Thu.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.729340]
+Content: ## Assessment regulations (selected key points)
+
+## Assessed coursework
+
+- Coursework must be submitted electronically except where physically impossible due to format.
+
+- Standard deadline is 15:00 local time; recommended deadlines Mon-Thu.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.719390]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.719390]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.719390]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.719390]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.719390]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.714485]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.714485]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.711823]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.707498]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.707498]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.707498]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.707498]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.707498]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.976252]
+Content: ## Missed assessments and late penalties
+
+Students may submit EC claims for circumstances affecting performance or missed assessments. If an assessment is missed without sufficient cause, a mark of 0% is awarded.
+
+[Rank 2 | BGE Score: 0.976252]
+Content: ## Missed assessments and late penalties
+
+Students may submit EC claims for circumstances affecting performance or missed assessments. If an assessment is missed without sufficient cause, a mark of 0% is awarded.
+
+[Rank 3 | BGE Score: 0.347655]
+Content: ## Missed assessments and late penalties
+
+Late submission penalty (Regulation 8): coursework marks are reduced by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.
+
+[Rank 4 | BGE Score: 0.347655]
+Content: ## Missed assessments and late penalties
+
+Late submission penalty (Regulation 8): coursework marks are reduced by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.
+
+[Rank 5 | BGE Score: 0.006887]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Rank 6 | BGE Score: 0.006887]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Rank 7 | BGE Score: 0.003781]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Rank 8 | BGE Score: 0.002301]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Rank 9 | BGE Score: 0.002301]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Rank 10 | BGE Score: 0.002301]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Rank 11 | BGE Score: 0.002301]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Rank 12 | BGE Score: 0.002301]
+Content: ## 2.1.2 How assessment type affects EC
+
+For EC purposes, assessments are categorised as coursework or exams. This affects deadlines and available support measures. Schools decide the category and must inform students (e.g., via module handbook or Moodle).
+
+[Rank 13 | BGE Score: 0.001900]
+Content: ## 5.5 Re-assessment
+
+Note that the student is responsible for contacting the project supervisor as soon as possible to discuss project specific details of the re-assessment.
+
+[Rank 14 | BGE Score: 0.001586]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Rank 15 | BGE Score: 0.001586]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Rank 16 | BGE Score: 0.001586]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Rank 17 | BGE Score: 0.001586]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Rank 18 | BGE Score: 0.001586]
+Content: ## First sit vs resit (student guidance)
+
+A first sit is the first opportunity to take an assessment. If granted following an approved EC claim, it allows to take the assessment as if for the first time (no fee). Where a first sit is awarded due to EC, the original a is not marked or the mark is voided (from 25 September 2023).
+
+[Rank 19 | BGE Score: 0.000666]
+Content: ## Assessment regulations (selected key points)
+
+## Assessed coursework
+
+- Coursework must be submitted electronically except where physically impossible due to format.
+
+- Standard deadline is 15:00 local time; recommended deadlines Mon-Thu.
+
+[Rank 20 | BGE Score: 0.000666]
+Content: ## Assessment regulations (selected key points)
+
+## Assessed coursework
+
+- Coursework must be submitted electronically except where physically impossible due to format.
+
+- Standard deadline is 15:00 local time; recommended deadlines Mon-Thu.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: tell me about catered halls
+Timestamp: 2026-03-11T11:46:04.444864+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.789229]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.789228]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.789228]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.789228]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.789228]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.789228]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.760742]
+Content: Halls at a glance (examples)
+
+- Ancaster Hall — 39 weeks | Catered | From £234
+- Cavendish Hall — 39 weeks | Catered | From £277
+- Cripps Hall — 39 weeks | Catered | From £227; 44/51 weeks | Self-catered | From £137
+- Southwell Hall — 39 weeks | Self-catered | From £132
+- Newark Hall — 39 weeks | Catered/Self-catered | From £134
+- Raleigh Park (partner hall) — 44 weeks | Self-catered | From £125
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.756668]
+Content: | Hall                       | Campus/Notes                                                        | Weeks   | Catering             | From (£)   |
+| Ancaster Hall              | University Park; close to Humanities; many en-suites; social spaces | 39      | Catered              | 234        |
+| Bonington Student Village  | Sutton Bonington; variety of room types; outdoor spaces             | 44 & 51 | Self-catered         | 137        |
+| Cavendish Hall             | University Park; many en-suites; lively social spaces               | 39      | Catered              | 277        |
+| Cripps Hall                | University Park; overlooking The Downs; variety of budgets          | 39      | Catered              | 227        |
+| Cripps Hall                | University Park; self-catered option                                | 44 & 51 | Self-catered         | 137        |
+| Dagfa House                | University Park; former school grounds; ~5 min walk                 | 44 & 51 | —                    |            |
+| Derby Hall                 | University Park; refurbished; variety of rooms                      | 39      | Catered              | 227        |
+| Eviton House               | Sutton Bonington; nature; en-suite & studio                         | 44      | Self-catered         | 227        |
+| Florence Boot Hall         | University Park; refurbished; study + social spaces                 | 39      | Catered              | 245        |
+| Florence Boot Hall         | University Park; self-catered option                                | —       | Self-catered         | 183        |
+| Lenton and Wortley Hall    | University Park; green spaces; next to Cripps Health Centre         | 39      | Catered              | 223        |
+| Lincoln Hall               | University Park; quieter living available                           | 39      | Catered              | 206        |
+| Newark Hall                | Jubilee; near Education + Computer Science; Atrium                  | 39      | Catered/Self-catered | 134        |
+| Nightingale Hall           | University Park; near David Ross Sports Village                     | 39      | Catered              | 239        |
+| Rutland Hall               | University Park; near David Ross Sports Village; iconic spire       | 39      | Catered              | 223        |
+| Sherwood Hall              | University Park; value rooms; opposite Sports Village               | 39      | Catered              | 223        |
+| Southwell Hall             | Jubilee; community kitchens; self-catered                           | 39      | Self-catered         | 132        |
+| University Park Townhouses | University Park; communal living; variety of rooms                  | 39      | Catered              | 175        |
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.740872]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.740872]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.740872]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.740872]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.740872]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.740872]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.736593]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.736593]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.736593]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.736593]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.736593]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.736593]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.596107]
+Content: Halls at a glance (examples)
+
+- Ancaster Hall — 39 weeks | Catered | From £234
+- Cavendish Hall — 39 weeks | Catered | From £277
+- Cripps Hall — 39 weeks | Catered | From £227; 44/51 weeks | Self-catered | From £137
+- Southwell Hall — 39 weeks | Self-catered | From £132
+- Newark Hall — 39 weeks | Catered/Self-catered | From £134
+- Raleigh Park (partner hall) — 44 weeks | Self-catered | From £125
+
+[Rank 2 | BGE Score: 0.522933]
+Content: | Hall                       | Campus/Notes                                                        | Weeks   | Catering             | From (£)   |
+| Ancaster Hall              | University Park; close to Humanities; many en-suites; social spaces | 39      | Catered              | 234        |
+| Bonington Student Village  | Sutton Bonington; variety of room types; outdoor spaces             | 44 & 51 | Self-catered         | 137        |
+| Cavendish Hall             | University Park; many en-suites; lively social spaces               | 39      | Catered              | 277        |
+| Cripps Hall                | University Park; overlooking The Downs; variety of budgets          | 39      | Catered              | 227        |
+| Cripps Hall                | University Park; self-catered option                                | 44 & 51 | Self-catered         | 137        |
+| Dagfa House                | University Park; former school grounds; ~5 min walk                 | 44 & 51 | —                    |            |
+| Derby Hall                 | University Park; refurbished; variety of rooms                      | 39      | Catered              | 227        |
+| Eviton House               | Sutton Bonington; nature; en-suite & studio                         | 44      | Self-catered         | 227        |
+| Florence Boot Hall         | University Park; refurbished; study + social spaces                 | 39      | Catered              | 245        |
+| Florence Boot Hall         | University Park; self-catered option                                | —       | Self-catered         | 183        |
+| Lenton and Wortley Hall    | University Park; green spaces; next to Cripps Health Centre         | 39      | Catered              | 223        |
+| Lincoln Hall               | University Park; quieter living available                           | 39      | Catered              | 206        |
+| Newark Hall                | Jubilee; near Education + Computer Science; Atrium                  | 39      | Catered/Self-catered | 134        |
+| Nightingale Hall           | University Park; near David Ross Sports Village                     | 39      | Catered              | 239        |
+| Rutland Hall               | University Park; near David Ross Sports Village; iconic spire       | 39      | Catered              | 223        |
+| Sherwood Hall              | University Park; value rooms; opposite Sports Village               | 39      | Catered              | 223        |
+| Southwell Hall             | Jubilee; community kitchens; self-catered                           | 39      | Self-catered         | 132        |
+| University Park Townhouses | University Park; communal living; variety of rooms                  | 39      | Catered              | 175        |
+
+[Rank 3 | BGE Score: 0.076968]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Rank 4 | BGE Score: 0.076968]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Rank 5 | BGE Score: 0.076968]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Rank 6 | BGE Score: 0.076968]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Rank 7 | BGE Score: 0.076968]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Rank 8 | BGE Score: 0.076968]
+Content: What this booklet covers
+
+- On-campus living across three campuses
+- Catered vs self-catered options
+- Benefits (bills included, security, quieter living, insurance)
+- MealPass and Active Living package
+- Hall options (on-campus + partner halls) and example prices
+
+[Rank 9 | BGE Score: 0.071372]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Rank 10 | BGE Score: 0.071372]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Rank 11 | BGE Score: 0.071372]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Rank 12 | BGE Score: 0.071372]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Rank 13 | BGE Score: 0.071372]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Rank 14 | BGE Score: 0.071372]
+Content: On-campus living
+
+- University Park: 10 halls + shared townhouses; en-suites available; catered &amp; self-catered
+- Jubilee Campus: modern en-suites; community kitchens; Atrium food court
+- Sutton Bonington: rural campus near Loughborough; Bonington Student Village + Eviton House
+
+[Rank 15 | BGE Score: 0.016606]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Rank 16 | BGE Score: 0.016606]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Rank 17 | BGE Score: 0.016606]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Rank 18 | BGE Score: 0.016606]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Rank 19 | BGE Score: 0.016606]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+[Rank 20 | BGE Score: 0.016606]
+Content: Outstanding catering (MealPass)
+
+- Fresh meals with dietary options; sustainable ingredients (free-range eggs, Red Tractor meat, responsibly farmed fish)
+- 12 meals/week: 5 breakfasts + 5 dinners (Mon–Fri) + 2 weekend meals (brunch or dinner)
+- Flexible dining across halls
+- Weekly £25 spending allowance at campus retail sites
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: tell me about exams
+Timestamp: 2026-03-11T11:57:58.798904+00:00
+Top-K Requested: 10
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.747490]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.747490]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.742361]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.742361]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.742361]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.742361]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.742361]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.729484]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.729484]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.729484]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.729484]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.729484]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.720809]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.720809]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.720809]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.720809]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.720809]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.717508]
+Content: ## Internal and external examiners
+
+- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).
+
+- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.
+
+- Students must be informed when/how results will be released and what stages are involved.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.717508]
+Content: ## Internal and external examiners
+
+- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).
+
+- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.
+
+- Students must be informed when/how results will be released and what stages are involved.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.705586]
+Content: ## ExamSys Test
+
+## Individual 30%
+
+| Description        | Focuses on theories covered in the lectures and practical exercises   |
+|--------------------|-----------------------------------------------------------------------|
+| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 10 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.203962]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Rank 2 | BGE Score: 0.203962]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Rank 3 | BGE Score: 0.203962]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Rank 4 | BGE Score: 0.203962]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Rank 5 | BGE Score: 0.203962]
+Content: ## 2. Roles and responsibilities
+
+## Students
+
+- Tell University staff as early as possible when circumstances affect study/assessments.
+
+- If coursework EC is pending: submit what you have by the deadline and include ECPending filename; continue working.
+
+- For exams: decide whether you are fit enough to attend.
+
+[Rank 6 | BGE Score: 0.039108]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Rank 7 | BGE Score: 0.039108]
+Content: ## Examination attendance and late arrival
+
+- Students must attend all examinations and provide photographic ID for in-person exams.
+
+- Late arrival: if before 1 hour has elapsed, student may sit with no extra time; if 1 hour or more, stud is not permitted to sit.
+
+[Rank 8 | BGE Score: 0.034495]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 9 | BGE Score: 0.034495]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 10 | BGE Score: 0.034495]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 11 | BGE Score: 0.034495]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 12 | BGE Score: 0.034495]
+Content: ## 2.1.2 How assessment type affects EC
+
+Exams include timetabled in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews (treated as exams for EC).
+
+Coursework includes assessments completed over days/weeks/months (e.g., essays, reports) typically submitted via Moodle/Turnitin, and PGR progression reports.
+
+[Rank 13 | BGE Score: 0.007731]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 14 | BGE Score: 0.007731]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 15 | BGE Score: 0.007731]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 16 | BGE Score: 0.007731]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 17 | BGE Score: 0.007731]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 18 | BGE Score: 0.007168]
+Content: ## ExamSys Test
+
+## Individual 30%
+
+| Description        | Focuses on theories covered in the lectures and practical exercises   |
+|--------------------|-----------------------------------------------------------------------|
+| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |
+
+[Rank 19 | BGE Score: 0.003383]
+Content: ## Internal and external examiners
+
+- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).
+
+- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.
+
+- Students must be informed when/how results will be released and what stages are involved.
+
+[Rank 20 | BGE Score: 0.003383]
+Content: ## Internal and external examiners
+
+- All assessments leading to a University award involve internal examiner(s) and independent external examiner(s).
+
+- Postgraduate students with teaching responsibilities may act as internal examiners under supervision and with training.
+
+- Students must be informed when/how results will be released and what stages are involved.
+
+--------------------------------------------------
