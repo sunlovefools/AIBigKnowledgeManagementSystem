@@ -16,6 +16,10 @@ from app.service.rag.ingestion.docling_pdf_extractor import (
     get_pdf_ingestion_strategy,
     parse_pdf_with_docling_preview,
 )
+from app.service.rag.ingestion.markdown_canonicalizer import (
+    canonicalize_chunk_payloads_for_storage,
+    canonicalize_markdown_text,
+)
 from app.service.rag.ingestion.text_extractor import extract_text
 from app.vectordb.vectordb import upsert_documents
 
@@ -79,9 +83,11 @@ def _run_legacy_pipeline(
     except Exception:
         raise HTTPException(status_code=500, detail="text extraction failed")
 
+    canonical_text = canonicalize_markdown_text(text)
+
     # 2. Extracting the parent and child chunks from the extracted text
     parent_chunks_models, child_chunks_models = split_parent_child_chunks(
-        text, file_name=file.fileName, parent_target_chars=1500, child_max_chars=600
+        canonical_text, file_name=file.fileName, parent_target_chars=1500, child_max_chars=600
     )
 
     parent_chunks_dicts = [chunk.model_dump() for chunk in parent_chunks_models]
@@ -193,6 +199,11 @@ async def ingest_upload(file: FileUpload):
         ) = _run_docling_pipeline(file, file_bytes)
     else:
         parent_chunks_dicts, child_chunks_dicts = _run_legacy_pipeline(file, file_bytes)
+
+    parent_chunks_dicts, child_chunks_dicts = canonicalize_chunk_payloads_for_storage(
+        parent_chunks_dicts,
+        child_chunks_dicts,
+    )
 
     # Insert the chunks into the vector database.
     await _upsert_chunks(parent_chunks_dicts, child_chunks_dicts)

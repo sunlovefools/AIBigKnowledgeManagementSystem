@@ -5,6 +5,9 @@ from langchain_core.documents import Document
 from pydantic import BaseModel
 
 from app.core.id_utils import generate_uuid_v6
+from app.service.rag.ingestion.markdown_canonicalizer import (
+    canonicalize_markdown_text,
+)
 
 # Define Schema for Parent and Child chunks
 class ParentChunkModel(BaseModel):
@@ -157,11 +160,12 @@ def split_parent_child_chunks(
     Returns:
         Tuple containing a list of ParentChunkModels and a list of ChildChunkModels.
     """
-    if not text.strip():
+    canonical_text = canonicalize_markdown_text(text)
+    if not canonical_text.strip():
         return [], []
     
     # 1. Generate and Merge Child Chunks
-    raw_children_docs = _create_initial_child_chunks(text, file_name, child_max_chars)
+    raw_children_docs = _create_initial_child_chunks(canonical_text, file_name, child_max_chars)
     valid_children_docs = _merge_small_chunks(raw_children_docs, min_child_chars)
 
     # 2. Group Children into Parents Chunks

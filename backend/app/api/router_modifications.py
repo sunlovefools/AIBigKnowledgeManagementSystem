@@ -25,7 +25,10 @@ class BatchUpdateParentChunksRequest(BaseModel):
     """Batch payload for updating multiple parent chunks in one file scope."""
     fileId: str
     fileName: str
-    updates: list[BatchUpdateParentChunkItem]
+    mode: Literal["fast_updates", "boundary_rechunk"] = "fast_updates"
+    updates: list[BatchUpdateParentChunkItem] | None = None
+    fullContent: str | None = None
+    touchedParentIds: list[str] | None = None
 
 
 class UpdateParentChunkResponse(BaseModel):
@@ -44,6 +47,7 @@ class BatchUpdateParentChunksResponse(BaseModel):
     fileName: str
     updatedCount: int
     results: list[UpdateParentChunkResponse]
+    requiresReload: bool = False
 
 
 class UpdateFileRequest(BaseModel):
@@ -300,6 +304,7 @@ async def batch_update_parent_chunks(payload: BatchUpdateParentChunksRequest):
     try:
         file_id = payload.fileId.strip()
         file_name = payload.fileName.strip()
+        mode = payload.mode
 
         if not file_id:
             raise HTTPException(
@@ -313,21 +318,41 @@ async def batch_update_parent_chunks(payload: BatchUpdateParentChunksRequest):
                 detail="fileName must not be empty",
             )
 
-        if not payload.updates:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="updates must contain at least one parent chunk update",
-            )
+        updates: list[dict[str, str]] = []
+        full_content: str | None = None
+        touched_parent_ids: list[str] = []
 
-        updates = [
-            {"parentId": item.parentId, "content": item.content}
-            for item in payload.updates
-        ]
+        if mode == "fast_updates":
+            if not payload.updates:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="updates must contain at least one parent chunk update when mode='fast_updates'",
+                )
+            updates = [
+                {"parentId": item.parentId, "content": item.content}
+                for item in payload.updates
+            ]
+        elif mode == "boundary_rechunk":
+            full_content = str(payload.fullContent or "")
+            touched_parent_ids = [str(parent_id) for parent_id in (payload.touchedParentIds or [])]
+            if not full_content.strip():
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="fullContent must not be empty when mode='boundary_rechunk'",
+                )
+            if not touched_parent_ids:
+                raise HTTPException(
+                    status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+                    detail="touchedParentIds must contain at least one parent ID when mode='boundary_rechunk'",
+                )
 
         result = await ReconstructionService.update_parent_chunks_batch(
             file_id=file_id,
             file_name=file_name,
             updates=updates,
+            mode=mode,
+            full_content=full_content,
+            touched_parent_ids=touched_parent_ids,
         )
 
         return BatchUpdateParentChunksResponse(
@@ -345,6 +370,7 @@ async def batch_update_parent_chunks(payload: BatchUpdateParentChunksRequest):
                 )
                 for item in result["results"]
             ],
+            requiresReload=bool(result.get("requiresReload", False)),
         )
     except HTTPException:
         raise

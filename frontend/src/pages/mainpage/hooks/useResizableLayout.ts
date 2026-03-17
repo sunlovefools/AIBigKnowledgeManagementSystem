@@ -11,6 +11,8 @@ const SIDEBAR_MIN_WIDTH = 240;
 const SIDEBAR_MAX_WIDTH = 420;
 const MODIFICATION_PANEL_MIN_WIDTH = 280;
 const MODIFICATION_PANEL_MAX_WIDTH = 1000;
+const DESKTOP_PRIMARY_STAGE_MIN_WIDTH = 320;
+const RESIZE_HANDLE_WIDTH = 8;
 
 const MOBILE_BREAKPOINT = 1024;
 const SIDEBAR_TOGGLE_TRANSITION_MS = 220;
@@ -27,6 +29,13 @@ type DragState = {
 // Utility function to clamp a number between a minimum and maximum value
 const clamp = (value: number, min: number, max: number) =>
     Math.min(Math.max(value, min), max);
+
+const getMaxModificationPanelWidth = (isSidebarOpen: boolean, sidebarWidth: number) => {
+    const occupiedSidebarWidth = isSidebarOpen ? sidebarWidth + RESIZE_HANDLE_WIDTH : 0;
+    const availableMainWidth = window.innerWidth - occupiedSidebarWidth;
+    const maxWidth = availableMainWidth - RESIZE_HANDLE_WIDTH - DESKTOP_PRIMARY_STAGE_MIN_WIDTH;
+    return Math.max(MODIFICATION_PANEL_MIN_WIDTH, Math.min(maxWidth, MODIFICATION_PANEL_MAX_WIDTH));
+};
 
 // Utility function to read a number from localStorage with a fallback value, ensures the returned value is a finite number
 const readStoredNumber = (key: string, fallback: number) => {
@@ -66,25 +75,24 @@ export function useResizableLayout() {
 
     // Effect to initialise the sidebar width and modification panel width 
     useEffect(() => {
-        setSidebarWidth(
-            // Ensure that the value is between the defined minimum and maximum
-            clamp(
-                readStoredNumber(SIDEBAR_WIDTH_KEY, DEFAULT_SIDEBAR_WIDTH),
-                SIDEBAR_MIN_WIDTH,
-                SIDEBAR_MAX_WIDTH,
-            ),
+        const initialSidebarWidth = clamp(
+            readStoredNumber(SIDEBAR_WIDTH_KEY, DEFAULT_SIDEBAR_WIDTH),
+            SIDEBAR_MIN_WIDTH,
+            SIDEBAR_MAX_WIDTH,
         );
+        const storedSidebarOpen = localStorage.getItem(SIDEBAR_OPEN_KEY);
+        const initialSidebarOpen = storedSidebarOpen !== null ? storedSidebarOpen === "true" : true;
+
+        setSidebarWidth(initialSidebarWidth);
         setModPanelWidth(
             clamp(
                 readStoredNumber(MODIFICATION_PANEL_WIDTH_KEY, DEFAULT_MODIFICATION_PANEL_WIDTH),
                 MODIFICATION_PANEL_MIN_WIDTH,
-                MODIFICATION_PANEL_MAX_WIDTH,
+                getMaxModificationPanelWidth(initialSidebarOpen, initialSidebarWidth),
             ),
         );
-
-        const storedSidebarOpen = localStorage.getItem(SIDEBAR_OPEN_KEY);
         if (storedSidebarOpen !== null) {
-            setIsSidebarOpen(storedSidebarOpen === "true");
+            setIsSidebarOpen(initialSidebarOpen);
         }
     }, []);
 
@@ -97,6 +105,27 @@ export function useResizableLayout() {
     useEffect(() => {
         localStorage.setItem(MODIFICATION_PANEL_WIDTH_KEY, String(modPanelWidth));
     }, [modPanelWidth]);
+
+    useEffect(() => {
+        if (isMobile) return;
+
+        const syncModPanelWidth = () => {
+            setModPanelWidth((currentWidth) =>
+                clamp(
+                    currentWidth,
+                    MODIFICATION_PANEL_MIN_WIDTH,
+                    getMaxModificationPanelWidth(isSidebarOpen, sidebarWidth),
+                ),
+            );
+        };
+
+        syncModPanelWidth();
+        window.addEventListener("resize", syncModPanelWidth);
+
+        return () => {
+            window.removeEventListener("resize", syncModPanelWidth);
+        };
+    }, [isMobile, isSidebarOpen, sidebarWidth]);
 
     // Effect to store the sidebar open state onto the localStorage whenever it changes, to prevent reset the open state after page refresh
     useEffect(() => {
@@ -123,7 +152,7 @@ export function useResizableLayout() {
             const nextWidth = clamp(
                 dragState.startWidth + (dragState.startX - event.clientX),
                 MODIFICATION_PANEL_MIN_WIDTH,
-                MODIFICATION_PANEL_MAX_WIDTH,
+                getMaxModificationPanelWidth(isSidebarOpen, sidebarWidth),
             );
             setModPanelWidth(nextWidth);
         };
@@ -144,7 +173,7 @@ export function useResizableLayout() {
             window.removeEventListener("mousemove", handleMouseMove);
             window.removeEventListener("mouseup", handleMouseUp);
         };
-    }, [dragState, isMobile]);
+    }, [dragState, isMobile, isSidebarOpen, sidebarWidth]);
 
     useEffect(() => {
         return () => {

@@ -46,10 +46,9 @@ async def query_documents(request: QueryRequest):
     try:
         # search_and_retrieve_context performs vector search on child chunks 
         # and looks up the full content from the parent documents.
-        effective_top_k = 20
         rag_docs = await search_and_retrieve_context(
             query=request.query,
-            top_k=effective_top_k
+            top_k=request.top_k
         )
 
         if not rag_docs:

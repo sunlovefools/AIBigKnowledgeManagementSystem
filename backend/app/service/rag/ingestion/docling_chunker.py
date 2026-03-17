@@ -18,6 +18,9 @@ from app.core.id_utils import generate_uuid_v6
 from app.service.rag.ingestion.chunker import ChildChunkModel, ParentChunkModel
 from app.service.rag.ingestion.docling.config import is_docling_artifacts_enabled
 from app.service.rag.ingestion.docling.models import DoclingStructuredBlock
+from app.service.rag.ingestion.markdown_canonicalizer import (
+    canonicalize_docling_block_text,
+)
 
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _HTML_COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
@@ -84,7 +87,10 @@ def _coerce_blocks(
     normalized: list[DoclingStructuredBlock] = []
     for raw in blocks or []:
         block = raw if isinstance(raw, DoclingStructuredBlock) else DoclingStructuredBlock.model_validate(raw)
-        content = (block.content or "").strip()
+        content = canonicalize_docling_block_text(
+            block_type=block.block_type,
+            text=block.content or "",
+        ).strip()
         if not content:
             print(f"Skipping empty block of type '{block.block_type}' during coercion")
             continue
@@ -403,6 +409,25 @@ def _coerce_page_number(page_no: int | None) -> int:
     return int(page_no) if isinstance(page_no, int) and page_no > 0 else 0
 
 
+def _resolve_primary_page_number(*page_numbers: int | None) -> int:
+    """Pick the earliest positive page number, otherwise return 0."""
+
+    positive_pages = sorted(
+        int(page_number)
+        for page_number in page_numbers
+        if isinstance(page_number, int) and page_number > 0
+    )
+    return positive_pages[0] if positive_pages else 0
+
+
+def _normalize_parent_page_numbers(page_numbers: set[int]) -> list[int]:
+    """Sort parent page numbers and drop the synthetic 0 page when real pages exist."""
+
+    normalized = sorted(int(page_number) for page_number in page_numbers)
+    positive_pages = [page_number for page_number in normalized if page_number > 0]
+    return positive_pages if positive_pages else normalized
+
+
 def _empty_content_flags() -> dict[str, bool]:
     """Return default content flags for non-visual chunks."""
 
@@ -541,23 +566,31 @@ def _merge_small_children(
 
     merged: list[dict[str, Any]] = []
     leading_buffer = ""
+    leading_buffer_page_number: int | None = None
 
     for child in children:
         chunk = str(child.get("content", "")).strip()
         if not chunk:
             continue
 
+        child_page_number = child.get("page_number")
+        if not isinstance(child_page_number, int):
+            child_page_number = 0
+
         if _is_visual_child_candidate(child):
             if leading_buffer:
                 merged.append(
                     {
                         "content": leading_buffer,
-                        "page_number": 0,
+                        "page_number": _resolve_primary_page_number(
+                            leading_buffer_page_number
+                        ),
                         "content_flags": _empty_content_flags(),
                         "artifact_refs": _empty_child_artifact_refs(),
                     }
                 )
                 leading_buffer = ""
+                leading_buffer_page_number = None
 
             visual_child = dict(child)
             visual_child["content"] = chunk
@@ -567,25 +600,44 @@ def _merge_small_children(
         if _word_count(chunk) < min_child_words:
             if merged and not _is_visual_child_candidate(merged[-1]):
                 merged[-1]["content"] = f"{merged[-1]['content']}\n\n{chunk}"
+                merged[-1]["page_number"] = _resolve_primary_page_number(
+                    merged[-1].get("page_number"),
+                    child_page_number,
+                )
             else:
                 leading_buffer = f"{leading_buffer}\n\n{chunk}".strip() if leading_buffer else chunk
+                leading_buffer_page_number = _resolve_primary_page_number(
+                    leading_buffer_page_number,
+                    child_page_number,
+                )
             continue
 
         current_child = dict(child)
         current_child["content"] = chunk
         if leading_buffer:
             current_child["content"] = f"{leading_buffer}\n\n{chunk}"
+            current_child["page_number"] = _resolve_primary_page_number(
+                leading_buffer_page_number,
+                child_page_number,
+            )
             leading_buffer = ""
+            leading_buffer_page_number = None
         merged.append(current_child)
 
     if leading_buffer:
         if merged and not _is_visual_child_candidate(merged[-1]):
             merged[-1]["content"] = f"{merged[-1]['content']}\n\n{leading_buffer}"
+            merged[-1]["page_number"] = _resolve_primary_page_number(
+                merged[-1].get("page_number"),
+                leading_buffer_page_number,
+            )
         else:
             merged.append(
                 {
                     "content": leading_buffer,
-                    "page_number": 0,
+                    "page_number": _resolve_primary_page_number(
+                        leading_buffer_page_number
+                    ),
                     "content_flags": _empty_content_flags(),
                     "artifact_refs": _empty_child_artifact_refs(),
                 }
@@ -860,7 +912,9 @@ def split_parent_child_chunks_from_docling_blocks(
             block.content.strip() for block in parent_blocks if block.content.strip()
         ).strip()
         parent_child_ids: list[str] = []
-        parent_page_numbers: set[int] = set()
+        parent_page_numbers: set[int] = {
+            _coerce_page_number(block.page_no) for block in parent_blocks
+        }
         parent_image_uuids: set[str] = set()
         parent_table_image_uuids: set[str] = set()
         parent_has_image = False
@@ -910,7 +964,6 @@ def split_parent_child_chunks_from_docling_blocks(
 
             child_id = generate_uuid_v6()
             parent_child_ids.append(child_id)
-            parent_page_numbers.add(child_page_number)
 
             if bool(content_flags.get("is_image")):
                 parent_has_image = True
@@ -955,10 +1008,6 @@ def split_parent_child_chunks_from_docling_blocks(
             )
             child_global_index += 1
 
-        if not parent_page_numbers:
-            for block in parent_blocks:
-                parent_page_numbers.add(_coerce_page_number(block.page_no))
-
         parent_chunks.append(
             ParentChunkModel(
                 parent_chunk_id=parent_id,
@@ -970,7 +1019,9 @@ def split_parent_child_chunks_from_docling_blocks(
                 parent_chunk_metadata={
                     "child_chunks_ids": parent_child_ids,
                     "parent_chunk_number": parent_chunk_number,
-                    "page_number": sorted(parent_page_numbers),
+                    "page_number": _normalize_parent_page_numbers(
+                        parent_page_numbers
+                    ),
                     "ingested_at": datetime.now(timezone.utc).isoformat(),
                 },
                 content_flags={

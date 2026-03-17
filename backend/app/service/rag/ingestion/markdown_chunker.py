@@ -15,6 +15,9 @@ from datetime import datetime, timezone
 
 from app.core.id_utils import generate_uuid_v6
 from app.service.rag.ingestion.chunker import ChildChunkModel, ParentChunkModel
+from app.service.rag.ingestion.markdown_canonicalizer import (
+    normalize_markdown_for_modification,
+)
 
 _SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?])\s+")
 _HEADER_RE = re.compile(r"^\s{0,3}#{1,6}\s+")
@@ -297,10 +300,11 @@ def split_parent_child_chunks_from_markdown(
     """Build parent and child chunks from markdown text using word-based constraints."""
 
     print(f"Splitting markdown into parent/child chunks")
-    if not (text or "").strip():
+    canonical_text = normalize_markdown_for_modification(text)
+    if not canonical_text.strip():
         return [], []
 
-    blocks = _tokenize_markdown_blocks(text)
+    blocks = _tokenize_markdown_blocks(canonical_text)
     if not blocks:
         return [], []
 

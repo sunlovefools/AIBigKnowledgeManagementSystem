@@ -13565,3 +13565,459 @@ Content: ## 2.2.4 Supervisor Meetings
 Teams  are  expected  to  meet  regularly  with  their  academic  supervisor  and  industry  sponsor  -  if applicable (see Section ' Academic Supervisor ' and ' Industry Sponsor ') . Meetings are organized by the team lead or group administrator, who ensures that all communication happens in a professional manner.
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the speed of light?
+Timestamp: 2026-03-16T22:30:59.920734+00:00
+Top-K Requested: 20
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 8.531250]
+Content: 4. The speed of light in a vacuum is exactly 299,792,458 meters per second.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: -8.531250]
+Content: 3. Glass is actually a slow-moving liquid, not a true solid; its particles continue to move extremely slowly over long periods.
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: 1. The Great Wall of China is over 21,000 km long when including all branches and sections. 2. The shortest war in history occurred between Britain and Zanzibar in 1896, lasting between 38 and 45 minutes.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: 3. The concept of zero was first formalized in ancient India and later spread through the Middle East into Europe.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: ## Assessment Criteria
+
+Python code(s): 30% [ unable to run codes will result in 0% being awarded ]
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: ## Your ACTION as a Group
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+<!-- image-uuid: 1f1217aa-c3db-64b9-8468-6eec87ed3edb -->
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: ## Individual submission:
+
+1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.
+
+2. A compressed Dataset folder.
+
+3. A compressed Ground Truth folder.
+
+Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: ## Per group submission:
+
+1. Python codes: .py files (submitted as a ZIP folder)
+
+2. A 6-page conference paper in PDF format ( note: additional pages will result in a deduction of 5% for every additional page for the entire group ).
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: ## Individual submission:
+
+4. Each of you will need to make an additional submission, separately for your peer assessment . Please click on the ' Peer Assessment ' link on Moodle to perform this submission.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: ## ExamSys Test
+
+## Individual 30%
+
+| Description        | Focuses on theories covered in the lectures and practical exercises   |
+|--------------------|-----------------------------------------------------------------------|
+| Date, Time & Venue | 30 April 2026 | Time and Venue TBC                               |
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: <!-- image-uuid: 1f1217aa-c222-6817-bcaa-522a82d818c4 -->
+
+Module Assessment Sheet for 2025-2026
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: ## Declaration of AI Use
+
+REMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: ## CONFERENCE PAPER : When writing your conference paper, consider the following points:
+
+4. Critically evaluate your method(s) on the basis of those results: what are its strengths and weakness? This section should make explicit reference to features of the results you obtained as well as using the relevant metric for segmentation to support your provided arguments/justifications.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: ## Description and Deliverable(s)
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 1. A day on Venus (rotation) is longer than a year on Venus (orbit). 2. Bananas are berries, but strawberries are not technically berries.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 3. The world's largest snowflake ever recorded was 38 cm wide, reportedly falling in Montana, USA in 1887. 4. Octopuses have three hearts, nine brains, and blue blood.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 1. The Amazon rainforest produces approximately 20% of the world's oxygen, although this number varies depending on seasonal plant activity.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 4. The word 'salary' comes from salarium, the salt allowance given to Roman soldiers.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## Reference:
+
+Abou Ali, M., Dornaika, F., & Arganda-Carreras, I. (2023). Blood cell revolution: Unveiling 11 distinct types with 'Naturalize' augmentation. Algorithms , 16 (12), 562.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 21 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 4. The Sahara Desert was once a green region filled with lakes and vegetation around 10,000 years ago.
+
+[Child Chunk 22 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## Declaration of AI Use
+
+: Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.
+
+<!-- image-uuid: 1f1217aa-c2a7-694f-8779-456ecd55af36 -->
+
+[Child Chunk 23 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## CONFERENCE PAPER : When writing your conference paper, consider the following points:
+
+1. Detail the chosen method(s) and specific image processing technique(s) employed.
+
+2. Explain why you choose those technique(s) and method(s). You may include the pseudocodes of the chosen technique(s) and method(s) (if applicable). Clearly justify your parameter choices and support your arguments based on either the literature review or trial and error.
+
+3. Present the results obtained from your practical implementation.
+
+[Child Chunk 24 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## Declaration of AI Use
+
+As you are aware, Artificial Intelligence (AI) - especially tools like ChatGPT, Microsoft Copilot, and Grammarly-is rapidly transforming how we learn, write, code, and even think. For this module, we like to engage critically with AI: not to fear it, but to use it wisely and responsibly.
+
+[Child Chunk 25 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: 1. The first programmable general-purpose computer, the ENIAC, weighed over 27 tons. 2. Bluetooth technology was named after King Harald 'Bluetooth' Gormsson, a 10th-century Scandinavian king who united tribes - symbolically similar to how Bluetooth unites devices.
+
+[Child Chunk 26 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+<!-- image-uuid: 1f1217aa-c2ff-6762-a4a3-1cb0c7aa1ff6 -->
+
+[Child Chunk 27 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 28 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Your ACTION as a Group
+
+For your conference paper, you should identify 15 images ( 5 easy, 5 medium & 5 hard ) to support your arguments of your proposed image processing pipeline.
+
+[Child Chunk 29 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Conference Paper:
+
+- -Justification of chosen algorithms based on performed literature review: 15%
+
+- -Critical analysis and discussion of your findings: 25%
+
+- -Discussion of the strengths and weaknesses of your proposed pipeline (based on your findings and pipeline design) : 30%
+
+[Child Chunk 30 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Child Chunk 31 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: 2. Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs over 3,000 years old. 3. A single oak tree can support over 500 species of insects, birds, fungi, and mammals within its ecosystem.
+
+[Child Chunk 32 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Your ACTION as a Group
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+Figure 3 : The overall process of Image Processing Pipeline and Evaluation
+
+<!-- image-uuid: 1f1217aa-c3f6-6770-970c-d5049242c94c -->
+
+[Child Chunk 33 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Per group submission:
+
+3. Results 2026 IIP - Group XXX (submitted as a ZIP folder and please change XXX to your group number (e.g., 001, 007, 011)
+
+4. -001 - Input Images
+
+5. -002 - Image Processing Pipeline
+
+6. -003 - Output Images
+
+[Child Chunk 34 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+Figure 1 : An example of a mask created for one PMY.
+
+<!-- image-uuid: 1f1217aa-c2d4-6a76-b6e9-4874ae4e3bd7 -->
+
+[Child Chunk 35 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Semantic Segmentation of Blood Cell
+
+## Background
+
+Medical image analysis is an active research area undergoing transformative evolution through the application of image processing and computer vision technologies. In the field of haematology, for example, Ali et al. (2023) state that haematologists bear the burden of labour-intensive manual processes, requiring meticulous examination of countless blood cells under high workloads and frequent distractions to diagnose blood disorders and guide treatment decisions. However, advancements in automated peripheral blood smear analysis have significantly alleviated these challenges faced by haematologists.
+
+[Child Chunk 36 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## CONFERENCE PAPER : When writing your conference paper, consider the following points:
+
+5. Critically evaluate your results: highlighting the strengths and weakness of your entire pipeline. Please use the qualitative metrics (e.g., MIoU ) and qualitative metrics (perception measurements), generated from your pipeline to further support your provided arguments/justifications in your conference paper.
+
+[Child Chunk 37 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Declaration of AI Use
+
+For this assessment, you must submit the AI Use Declaration form (to be provided on Moodle), clearly stating whether AI tools were used and how. This new practice supports transparency and academic integrity.
+
+[Child Chunk 38 | Linked to Parent ID: N/A | Score: -15.929688]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 39 | Linked to Parent ID: N/A | Score: -15.929688]
+Content: ## Dataset
+
+You will be using the Naturalize dataset, consisting of 16,000 images, separated into 11 classes. For this pipeline we have selected 3 out of these 11 classes PMY , EO and ERB . Within your team you should analyse these images in each folder and make a decision as a team for the images to use for this pipeline. You must choose ONLY 5 images for each folder.
+
+[Child Chunk 40 | Linked to Parent ID: N/A | Score: -15.929688]
+Content: ## Your ACTION as a Group
+
+Design and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all.
+
+You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.
+
+--------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: What is the speed of light
+Timestamp: 2026-03-16T22:34:14.228771+00:00
+Top-K Requested: 20
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 9.101562]
+Content: 4. The speed of light in a vacuum is exactly 299,792,458 meters per second.
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: -9.101562]
+Content: ## Assessment Criteria
+
+Python code(s): 30% [ unable to run codes will result in 0% being awarded ]
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: -9.101562]
+Content: ## Your ACTION as a Group
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+<!-- image-uuid: 1f1217aa-c3db-64b9-8468-6eec87ed3edb -->
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: 3. Glass is actually a slow-moving liquid, not a true solid; its particles continue to move extremely slowly over long periods.
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: -10.242188]
+Content: ## Individual submission:
+
+4. Each of you will need to make an additional submission, separately for your peer assessment . Please click on the ' Peer Assessment ' link on Moodle to perform this submission.
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: <!-- image-uuid: 1f1217aa-c222-6817-bcaa-522a82d818c4 -->
+
+Module Assessment Sheet for 2025-2026
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: 3. The concept of zero was first formalized in ancient India and later spread through the Middle East into Europe.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: ## Per group submission:
+
+1. Python codes: .py files (submitted as a ZIP folder)
+
+2. A 6-page conference paper in PDF format ( note: additional pages will result in a deduction of 5% for every additional page for the entire group ).
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: -11.375000]
+Content: ## ExamSys Test
+
+## Individual 30%
+
+| Description        | Focuses on theories covered in the lectures and practical exercises   |
+|--------------------|-----------------------------------------------------------------------|
+| Date, Time & Venue | 30 April 2026 | Time and Venue TBC                               |
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 1. A day on Venus (rotation) is longer than a year on Venus (orbit). 2. Bananas are berries, but strawberries are not technically berries.
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 3. The world's largest snowflake ever recorded was 38 cm wide, reportedly falling in Montana, USA in 1887. 4. Octopuses have three hearts, nine brains, and blue blood.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 1. The Great Wall of China is over 21,000 km long when including all branches and sections. 2. The shortest war in history occurred between Britain and Zanzibar in 1896, lasting between 38 and 45 minutes.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+<!-- image-uuid: 1f1217aa-c2ff-6762-a4a3-1cb0c7aa1ff6 -->
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 1. The Amazon rainforest produces approximately 20% of the world's oxygen, although this number varies depending on seasonal plant activity.
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: 4. The Sahara Desert was once a green region filled with lakes and vegetation around 10,000 years ago.
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## Declaration of AI Use
+
+: Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.
+
+<!-- image-uuid: 1f1217aa-c2a7-694f-8779-456ecd55af36 -->
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## Declaration of AI Use
+
+REMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: -12.515625]
+Content: ## Conference Paper:
+
+- -Justification of chosen algorithms based on performed literature review: 15%
+
+- -Critical analysis and discussion of your findings: 25%
+
+- -Discussion of the strengths and weaknesses of your proposed pipeline (based on your findings and pipeline design) : 30%
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Reference:
+
+Abou Ali, M., Dornaika, F., & Arganda-Carreras, I. (2023). Blood cell revolution: Unveiling 11 distinct types with 'Naturalize' augmentation. Algorithms , 16 (12), 562.
+
+[Child Chunk 21 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 22 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: 4. The word 'salary' comes from salarium, the salt allowance given to Roman soldiers.
+
+[Child Chunk 23 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: 2. Honey never spoils - archaeologists have found edible honey in ancient Egyptian tombs over 3,000 years old. 3. A single oak tree can support over 500 species of insects, birds, fungi, and mammals within its ecosystem.
+
+[Child Chunk 24 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Individual submission:
+
+1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.
+
+2. A compressed Dataset folder.
+
+3. A compressed Ground Truth folder.
+
+Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.
+
+[Child Chunk 25 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+Figure 1 : An example of a mask created for one PMY.
+
+<!-- image-uuid: 1f1217aa-c2d4-6a76-b6e9-4874ae4e3bd7 -->
+
+[Child Chunk 26 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Declaration of AI Use
+
+As you are aware, Artificial Intelligence (AI) - especially tools like ChatGPT, Microsoft Copilot, and Grammarly-is rapidly transforming how we learn, write, code, and even think. For this module, we like to engage critically with AI: not to fear it, but to use it wisely and responsibly.
+
+[Child Chunk 27 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## CONFERENCE PAPER : When writing your conference paper, consider the following points:
+
+4. Critically evaluate your method(s) on the basis of those results: what are its strengths and weakness? This section should make explicit reference to features of the results you obtained as well as using the relevant metric for segmentation to support your provided arguments/justifications.
+
+[Child Chunk 28 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Description and Deliverable(s)
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using Python, to a real image processing problem and collaboratively producing a conference paper describing and critically evaluating your solution. The deliverables required are:
+
+[Child Chunk 29 | Linked to Parent ID: N/A | Score: -13.656250]
+Content: ## Declaration of AI Use
+
+For this assessment, you must submit the AI Use Declaration form (to be provided on Moodle), clearly stating whether AI tools were used and how. This new practice supports transparency and academic integrity.
+
+[Child Chunk 30 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: 1. The first programmable general-purpose computer, the ENIAC, weighed over 27 tons. 2. Bluetooth technology was named after King Harald 'Bluetooth' Gormsson, a 10th-century Scandinavian king who united tribes - symbolically similar to how Bluetooth unites devices.
+
+[Child Chunk 31 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 32 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Your ACTION as a Group
+
+For your conference paper, you should identify 15 images ( 5 easy, 5 medium & 5 hard ) to support your arguments of your proposed image processing pipeline.
+
+[Child Chunk 33 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Your ACTION as a Group
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+Figure 3 : The overall process of Image Processing Pipeline and Evaluation
+
+<!-- image-uuid: 1f1217aa-c3f6-6770-970c-d5049242c94c -->
+
+[Child Chunk 34 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## Per group submission:
+
+3. Results 2026 IIP - Group XXX (submitted as a ZIP folder and please change XXX to your group number (e.g., 001, 007, 011)
+
+4. -001 - Input Images
+
+5. -002 - Image Processing Pipeline
+
+6. -003 - Output Images
+
+[Child Chunk 35 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## CONFERENCE PAPER : When writing your conference paper, consider the following points:
+
+1. Detail the chosen method(s) and specific image processing technique(s) employed.
+
+2. Explain why you choose those technique(s) and method(s). You may include the pseudocodes of the chosen technique(s) and method(s) (if applicable). Clearly justify your parameter choices and support your arguments based on either the literature review or trial and error.
+
+3. Present the results obtained from your practical implementation.
+
+[Child Chunk 36 | Linked to Parent ID: N/A | Score: -14.789062]
+Content: ## CONFERENCE PAPER : When writing your conference paper, consider the following points:
+
+5. Critically evaluate your results: highlighting the strengths and weakness of your entire pipeline. Please use the qualitative metrics (e.g., MIoU ) and qualitative metrics (perception measurements), generated from your pipeline to further support your provided arguments/justifications in your conference paper.
+
+[Child Chunk 37 | Linked to Parent ID: N/A | Score: -15.929688]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Child Chunk 38 | Linked to Parent ID: N/A | Score: -15.929688]
+Content: ## Dataset
+
+You will be using the Naturalize dataset, consisting of 16,000 images, separated into 11 classes. For this pipeline we have selected 3 out of these 11 classes PMY , EO and ERB . Within your team you should analyse these images in each folder and make a decision as a team for the images to use for this pipeline. You must choose ONLY 5 images for each folder.
+
+[Child Chunk 39 | Linked to Parent ID: N/A | Score: -15.929688]
+Content: ## Your ACTION as a Group
+
+Design and implement a single Python program that inputs one of the images from the provided dataset at a time and outputs an output image which has a white background with ONLY the segmented PMY as shown in Figure 2. You may not need to employ all the steps listed above, but you will probably find it worthwhile to at least consider them all.
+
+You are also encouraged to use other strategies covered in this module to address the PMY segmentation problem.
+
+[Child Chunk 40 | Linked to Parent ID: N/A | Score: -15.929688]
+Content: ## Semantic Segmentation of Blood Cell
+
+## Background
+
+In this coursework, the objective is to develop an image processing pipeline to segment pro-myelocytes (PMYs) from their corresponding background. The resulting pipeline will generate relevant output images to automate blood cell classification.
+
+--------------------------------------------------

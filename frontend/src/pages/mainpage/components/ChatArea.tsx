@@ -29,7 +29,10 @@ export default function ChatArea({
                         </>
                     ) : (
                         <>
-                            <div className="welcome-icon">*</div>
+                            <div className="welcome-icon" aria-hidden="true">
+                                <span className="welcome-icon-orbit" />
+                                <span className="welcome-icon-core" />
+                            </div>
                             <h2>Start the conversation</h2>
                             <p>Upload a document from the left panel, then ask anything about it.</p>
                         </>

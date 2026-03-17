@@ -33,6 +33,7 @@ export default function MainPage() {
         toggleSidebar,
         closeSidebar,
         startSidebarResize,
+        startModPanelResize,
     } = useResizableLayout();
 
     const { messages, input, isQuerying, setInput, appendMessage, handleQuery } = useChat();
@@ -183,6 +184,30 @@ export default function MainPage() {
         ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
         : "No file selected";
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
+
+    const renderChatWorkspace = (emptyStateMode: "welcome" | "no-document") => (
+        <div className="chat-stage-shell">
+            <ChatArea
+                messages={messages}
+                isUploading={isUploading}
+                bottomRef={bottomRef}
+                emptyStateMode={emptyStateMode}
+            />
+
+            <ChatInput
+                input={input}
+                isQuerying={isQuerying || isAgentGenerating}
+                isModificationPanelOpen={isModificationPanelOpen}
+                isEditMode={isEditMode}
+                highlightedSelection={highlightedSelection}
+                onInputChange={setInput}
+                onInputKeyDown={handleComposerKeyDown}
+                onToggleModificationPanel={handleToggleModificationPanel}
+                onClearHighlightedSelection={clearHighlightedSelection}
+                onSend={() => { void handleComposerSend(); }}
+            />
+        </div>
+    );
 
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -352,7 +377,11 @@ export default function MainPage() {
     return (
         <div
             className={`app-root ${isMobile ? "mobile-layout" : ""} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
-            style={{ "--sidebar-width": `${sidebarWidth}px`, "--mod-panel-width": `${modPanelWidth}px` } as CSSProperties}
+            style={{
+                "--sidebar-width": `${sidebarWidth}px`,
+                "--mod-panel-width": `${modPanelWidth}px`,
+                "--assistant-stage-width": `${modPanelWidth}px`,
+            } as CSSProperties}
         >
             <div className={`sidebar-container ${isSidebarOpen ? "open" : "closed"}`}>
                 <Sidebar
@@ -410,27 +439,7 @@ export default function MainPage() {
                 </header>
 
                 {isMobile ? (
-                    <>
-                        <ChatArea
-                            messages={messages}
-                            isUploading={isUploading}
-                            bottomRef={bottomRef}
-                            emptyStateMode={chatEmptyStateMode}
-                        />
-
-                        <ChatInput
-                            input={input}
-                            isQuerying={isQuerying || isAgentGenerating}
-                            isModificationPanelOpen={isModificationPanelOpen}
-                            isEditMode={isEditMode}
-                            highlightedSelection={highlightedSelection}
-                            onInputChange={setInput}
-                            onInputKeyDown={handleComposerKeyDown}
-                            onToggleModificationPanel={handleToggleModificationPanel}
-                            onClearHighlightedSelection={clearHighlightedSelection}
-                            onSend={() => { void handleComposerSend(); }}
-                        />
-                    </>
+                    renderChatWorkspace(chatEmptyStateMode)
                 ) : isDesktopWorkspaceActive ? (
                     <div className="desktop-edit-workspace" aria-live="polite">
                         <section className="desktop-modification-stage">
@@ -538,49 +547,20 @@ export default function MainPage() {
 
                             {desktopModificationPanel}
                         </section>
+                        <div
+                            className="resize-handle resize-handle-workspace"
+                            onMouseDown={(event) => startModPanelResize(event.clientX)}
+                            role="separator"
+                            aria-orientation="vertical"
+                            aria-label="Resize editor and chat panels"
+                        />
                         <section className="desktop-assistant-stage">
-                            <ChatArea
-                                messages={messages}
-                                isUploading={isUploading}
-                                bottomRef={bottomRef}
-                                emptyStateMode="welcome"
-                            />
-
-                            <ChatInput
-                                input={input}
-                                isQuerying={isQuerying || isAgentGenerating}
-                                isModificationPanelOpen={isModificationPanelOpen}
-                                isEditMode={isEditMode}
-                                highlightedSelection={highlightedSelection}
-                                onInputChange={setInput}
-                                onInputKeyDown={handleComposerKeyDown}
-                                onToggleModificationPanel={handleToggleModificationPanel}
-                                onClearHighlightedSelection={clearHighlightedSelection}
-                                onSend={() => { void handleComposerSend(); }}
-                            />
+                            {renderChatWorkspace("welcome")}
                         </section>
                     </div>
                 ) : (
                     <div className="desktop-chat-focus-stage" aria-live="polite">
-                        <ChatArea
-                            messages={messages}
-                            isUploading={isUploading}
-                            bottomRef={bottomRef}
-                            emptyStateMode={chatEmptyStateMode}
-                        />
-
-                        <ChatInput
-                            input={input}
-                            isQuerying={isQuerying || isAgentGenerating}
-                            isModificationPanelOpen={isEditMode}
-                            isEditMode={isEditMode}
-                            highlightedSelection={highlightedSelection}
-                            onInputChange={setInput}
-                            onInputKeyDown={handleComposerKeyDown}
-                            onToggleModificationPanel={handleToggleModificationPanel}
-                            onClearHighlightedSelection={clearHighlightedSelection}
-                            onSend={() => { void handleComposerSend(); }}
-                        />
+                        {renderChatWorkspace(chatEmptyStateMode)}
                     </div>
                 )}
             </main>

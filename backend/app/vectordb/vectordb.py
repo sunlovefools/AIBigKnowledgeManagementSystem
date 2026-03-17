@@ -325,7 +325,7 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
     reranked_pairs = await _RERANKER_SERVICE.rerank_documents(
         query=query,
         documents=child_texts,
-        top_k=rerank_top_k,
+        top_k=top_k // 2,
     )
 
     reranked_child_docs = _map_reranked_pairs_to_child_docs(

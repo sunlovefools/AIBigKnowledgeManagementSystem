@@ -36,6 +36,7 @@ from app.service.rag.ingestion.docling.storage import (
     s3_upload,
 )
 from app.service.rag.ingestion.docling.utils import markdown_builder, pdf_utils
+from app.service.rag.ingestion.markdown_canonicalizer import canonicalize_docling_block_text
 
 
 def _block_type_for_element(
@@ -542,6 +543,18 @@ def parse_pdf_with_docling_preview(
             "No markdown text serialized from Beam Docling endpoint response."
         )
 
+    canonicalized_markdown_parts = list(markdown_parts)
+    for metadata in structured_block_metadata:
+        block_index = int(metadata.get("block_index", -1))
+        if block_index < 0 or block_index >= len(canonicalized_markdown_parts):
+            continue
+        block_type = str(metadata.get("block_type") or "text")
+        canonicalized_markdown_parts[block_index] = canonicalize_docling_block_text(
+            block_type=block_type,
+            text=canonicalized_markdown_parts[block_index],
+        )
+
+    markdown_parts = canonicalized_markdown_parts
     markdown_text = "\n\n".join(markdown_parts)
     if artifacts_enabled and markdown_path is not None:
         print("[docling-pipeline] writing markdown and manifest artifacts...")

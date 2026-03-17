@@ -11,7 +11,7 @@ import type {
     ParentChunkContent,
     SidebarFileSummary,
 } from "../types";
-import { isMarkdownRoundTripStable } from "../utils/markdownEditor";
+import { normalizeMarkdownForEditor } from "../utils/markdownEditor";
 
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 // Number of parent chunks requested per backend page for one file.
@@ -31,6 +31,7 @@ type BatchUpdateParentChunksResponse = {
     fileName: string;
     updatedCount: number;
     results: UpdateParentChunkResponse[];
+    requiresReload: boolean;
 };
 
 type UpdateFileResponse = {
@@ -143,29 +144,21 @@ function toSidebarFileSummary(entry: FileEntry): SidebarFileSummary {
 function buildChunkRanges(chunks: ParentChunkContent[]): { fullText: string; ranges: ChunkRange[] } {
     if (!chunks.length) return { fullText: "", ranges: [] };
 
-    // Normalise start and end chunks of the document
-    const normalizedParts = chunks.map((chunk, index) => {
-        let content = chunk.content;
-        if (index === 0) content = content.trimStart();
-        if (index === chunks.length - 1) content = content.trimEnd();
-        return { parentId: chunk.parentId, content };
-    });
-
     let cursor = 0;
     const ranges: ChunkRange[] = [];
 
     // Loop through the chunks and build the full document text and the index ranges for each chunk
     // Form an array with the parentId, start index, end index and content for each chunk in the document [{ parentId, start_index_words, end_index_words, content }]
-    normalizedParts.forEach((part, index) => {
+    chunks.forEach((chunk, index) => {
         const start = cursor;
-        const end = start + part.content.length;
-        ranges.push({ parentId: part.parentId, start, end, content: part.content });
+        const end = start + chunk.content.length;
+        ranges.push({ parentId: chunk.parentId, start, end, content: chunk.content });
         cursor = end;
-        if (index < normalizedParts.length - 1) cursor += 2; // "\n\n"
+        if (index < chunks.length - 1) cursor += 2; // "\n\n"
     });
 
     return {
-        fullText: normalizedParts.map((part) => part.content).join("\n\n"),
+        fullText: chunks.map((chunk) => chunk.content).join("\n\n"),
         ranges,
     };
 }
@@ -205,8 +198,137 @@ function computeSingleReplaceEdit(
     };
 }
 
+function findTouchedRangesForEdit(
+    ranges: ChunkRange[],
+    edit: { start: number; end: number }
+): ChunkRange[] {
+    const overlapping = ranges.filter((range) => range.start < edit.end && edit.start < range.end);
+    if (overlapping.length > 0) return overlapping;
+
+    const isInsertion = edit.start === edit.end;
+
+    // For pure insertions at exact chunk edges, choose a single owner chunk.
+    // This keeps "append at end of previous chunk" from being assigned to next.
+    if (isInsertion) {
+        const endedHere = ranges.filter((range) => range.end === edit.start);
+        const startedHere = ranges.filter((range) => range.start === edit.start);
+
+        if (endedHere.length > 0 && startedHere.length > 0) {
+            // Ambiguous contiguous boundary: prefer previous chunk by default.
+            return [endedHere[endedHere.length - 1]];
+        }
+        if (endedHere.length > 0) return [endedHere[endedHere.length - 1]];
+        if (startedHere.length > 0) return [startedHere[0]];
+    } else {
+        // Non-insertion edits touching chunk boundaries should update both sides.
+        const boundaryTouching = ranges.filter(
+            (range) => range.end === edit.start || range.start === edit.end
+        );
+        if (boundaryTouching.length > 0) return boundaryTouching;
+    }
+
+    // If the edit lands entirely inside the inter-chunk separator gap, map it
+    // to nearby chunks so we can still use batch parent updates.
+    let previous: ChunkRange | null = null;
+    for (const range of ranges) {
+        if (range.end <= edit.start) previous = range;
+        else break;
+    }
+    const next = ranges.find((range) => range.start >= edit.end) ?? null;
+    if (previous && next && previous.parentId !== next.parentId) {
+        const isInsideGap = previous.end <= edit.start && edit.end <= next.start;
+        if (isInsideGap) {
+            if (isInsertion) {
+                // Pick the nearest chunk edge; on ties, prefer previous chunk.
+                const distanceToPrevious = edit.start - previous.end;
+                const distanceToNext = next.start - edit.end;
+                return distanceToPrevious <= distanceToNext ? [previous] : [next];
+            }
+            return [previous, next];
+        }
+    }
+
+    return [];
+}
+
+// Function to 
+function collectBoundaryTouchedParentIds(
+    ranges: ChunkRange[],
+    edit: { start: number; end: number },
+    originalLength: number
+): string[] {
+    if (!ranges.length) return [];
+
+    const touched = new Set<string>();
+    const boundaryPositions = new Set<number>();
+
+    // Add the boundary positions of all chunks to a set for easy lookup
+    ranges.forEach((range) => {
+        boundaryPositions.add(range.start);
+        boundaryPositions.add(range.end);
+    });
+
+    // Special case for insertions at the very end of the document
+    const isEndOfDocumentInsertion =
+        edit.start === originalLength &&
+        edit.end === originalLength;
+    // If its the special case then we will take the previous chunk as touched chunk
+    if (isEndOfDocumentInsertion) {
+        const previous = ranges[ranges.length - 1];
+        if (previous) touched.add(previous.parentId);
+        return Array.from(touched);
+    }
+
+    const startHitsBoundary = boundaryPositions.has(edit.start);
+    const endHitsBoundary = boundaryPositions.has(edit.end);
+    const isInsertion = edit.start === edit.end;
+    const overlapsAnyChunk = isInsertion
+        ? ranges.some((range) => range.start < edit.start && edit.start < range.end)
+        : ranges.some((range) => range.start < edit.end && edit.start < range.end);
+
+    // Find the closest chunks before and after the edit position
+    let previous: ChunkRange | null = null;
+    for (const range of ranges) {
+        if (range.end <= edit.start) previous = range;
+        else break;
+    }
+    const next = ranges.find((range) => range.start >= edit.end) ?? null;
+    const insideGap =
+        previous !== null && next !== null &&
+        previous.end <= edit.start &&
+        edit.end <= next.start &&
+        !overlapsAnyChunk;
+
+    if (!startHitsBoundary && !endHitsBoundary && !insideGap) {
+        return [];
+    }
+
+    if (previous) touched.add(previous.parentId);
+    if (next) touched.add(next.parentId);
+
+    // Fallback for exact boundary touches where only one side is detectable.
+    if (touched.size === 0) {
+        ranges
+            .filter(
+                (range) =>
+                    range.start === edit.start ||
+                    range.end === edit.start ||
+                    range.start === edit.end ||
+                    range.end === edit.end
+            )
+            .forEach((range) => touched.add(range.parentId));
+    }
+
+    return Array.from(touched);
+}
+
 function containsRawHtmlMarkup(text: string): boolean {
     return /<\/?[a-z][^>]*>/i.test(text);
+}
+
+// Heuristic to determine if the editor content has meaningful changes that would affect the markdown output, to avoid unnecessary save prompts.
+function hasMeaningfulEditorChange(original: string, draft: string): boolean {
+    return normalizeMarkdownForEditor(original) !== normalizeMarkdownForEditor(draft);
 }
 
 export function useDocuments(isModificationPanelOpen: boolean) {
@@ -468,22 +590,32 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             if (!fileId) return "";
             // Rebuild one document by joining the loaded parent chunks in order.
             return getContentStateById(fileId).chunks
-                .map((c) => c.content).join("\n\n").trim();
+                .map((c) => c.content).join("\n\n");
         },
         [getContentStateById]
+    );
+
+    const getEditorBaselineContent = useCallback(
+        (fileId: string | null) => {
+            if (!fileId) return "";
+            const original = getFullDocumentContent(fileId);
+            if (!original) return "";
+            return original;
+        },
+        [getFullDocumentContent]
     );
 
     // ── Tab management ──
 
     const confirmDiscardUnsavedChanges = useCallback(() => {
         if (!editingFileId) return true;
-        const original = getFullDocumentContent(editingFileId);
+        const original = getEditorBaselineContent(editingFileId);
         const draft = editingDraftByFileId[editingFileId] ?? original;
-        if (draft === original) { setEditingFileId(null); return true; }
+        if (!hasMeaningfulEditorChange(original, draft)) { setEditingFileId(null); return true; }
         const ok = window.confirm("You have unsaved changes. Discard them?");
         if (ok) setEditingFileId(null);
         return ok;
-    }, [editingDraftByFileId, editingFileId, getFullDocumentContent]);
+    }, [editingDraftByFileId, editingFileId, getEditorBaselineContent]);
 
     const openDocumentTab = useCallback(
         async (fileId: string) => {
@@ -653,7 +785,12 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             },
             {
                 ...previousContentState,
-                chunks: [{ parentId: localParentId, content: updated.content, size: updated.size, pageNumbers: [0] }],
+                chunks: [{
+                    parentId: localParentId,
+                    content: updated.content,
+                    size: updated.size,
+                    pageNumbers: [0],
+                }],
                 hasMore: false,
                 nextCursor: null,
             }
@@ -690,28 +827,29 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     }, [getContentStateById]);
 
     // ── Manual document editing ──
-
-    const editingDocumentContent = useMemo(() => {
+    const editingDocumentContent = useMemo(() => { // Return the conten shown in the editor
         if (!editingFileId) return "";
-        return editingDraftByFileId[editingFileId] ?? getFullDocumentContent(editingFileId);
-    }, [editingDraftByFileId, editingFileId, getFullDocumentContent]);
+        return editingDraftByFileId[editingFileId] ?? getEditorBaselineContent(editingFileId);
+    }, [editingDraftByFileId, editingFileId, getEditorBaselineContent]);
 
     const isEditingActiveDocument = Boolean(activeTab && editingFileId && activeTab === editingFileId);
     const isSavingActiveDocument = Boolean(activeTab && savingFileId && activeTab === savingFileId);
 
     const isActiveDocumentDirty = useMemo(() => {
         if (!activeTab || !isEditingActiveDocument) return false;
-        const original = getFullDocumentContent(activeTab);
-        return (editingDraftByFileId[activeTab] ?? original) !== original;
-    }, [activeTab, editingDraftByFileId, getFullDocumentContent, isEditingActiveDocument]);
+        const original = getEditorBaselineContent(activeTab);
+        return hasMeaningfulEditorChange(original, editingDraftByFileId[activeTab] ?? original);
+    }, [activeTab, editingDraftByFileId, getEditorBaselineContent, isEditingActiveDocument]);
 
+    // Start editing the active document by caching its current full content as the editing draft
     const startEditingActiveDocument = useCallback(() => {
         if (!activeTab || !activeTabData?.chunks.length) return;
-        const fullContent = getFullDocumentContent(activeTab);
+        const fullContent = getEditorBaselineContent(activeTab);
         setEditingFileId(activeTab);
         setEditingDraftByFileId((prev) => ({ ...prev, [activeTab]: prev[activeTab] ?? fullContent }));
         setSaveError(null);
-    }, [activeTab, activeTabData?.chunks.length, getFullDocumentContent]);
+    // Depends on the chunks length to make sure the full document content is ready before start editing
+    }, [activeTab, activeTabData?.chunks.length, getEditorBaselineContent]); 
 
     const setActiveEditingDocumentContent = useCallback(
         (nextContent: string) => {
@@ -732,65 +870,165 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         const fileName = getFileNameById(activeTab);
         if (!fileName) { setSaveError("Missing file name for this tab. Please refresh."); return false; }
         const state = getContentStateById(activeTab);
-        const { fullText: original, ranges } = buildChunkRanges(state.chunks);
+        const normalizedChunks = state.chunks.map((chunk) => ({
+            ...chunk,
+            content: normalizeMarkdownForEditor(chunk.content),
+        }));
+        const { fullText: original, ranges } = buildChunkRanges(normalizedChunks); // Example: original="hello world", ranges=[{ parentId: "1", start: 0, end: 5, content: "hello" }, { parentId: "2", start: 5, end: 11, content: "world" }]
 
         // Get the entire edited document content and make sure it is not empty and no different from the original content
-        const draft = editingDraftByFileId[activeTab] ?? original;
-        if (!draft.trim()) { setSaveError("Content cannot be empty."); return false; }
-        if (draft === original) { return false; }
+        const draft = editingDraftByFileId[activeTab] ?? getEditorBaselineContent(activeTab);
+        const normalizedDraft = normalizeMarkdownForEditor(draft);
+        if (!normalizedDraft.trim()) { setSaveError("Content cannot be empty."); return false; }
+        if (!hasMeaningfulEditorChange(original, normalizedDraft)) { return false; }
 
         setSavingFileId(activeTab);
         setSaveError(null);
         try {
-            const edit = computeSingleReplaceEdit(original, draft);
-            // Partial chunk updates are only safe when the editor preserves the
-            // original markdown byte-for-byte outside the user's actual edit.
             const shouldForceFullFileUpdate =
                 containsRawHtmlMarkup(original) ||
-                containsRawHtmlMarkup(draft) ||
-                !isMarkdownRoundTripStable(original);
+                containsRawHtmlMarkup(draft);
 
-            if (edit && !shouldForceFullFileUpdate) {
-                // Multi-chunk update path: distribute edited window across touched chunks,
-                // then let backend re-chunk only the touched parent IDs.
-                // Get a list of chunks that are being edited based on the diff result
-                const touchedRanges = ranges.filter((range) => range.start < edit.end && edit.start < range.end);
+            if (!shouldForceFullFileUpdate) {
+                const editPart = computeSingleReplaceEdit(original, normalizedDraft);
 
-                if (touchedRanges.length > 0) {
-                    const firstTouchedChunk = touchedRanges[0];
-                    const lastTouchedChunk = touchedRanges[touchedRanges.length - 1];
-                    const draftTouchedEnd = draft.length - (original.length - lastTouchedChunk.end);
-                    const nextWindow = draft.slice(firstTouchedChunk.start, draftTouchedEnd); // The edited window that should replace the content in the original document
-
-                    // To store the content that needed to be updated
-                    const updates: Array<{ parentId: string; content: string }> = [];
-                    let cursor = 0;
-                    for (let i = 0; i < touchedRanges.length; i += 1) {
-                        const range = touchedRanges[i];
-                        const originalLen = range.end - range.start;
-                        const isLast = i === touchedRanges.length - 1;
-                        const nextCursor = isLast ? nextWindow.length : Math.min(nextWindow.length, cursor + originalLen);
-                        const segment = nextWindow.slice(cursor, nextCursor);
-                        updates.push({ parentId: range.parentId, content: segment.trim() ? segment : " " });
-                        cursor = nextCursor;
-                    }
-
-                    await axios.post<BatchUpdateParentChunksResponse>(
-                        `${API_BASE}/api/modifications/parent-chunks/batch-update`,
-                        {
-                            fileId: activeTab,
-                            fileName,
-                            updates,
-                        }
+                if (editPart) {
+                    // 
+                    const boundaryTouchedParentIds = collectBoundaryTouchedParentIds(
+                        ranges,
+                        editPart,
+                        original.length
                     );
+                    const shouldUseBoundaryRechunk = boundaryTouchedParentIds.length > 0;
 
-                    await fetchFiles();
-                    await loadFileChunks(activeTab, true);
+                    if (shouldUseBoundaryRechunk) {
+                        const batchResp = await axios.post<BatchUpdateParentChunksResponse>(
+                            `${API_BASE}/api/modifications/parent-chunks/batch-update`,
+                            {
+                                fileId: activeTab,
+                                fileName,
+                                mode: "boundary_rechunk",
+                                fullContent: normalizedDraft,
+                                touchedParentIds: boundaryTouchedParentIds,
+                            }
+                        );
+
+                        if (batchResp.data.requiresReload) {
+                            await fetchFiles();
+                            await loadFileChunks(activeTab, true);
+                        }
+                    } else {
+                    // Multi-chunk update path: distribute edited window across touched chunks,
+                    // then let backend re-chunk only the touched parent IDs.
+                    // Get a list of chunks that are being edited based on the diff result
+                    const touchedRanges = findTouchedRangesForEdit(ranges, editPart);
+
+                    if (touchedRanges.length > 0) {
+                        const firstTouchedChunk = touchedRanges[0];
+                        const lastTouchedChunk = touchedRanges[touchedRanges.length - 1];
+                        const draftTouchedEnd = normalizedDraft.length - (original.length - lastTouchedChunk.end);
+                        const nextWindow = normalizedDraft.slice(firstTouchedChunk.start, draftTouchedEnd); // The edited window that should replace the content in the original document
+
+                        // To store the content that needed to be updated
+                        const updates: Array<{ parentId: string; content: string }> = [];
+                        let cursor = 0;
+                        let canBatchUpdate = true;
+                        for (let i = 0; i < touchedRanges.length; i += 1) {
+                            const range = touchedRanges[i];
+                            const originalLen = range.end - range.start;
+                            const isLast = i === touchedRanges.length - 1;
+                            const nextCursor = isLast ? nextWindow.length : Math.min(nextWindow.length, cursor + originalLen);
+                            const segment = nextWindow.slice(cursor, nextCursor);
+                            if (!segment.trim()) {
+                                canBatchUpdate = false;
+                                break;
+                            }
+                            updates.push({ parentId: range.parentId, content: segment });
+                            cursor = nextCursor;
+                        }
+
+                        if (canBatchUpdate) {
+                            const batchResp = await axios.post<BatchUpdateParentChunksResponse>(
+                                `${API_BASE}/api/modifications/parent-chunks/batch-update`,
+                                {
+                                    fileId: activeTab,
+                                    fileName,
+                                    mode: "fast_updates",
+                                    updates,
+                                }
+                            );
+
+                            const updatedRows = batchResp.data.results ?? [];
+                            if (!batchResp.data.requiresReload && updatedRows.length > 0) {
+                                const replacementByPreviousId = new Map(
+                                    updatedRows.map((row) => [row.previousParentId, row])
+                                );
+
+                                // Apply an immediate in-memory parentId/content remap so UI state stays fresh
+                                // before the follow-up fetch/load cycle completes.
+                                setFilesState((prev) => {
+                                    const activeEntry = prev.byId[activeTab];
+                                    if (!activeEntry) return prev;
+
+                                    const remappedChunks = activeEntry.contentState.chunks.map((chunk) => {
+                                        const replacement = replacementByPreviousId.get(chunk.parentId);
+                                        if (!replacement) return chunk;
+                                        return {
+                                            ...chunk,
+                                            parentId: replacement.parentId,
+                                            content: replacement.content,
+                                            size: replacement.size,
+                                        };
+                                    });
+                                    const dedupedChunks = Array.from(
+                                        new Map(remappedChunks.map((chunk) => [chunk.parentId, chunk])).values()
+                                    );
+                                    const remappedContent = dedupedChunks
+                                        .map((chunk) => chunk.content)
+                                        .join("\n\n");
+
+                                    return {
+                                        ...prev,
+                                        byId: {
+                                            ...prev.byId,
+                                            [activeTab]: {
+                                                ...activeEntry,
+                                                previewTexts: buildPreviewText(remappedContent),
+                                                contentState: {
+                                                    ...activeEntry.contentState,
+                                                    chunks: dedupedChunks,
+                                                },
+                                            },
+                                        },
+                                    };
+                                });
+                            }
+
+                            await fetchFiles();
+                            await loadFileChunks(activeTab, true);
+                        } else {
+                            // If the edited content for any touched chunk is empty or whitespace-only, fallback to full-file update to avoid accidental data loss.
+                            const response = await axios.put<UpdateFileResponse>(
+                                `${API_BASE}/api/modifications/update-file/${activeTab}`,
+                                { fileName, content: normalizedDraft }
+                            );
+                            const updated = response.data;
+                            applyFullFileUpdate(updated);
+                        }
+                    } else {
+                        // Fallback path for boundary-crossing or ambiguous edits.
+                        const response = await axios.put<UpdateFileResponse>(
+                            `${API_BASE}/api/modifications/update-file/${activeTab}`,
+                            { fileName, content: normalizedDraft }
+                        );
+                        const updated = response.data;
+                        applyFullFileUpdate(updated);
+                    }
+                    }
                 } else {
-                    // Fallback path for boundary-crossing or ambiguous edits.
                     const response = await axios.put<UpdateFileResponse>(
                         `${API_BASE}/api/modifications/update-file/${activeTab}`,
-                        { fileName, content: draft }
+                        { fileName, content: normalizedDraft }
                     );
                     const updated = response.data;
                     applyFullFileUpdate(updated);
@@ -799,7 +1037,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                 // Fallback path for boundary-crossing or ambiguous edits.
                 const response = await axios.put<UpdateFileResponse>(
                     `${API_BASE}/api/modifications/update-file/${activeTab}`,
-                    { fileName, content: draft }
+                    { fileName, content: normalizedDraft }
                 );
                 const updated = response.data;
                 applyFullFileUpdate(updated);
@@ -825,6 +1063,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         editingFileId,
         fetchFiles,
         getFileNameById,
+        getEditorBaselineContent,
         loadFileChunks,
         savingFileId,
         applyFullFileUpdate,
@@ -1086,6 +1325,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
                     {
                         fileId: proposal.fileId,
                         fileName: proposal.fileName,
+                        mode: "fast_updates",
                         updates: [{ parentId: proposal.parentId, content: existingChunk.content }],
                     }
                 );

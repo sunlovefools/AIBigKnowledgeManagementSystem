@@ -59,21 +59,36 @@ function getContainerElement(node: Node): HTMLElement | null {
     return node.parentElement;
 }
 
-type PageChunkSegment = {
+type ChunkRange = {
     parentId: string;
+    start: number;
+    end: number;
     content: string;
 };
 
-type PageGroup = {
-    pageNumber: number;
-    segments: PageChunkSegment[];
-};
+function buildChunkRanges(chunks: FileTabState["chunks"]): { fullText: string; ranges: ChunkRange[] } {
+    if (!chunks.length) return { fullText: "", ranges: [] };
 
-function normalizePageNumbers(pageNumbers: number[] | undefined): number[] {
-    if (!pageNumbers || pageNumbers.length === 0) return [0];
-    const deduped = Array.from(new Set(pageNumbers.filter((value) => Number.isFinite(value))));
-    if (!deduped.length) return [0];
-    return deduped.sort((a, b) => a - b);
+    let cursor = 0;
+    const ranges: ChunkRange[] = [];
+
+    chunks.forEach((chunk, index) => {
+        const start = cursor;
+        const end = start + chunk.content.length;
+        ranges.push({
+            parentId: chunk.parentId,
+            start,
+            end,
+            content: chunk.content,
+        });
+        cursor = end;
+        if (index < chunks.length - 1) cursor += 2;
+    });
+
+    return {
+        fullText: chunks.map((chunk) => chunk.content).join("\n\n"),
+        ranges,
+    };
 }
 
 export default function ModificationPanel({
@@ -125,6 +140,10 @@ export default function ModificationPanel({
     const previousProposalCountRef = useRef(0);
 
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
+    const activeDocumentView = useMemo(
+        () => buildChunkRanges(activeTabData?.chunks ?? []),
+        [activeTabData?.chunks]
+    );
 
     useEffect(() => {
         const previousCount = previousProposalCountRef.current;
@@ -153,33 +172,17 @@ export default function ModificationPanel({
         const range = selection.getRangeAt(0);
         const startElement = getContainerElement(range.startContainer);
         const endElement = getContainerElement(range.endContainer);
-        const startChunk = startElement?.closest<HTMLElement>("[data-parent-id]");
-        const endChunk = endElement?.closest<HTMLElement>("[data-parent-id]");
+        const textRoot = contentRef.current?.querySelector<HTMLElement>(".mod-panel-document-text");
 
-        if (!startChunk || !endChunk) {
+        if (
+            !textRoot ||
+            !startElement ||
+            !endElement ||
+            !textRoot.contains(startElement) ||
+            !textRoot.contains(endElement)
+        ) {
             onHighlightedSelectionChange(null);
             onSelectionErrorChange(null);
-            return;
-        }
-
-        if (startChunk.dataset.parentId !== endChunk.dataset.parentId) {
-            onSelectionErrorChange("Highlight text within a single chunk only.");
-            onHighlightedSelectionChange(null);
-            selection.removeAllRanges();
-            return;
-        }
-
-        const parentId = startChunk.dataset.parentId ?? "";
-        const textRoot = startChunk.querySelector<HTMLElement>(".mod-panel-document-text");
-        if (
-            !parentId ||
-            !textRoot ||
-            !textRoot.contains(range.startContainer) ||
-            !textRoot.contains(range.endContainer)
-        ) {
-            onSelectionErrorChange("Highlight text inside the chunk body only.");
-            onHighlightedSelectionChange(null);
-            selection.removeAllRanges();
             return;
         }
 
@@ -190,9 +193,21 @@ export default function ModificationPanel({
         const selectedText = range.toString();
         const startOffset = prefixRange.toString().length;
         const endOffset = startOffset + selectedText.length;
-        const chunk = activeTabData.chunks.find((item) => item.parentId === parentId);
+        const chunkRange = activeDocumentView.ranges.find(
+            (item) => startOffset >= item.start && endOffset <= item.end
+        );
 
-        if (!chunk || chunk.content.slice(startOffset, endOffset) !== selectedText) {
+        if (!chunkRange) {
+            onSelectionErrorChange("Highlight text within a single chunk only.");
+            onHighlightedSelectionChange(null);
+            selection.removeAllRanges();
+            return;
+        }
+
+        const localStartOffset = startOffset - chunkRange.start;
+        const localEndOffset = endOffset - chunkRange.start;
+
+        if (chunkRange.content.slice(localStartOffset, localEndOffset) !== selectedText) {
             onSelectionErrorChange("The current selection does not match the stored chunk content.");
             onHighlightedSelectionChange(null);
             selection.removeAllRanges();
@@ -204,10 +219,10 @@ export default function ModificationPanel({
         onHighlightedSelectionChange({
             fileId: activeTab,
             fileName,
-            parentId,
+            parentId: chunkRange.parentId,
             selectedText,
-            startOffset,
-            endOffset,
+            startOffset: localStartOffset,
+            endOffset: localEndOffset,
         });
     };
 
@@ -217,26 +232,6 @@ export default function ModificationPanel({
     const activeFileName = activeTab
         ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
         : "No file selected";
-
-    const pageGroups = useMemo<PageGroup[]>(() => {
-        if (!activeTabData?.chunks.length) return [];
-
-        const grouped = new Map<number, PageGroup>();
-        activeTabData.chunks.forEach((chunk) => {
-            const pages = normalizePageNumbers(chunk.pageNumbers);
-            pages.forEach((pageNumber) => {
-                if (!grouped.has(pageNumber)) {
-                    grouped.set(pageNumber, { pageNumber, segments: [] });
-                }
-                grouped.get(pageNumber)?.segments.push({
-                    parentId: chunk.parentId,
-                    content: chunk.content,
-                });
-            });
-        });
-
-        return Array.from(grouped.values()).sort((a, b) => a.pageNumber - b.pageNumber);
-    }, [activeTabData]);
 
     const showAgentSection = isEditMode && (
         isAgentGenerating ||
@@ -429,7 +424,7 @@ export default function ModificationPanel({
                     !isEditMode && <div className="mod-panel-empty">No file tab selected.</div>
                 ) : activeTabAsync?.error ? (
                     <div className="mod-panel-empty">{activeTabAsync.error}</div>
-                ) : pageGroups.length ? (
+                ) : activeTabData?.chunks.length ? (
                     <>
                         <section className={`mod-panel-document-window ${isEditing ? "editing" : ""}`}>
                             {!hideDocumentToolbar && (
@@ -481,7 +476,7 @@ export default function ModificationPanel({
 
                             {isEditMode && !isEditing && (
                                 <div className="mod-panel-selection-hint">
-                                    Highlight text within a single page block to edit directly.
+                                    Highlight text to edit directly.
                                 </div>
                             )}
 
@@ -500,39 +495,17 @@ export default function ModificationPanel({
                                 </>
                             ) : (
                                 <div
-                                    className="mod-panel-document-pages"
+                                    className={`mod-panel-document-flow ${highlightedSelection ? "selection-active" : ""}`}
                                     onMouseUp={handleDocumentSelection}
                                     onKeyUp={handleDocumentSelection}
                                 >
-                                    {pageGroups.map((group) => (
-                                        <section
-                                            key={`page-${group.pageNumber}`}
-                                            className="mod-panel-document-page"
-                                        >
-                                            <div className="mod-panel-document-page-content">
-                                                {group.segments.map((segment, index) => (
-                                                    <article
-                                                        key={`${group.pageNumber}-${segment.parentId}-${index}`}
-                                                        className={`mod-panel-document-segment ${
-                                                            highlightedSelection?.parentId === segment.parentId ? "selected" : ""
-                                                        }`}
-                                                        data-parent-id={segment.parentId}
-                                                    >
-                                                            <div className="mod-panel-document-text">
-                                                                <MarkdownEditor
-                                                                    markdown={segment.content}
-                                                                    editable={false}
-                                                                    className="mod-panel-segment-editor"
-                                                                />
-                                                            </div>
-                                                    </article>
-                                                ))}
-                                            </div>
-                                            <div className="mod-panel-document-page-label">
-                                                Page {group.pageNumber + 1}
-                                            </div>
-                                        </section>
-                                    ))}
+                                    <div className="mod-panel-document-text">
+                                        <MarkdownEditor
+                                            markdown={activeDocumentView.fullText}
+                                            editable={false}
+                                            className="mod-panel-segment-editor"
+                                        />
+                                    </div>
                                 </div>
                             )}
 

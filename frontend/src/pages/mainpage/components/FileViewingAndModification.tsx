@@ -5,10 +5,10 @@ import { Table } from '@tiptap/extension-table'
 import { TableRow } from '@tiptap/extension-table-row'
 import { TableHeader } from '@tiptap/extension-table-header'
 import { TableCell } from '@tiptap/extension-table-cell'
-import { marked } from 'marked'
 import {
   htmlToEditorMarkdown,
   normalizeEditorHtmlForMarkdown,
+  renderMarkdownToEditorHtml,
 } from '../utils/markdownEditor'
 
 // Type definitions for the MarkdownEditor component props
@@ -19,7 +19,6 @@ type MarkdownEditorProps = {
   className?: string
 }
 
-// Main function component that is exported for use in other parts of the application
 export default function MarkdownEditor({
   markdown,
   editable = false,
@@ -28,14 +27,14 @@ export default function MarkdownEditor({
 }: MarkdownEditorProps) {
   const lastEmittedContentRef = useRef<string | null>(null)
 
-  // Whenever the markdown prop changes, then convert it to HTML and update the editor content. 
+  // Whenever the markdown prop changes, then convert it to HTML and update the editor content.
   const html = useMemo(() => {
-    return marked.parse(markdown) as string
+    return renderMarkdownToEditorHtml(markdown)
   }, [markdown])
 
   // Creats the actual editor instance using the useEditor hook from tiptap
   const editor = useEditor({
-    extensions: [ // Plugins/extension for the editor for rendering
+    extensions: [
       StarterKit,
       Table.configure({
         resizable: true,
