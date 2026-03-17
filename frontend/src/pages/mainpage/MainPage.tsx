@@ -1,5 +1,28 @@
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useNavigate } from "react-router-dom";
+
+// Helper function to format timestamps as relative time (e.g., "2h ago", "Today", "Yesterday")
+function formatRelativeTime(isoTimestamp: string): string {
+    try {
+        const date = new Date(isoTimestamp);
+        const now = new Date();
+        const diffMs = now.getTime() - date.getTime();
+        const diffMins = Math.floor(diffMs / 60000);
+        const diffHours = Math.floor(diffMs / 3600000);
+        const diffDays = Math.floor(diffMs / 86400000);
+
+        if (diffMins < 1) return "just now";
+        if (diffMins < 60) return `${diffMins}m ago`;
+        if (diffHours < 24) return `${diffHours}h ago`;
+        if (diffDays === 1) return "yesterday";
+        if (diffDays < 7) return `${diffDays}d ago`;
+
+        // For older dates, show date in short format
+        return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+    } catch {
+        return "";
+    }
+}
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
 import Sidebar from "./components/Sidebar";
@@ -217,7 +240,14 @@ export default function MainPage() {
                                     type="button"
                                 >
                                     <div className="conversation-chip-title">{conversation.title || "New conversation"}</div>
-                                    <div className="conversation-chip-meta">{conversation.messageCount ?? 0} msgs</div>
+                                    <div className="conversation-chip-meta">
+                                        <span>{conversation.messageCount ?? 0} msgs</span>
+                                        {conversation.lastMessage?.timestamp && (
+                                            <span className="conversation-chip-timestamp">
+                                                {formatRelativeTime(conversation.lastMessage.timestamp)}
+                                            </span>
+                                        )}
+                                    </div>
                                 </button>
                             ))}
                         </div>

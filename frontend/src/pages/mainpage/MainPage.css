@@ -542,6 +542,16 @@ html,
 .conversation-chip-meta {
     font-size: 0.75rem;
     color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+}
+
+.conversation-chip-timestamp {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
 }
 
 /* Chat Scroll Area */
