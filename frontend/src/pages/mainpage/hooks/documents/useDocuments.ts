@@ -5,12 +5,14 @@ import { useDocumentAgent } from "./subhooks/useDocumentAgent";
 import { useDocumentEditing } from "./subhooks/useDocumentEditing";
 import { useDocumentFiles } from "./subhooks/useDocumentFiles";
 
+// Result contract returned by deleteFile so callers can render user-facing status.
 type DeleteFileResult = {
     ok: boolean;
     data?: DeleteFileResponse;
     error?: string;
 };
 
+// Composes document file loading, editing, and agent proposal flows into one hook.
 export function useDocuments(isModificationPanelOpen: boolean) {
     const fileDomain = useDocumentFiles({ isModificationPanelOpen });
 
@@ -31,6 +33,8 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         [getFullDocumentContent]
     );
 
+    // useDocumentEditing needs a callback to clear agent state, but the agent hook
+    // is initialized afterwards. This ref breaks the setup cycle safely.
     const clearAgentStateForFileRef = useRef<(fileId: string) => void>(() => undefined);
     const editingDomain = useDocumentEditing({
         activeTab: fileDomain.activeTab,
@@ -59,6 +63,7 @@ export function useDocuments(isModificationPanelOpen: boolean) {
     });
     clearAgentStateForFileRef.current = agentDomain.clearAgentStateForFile;
 
+    // Tab switches are guarded so users do not accidentally lose unsaved edits.
     const openDocumentTab = useCallback(
         async (fileId: string) => {
             if (!editingDomain.confirmDiscardUnsavedChanges()) return;
@@ -98,6 +103,8 @@ export function useDocuments(isModificationPanelOpen: boolean) {
             if (!fileId) return { ok: false, error: "Missing file ID." };
             if (fileDomain.deletingFileId) return { ok: false, error: "Another delete is already in progress." };
 
+            // Clear local state first after a successful delete to keep UI consistent
+            // even before any follow-up refreshes.
             fileDomain.setDeletingFileId(fileId);
             editingDomain.setSaveError(null);
             try {

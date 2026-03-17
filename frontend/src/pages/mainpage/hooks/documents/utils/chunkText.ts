@@ -1,5 +1,6 @@
 import type { ParentChunkContent } from "../../../types";
 
+// Absolute text offsets for one parent chunk in the concatenated document string.
 export type ChunkRange = {
     parentId: string;
     start: number;
@@ -7,10 +8,12 @@ export type ChunkRange = {
     content: string;
 };
 
+// Produces compact one-line preview text for sidebar rendering.
 export function buildPreviewText(content: string): string {
     return content.replace(/\s+/g, " ").trim().slice(0, 160);
 }
 
+// Builds a single document string and index ranges used by edit/agent offset math.
 export function buildChunkRanges(chunks: ParentChunkContent[]): { fullText: string; ranges: ChunkRange[] } {
     if (!chunks.length) return { fullText: "", ranges: [] };
 
@@ -30,4 +33,3 @@ export function buildChunkRanges(chunks: ParentChunkContent[]): { fullText: stri
         ranges,
     };
 }
-

@@ -9,6 +9,7 @@ import type {
 import { buildPreviewText } from "../utils/chunkText";
 import { createEmptyContentAsyncState, createEmptyContentState, createFileEntry } from "./factories";
 
+// Rebuilds file index from fresh sidebar data while preserving local open tabs/content when possible.
 export function replaceFilesFromSidebarSummaries(
     prev: FilesState,
     incoming: SidebarFileSummary[]
@@ -31,6 +32,7 @@ export function replaceFilesFromSidebarSummaries(
     };
 }
 
+// Keeps async loading flags aligned with the current sidebar file set.
 export function syncChunkAsyncIndex(
     prev: Record<string, FileContentAsyncState>,
     incoming: SidebarFileSummary[]
@@ -42,6 +44,7 @@ export function syncChunkAsyncIndex(
     return next;
 }
 
+// Removes one file from sidebar + tab state and chooses a sensible next active tab.
 export function removeFileFromState(prev: FilesState, fileId: string): FilesState {
     const nextById = { ...prev.byId };
     delete nextById[fileId];
@@ -62,6 +65,7 @@ export function removeFileFromState(prev: FilesState, fileId: string): FilesStat
     };
 }
 
+// Opens (or focuses) a tab and makes it active.
 export function openTabState(prev: FilesState, fileId: string): FilesState {
     return {
         ...prev,
@@ -70,6 +74,7 @@ export function openTabState(prev: FilesState, fileId: string): FilesState {
     };
 }
 
+// Closes a tab and shifts focus to the nearest neighbor if needed.
 export function closeTabState(prev: FilesState, fileId: string): FilesState {
     const idx = prev.openTabIds.indexOf(fileId);
     if (idx < 0) return prev;
@@ -86,6 +91,7 @@ export function closeTabState(prev: FilesState, fileId: string): FilesState {
     };
 }
 
+// Marks a file as loading and optionally clears current chunk cache for a hard reload.
 export function markFileChunkLoading(
     prev: FilesState,
     fileId: string,
@@ -113,6 +119,7 @@ export function markFileChunkLoading(
     };
 }
 
+// Writes chunk payload results into the file content state.
 export function patchChunkContent(
     prev: FilesState,
     fileId: string,
@@ -144,6 +151,7 @@ export function patchChunkContent(
     };
 }
 
+// Remaps local state after full-file save when file IDs change on the backend.
 export function remapAfterFullFileUpdate(
     prev: FilesState,
     updated: {
@@ -185,6 +193,7 @@ export function remapAfterFullFileUpdate(
     };
 }
 
+// Adjusts accepted proposal offsets after one accepted change shifts document positions.
 export function remapAcceptedAgentOffsets(
     prev: Map<string, AgentProposal>,
     targetParentId: string,
@@ -202,4 +211,3 @@ export function remapAcceptedAgentOffsets(
     }
     return next;
 }
-

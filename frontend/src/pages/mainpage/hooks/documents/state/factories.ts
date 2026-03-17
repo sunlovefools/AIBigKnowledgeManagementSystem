@@ -6,6 +6,7 @@ import type {
     SidebarFileSummary,
 } from "../../../types";
 
+// Creates the default chunk container for a file before content is loaded.
 export function createEmptyContentState(): FileContentState {
     return {
         chunks: [],
@@ -14,6 +15,7 @@ export function createEmptyContentState(): FileContentState {
     };
 }
 
+// Creates the default async flags for per-file chunk loading.
 export function createEmptyContentAsyncState(): FileContentAsyncState {
     return {
         isLoading: false,
@@ -22,6 +24,7 @@ export function createEmptyContentAsyncState(): FileContentAsyncState {
     };
 }
 
+// Builds a normalized file record from sidebar metadata.
 export function createFileEntry(
     summary: Pick<SidebarFileSummary, "fileId" | "fileName" | "previewTexts">,
     contentState: FileContentState = createEmptyContentState()
@@ -34,6 +37,7 @@ export function createFileEntry(
     };
 }
 
+// Creates the root state container used by the document hooks.
 export function createEmptyFilesState(): FilesState {
     return {
         byId: {},
@@ -43,6 +47,7 @@ export function createEmptyFilesState(): FilesState {
     };
 }
 
+// Converts an internal file record back into sidebar shape.
 export function toSidebarFileSummary(entry: FileEntry): SidebarFileSummary {
     return {
         fileId: entry.fileId,
@@ -50,4 +55,3 @@ export function toSidebarFileSummary(entry: FileEntry): SidebarFileSummary {
         previewTexts: entry.previewTexts,
     };
 }
-

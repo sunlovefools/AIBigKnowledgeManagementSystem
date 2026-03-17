@@ -1,6 +1,7 @@
 import { normalizeMarkdownForEditor } from "../../../utils/markdownEditor";
 import type { ChunkRange } from "./chunkText";
 
+// Finds the minimal single replace window between original and draft strings.
 export function computeSingleReplaceEdit(
     original: string,
     draft: string
@@ -28,6 +29,7 @@ export function computeSingleReplaceEdit(
     };
 }
 
+// Returns chunk ranges touched by an edit, including boundary-only insert/delete cases.
 export function findTouchedRangesForEdit(
     ranges: ChunkRange[],
     edit: { start: number; end: number }
@@ -74,6 +76,7 @@ export function findTouchedRangesForEdit(
     return [];
 }
 
+// Collects parent IDs that require boundary-aware rechunking for a given edit.
 export function collectBoundaryTouchedParentIds(
     ranges: ChunkRange[],
     edit: { start: number; end: number },
@@ -147,10 +150,12 @@ export function collectBoundaryTouchedParentIds(
     return Array.from(touched);
 }
 
+// Raw HTML is saved through full-file update because markdown chunking assumptions break.
 export function containsRawHtmlMarkup(text: string): boolean {
     return /<\/?[a-z][^>]*>/i.test(text);
 }
 
+// Finds the closest match to expectedOffset when the exact location has shifted.
 export function findNearestOccurrence(
     haystack: string,
     needle: string,
@@ -177,7 +182,7 @@ export function findNearestOccurrence(
     return best;
 }
 
+// Compares normalized markdown to ignore non-meaningful editor differences.
 export function hasMeaningfulEditorChange(original: string, draft: string): boolean {
     return normalizeMarkdownForEditor(original) !== normalizeMarkdownForEditor(draft);
 }
-

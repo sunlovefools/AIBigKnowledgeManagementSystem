@@ -7,7 +7,7 @@ import ChatArea from "./components/ChatArea";
 import ChatInput from "./components/ChatInput";
 import ModificationPanel from "./components/ModificationPanel";
 import { useChat } from "./hooks/useChat";
-import { useDocuments } from "./hooks/useDocuments";
+import { useDocuments } from "./hooks/documents/useDocuments";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
 import type { HighlightedSelection } from "./types";

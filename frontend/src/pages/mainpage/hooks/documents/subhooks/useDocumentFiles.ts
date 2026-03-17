@@ -15,6 +15,7 @@ type UseDocumentFilesParams = {
     isModificationPanelOpen: boolean;
 };
 
+// Owns file list state, tab state, and per-file chunk loading/pagination.
 export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesParams) {
     const [filesState, setFilesState] = useState<FilesState>(createEmptyFilesState());
     const [chunkAsyncByFileId, setChunkAsyncByFileId] = useState<Record<string, FileContentAsyncState>>({});
@@ -52,6 +53,7 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
         [chunkAsyncByFileId]
     );
 
+    // Loads sidebar metadata once per cache cycle.
     const fetchFiles = useCallback(async () => {
         setIsLoadingFiles(true);
         setFileListError(null);
@@ -68,6 +70,7 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
     }, []);
 
     useEffect(() => {
+        // Delay initial fetch until the panel is actually opened.
         if (isModificationPanelOpen && !isDocsCached) void fetchFiles();
     }, [fetchFiles, isDocsCached, isModificationPanelOpen]);
 
@@ -75,6 +78,7 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
         async (fileId: string, reset = false): Promise<ParentChunkContent[]> => {
             const current = getContentStateById(fileId);
             const currentAsync = getChunkAsyncById(fileId);
+            // Prevent duplicate in-flight loads and stop when pagination is exhausted.
             if (!reset && currentAsync.isLoading) return current.chunks;
             if (!reset && currentAsync.isInitialized && !current.hasMore) return current.chunks;
 
@@ -94,6 +98,7 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
                 const response = await getFileChunks(fileId, cursor);
                 const existing = reset ? [] : getContentStateById(fileId).chunks;
                 const merged = reset ? response.chunks : [...existing, ...response.chunks];
+                // Deduplicate by parentId in case the backend returns overlapping windows.
                 const deduped = Array.from(new Map(merged.map((c) => [c.parentId, c])).values());
 
                 setFilesState((prev) =>
@@ -160,4 +165,3 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
         getChunkAsyncById,
     };
 }
-

@@ -23,6 +23,7 @@ type UseDocumentAgentParams = {
     setFilesState: Dispatch<SetStateAction<FilesState>>;
 };
 
+// Converts backend proposal shape into the frontend's internal proposal model.
 function normalizeIncomingProposal(
     proposal: AgentModifyResponse["proposals"][number]
 ): AgentProposal {
@@ -38,6 +39,7 @@ function normalizeIncomingProposal(
     };
 }
 
+// Manages AI proposal requests and proposal application/revert flows.
 export function useDocumentAgent({
     editingFileId,
     editingDraftByFileId,
@@ -56,6 +58,7 @@ export function useDocumentAgent({
     const [agentError, setAgentError] = useState<string | null>(null);
     const [agentIntention, setAgentIntention] = useState<string | null>(null);
 
+    // Clears all proposal UI state for a fresh request cycle.
     const clearAgentState = useCallback(() => {
         setAgentProposals([]);
         setAgentAcceptedMap(new Map());
@@ -76,6 +79,7 @@ export function useDocumentAgent({
         [agentAcceptedMap, agentProposals, getContentStateById]
     );
 
+    // Clears proposal state tied to a single file while preserving other files.
     const clearAgentStateForFile = useCallback(
         (fileId: string) => {
             const knownParentIds = getKnownParentIdsForFile(fileId);
@@ -134,6 +138,7 @@ export function useDocumentAgent({
         [editingFileId, isAgentGenerating]
     );
 
+    // Requests an edit proposal for an explicit highlighted text region.
     const requestSelectionEditPreview = useCallback(
         async (instruction: string, selection: HighlightedSelection): Promise<RequestAgentResult> => {
             const trimmed = instruction.trim();
@@ -190,6 +195,7 @@ export function useDocumentAgent({
         [editingFileId, isAgentGenerating, setFilesState]
     );
 
+    // Applies one proposal into the current draft and tracks positional offsets.
     const acceptAgentProposal = useCallback(async (proposal: AgentProposal) => {
         if (agentAcceptedMap.has(proposal.parentId)) return;
         if (editingFileId && editingFileId !== proposal.fileId) {
@@ -233,6 +239,7 @@ export function useDocumentAgent({
             baselineOffset = selectionStart;
             const selectedFromBaseline = baselineContent.slice(selectionStart, selectionEnd);
             if (selectedFromBaseline !== proposal.original) {
+                // Selection text may shift after refresh; pick nearest compatible occurrence.
                 const fallbackOffset = findNearestOccurrence(
                     baselineContent,
                     proposal.original,
@@ -257,6 +264,7 @@ export function useDocumentAgent({
                 return;
             }
 
+            // Compute absolute offset using chunk boundaries + offset inside the chunk.
             const state = getContentStateById(proposal.fileId);
             const { ranges } = buildChunkRanges(state.chunks);
             const targetRange = ranges.find((range) => range.parentId === proposal.parentId);
@@ -273,6 +281,7 @@ export function useDocumentAgent({
             baselineOffset = targetRange.start + chunkOffset;
         }
 
+        // Shift target offset by previously accepted edits in the same file.
         const baseDraft = editingDraftByFileId[proposal.fileId] ?? getEditorBaselineContent(proposal.fileId);
         const priorDelta = Array.from(agentAcceptedMap.values())
             .filter(
@@ -342,6 +351,7 @@ export function useDocumentAgent({
         setSaveError,
     ]);
 
+    // Reverts an accepted proposal or marks an unseen proposal as rejected.
     const rejectAgentProposal = useCallback((parentId: string) => {
         const proposal = agentProposals.find((entry) => entry.parentId === parentId);
         if (!proposal) return;
@@ -360,6 +370,7 @@ export function useDocumentAgent({
         let patchOffset = acceptedEntry.patchOffset;
         const expectedEnd = patchOffset + proposal.proposed.length;
         if (currentDraft.slice(patchOffset, expectedEnd) !== proposal.proposed) {
+            // If draft shifted, recover by nearest proposal text occurrence.
             patchOffset = findNearestOccurrence(currentDraft, proposal.proposed, patchOffset);
         }
         if (patchOffset === -1) {

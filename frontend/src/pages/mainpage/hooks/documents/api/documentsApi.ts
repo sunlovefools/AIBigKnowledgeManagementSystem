@@ -1,8 +1,10 @@
 import axios from "axios";
 import type { HighlightedSelection, ParentChunkContent, SidebarFileSummary } from "../../../types";
 
+// Normalize trailing slash so endpoint concatenation is predictable.
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 
+// Shared chunk pagination size used by the document panel.
 export const PAGE_SIZE = 7;
 
 export type UpdateParentChunkResponse = {
@@ -66,11 +68,13 @@ export type SelectionEditPreviewResponse = {
     endOffset: number;
 };
 
+// Loads sidebar metadata for all files currently available in the knowledge base.
 export async function getAllPreviewFiles(): Promise<SidebarFileSummary[]> {
     const response = await axios.get(`${API_BASE}/api/retrieve/all-preview-files`);
     return (response.data.files ?? []) as SidebarFileSummary[];
 }
 
+// Fetches one page of parent chunks for a file.
 export async function getFileChunks(
     fileId: string,
     cursor: string | null
@@ -85,11 +89,13 @@ export async function getFileChunks(
     };
 }
 
+// Deletes a file and its indexed data in the backend.
 export async function deleteKnowledgeFile(fileId: string): Promise<DeleteFileResponse> {
     const response = await axios.delete<DeleteFileResponse>(`${API_BASE}/api/modifications/files/${fileId}`);
     return response.data;
 }
 
+// Replaces an entire file body in one operation.
 export async function updateFileContent(fileId: string, fileName: string, content: string): Promise<UpdateFileResponse> {
     const response = await axios.put<UpdateFileResponse>(
         `${API_BASE}/api/modifications/update-file/${fileId}`,
@@ -98,6 +104,7 @@ export async function updateFileContent(fileId: string, fileName: string, conten
     return response.data;
 }
 
+// Applies chunk-scoped updates for faster saves when full-file rewrite is not required.
 export async function batchUpdateParentChunks(payload: {
     fileId: string;
     fileName: string;
@@ -113,6 +120,7 @@ export async function batchUpdateParentChunks(payload: {
     return response.data;
 }
 
+// Requests multi-file edit proposals from the backend agent.
 export async function requestAgentModify(
     instruction: string,
     fileIds: string[] | null
@@ -124,6 +132,7 @@ export async function requestAgentModify(
     return response.data;
 }
 
+// Requests a single selection-based rewrite proposal.
 export async function requestSelectionPreview(
     instruction: string,
     selection: HighlightedSelection
@@ -142,8 +151,8 @@ export async function requestSelectionPreview(
     return response.data;
 }
 
+// Extracts backend detail text from Axios errors for UI messages.
 export function getAxiosErrorDetail(error: unknown): string | null {
     if (!axios.isAxiosError(error)) return null;
     return typeof error.response?.data?.detail === "string" ? error.response.data.detail : null;
 }
-

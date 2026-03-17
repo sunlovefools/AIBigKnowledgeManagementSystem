@@ -31,6 +31,7 @@ type UseDocumentEditingParams = {
     clearAgentStateForFile: (fileId: string) => void;
 };
 
+// Manages local edit sessions and persists changes using the most efficient backend path.
 export function useDocumentEditing({
     activeTab,
     activeTabData,
@@ -49,6 +50,7 @@ export function useDocumentEditing({
     const [savingFileId, setSavingFileId] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
 
+    // Applies backend full-file save response and remaps local IDs/chunk async metadata.
     const applyFullFileUpdate = useCallback((updated: UpdateFileResponse) => {
         const previousContentState = getContentStateById(updated.previousFileId);
         setFilesState((prev) =>
@@ -94,6 +96,7 @@ export function useDocumentEditing({
         if (!editingFileId) return true;
         const original = getEditorBaselineContent(editingFileId);
         const draft = editingDraftByFileId[editingFileId] ?? original;
+        // Auto-close edit mode when there are no meaningful differences.
         if (!hasMeaningfulEditorChange(original, draft)) {
             clearAgentStateForFile(editingFileId);
             clearDraftForFile(editingFileId);
@@ -139,6 +142,7 @@ export function useDocumentEditing({
         const fileName = getFileNameById(activeTab);
         if (!fileName) { setSaveError("Missing file name for this tab. Please refresh."); return false; }
 
+        // Build a normalized baseline from chunk content so diff math is stable.
         const state = getContentStateById(activeTab);
         const normalizedChunks = state.chunks.map((chunk) => ({
             ...chunk,
@@ -158,6 +162,7 @@ export function useDocumentEditing({
                 containsRawHtmlMarkup(original) ||
                 containsRawHtmlMarkup(draft);
 
+            // Raw HTML can invalidate chunk-boundary assumptions, so fall back to full save.
             if (!shouldForceFullFileUpdate) {
                 const editPart = computeSingleReplaceEdit(original, normalizedDraft);
                 if (editPart) {
@@ -175,6 +180,7 @@ export function useDocumentEditing({
                             ? boundaryTouchedParentIds
                             : touchedParentIds;
 
+                    // Cross-boundary edits are rechunked server-side from full document text.
                     if (shouldUseBoundaryRechunk) {
                         const batchResp = await batchUpdateParentChunks({
                             fileId: activeTab,
@@ -188,6 +194,7 @@ export function useDocumentEditing({
                             await loadFileChunks(activeTab, true);
                         }
                     } else if (touchedRanges.length > 0) {
+                        // Single-region edits can be mapped to touched chunks for fast updates.
                         const firstTouchedChunk = touchedRanges[0];
                         const lastTouchedChunk = touchedRanges[touchedRanges.length - 1];
                         const draftTouchedEnd = normalizedDraft.length - (original.length - lastTouchedChunk.end);
@@ -228,6 +235,7 @@ export function useDocumentEditing({
                                     const activeEntry = prev.byId[activeTab];
                                     if (!activeEntry) return prev;
 
+                                    // Remap in-memory chunk IDs/content so UI updates immediately.
                                     const remappedChunks = activeEntry.contentState.chunks.map((chunk) => {
                                         const replacement = replacementByPreviousId.get(chunk.parentId);
                                         if (!replacement) return chunk;
@@ -263,14 +271,17 @@ export function useDocumentEditing({
                             await fetchFiles();
                             await loadFileChunks(activeTab, true);
                         } else {
+                            // Empty segment or ambiguous mapping: use full-file fallback.
                             const updated = await updateFileContent(activeTab, fileName, normalizedDraft);
                             applyFullFileUpdate(updated);
                         }
                     } else {
+                        // No clear touched ranges: use conservative full-file save.
                         const updated = await updateFileContent(activeTab, fileName, normalizedDraft);
                         applyFullFileUpdate(updated);
                     }
                 } else {
+                    // Could not compute a single replace window: use full-file save.
                     const updated = await updateFileContent(activeTab, fileName, normalizedDraft);
                     applyFullFileUpdate(updated);
                 }
