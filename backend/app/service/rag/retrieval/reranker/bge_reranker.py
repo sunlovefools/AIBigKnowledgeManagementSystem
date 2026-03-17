@@ -21,11 +21,36 @@ class BGEReranker(RerankerInterface):
         """Load CrossEncoder model and run a warmup inference."""
         self.model_name = model_name
         self._predict_kwargs: dict[str, Any] = {}
-        self.model = CrossEncoder(
-            self.model_name,
-            device=device,
-            **(model_kwargs or {}),
-        )
+        cross_encoder_kwargs: dict[str, Any] = {}
+        if model_kwargs:
+            # sentence-transformers expects model kwargs under `model_kwargs`,
+            # not expanded as direct CrossEncoder constructor arguments.
+            cross_encoder_kwargs["model_kwargs"] = dict(model_kwargs)
+
+        try:
+            self.model = CrossEncoder(
+                self.model_name,
+                device=device,
+                **cross_encoder_kwargs,
+            )
+        except TypeError as error:
+            error_text = str(error)
+            can_retry_with_automodel_args = (
+                bool(model_kwargs)
+                and "unexpected keyword argument 'model_kwargs'" in error_text
+            )
+            if not can_retry_with_automodel_args:
+                raise
+
+            print(
+                "[RERANKER] CrossEncoder does not support 'model_kwargs'; "
+                "retrying with 'automodel_args'."
+            )
+            self.model = CrossEncoder(
+                self.model_name,
+                device=device,
+                automodel_args=dict(model_kwargs),
+            )
 
         tokenizer = getattr(self.model, "tokenizer", None)
         model_config = getattr(getattr(self.model, "model", None), "config", None)

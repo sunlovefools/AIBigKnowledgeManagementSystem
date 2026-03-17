@@ -16,7 +16,7 @@ from typing import Any, List, Tuple
 from .bge_reranker import BGEReranker
 from .interface import RerankerInterface
 from .qwen_reranker import QwenReranker
-from .utils import clear_device_cache, detect_preferred_device, parse_bool_env
+from .utils import clear_device_cache, detect_preferred_device, normalize_env_value, parse_bool_env
 
 DEFAULT_RERANKER_MODEL = "BAAI/bge-reranker-v2-m3"
 
@@ -48,7 +48,8 @@ class ZeRankerService:
         - RERANKER_MODEL
         - RERANKER_SWAP_TO_RAM
         """
-        configured_model = model_name or os.getenv("RERANKER_MODEL", DEFAULT_RERANKER_MODEL)
+        configured_model_raw = model_name or os.getenv("RERANKER_MODEL", DEFAULT_RERANKER_MODEL)
+        configured_model = normalize_env_value(configured_model_raw) or DEFAULT_RERANKER_MODEL
         if configured_model not in SUPPORTED_RERANKER_MODELS:
             print(
                 f"[RERANKER] Unsupported RERANKER_MODEL={configured_model!r}. "

@@ -7,11 +7,27 @@ from typing import Any
 import torch
 
 
+def normalize_env_value(value: str | None) -> str | None:
+    """Trim env values and strip any trailing inline comment after `#`."""
+    if value is None:
+        return None
+
+    normalized = value.strip()
+    if "#" in normalized:
+        normalized = normalized.split("#", 1)[0].strip()
+
+    if len(normalized) >= 2 and normalized[0] == normalized[-1] and normalized[0] in {'"', "'"}:
+        normalized = normalized[1:-1].strip()
+
+    return normalized
+
+
 def parse_bool_env(value: str | None, default: bool = False) -> bool:
     """Parse common truthy env values (`1/true/yes/on`)."""
-    if value is None:
+    normalized = normalize_env_value(value)
+    if normalized is None or normalized == "":
         return default
-    return value.strip().lower() in {"1", "true", "yes", "on"}
+    return normalized.lower() in {"1", "true", "yes", "on"}
 
 
 def detect_preferred_device() -> str:

@@ -288,6 +288,7 @@ class TestRerankerConfig(unittest.TestCase):
                     asyncio.run(service.rerank_documents("query", ["doc-a", "doc-b"], top_k=2))
 
         created = _FakeCrossEncoder.created[0]
+        self.assertEqual(created.kwargs.get("model_kwargs"), {"torch_dtype": "auto"})
         _, kwargs = created.predict_calls[-1]
         self.assertEqual(kwargs.get("batch_size"), 1)
 
@@ -391,6 +392,25 @@ class TestRerankerConfig(unittest.TestCase):
                         )
 
         self.assertEqual(result, [("FIRST_DOC", 0.0), ("RAISE_DOC", 0.0)])
+
+    def test_inline_comment_env_values_are_sanitized(self):
+        stdout = io.StringIO()
+        with patch.dict(
+            os.environ,
+            {
+                "RERANKER_MODEL": 'BAAI/bge-reranker-v2-m3# Options: "BAAI/bge-reranker-v2-m3"',
+                "RERANKER_SWAP_TO_RAM": "true # keep GPU free when idle",
+            },
+            clear=False,
+        ):
+            with patch.object(bge_module, "CrossEncoder", _FakeCrossEncoder):
+                with patch.object(reranker_service_module, "detect_preferred_device", return_value="cuda"):
+                    with redirect_stdout(stdout):
+                        service = reranker_service_module.ZeRankerService()
+
+        self.assertEqual(service.model_name, "BAAI/bge-reranker-v2-m3")
+        self.assertEqual(service.active_device, "cpu")
+        self.assertNotIn("Unsupported RERANKER_MODEL", stdout.getvalue())
 
 
 if __name__ == "__main__":
