@@ -1,4 +1,5 @@
 import asyncio
+import inspect
 from typing import List, Dict, Any, Tuple
 from collections import defaultdict, deque
 
@@ -20,6 +21,101 @@ PARENT_STORE = RAG_STORES['parent_store']  # LangChain AstraDBStore for Parent D
 _RERANKER_SERVICE = ZeRankerService()
 
 # --- Ingestion / Upsertion Operations ---
+def _to_deleted_count(delete_result: Any) -> int:
+    if isinstance(delete_result, bool):
+        return int(delete_result)
+    if isinstance(delete_result, (int, float)):
+        return int(delete_result)
+    if isinstance(delete_result, dict):
+        return int(
+            delete_result.get("deleted_count")
+            or delete_result.get("deletedCount")
+            or delete_result.get("n")
+            or 0
+        )
+
+    deleted_count = getattr(delete_result, "deleted_count", None)
+    if deleted_count is not None:
+        return int(deleted_count)
+
+    return 0
+
+
+async def _rollback_parent_documents_by_ids(parent_ids: List[str]) -> int:
+    unique_parent_ids = [
+        parent_id
+        for parent_id in dict.fromkeys(str(raw_parent_id).strip() for raw_parent_id in parent_ids)
+        if parent_id
+    ]
+    if not unique_parent_ids:
+        return 0
+
+    def _delete_rows() -> int:
+        collection = PARENT_STORE.collection
+        filter_doc = {"_id": {"$in": unique_parent_ids}}
+
+        if hasattr(collection, "delete_many"):
+            delete_result = collection.delete_many(filter_doc)
+            if hasattr(delete_result, "deleted_count"):
+                return int(delete_result.deleted_count or 0)
+
+        deleted_count = 0
+        for parent_id in unique_parent_ids:
+            delete_result = collection.delete_one({"_id": parent_id})
+            deleted_count += _to_deleted_count(delete_result)
+
+        return deleted_count
+
+    return await asyncio.to_thread(_delete_rows)
+
+
+async def _rollback_child_documents_by_ids(child_ids: List[str]) -> int:
+    unique_child_ids = [
+        child_id
+        for child_id in dict.fromkeys(str(raw_child_id).strip() for raw_child_id in child_ids)
+        if child_id
+    ]
+    if not unique_child_ids:
+        return 0
+
+    adelete = getattr(VECTOR_STORE, "adelete", None)
+    if callable(adelete):
+        try:
+            delete_result = adelete(ids=unique_child_ids)
+        except TypeError:
+            delete_result = adelete(unique_child_ids)
+
+        if inspect.isawaitable(delete_result):
+            delete_result = await delete_result
+
+        deleted_count = _to_deleted_count(delete_result)
+        if deleted_count > 0:
+            return deleted_count
+
+        # Some vector stores return bool/None for delete operations.
+        return len(unique_child_ids)
+
+    collection = getattr(VECTOR_STORE, "collection", None)
+    if collection is None:
+        raise RuntimeError("Vector store rollback requires either 'adelete' or a 'collection' attribute.")
+
+    def _delete_rows() -> int:
+        filter_doc = {"_id": {"$in": unique_child_ids}}
+        if hasattr(collection, "delete_many"):
+            delete_result = collection.delete_many(filter_doc)
+            if hasattr(delete_result, "deleted_count"):
+                return int(delete_result.deleted_count or 0)
+
+        deleted_count = 0
+        for child_id in unique_child_ids:
+            delete_result = collection.delete_one({"_id": child_id})
+            deleted_count += _to_deleted_count(delete_result)
+
+        return deleted_count
+
+    return await asyncio.to_thread(_delete_rows)
+
+
 async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
     """
     Inserts Parent (Context) documents and Child (Vector) chunks into the respective AstraDB stores.
@@ -30,7 +126,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
     """
 
     # 1. Prepare Parent Documents (for key-value storage)
-    parent_doc_map: List[Tuple[str, Document]] = []
+    parent_doc_map: List[Tuple[str, Dict[str, Any]]] = []
 
     for parent_dict in parent_chunks:
         if "parent_chunk_id" not in parent_dict or "content" not in parent_dict:
@@ -79,19 +175,78 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         child_docs.append(child_doc)
         child_doc_ids.append(child_id)
 
+    print(
+        f"Starting concurrent upsert: parents={len(parent_doc_map)} children={len(child_docs)}."
+    )
+    concurrent_results = await asyncio.gather(
+        PARENT_STORE.amset(parent_doc_map),
+        VECTOR_STORE.aadd_documents(child_docs, ids=child_doc_ids),
+        return_exceptions=True,
+    )
+
+    parent_error = (
+        concurrent_results[0]
+        if isinstance(concurrent_results[0], Exception)
+        else None
+    )
+    child_error = (
+        concurrent_results[1]
+        if isinstance(concurrent_results[1], Exception)
+        else None
+    )
+
+    if parent_error is None and child_error is None:
+        print(f"Stored {len(parent_doc_map)} Parent Documents in Document Store.")
+        print(f"Stored {len(child_docs)} Child Documents in Vector Store.")
+        return
+
+    if parent_error is not None:
+        print(f"Concurrent parent upsert failed: {parent_error}")
+    if child_error is not None:
+        print(f"Concurrent child upsert failed: {child_error}")
+
+    rollback_errors: List[str] = []
+
+    if parent_error is None:
+        parent_ids = [parent_id for parent_id, _ in parent_doc_map]
+        try:
+            deleted_parent_count = await _rollback_parent_documents_by_ids(parent_ids)
+            print(
+                "Rolled back concurrently written parent documents: "
+                f"deleted={deleted_parent_count}."
+            )
+        except Exception as rollback_error:
+            rollback_errors.append(f"parent rollback failed: {rollback_error}")
+            print(rollback_errors[-1])
+
+    if child_error is None:
+        try:
+            deleted_child_count = await _rollback_child_documents_by_ids(child_doc_ids)
+            print(
+                "Rolled back concurrently written child documents: "
+                f"deleted={deleted_child_count}."
+            )
+        except Exception as rollback_error:
+            rollback_errors.append(f"child rollback failed: {rollback_error}")
+            print(rollback_errors[-1])
+
+    print("Retrying upsert sequentially after concurrent failure...")
     try:
         await PARENT_STORE.amset(parent_doc_map)
-        print(f"Stored {len(parent_doc_map)} Parent Documents in Document Store.")
-    except Exception as error:
-        print(f"Failed to store Parent Documents: {error}")
-        raise
+        print(f"Stored {len(parent_doc_map)} Parent Documents in Document Store (sequential retry).")
 
-    try:
         await VECTOR_STORE.aadd_documents(child_docs, ids=child_doc_ids)
-        print(f"Stored {len(child_docs)} Child Documents in Vector Store.")
-    except Exception as error:
-        print(f"Failed to store Child Documents: {error}")
-        raise
+        print(f"Stored {len(child_docs)} Child Documents in Vector Store (sequential retry).")
+    except Exception as retry_error:
+        rollback_context = (
+            f" Rollback issues: {'; '.join(rollback_errors)}."
+            if rollback_errors
+            else ""
+        )
+        raise RuntimeError(
+            "Upsert failed during concurrent write and sequential retry."
+            f"{rollback_context} Retry error: {retry_error}"
+        ) from retry_error
 
 
 # --- Deletion Operations (for document updates) ---

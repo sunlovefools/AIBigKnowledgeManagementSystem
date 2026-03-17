@@ -65,12 +65,20 @@ def _load_local_docling_runtime() -> dict[str, Any]:
 def _build_local_converter() -> Any:
     """
     Build the local Docling converter with low-memory CUDA config.
+
+    Note that the thread can be set based on your own computer's CPU core count and VRAM capacity.
+    You can also change the device to "cpu" or adjust other accelerator options as needed.
+
+    Default options settings only have:
+        do_table_structure: true
+        generate_table_images: true
+        generate_picture_images: true
     """
 
     runtime = _load_local_docling_runtime()
     pipeline_options = runtime["ThreadedPdfPipelineOptions"]()
     pipeline_options.accelerator_options = runtime["AcceleratorOptions"](
-        device="cuda",
+        device="cuda", # Options: "cuda", "cpu", "mps"
         num_threads=8,
         cuda_use_flash_attention2=False,
     )
@@ -79,7 +87,7 @@ def _build_local_converter() -> Any:
     pipeline_options.do_table_structure = True
     pipeline_options.generate_table_images = True
     pipeline_options.generate_picture_images = True
-    pipeline_options.images_scale = 2.5
+    pipeline_options.images_scale = 2.5 # Higher scale result in better image quality at the cost of increased memory usage and processing time.
     pipeline_options.generate_page_images = False
     pipeline_options.do_chart_extraction = False
     pipeline_options.do_formula_enrichment = False
@@ -163,17 +171,25 @@ def build_local_layout(
 ) -> dict[str, Any]:
     """
     Build normalized layout items by running local Docling conversion in page chunks.
+
+    Returns an internal layout payload consumed by `docling.pipeline.parse_pdf_with_docling`:
+    - `items`: per-element records (`element`, `serializer`, `page_no`, `document`, table dims)
+    - `*_item_cls`: runtime Docling classes used for downstream `isinstance` checks
+    - `converted_chunks`: number of chunk requests that completed without hard failure/skipped status
     """
 
+    # Respect caller chunk size when valid; otherwise fall back to local backend default.
     effective_page_chunk_size = (
         page_chunk_size
         if isinstance(page_chunk_size, int) and page_chunk_size > 0
         else LOCAL_DOCLING_CHUNK_SIZE
     )
 
+    # Load runtime classes lazily and reuse a cached converter instance.
     runtime = _load_local_docling_runtime()
     converter = _get_or_create_local_converter()
 
+    # Expose concrete Docling item classes for downstream element classification.
     picture_item_cls = runtime["PictureItem"]
     table_item_cls = runtime["TableItem"]
     list_item_cls = runtime.get("ListItem")
@@ -188,6 +204,7 @@ def build_local_layout(
     items: list[dict[str, Any]] = []
 
     while True:
+        # Build the next page window. Once total pages is known, clamp the end page.
         current_end = (
             min(current_start + effective_page_chunk_size - 1, discovered_total_pages)
             if discovered_total_pages is not None
@@ -197,6 +214,7 @@ def build_local_layout(
         print(f"[docling-local] Converting pages {page_range_label} ...")
 
         try:
+            # Create a fresh stream for each chunk and convert only this page range.
             doc_stream = document_stream_cls(name=file_name, stream=io.BytesIO(pdf_bytes))
             result = converter.convert(
                 doc_stream,
@@ -204,6 +222,7 @@ def build_local_layout(
                 page_range=(current_start, current_end),
             )
         except Exception as exc:
+            # Record conversion exceptions as chunk-level partial failures and continue when possible.
             partial_failures.append(
                 DoclingChunkFailure(page_range=page_range_label, errors=[str(exc)])
             )
@@ -224,10 +243,12 @@ def build_local_layout(
             and isinstance(result_page_count, int)
             and result_page_count > 0
         ):
+            # Learn total page count from first successful response; used to stop loop cleanly.
             discovered_total_pages = result_page_count
 
         status_value = _normalize_status(getattr(result, "status", None))
         if status_value in {"failure", "skipped"}:
+            # Treat chunk-level failure/skipped as recoverable: record and move to next chunk.
             errors = _collect_result_errors(
                 result,
                 fallback=f"Chunk conversion status={status_value}",
@@ -249,6 +270,7 @@ def build_local_layout(
         converted_chunks += 1
 
         if status_value == "partial_success":
+            # Keep successful content, but preserve backend-reported issues for observability.
             partial_failures.append(
                 DoclingChunkFailure(
                     page_range=page_range_label,
@@ -261,6 +283,11 @@ def build_local_layout(
 
         serializer = markdown_serializer_cls(doc=result.document)
         for element, _level in result.document.iterate_items():
+            # Store enough context for downstream pipeline steps:
+            # - `element` for type checks + image extraction
+            # - `serializer` for markdown conversion
+            # - `document` for local image extraction APIs
+            # - optional table dimensions to detect table-image fallbacks
             page_no = extract_page_no(element)
             table_data = getattr(element, "data", None)
             num_rows = getattr(table_data, "num_rows", None)
@@ -281,6 +308,7 @@ def build_local_layout(
 
         current_start += effective_page_chunk_size
 
+    # Return normalized layout contract expected by the shared pipeline.
     return {
         "items": items,
         "picture_item_cls": picture_item_cls,
@@ -292,7 +320,7 @@ def build_local_layout(
     }
 
 
-def parse_pdf_with_docling_preview_local(
+def parse_pdf_with_docling(
     pdf_bytes: bytes,
     file_name: str,
     artifact_root: Path | None = None,
@@ -303,13 +331,33 @@ def parse_pdf_with_docling_preview_local(
     Local-backend convenience entrypoint routed through the unified pipeline.
     """
 
-    from app.service.rag.ingestion.docling.pipeline import parse_pdf_with_docling_preview
+    from app.service.rag.ingestion.docling.pipeline import parse_pdf_with_docling
 
-    return parse_pdf_with_docling_preview(
+    return parse_pdf_with_docling(
         pdf_bytes=pdf_bytes,
         file_name=file_name,
         artifact_root=artifact_root,
         page_chunk_size=page_chunk_size,
         file_id=file_id,
         backend="local",
+    )
+
+
+def parse_pdf_with_docling_local(
+    pdf_bytes: bytes,
+    file_name: str,
+    artifact_root: Path | None = None,
+    page_chunk_size: int = DEFAULT_DOCLING_PAGE_CHUNK_SIZE,
+    file_id: str | None = None,
+) -> Any:
+    """
+    Backward-compatible local Docling entrypoint.
+    """
+
+    return parse_pdf_with_docling(
+        pdf_bytes=pdf_bytes,
+        file_name=file_name,
+        artifact_root=artifact_root,
+        page_chunk_size=page_chunk_size,
+        file_id=file_id,
     )

@@ -53,10 +53,10 @@ This package contains the Docling-based PDF extraction flow used by preview and 
 
 When `DOCLING_ARTIFACTS_ENABLED=true`, each run writes to:
 
-- `backend/_local_uploads/docling_previews/<run_id>/document.md`
-- `backend/_local_uploads/docling_previews/<run_id>/manifest.json`
-- `backend/_local_uploads/docling_previews/<run_id>/images/*.png`
-- `backend/_local_uploads/docling_previews/<run_id>/table_data/*.json` (when table-image VLM JSON exists)
+- `backend/_local_uploads/docling_artifacts/<run_id>/document.md`
+- `backend/_local_uploads/docling_artifacts/<run_id>/manifest.json`
+- `backend/_local_uploads/docling_artifacts/<run_id>/images/*.png`
+- `backend/_local_uploads/docling_artifacts/<run_id>/table_data/*.json` (when table-image VLM JSON exists)
 
 ## S3 Uploads
 

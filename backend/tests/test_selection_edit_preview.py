@@ -30,7 +30,6 @@ def _build_payload(**overrides):
     payload = {
         "fileId": "file-1",
         "fileName": "Report.txt",
-        "parentId": "parent-1",
         "selectedText": "old text",
         "startOffset": 6,
         "endOffset": 14,
@@ -41,13 +40,10 @@ def _build_payload(**overrides):
 
 
 def test_selection_edit_preview_returns_preview(monkeypatch):
-    async def _get_document_by_id(parent_id: str):
-        assert parent_id == "parent-1"
-        return {
-            "fileId": "file-1",
-            "fileName": "Report.txt",
-            "content": "Hello old text world",
-        }
+    async def _get_file_merged_content(file_id: str, file_name: str):
+        assert file_id == "file-1"
+        assert file_name == "Report.txt"
+        return "Hello old text world"
 
     async def _generate_selection_edit_preview(**kwargs):
         assert kwargs["selected_text"] == "old text"
@@ -57,8 +53,8 @@ def test_selection_edit_preview_returns_preview(monkeypatch):
 
     monkeypatch.setattr(
         router_modifications.ReconstructionService,
-        "get_document_by_id",
-        _get_document_by_id,
+        "get_file_merged_content",
+        _get_file_merged_content,
     )
     monkeypatch.setattr(
         router_modifications.LlmEditorService,
@@ -68,7 +64,7 @@ def test_selection_edit_preview_returns_preview(monkeypatch):
 
     response = asyncio.run(router_modifications.selection_edit_preview(_build_payload()))
     assert response.fileId == "file-1"
-    assert response.parentId == "parent-1"
+    assert response.selectionId == "selection:6:14"
     assert response.selectedText == "old text"
     assert response.proposedText == "new text"
 
@@ -88,13 +84,13 @@ def test_selection_edit_preview_rejects_empty_selection():
 
 
 def test_selection_edit_preview_rejects_missing_parent(monkeypatch):
-    async def _get_document_by_id(_parent_id: str):
-        return None
+    async def _get_file_merged_content(_file_id: str, _file_name: str):
+        raise FileNotFoundError("missing")
 
     monkeypatch.setattr(
         router_modifications.ReconstructionService,
-        "get_document_by_id",
-        _get_document_by_id,
+        "get_file_merged_content",
+        _get_file_merged_content,
     )
 
     with pytest.raises(HTTPException) as exc:
@@ -104,17 +100,13 @@ def test_selection_edit_preview_rejects_missing_parent(monkeypatch):
 
 
 def test_selection_edit_preview_rejects_mismatched_offsets(monkeypatch):
-    async def _get_document_by_id(_parent_id: str):
-        return {
-            "fileId": "file-1",
-            "fileName": "Report.txt",
-            "content": "Hello something else world",
-        }
+    async def _get_file_merged_content(_file_id: str, _file_name: str):
+        return "Hello something else world"
 
     monkeypatch.setattr(
         router_modifications.ReconstructionService,
-        "get_document_by_id",
-        _get_document_by_id,
+        "get_file_merged_content",
+        _get_file_merged_content,
     )
 
     with pytest.raises(HTTPException) as exc:
@@ -124,12 +116,8 @@ def test_selection_edit_preview_rejects_mismatched_offsets(monkeypatch):
 
 
 def test_selection_edit_preview_allows_noop(monkeypatch):
-    async def _get_document_by_id(_parent_id: str):
-        return {
-            "fileId": "file-1",
-            "fileName": "Report.txt",
-            "content": "Hello old text world",
-        }
+    async def _get_file_merged_content(_file_id: str, _file_name: str):
+        return "Hello old text world"
 
     async def _generate_selection_edit_preview(**_kwargs):
         return {
@@ -138,8 +126,8 @@ def test_selection_edit_preview_allows_noop(monkeypatch):
 
     monkeypatch.setattr(
         router_modifications.ReconstructionService,
-        "get_document_by_id",
-        _get_document_by_id,
+        "get_file_merged_content",
+        _get_file_merged_content,
     )
     monkeypatch.setattr(
         router_modifications.LlmEditorService,

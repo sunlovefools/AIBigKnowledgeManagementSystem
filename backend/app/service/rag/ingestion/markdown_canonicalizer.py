@@ -52,7 +52,16 @@ def _canonicalize_non_fence_line(line: str, block_type: str | None = None) -> st
 
 
 def canonicalize_markdown_text(text: str) -> str:
-    """Canonicalize markdown text while preserving fenced code blocks."""
+    """
+    Canonicalize markdown text while preserving fenced code blocks.
+    
+    This includes:
+    - Normalizing newlines to \n
+    - Stripping trailing whitespace from lines while preserving hardbreaks (two or more spaces at end of line)
+    - Normalizing header lines to have a single space after the # marks
+    - Normalizing unordered list bullets to use '-' and ensuring a single space after the bullet
+    - Normalizing ordered list numbering to ensure a single space after the number and dot/parenthesis
+    - Collapsing multiple consecutive blank lines into a maximum of two"""
 
     cleaned = _rstrip_lines(text)
     lines = cleaned.split("\n")

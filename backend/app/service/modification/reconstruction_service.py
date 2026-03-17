@@ -433,6 +433,15 @@ class ReconstructionService:
             traceback.print_exc()
             raise RuntimeError(f"Document lookup failed: {str(error)}")
 
+    @staticmethod
+    async def get_file_merged_content(file_id: str, file_name: str) -> str:
+        """
+        Build merged file content in deterministic parent-chunk order.
+        Used by selection preview validation so selection offsets are file-level.
+        """
+        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name)
+        return "\n\n".join(str(item.get("content") or "") for item in sortable_rows)
+
     async def update_document(parent_id: str, new_content: str, file_name: str) -> dict:
         """
         Update a single parent chunk and its children, preserving the original file_id.

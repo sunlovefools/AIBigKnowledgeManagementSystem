@@ -66,15 +66,12 @@ export default function MainPage() {
         isAgentGenerating,
         agentProposals,
         agentAcceptedMap,
-        agentSavedIds,
         agentRejectedIds,
-        agentSavingIds,
         agentError,
         agentIntention,
         requestAgentEditPreview,
         requestSelectionEditPreview,
         acceptAgentProposal,
-        saveAgentProposal,
         rejectAgentProposal,
         clearAgentState,
     } = useDocuments(isModificationPanelOpen);
@@ -226,11 +223,9 @@ export default function MainPage() {
     }, [activeTab]);
 
     useEffect(() => {
-        if (highlightedSelection || selectionError) {
-            setHighlightedSelection(null);
-            setSelectionError(null);
-        }
-    }, [activeChunkSignature, highlightedSelection, selectionError]);
+        setHighlightedSelection(null);
+        setSelectionError(null);
+    }, [activeChunkSignature]);
 
     const handleSelectionChange = useCallback((selection: HighlightedSelection | null) => {
         setHighlightedSelection(selection);
@@ -314,13 +309,10 @@ export default function MainPage() {
             isAgentGenerating={isAgentGenerating}
             agentProposals={agentProposals}
             agentAcceptedMap={agentAcceptedMap}
-            agentSavedIds={agentSavedIds}
             agentRejectedIds={agentRejectedIds}
-            agentSavingIds={agentSavingIds}
             agentError={agentError}
             agentIntention={agentIntention}
             onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
-            onSaveAgentProposal={(proposal) => { void saveAgentProposal(proposal); }}
             onRejectAgentProposal={rejectAgentProposal}
             onClearAgentProposals={clearAgentState}
         />
@@ -362,13 +354,10 @@ export default function MainPage() {
             isAgentGenerating={isAgentGenerating}
             agentProposals={agentProposals}
             agentAcceptedMap={agentAcceptedMap}
-            agentSavedIds={agentSavedIds}
             agentRejectedIds={agentRejectedIds}
-            agentSavingIds={agentSavingIds}
             agentError={agentError}
             agentIntention={agentIntention}
             onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
-            onSaveAgentProposal={(proposal) => { void saveAgentProposal(proposal); }}
             onRejectAgentProposal={rejectAgentProposal}
             onClearAgentProposals={clearAgentState}
         />

@@ -1,8 +1,24 @@
-from pathlib import Path
+"""
+Deprecated compatibility shim for Docling extraction imports.
+
+TODO(remove-after-release): Delete this module after one release cycle once
+external imports have migrated to `app.service.rag.ingestion.docling`.
+"""
+
+from __future__ import annotations
+
+import warnings
 
 from app.service.rag.ingestion import docling as _docling
-from app.service.rag.ingestion.docling.config import (
-    get_docling_backend_selection as _get_docling_backend_selection,
+
+warnings.warn(
+    (
+        "`app.service.rag.ingestion.docling_pdf_extractor` is deprecated and will "
+        "be removed in a future release. "
+        "Use `app.service.rag.ingestion.docling` instead."
+    ),
+    DeprecationWarning,
+    stacklevel=2,
 )
 
 
@@ -16,30 +32,8 @@ DoclingParseStats = _docling.DoclingParseStats
 DoclingStructuredBlock = _docling.DoclingStructuredBlock
 DoclingParseResult = _docling.DoclingParseResult
 
-def _get_docling_pdf_backend() -> str:
-    """
-    Select the Docling processing backend (beam/local). Defaults to beam.
-    """
-    return _get_docling_backend_selection()
 
-
-def parse_pdf_with_docling_preview(
-    pdf_bytes: bytes,
-    file_name: str,
-    artifact_root: Path | None = None,
-    page_chunk_size: int = DEFAULT_DOCLING_PAGE_CHUNK_SIZE,
-    file_id: str | None = None,
-) -> DoclingParseResult:
-    """
-    Public Docling PDF preview entrypoint via the Docling facade.
-    """
-    return _docling.parse_pdf_with_docling_preview(
-        pdf_bytes=pdf_bytes,
-        file_name=file_name,
-        artifact_root=artifact_root,
-        page_chunk_size=page_chunk_size,
-        file_id=file_id,
-    )
+parse_pdf_with_docling = _docling.parse_pdf_with_docling
 
 
 def get_pdf_ingestion_strategy() -> str:
@@ -58,6 +52,7 @@ __all__ = [
     "DoclingParseStats",
     "DoclingStructuredBlock",
     "DoclingParseResult",
-    "parse_pdf_with_docling_preview",
+    "parse_pdf_with_docling",
     "get_pdf_ingestion_strategy",
 ]
+

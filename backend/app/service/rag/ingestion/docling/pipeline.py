@@ -24,7 +24,6 @@ from app.service.rag.ingestion.docling.clients import beam_client, local_client
 from app.service.rag.ingestion.docling.config import (
     DEFAULT_DOCLING_PAGE_CHUNK_SIZE,
     DOCLING_IMAGE_CROP_FAILED_MARKER,
-    get_docling_backend_selection,
 )
 from app.service.rag.ingestion.docling.models import (
     DoclingParseResult,
@@ -126,7 +125,7 @@ def _persist_table_data_toon_artifacts(
             )
 
 
-def parse_pdf_with_docling_preview(
+def parse_pdf_with_docling(
     pdf_bytes: bytes,
     file_name: str,
     artifact_root: Path | None = None,
@@ -135,25 +134,21 @@ def parse_pdf_with_docling_preview(
     backend: str | None = None,
 ) -> DoclingParseResult:
     """
-    Parse a PDF with Docling and persist preview artifacts (markdown + extracted images).
+    Parse a PDF with Docling and persist artifacts (markdown + extracted images).
     """
 
     if not pdf_bytes:
         raise ValueError("empty pdf payload")
 
     # Decide which backend service to use for docling processing
-    selected_backend = (backend or get_docling_backend_selection()).strip().lower()
-    if selected_backend not in {"beam", "local"}:
-        selected_backend = "beam"
-
+    selected_backend = (backend or "beam").strip().lower()
     print(f"[docling-pipeline] start file={file_name}")
     print(f"[docling-pipeline] backend selected: {selected_backend}")
 
-    # Create a file_id for the file being processed
-    resolved_file_id = (file_id or str(uuid6())).strip()
+    resolved_file_id = (file_id or "").strip()
 
     # Prepare artifact directory and paths for markdown and extracted images.
-    run_id, artifact_dir, markdown_path = local_artifacts_store.prepare_docling_preview_artifact_dir(
+    run_id, artifact_dir, markdown_path = local_artifacts_store.prepare_docling_artifact_dir(
         file_name=file_name,
         artifact_root=artifact_root,
     )

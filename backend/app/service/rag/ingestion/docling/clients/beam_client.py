@@ -124,7 +124,7 @@ def _parse_beam_response_json(response: requests.Response, raw_body: str) -> dic
         if isinstance(parsed, dict):
             if trailing:
                 print(
-                    "[docling-preview] Beam response contained trailing text after JSON payload; trailing bytes were ignored."
+                    "[docling] Beam response contained trailing text after JSON payload; trailing bytes were ignored."
                 )
             return parsed
         parse_errors.append(
@@ -297,7 +297,7 @@ def build_beam_layout(
     }
 
 
-def parse_pdf_with_docling_preview(
+def parse_pdf_with_docling(
     pdf_bytes: bytes,
     file_name: str,
     artifact_root: Path | None = None,
@@ -308,9 +308,9 @@ def parse_pdf_with_docling_preview(
     Beam-backend convenience entrypoint routed through the unified pipeline.
     """
 
-    from app.service.rag.ingestion.docling.pipeline import parse_pdf_with_docling_preview
+    from app.service.rag.ingestion.docling.pipeline import parse_pdf_with_docling
 
-    return parse_pdf_with_docling_preview(
+    return parse_pdf_with_docling(
         pdf_bytes=pdf_bytes,
         file_name=file_name,
         artifact_root=artifact_root,

@@ -7,6 +7,7 @@ import type {
     HighlightedSelection,
     SidebarFileSummary,
 } from "../types";
+import { buildChunkRanges } from "../hooks/documents/utils/chunkText";
 
 type ModificationPanelProps = {
     files: SidebarFileSummary[];
@@ -28,9 +29,7 @@ type ModificationPanelProps = {
     isAgentGenerating: boolean;
     agentProposals: AgentProposal[];
     agentAcceptedMap: Map<string, AgentProposal>;
-    agentSavedIds: Set<string>;
     agentRejectedIds: Set<string>;
-    agentSavingIds: Set<string>;
     agentError: string | null;
     agentIntention: string | null;
     hideTabs?: boolean;
@@ -49,7 +48,6 @@ type ModificationPanelProps = {
     onHighlightedSelectionChange: (selection: HighlightedSelection | null) => void;
     onSelectionErrorChange: (message: string | null) => void;
     onAcceptAgentProposal: (proposal: AgentProposal) => Promise<void>;
-    onSaveAgentProposal: (proposal: AgentProposal) => void;
     onRejectAgentProposal: (parentId: string) => void;
     onClearAgentProposals: () => void;
 };
@@ -57,38 +55,6 @@ type ModificationPanelProps = {
 function getContainerElement(node: Node): HTMLElement | null {
     if (node instanceof HTMLElement) return node;
     return node.parentElement;
-}
-
-type ChunkRange = {
-    parentId: string;
-    start: number;
-    end: number;
-    content: string;
-};
-
-function buildChunkRanges(chunks: FileTabState["chunks"]): { fullText: string; ranges: ChunkRange[] } {
-    if (!chunks.length) return { fullText: "", ranges: [] };
-
-    let cursor = 0;
-    const ranges: ChunkRange[] = [];
-
-    chunks.forEach((chunk, index) => {
-        const start = cursor;
-        const end = start + chunk.content.length;
-        ranges.push({
-            parentId: chunk.parentId,
-            start,
-            end,
-            content: chunk.content,
-        });
-        cursor = end;
-        if (index < chunks.length - 1) cursor += 2;
-    });
-
-    return {
-        fullText: chunks.map((chunk) => chunk.content).join("\n\n"),
-        ranges,
-    };
 }
 
 export default function ModificationPanel({
@@ -111,9 +77,7 @@ export default function ModificationPanel({
     isAgentGenerating,
     agentProposals,
     agentAcceptedMap,
-    agentSavedIds,
     agentRejectedIds,
-    agentSavingIds,
     agentError,
     agentIntention,
     hideTabs = false,
@@ -132,7 +96,6 @@ export default function ModificationPanel({
     onHighlightedSelectionChange,
     onSelectionErrorChange,
     onAcceptAgentProposal,
-    onSaveAgentProposal,
     onRejectAgentProposal,
     onClearAgentProposals,
 }: ModificationPanelProps) {
@@ -193,21 +156,7 @@ export default function ModificationPanel({
         const selectedText = range.toString();
         const startOffset = prefixRange.toString().length;
         const endOffset = startOffset + selectedText.length;
-        const chunkRange = activeDocumentView.ranges.find(
-            (item) => startOffset >= item.start && endOffset <= item.end
-        );
-
-        if (!chunkRange) {
-            onSelectionErrorChange("Highlight text within a single chunk only.");
-            onHighlightedSelectionChange(null);
-            selection.removeAllRanges();
-            return;
-        }
-
-        const localStartOffset = startOffset - chunkRange.start;
-        const localEndOffset = endOffset - chunkRange.start;
-
-        if (chunkRange.content.slice(localStartOffset, localEndOffset) !== selectedText) {
+        if (activeDocumentView.fullText.slice(startOffset, endOffset) !== selectedText) {
             onSelectionErrorChange("The current selection does not match the stored chunk content.");
             onHighlightedSelectionChange(null);
             selection.removeAllRanges();
@@ -219,10 +168,9 @@ export default function ModificationPanel({
         onHighlightedSelectionChange({
             fileId: activeTab,
             fileName,
-            parentId: chunkRange.parentId,
             selectedText,
-            startOffset: localStartOffset,
-            endOffset: localEndOffset,
+            startOffset,
+            endOffset,
         });
     };
 
@@ -334,15 +282,13 @@ export default function ModificationPanel({
 
                         {agentProposals.map((proposal) => {
                             const isAccepted = agentAcceptedMap.has(proposal.parentId);
-                            const isSaved = agentSavedIds.has(proposal.parentId);
                             const isRejected = agentRejectedIds.has(proposal.parentId);
-                            const isSavingProposal = agentSavingIds.has(proposal.parentId);
                             const isPending = !isAccepted && !isRejected;
 
                             return (
                                 <div
                                     key={`${proposal.parentId}-${proposal.selectionStart ?? "full"}`}
-                                    className={`agent-proposal-card ${isAccepted && !isSaved ? "previewing" : ""} ${isSaved ? "saved" : ""} ${isRejected ? "rejected" : ""}`}
+                                    className={`agent-proposal-card ${isAccepted ? "previewing" : ""} ${isRejected ? "rejected" : ""}`}
                                 >
                                     <div className="agent-proposal-header">
                                         <span className="agent-proposal-filename">{proposal.fileName}</span>
@@ -350,8 +296,7 @@ export default function ModificationPanel({
                                             {proposal.source === "selection" && (
                                                 <span className="agent-proposal-source">Selection</span>
                                             )}
-                                            {isSaved && <span className="agent-proposal-status saved">Saved to database</span>}
-                                            {isAccepted && !isSaved && <span className="agent-proposal-status previewing">Previewing</span>}
+                                            {isAccepted && <span className="agent-proposal-status previewing">Applied to draft</span>}
                                             {isRejected && <span className="agent-proposal-status rejected">Rejected</span>}
                                         </div>
                                     </div>
@@ -369,9 +314,9 @@ export default function ModificationPanel({
                                         </div>
                                     )}
 
-                                    {isAccepted && !isSaved && (
+                                    {isAccepted && (
                                         <div className="agent-preview-hint">
-                                            Changes applied locally. Review the full document in the tab above, then save when ready.
+                                            Changes applied to the draft. Use the document Save button above to persist.
                                         </div>
                                     )}
 
@@ -394,21 +339,12 @@ export default function ModificationPanel({
                                         </div>
                                     )}
 
-                                    {isAccepted && !isSaved && (
+                                    {isAccepted && (
                                         <div className="ai-preview-actions">
-                                            <button
-                                                className="save-btn"
-                                                type="button"
-                                                onClick={() => onSaveAgentProposal(proposal)}
-                                                disabled={isSavingProposal}
-                                            >
-                                                {isSavingProposal ? "Saving..." : "Save to database"}
-                                            </button>
                                             <button
                                                 className="cancel-btn"
                                                 type="button"
                                                 onClick={() => onRejectAgentProposal(proposal.parentId)}
-                                                disabled={isSavingProposal}
                                             >
                                                 Discard
                                             </button>

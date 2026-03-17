@@ -26,21 +26,21 @@ def backend_root() -> Path:
     raise RuntimeError(f"Could not locate backend root from path: {current_path}")
 
 
-def default_preview_root() -> Path:
+def default_artifact_root() -> Path:
     """
-    Get the default directory for storing Docling preview artifacts.
+    Get the default directory for storing Docling artifacts.
     """
 
-    return backend_root() / "_local_uploads" / "docling_previews"
+    return backend_root() / "_local_uploads" / "docling_artifacts"
 
 
-def prepare_docling_preview_artifact_dir(
+def prepare_docling_artifact_dir(
     *,
     file_name: str,
     artifact_root: Path | None = None,
 ) -> tuple[str, Path | None, Path | None]:
     """
-    Prepare the per-run preview artifact directory and markdown output path.
+    Prepare the per-run artifact directory and markdown output path.
 
     If DOCLING_ARTIFACTS_ENABLED is false, artifact persistence is disabled and
     empty path state is returned (run_id="", artifact_dir=None, markdown_path=None).
@@ -50,11 +50,11 @@ def prepare_docling_preview_artifact_dir(
         return "", None, None
 
     _ = file_name  # kept for stable call sites / future naming changes
-    preview_root = Path(artifact_root) if artifact_root else default_preview_root()
-    preview_root.mkdir(parents=True, exist_ok=True)
+    artifact_base = Path(artifact_root) if artifact_root else default_artifact_root()
+    artifact_base.mkdir(parents=True, exist_ok=True)
 
     run_id = str(uuid6())
-    artifact_dir = preview_root / run_id
+    artifact_dir = artifact_base / run_id
     artifact_dir.mkdir(parents=True, exist_ok=True)
 
     markdown_path = artifact_dir / "document.md"

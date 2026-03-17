@@ -40,7 +40,7 @@ export function useChat() {
             setMessages((previousMessages) =>
                 [...previousMessages.slice(0, -1), { role: "ai", text: response.data.answer || "(no response)" }]);
 
-        } catch (error) {
+        } catch {
             setMessages((previousMessages) =>
                 // If there's an error, replace the placeholder with an error message
                 [...previousMessages.slice(0, -1), { role: "ai", text: "Error: Failed to get response from server." }]

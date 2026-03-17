@@ -22,10 +22,10 @@ from .models import (
     DoclingStructuredBlock,
     ExtractedImageArtifact,
 )
-from .pipeline import parse_pdf_with_docling_preview as _parse_pdf_with_docling_preview
+from .pipeline import parse_pdf_with_docling as _parse_pdf_with_docling
 
 
-def parse_pdf_with_docling_preview(
+def parse_pdf_with_docling(
     pdf_bytes: bytes,
     file_name: str,
     artifact_root: Path | None = None,
@@ -33,11 +33,11 @@ def parse_pdf_with_docling_preview(
     file_id: str | None = None,
 ) -> DoclingParseResult:
     """
-    Public Docling PDF preview entrypoint that dispatches via selected backend.
+    Public Docling PDF entrypoint that dispatches via selected backend.
     """
 
-    backend = get_docling_backend_selection()
-    return _parse_pdf_with_docling_preview(
+    backend = get_docling_backend_selection() # Either "beam" or "local"
+    return _parse_pdf_with_docling(
         pdf_bytes=pdf_bytes,
         file_name=file_name,
         artifact_root=artifact_root,
@@ -56,6 +56,6 @@ __all__ = [
     "DoclingParseStats",
     "DoclingStructuredBlock",
     "DoclingParseResult",
-    "parse_pdf_with_docling_preview",
+    "parse_pdf_with_docling",
     "get_pdf_ingestion_strategy",
 ]

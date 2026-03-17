@@ -15,12 +15,12 @@ export type SidebarFileSummary = {
     previewTexts: string;
 };
 
-// Text selection captured from one parent chunk.
+// Text selection captured from the active file view.
 export type HighlightedSelection = {
     fileId: string;
     fileName: string;
-    parentId: string;
     selectedText: string;
+    // File-level offsets in the merged document text.
     startOffset: number;
     endOffset: number;
 };
@@ -94,10 +94,14 @@ export type AgentProposal = {
     selectionStart?: number;
     selectionEnd?: number;
     /**
-     * Byte offset of `original` within the chunk content at accept time.
-     * Set by acceptAgentProposal and read by rejectAgentProposal for precise
-     * positional revert (B01/F01 fix). Undefined on proposals received from
-     * the backend before they have been accepted locally.
+     * Offset of `proposed` within the current editing draft after acceptance.
+     * Used by rejectAgentProposal for positionally exact revert.
      */
     patchOffset?: number;
+    /**
+     * Baseline offset of `original` in the non-edited document content.
+     * Used to estimate draft offsets when multiple proposals are accepted
+     * before saving.
+     */
+    patchBaselineOffset?: number;
 };

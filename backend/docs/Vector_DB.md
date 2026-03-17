@@ -25,7 +25,7 @@ Frontend Upload
   -> Base64 decode + request validation
   -> Strategy branch
      - legacy: extract_text -> split_parent_child_chunks -> polish_chunks
-     - docling: parse_pdf_with_docling_preview -> split_parent_child_chunks_from_docling_blocks
+     - docling: parse_pdf_with_docling -> split_parent_child_chunks_from_docling_blocks
   -> upsert_documents(parent_chunks, child_chunks)
   -> Astra parent store + vector store
 ```

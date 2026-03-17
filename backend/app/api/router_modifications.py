@@ -96,7 +96,6 @@ class SelectionEditPreviewRequest(BaseModel):
     """Payload for requesting an LLM-driven edit preview for highlighted text."""
     fileId: str
     fileName: str
-    parentId: str
     selectedText: str
     startOffset: int
     endOffset: int
@@ -107,7 +106,7 @@ class SelectionEditPreviewResponse(BaseModel):
     """Response payload for selected-text edit preview."""
     fileId: str
     fileName: str
-    parentId: str
+    selectionId: str
     selectedText: str
     proposedText: str
     startOffset: int
@@ -178,12 +177,14 @@ async def llm_edit_preview(payload: LlmEditPreviewRequest):
 async def selection_edit_preview(payload: SelectionEditPreviewRequest):
     """Generate a non-persistent edit preview for a highlighted text selection."""
 
-    print(f"[Selection Edit Preview] Received request for modification with instruction: '{payload.instruction}' on fileId: '{payload.fileId}', parentId: '{payload.parentId}'")
+    print(
+        f"[Selection Edit Preview] Received request for modification with instruction: "
+        f"'{payload.instruction}' on fileId: '{payload.fileId}'"
+    )
 
     try:
         file_id = payload.fileId.strip()
         file_name = payload.fileName.strip()
-        parent_id = payload.parentId.strip()
         selected_text = payload.selectedText
         instruction = payload.instruction.strip()
         start_offset = payload.startOffset
@@ -199,12 +200,6 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
                 detail="fileName must not be empty",
-            )
-
-        if not parent_id:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="parentId must not be empty",
             )
 
         if not selected_text:
@@ -225,42 +220,29 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
                 detail="startOffset/endOffset must describe a non-empty range",
             )
 
-        # Note: although the parent chunk content is not sent to the LLM in this
-        # flow, we still fetch it to validate that the chunk exists and that the
-        # selected text and offsets still match the current stored content.
-        existing_doc = await ReconstructionService.get_document_by_id(parent_id)
-        if not existing_doc:
+        try:
+            existing_content = await ReconstructionService.get_file_merged_content(
+                file_id=file_id,
+                file_name=file_name,
+            )
+        except FileNotFoundError:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Document with parent ID '{parent_id}' not found",
+                detail=f"No parent chunks found for file ID '{file_id}'",
             )
-
-        existing_file_id = str(existing_doc.get("fileId") or "").strip()
-        existing_file_name = str(existing_doc.get("fileName") or "Unknown")
-        existing_content = str(existing_doc.get("content") or "")
-
-        if existing_file_id and existing_file_id != file_id:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    f"parent ID '{parent_id}' belongs to file ID '{existing_file_id}', "
-                    f"not '{file_id}'"
-                ),
-            )
-
-        if existing_file_name != file_name:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=(
-                    f"parent ID '{parent_id}' belongs to '{existing_file_name}', "
-                    f"not '{file_name}'"
-                ),
-            )
+        except RuntimeError as e:
+            detail = str(e)
+            if "belongs to" in detail:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=detail,
+                )
+            raise
 
         if end_offset > len(existing_content):
             raise HTTPException(
                 status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="Selection offsets are out of range for the parent chunk",
+                detail="Selection offsets are out of range for the current file content",
             )
 
         if existing_content[start_offset:end_offset] != selected_text:
@@ -278,7 +260,7 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
         return SelectionEditPreviewResponse(
             fileId=file_id,
             fileName=file_name,
-            parentId=parent_id,
+            selectionId=f"selection:{start_offset}:{end_offset}",
             selectedText=selected_text,
             proposedText=preview["proposedText"],
             startOffset=start_offset,

@@ -1,5 +1,8 @@
 # Ingestion Pipeline (`/ingest/upload`)
 
+Detailed chunking behavior (section -> parent -> child rules and edge cases) is documented in:
+- `chunk_construction_rules.md`
+
 ## Overview
 The ingestion API accepts a base64-encoded file upload and stores parent/child chunks in the vector pipeline.
 There is one public ingestion endpoint:
@@ -62,7 +65,7 @@ Used when:
 
 Flow:
 1. Decode base64 payload.
-2. Parse PDF with Docling (`parse_pdf_with_docling_preview`).
+2. Parse PDF with Docling (`parse_pdf_with_docling`).
 3. Require non-empty `structured_blocks`.
 4. Chunk via Docling chunker (`split_parent_child_chunks_from_docling_blocks`).
 5. Upsert to vector stores without legacy polish step.
