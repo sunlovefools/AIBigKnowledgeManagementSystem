@@ -122,26 +122,80 @@ class ReconstructionService:
     # ------------------------------------------------------------------
 
     @staticmethod
+    def _decode_parent_chunks_cursor(cursor: str | None) -> tuple[int, str | None]:
+        """
+        Decode cursor formats for parent-chunk pagination.
+
+        Supported formats:
+        - Legacy: "<chunkNumber>"
+        - Composite: "<chunkNumber>|<parentId>"
+        """
+        if not cursor:
+            return -1, None
+
+        raw = str(cursor).strip()
+        if not raw:
+            return -1, None
+
+        if "|" in raw:
+            chunk_part, parent_part = raw.split("|", 1)
+            try:
+                chunk_number = int(chunk_part)
+            except ValueError:
+                return -1, None
+            parent_id = parent_part.strip() or None
+            return chunk_number, parent_id
+
+        try:
+            return int(raw), None
+        except ValueError:
+            return -1, None
+
+    @staticmethod
+    def _encode_parent_chunks_cursor(chunk_number: int, parent_id: str) -> str:
+        """Encode a stable cursor using chunkNumber and parentId tie-breaker."""
+        return f"{int(chunk_number)}|{str(parent_id)}"
+
+    @staticmethod
     async def _find_parent_chunks_in_range(
-        file_id: str, current_chunk_number: int, limit: int
+        file_id: str,
+        current_chunk_number: int,
+        current_parent_id: str | None,
+        limit: int,
     ) -> tuple[list[dict], bool, str | None]:
         """
         Find parent chunks for a fileId with deterministic ordering and cursor.
-        Cursor is the last returned chunkNumber (int as string).
+        Cursor is encoded as "<chunkNumber>|<parentId>".
         """
 
         def _query_rows() -> list[dict]:
             collection = PARENT_STORE.collection
-            # IMPORTANT:
-            # Use only "$gt" + sort in application, then slice to `limit`.
-            # The previous "$lt current+limit" + window_size=limit-1 can skip chunks.
-            cursor = collection.find(
-                {
-                    "value.metadata.file_metadata.file_id": file_id,
-                    "value.metadata.parent_chunk_metadata.parent_chunk_number": {
-                        "$gt": current_chunk_number
+            chunk_number_field = "value.metadata.parent_chunk_metadata.parent_chunk_number"
+            filter_doc: dict[str, Any] = {
+                "value.metadata.file_metadata.file_id": file_id,
+            }
+
+            # Cursor over (chunkNumber, _id):
+            # - chunkNumber strictly increases
+            # - for ties, parentId (_id) strictly increases
+            if current_chunk_number >= 0 and current_parent_id:
+                filter_doc["$or"] = [
+                    {chunk_number_field: {"$gt": current_chunk_number}},
+                    {
+                        chunk_number_field: current_chunk_number,
+                        "_id": {"$gt": current_parent_id},
                     },
-                }
+                ]
+            else:
+                filter_doc[chunk_number_field] = {"$gt": current_chunk_number}
+
+            cursor = collection.find(
+                filter=filter_doc,
+                sort={
+                    chunk_number_field: 1,
+                    "_id": 1,
+                },
+                limit=max(limit, 1) + 1,
             )
             rows: list[dict] = []
             for row in cursor:
@@ -151,7 +205,7 @@ class ReconstructionService:
 
         rows = await asyncio.to_thread(_query_rows)
 
-        sortable: list[dict] = []
+        sortable: list[dict[str, Any]] = []
         for row in rows:
             fields = ReconstructionService._extract_parent_row_fields(row)
             if not fields:
@@ -172,12 +226,15 @@ class ReconstructionService:
                 }
             )
 
-        # Deterministic ordering: (chunkNumber, parentId)
-        sortable.sort(key=lambda item: (item["chunkNumber"], item["parentId"]))
-
         page_rows = sortable[: max(limit, 1)]
         has_more = len(sortable) > len(page_rows)
-        next_cursor = str(page_rows[-1]["chunkNumber"]) if has_more and page_rows else None
+        next_cursor = (
+            ReconstructionService._encode_parent_chunks_cursor(
+                page_rows[-1]["chunkNumber"], page_rows[-1]["parentId"]
+            )
+            if has_more and page_rows
+            else None
+        )
 
         chunks = [
             {
@@ -282,16 +339,14 @@ class ReconstructionService:
         print(f"🔄 Retrieving paginated parent chunks for file_id: {file_id}")
 
         try:
-            current_chunk_number = -1
-            if cursor:
-                try:
-                    current_chunk_number = int(cursor)
-                except ValueError:
-                    current_chunk_number = -1
+            current_chunk_number, current_parent_id = ReconstructionService._decode_parent_chunks_cursor(
+                cursor
+            )
 
             chunks, has_more, next_cursor = await ReconstructionService._find_parent_chunks_in_range(
                 file_id=file_id,
                 current_chunk_number=current_chunk_number,
+                current_parent_id=current_parent_id,
                 limit=limit,
             )
 
@@ -309,6 +364,7 @@ class ReconstructionService:
                     "limit": limit,
                     "cursor": cursor,
                     "currentChunkNumber": current_chunk_number,
+                    "currentParentId": current_parent_id,
                     "returnedChunks": len(chunks),
                     "hasMore": has_more,
                     "nextCursor": next_cursor,
