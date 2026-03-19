@@ -9,6 +9,7 @@ from typing import Any
 _RETRIEVAL_RERANK_FILE = "retrieval_rerank_debug.txt"
 _ANSWER_FILE = "answer_generation_debug.txt"
 _VECTOR_DB_PARENT_CHUNKS_FILE = "vector_database_parent_chunks_log.txt"
+_MOD_AGENT_FILE = "modification_agent_debug.txt"
 
 
 def _resolve_debug_dir() -> Path:
@@ -247,6 +248,75 @@ def log_answer_generation_response(answer: str) -> None:
         _append(_ANSWER_FILE, lines)
     except Exception as exc:
         print(f"Warning: failed to write answer response debug log: {exc}")
+
+
+def log_modification_agent_llm_request(
+    *,
+    provider: str,
+    model: str | None,
+    step: str | None,
+    run_id: str | None,
+    system_prompt: str,
+    user_message: str,
+) -> None:
+    """Append agentic-LLM request block to backend/debug/logs/modification_agent_debug.txt."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        lines = [
+            "=" * 50,
+            "DEBUG: MODIFICATION AGENT LLM REQUEST",
+            "-" * 50,
+            f"Timestamp: {timestamp}",
+            f"Provider: {provider}",
+            f"Model: {model if model else 'N/A'}",
+            f"Run ID: {run_id if run_id else 'N/A'}",
+            f"Step: {step if step else 'N/A'}",
+            f"System Prompt Length: {len(system_prompt)}",
+            f"User Message Length: {len(user_message)}",
+            "",
+            "<SYSTEM_PROMPT>",
+            system_prompt,
+            "</SYSTEM_PROMPT>",
+            "",
+            "<USER_MESSAGE>",
+            user_message,
+            "</USER_MESSAGE>",
+            "-" * 50,
+        ]
+        _append(_MOD_AGENT_FILE, lines)
+    except Exception as exc:
+        print(f"Warning: failed to write modification agent request debug log: {exc}")
+
+
+def log_modification_agent_llm_response(
+    *,
+    provider: str,
+    model: str | None,
+    step: str | None,
+    run_id: str | None,
+    response_text: str,
+) -> None:
+    """Append agentic-LLM response block to backend/debug/logs/modification_agent_debug.txt."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        lines = [
+            "-" * 50,
+            "DEBUG: MODIFICATION AGENT LLM RESPONSE",
+            "-" * 50,
+            f"Timestamp: {timestamp}",
+            f"Provider: {provider}",
+            f"Model: {model if model else 'N/A'}",
+            f"Run ID: {run_id if run_id else 'N/A'}",
+            f"Step: {step if step else 'N/A'}",
+            f"Response Length: {len(response_text)}",
+            "<RESPONSE>",
+            response_text,
+            "</RESPONSE>",
+            "=" * 50,
+        ]
+        _append(_MOD_AGENT_FILE, lines)
+    except Exception as exc:
+        print(f"Warning: failed to write modification agent response debug log: {exc}")
 
 
 _TOKEN_USAGE_FILE = "token_usage.txt"

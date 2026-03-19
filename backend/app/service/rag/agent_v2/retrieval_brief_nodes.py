@@ -11,9 +11,17 @@ from typing import Any
 import aiohttp
 
 try:
-    from backend.debug.debug_logger import log_token_usage
+    from backend.debug.debug_logger import (
+        log_token_usage,
+        log_modification_agent_llm_request,
+        log_modification_agent_llm_response,
+    )
 except ImportError:
-    from debug.debug_logger import log_token_usage
+    from debug.debug_logger import (
+        log_token_usage,
+        log_modification_agent_llm_request,
+        log_modification_agent_llm_response,
+    )
 
 from .retrieval_brief_prompts import (
     RETRIEVAL_BRIEF_EXTRACTOR_SYSTEM_PROMPT,
@@ -85,6 +93,14 @@ async def _call_llm(
         "Content-Type": "application/json",
     }
     timeout = aiohttp.ClientTimeout(total=120.0)
+    log_modification_agent_llm_request(
+        provider="MOD_AGENT_LLM",
+        model=_DEEPSEEK_MODEL,
+        step=step,
+        run_id=run_id,
+        system_prompt=system_prompt,
+        user_message=user_message,
+    )
 
     async def _do_request(http_session: aiohttp.ClientSession) -> dict:
         async with http_session.post(
@@ -135,6 +151,13 @@ async def _call_llm(
     content = choices[0].get("message", {}).get("content", "").strip()
     if not content:
         raise RuntimeError("DeepSeek returned empty content.")
+    log_modification_agent_llm_response(
+        provider="MOD_AGENT_LLM",
+        model=_DEEPSEEK_MODEL,
+        step=step,
+        run_id=run_id,
+        response_text=content,
+    )
 
     return content, {
         "prompt_tokens": prompt_tokens,
@@ -330,4 +353,3 @@ async def retrieval_brief_extractor_node(state: RetrievalBriefState) -> dict:
     except Exception as error:
         print(f"Retrieval brief extraction failed: {error}. Falling back.")
         return fallback
-
