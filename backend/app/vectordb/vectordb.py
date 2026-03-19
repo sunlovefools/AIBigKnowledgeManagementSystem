@@ -436,6 +436,71 @@ def _select_top_parent_ids_from_reranked_children(
 
 # --- Query/Retrieval Operations ---
 
+def _normalize_lexical_child_row(raw_row: Any) -> Dict[str, Any] | None:
+    """
+    Normalize a raw Astra child-chunk row returned from lexical search.
+    """
+    if not isinstance(raw_row, dict):
+        return None
+
+    lexical_score = (
+        raw_row.get("$lexicalScore")
+        if "$lexicalScore" in raw_row
+        else raw_row.get("lexical_score")
+    )
+
+    metadata = raw_row.get("metadata")
+    if not isinstance(metadata, dict):
+        metadata = {}
+
+    return {
+        "_id": raw_row.get("_id"),
+        "content": raw_row.get("content"),
+        "metadata": metadata,
+        "lexical_score": lexical_score,
+    }
+
+
+async def lexical_search_child_chunks(query: str, top_k: int = 20) -> List[Dict[str, Any]]:
+    """
+    Perform lexical search directly against the child-chunk Astra collection.
+    """
+    normalized_query = str(query).strip() if query is not None else ""
+    if not normalized_query:
+        raise ValueError("query must be a non-empty string.")
+
+    try:
+        top_k = int(top_k)
+    except (TypeError, ValueError) as error:
+        raise ValueError("top_k must be an integer.") from error
+
+    if top_k <= 0:
+        raise ValueError("top_k must be greater than 0.")
+
+    collection = getattr(VECTOR_STORE, "collection", None)
+    if collection is None:
+        raise RuntimeError("Vector store does not expose a raw Astra collection for lexical search.")
+
+    def _find_rows() -> List[Dict[str, Any]]:
+        try:
+            cursor = collection.find(
+                sort={"$lexical": normalized_query},
+                limit=top_k,
+            )
+            rows: List[Dict[str, Any]] = []
+            for row in cursor:
+                normalized_row = _normalize_lexical_child_row(row)
+                if normalized_row is not None:
+                    rows.append(normalized_row)
+            return rows
+        except Exception as error:
+            raise RuntimeError(
+                "Lexical child-chunk search failed. Ensure the Astra collection already "
+                "supports lexical search and the driver accepts sort={'$lexical': ...}."
+            ) from error
+
+    return await asyncio.to_thread(_find_rows)
+
 async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, Any]]:
     """
     Performs vector search on child chunks and retrieves normalized parent document dicts.
