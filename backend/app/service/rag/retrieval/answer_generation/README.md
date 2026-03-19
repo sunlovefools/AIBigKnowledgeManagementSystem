@@ -84,6 +84,13 @@ Functions:
 - `normalize_rag_docs(rag_docs: list[dict[str, Any]]) -> list[NormalizedRagDoc]`
   Responsibility: Validate dict-only inputs and convert them into a consistent normalized shape.
   Called by: `orchestration.py`.
+- `build_llm_context_docs(rag_docs: list[NormalizedRagDoc]) -> list[dict[str, str]]`
+  Responsibility: Build reduced provider payload docs containing only `file_name` and `page_content`.
+  Called by: `build_llm_context_payload()`.
+- `build_llm_context_payload(rag_docs: list[NormalizedRagDoc]) -> str`
+  Responsibility: Render numbered context blocks:
+  `[n]`, `file_name: ...`, `page_content: "..."`.
+  Called by: `providers/ollama_provider.py`, `providers/openrouter_provider.py`.
 
 ### `citations.py`
 
@@ -147,7 +154,7 @@ Functions:
 - `generate_via_ollama(session, cfg, rag_docs, user_query) -> str`
   Responsibility:
   - Validate model
-  - TOON-encode context
+  - Build numbered context-block payload
   - Build prompt
   - Route to SDK path for local URL
   - Fall back to HTTP path when SDK unavailable
@@ -165,6 +172,7 @@ Functions:
 - `generate_via_openrouter(session, cfg, rag_docs, user_query) -> str`
   Responsibility:
   - Validate API key
+  - Build numbered context-block payload
   - Build chat payload
   - Parse choices/message content
   - Apply canonical source suffix
@@ -198,7 +206,7 @@ Functions:
 8. Provider builds prompts using `[answer_generator_prompt.py](../prompts/answer_generator_prompt.py)`.
 9. Provider calls remote/local model:
    - Ollama: SDK local path or HTTP fallback through `http_client.post_json`.
-   - OpenRouter: chat-completions HTTP via `http_client.post_json`.
+   - OpenRouter: chat-completions HTTP via `http_client.post_json` with numbered context blocks in the user message.
 10. Provider parses response and logs request/response through `logging_adapter.py`.
 11. OpenRouter path post-processes answer citations through `citations.py`.
 12. Final answer string bubbles back through facade to API response.
@@ -241,7 +249,6 @@ URL format requirement:
   - Non-dict RAG item -> `RuntimeError` (strict input contract).
 - `providers/ollama_provider.py`
   - Missing model -> `RuntimeError`.
-  - Missing `py-toon-format` -> `RuntimeError`.
   - SDK timeout -> `RuntimeError`.
   - SDK/coercion failures -> `RuntimeError`.
   - HTTP non-200/network/timeout -> normalized `RuntimeError` (via `http_client.py`).

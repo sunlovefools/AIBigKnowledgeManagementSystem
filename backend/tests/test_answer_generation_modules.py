@@ -20,7 +20,11 @@ from app.service.rag.retrieval.answer_generation.citations import (
 from app.service.rag.retrieval.answer_generation.config import (
     load_answer_generator_config,
 )
-from app.service.rag.retrieval.answer_generation.context_normalizer import normalize_rag_docs
+from app.service.rag.retrieval.answer_generation.context_normalizer import (
+    build_llm_context_docs,
+    build_llm_context_payload,
+    normalize_rag_docs,
+)
 from app.service.rag.retrieval.answer_generation.http_client import post_json
 from app.service.rag.retrieval.answer_generation.models import AnswerGeneratorConfig
 from app.service.rag.retrieval.answer_generation.orchestration import _resolve_provider
@@ -156,6 +160,64 @@ def test_normalize_rag_docs_non_dict_raises():
         )
 
 
+def test_build_llm_context_docs_strips_internal_fields():
+    docs = [
+        {
+            "id": "a",
+            "metadata": {"file_name": "file_a.pdf", "parent_chunk_number": 3},
+            "page_content": "A",
+            "type": "Document",
+        },
+        {
+            "id": "b",
+            "metadata": {},
+            "page_content": "B",
+            "type": "Document",
+        },
+    ]
+
+    llm_docs = build_llm_context_docs(docs)
+
+    assert llm_docs == [
+        {"file_name": "file_a.pdf", "page_content": "A"},
+        {"page_content": "B"},
+    ]
+    assert "id" not in llm_docs[0]
+    assert "metadata" not in llm_docs[0]
+    assert "parent_chunk_number" not in llm_docs[0]
+    assert "type" not in llm_docs[0]
+
+
+def test_build_llm_context_payload_uses_numbered_blocks():
+    docs = [
+        {
+            "id": "a",
+            "metadata": {"file_name": "COMP2005_2026_CWBrief (1).pdf", "parent_chunk_number": 3},
+            "page_content": "First line",
+            "type": "Document",
+        },
+        {
+            "id": "b",
+            "metadata": {},
+            "page_content": "Second line",
+            "type": "Document",
+        },
+    ]
+
+    payload = build_llm_context_payload(docs)
+
+    assert "[1]" in payload
+    assert "file_name: COMP2005_2026_CWBrief (1).pdf" in payload
+    assert 'page_content: "First line"' in payload
+    assert "[2]" in payload
+    assert "file_name: filename unknown" in payload
+    assert 'page_content: "Second line"' in payload
+    assert "parent_chunk_number" not in payload
+    assert "metadata" not in payload
+    assert "'id'" not in payload
+    assert "'type'" not in payload
+
+
 def test_citations_append_or_replace_suffix():
     answer = append_or_replace_sources_suffix("Result text", ["a.pdf", "b.pdf"])
     assert answer.endswith("(Sources: a.pdf, b.pdf)")
@@ -240,7 +302,10 @@ def test_generate_via_openrouter_parses_and_appends_sources(monkeypatch):
         api_key="token",
     )
 
+    captured: dict[str, object] = {}
+
     async def _fake_post_json(**kwargs):
+        captured["payload"] = kwargs.get("payload")
         return {"choices": [{"message": {"content": "Core answer"}}]}
 
     module = sys.modules[
@@ -254,6 +319,24 @@ def test_generate_via_openrouter_parses_and_appends_sources(monkeypatch):
     output = asyncio.run(generate_via_openrouter(_FakeSession(_FakeResponse(200, {})), cfg, docs, "q"))
     assert "Core answer" in output
     assert "(Sources: x.pdf)" in output
+    payload = captured.get("payload")
+    assert isinstance(payload, dict)
+    messages = payload.get("messages")
+    assert isinstance(messages, list) and len(messages) == 2
+    user_content = messages[1]["content"]
+    assert "<CONTEXT>" in user_content
+    assert "</CONTEXT>" in user_content
+    assert "<CONTEXT_TOON>" not in user_content
+    assert "<CONTEXT_JSON>" not in user_content
+    assert "[1]" in user_content
+    assert "file_name: x.pdf" in user_content
+    assert 'page_content: "ctx"' in user_content
+    assert "file_name" in user_content
+    assert "page_content" in user_content
+    assert "parent_chunk_number" not in user_content
+    assert "'id'" not in user_content
+    assert "'type'" not in user_content
+    assert "metadata" not in user_content
 
 
 def test_resolve_provider_alias_and_invalid():

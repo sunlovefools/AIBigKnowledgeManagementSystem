@@ -15,9 +15,10 @@ import aiohttp
 
 from ...prompts.answer_generator_prompt import (
     SYSTEM_PROMPT,
-    build_user_message_toon_context,
+    build_user_message,
 )
 from ..config import is_local_ollama_url
+from ..context_normalizer import build_llm_context_payload
 from ..http_client import post_json
 from ..logging_adapter import log_llm_request, log_llm_response
 from ..models import (
@@ -90,23 +91,15 @@ async def generate_via_ollama(
             "(or LOCAL_ANSWER_GENERATOR_LLM_MODEL / OLLAMA_MODEL)."
         )
 
-    try:
-        from py_toon_format import encode
-    except ModuleNotFoundError as exc:
-        raise RuntimeError(
-            "Missing required dependency 'py-toon-format'. "
-            "Install it to enable TOON context formatting for answer generation."
-        ) from exc
-
-    # Convert the JSON-serializable RAG docs into TOON format.
-    rag_context_toon = str(encode(rag_docs))
-    prompt_text = build_user_message_toon_context(rag_context_toon, user_query)
+    # Build the reduced numbered context payload.
+    rag_context_payload = build_llm_context_payload(rag_docs)
+    prompt_text = build_user_message(rag_context_payload, user_query)
 
     log_llm_request(
         provider="OLLAMA",
         model=cfg.model,
         user_query=user_query,
-        rag_context_payload=rag_context_toon,
+        rag_context_payload=rag_context_payload,
     )
 
     payload = {

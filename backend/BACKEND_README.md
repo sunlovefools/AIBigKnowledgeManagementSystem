@@ -11,7 +11,7 @@ This document explains the backend located in `backend/`. It covers API architec
 | Web Framework | FastAPI 0.111 (Python 3.11+) | Async endpoints, Pydantic validation, CORS middleware. |
 | Persistence | Astra DB (Data API) | Stores auth users + vectorized document chunks. |
 | Vector Search | `astrapy` collection with cosine metric (dim 768) | Accessed through `vectordb_init.py` + `vector_store.py`. |
-| AI Services | Beam + Ollama endpoints | Query refiner/embeddings via Beam and answer generation via Ollama `/api/generate` (with `BEAM` provider alias support). |
+| AI Services | Beam + Ollama + OpenRouter endpoints | Query refiner/embeddings via Beam and answer generation via provider-routed Ollama/BEAM/OpenRouter with structured context blocks. |
 | File Processing | PyMuPDF (`fitz`) + `python-docx` | Extracts structured text from PDFs/Word docs. |
 | Background Ops | Ingestion is synchronous for now; easy to move to task queue later. |
 
@@ -190,7 +190,7 @@ Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are 
 1. **Refinement** â€“ `query_refiner.refine_query()` posts the raw question to the Beam Query Refiner (Model_Query_LLM). Returns a single-sentence rephrase optimized for embeddings.
 2. **Query embedding** â€“ `embed_text()` (same as ingestion) converts the refined string to a 768-dim vector.
 3. **Vector search** â€“ `vector_store.search_similar_chunks()` sorts Astra collection by `$vector` similarity (cosine) and returns metadata for `top_k` chunks. `include_similarity=True` is leveraged to read `$similarity`.
-4. **Answer generation** - Extract the textual chunk list and call `answer_generator.generate_answer()` (compatibility facade). The facade delegates to `answer_generation/orchestration.py`, which resolves provider-specific logic. If Ollama target is local (`localhost` / `127.0.0.1` / `::1`, or URL omitted), the provider uses Python `ollama` (`AsyncClient`) directly. For non-local targets, it calls Ollama `/api/generate` with `model`, `system`, `prompt`, and `stream=false`. Context is TOON-encoded inside `<CONTEXT_TOON>`. The response is read from `response`. No `Authorization` header is sent for the Ollama HTTP path.
+4. **Answer generation** - Extract the textual chunk list and call `answer_generator.generate_answer()` (compatibility facade). The facade delegates to `answer_generation/orchestration.py`, which resolves provider-specific logic. Context is rendered as numbered blocks inside `<CONTEXT>` for both Ollama/BEAM and OpenRouter provider paths, and only includes `file_name` + `page_content` (no `id`, `type`, or full `metadata`). If Ollama target is local (`localhost` / `127.0.0.1` / `::1`, or URL omitted), the provider uses Python `ollama` (`AsyncClient`) directly. For non-local Ollama/BEAM targets, it calls Ollama `/api/generate` with `model`, `system`, `prompt`, and `stream=false`; response is read from `response`. OpenRouter uses chat-completions `messages` payload with the same context block format.
 5. **Response** â€“ Current response schema is simplified to `{"answer": "<LLM output>"}` (can re-enable chunk metadata by uncommenting code in `router_query.py`).
 
 `/query/direct` bypasses the refinement stage for debugging embeddings or the vector store.

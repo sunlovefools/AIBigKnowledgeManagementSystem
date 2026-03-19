@@ -7,7 +7,7 @@ It covers the following components:
 
 * `router_query.py`
 * `query_refiner.py`
-* `answer_generator.py` compatibility facade + `answer_generation/` modular package (Ollama/OpenRouter + TOON/JSON context)
+* `answer_generator.py` compatibility facade + `answer_generation/` modular package (Ollama/OpenRouter + structured context blocks)
 * Updated `vector_store.py` with similarity search
 * End-to-end RAG pipeline execution
 * API design + request/response schemas
@@ -35,7 +35,7 @@ User Query
     ↓
 (3) Vector Similarity Search (AstraDB)
     ↓
-(4) Answer Generation (Ollama /api/generate + TOON context)
+(4) Answer Generation (provider-routed + structured context blocks)
     ↓
 Response JSON
 ```
@@ -101,7 +101,7 @@ similar_chunks = search_similar_chunks(query_embedding, top_k=request.top_k)
 
 #### **Step 4 — Answer Generation**
 
-The retrieved context is passed to `answer_generator.generate_answer()` (compatibility facade), then delegated to `answer_generation/orchestration.py` which routes to Ollama/OpenRouter provider modules. The Ollama provider calls `/api/generate` with TOON context (or local SDK path).
+The retrieved context is passed to `answer_generator.generate_answer()` (compatibility facade), then delegated to `answer_generation/orchestration.py` which routes to Ollama/OpenRouter provider modules. Both provider paths use a numbered context-block format for answer generation.
 
 ---
 
@@ -166,9 +166,10 @@ BEAM_ANSWER_GENERATOR_LLM_KEY
 
 - Local target (`localhost` / `127.0.0.1` / `::1`, or URL omitted): uses Python `ollama` client directly (`AsyncClient`)
 - Non-local target: request JSON includes `model`, `system`, `prompt`, `stream=false`
-- Context is TOON-encoded and inserted under `<CONTEXT_TOON>` inside `prompt`
+- Context is inserted under `<CONTEXT>` as numbered blocks using only `file_name` + `page_content` fields (no `id`, `type`, or full `metadata`)
 - No `Authorization` header is sent
 - The answer is read from response field `response`
+- OpenRouter uses chat-completions `messages` with the same numbered context blocks under `<CONTEXT>` and the same reduced schema
 
 ---
 

@@ -7,18 +7,17 @@ configuration loading or retrieval-context normalization.
 
 from __future__ import annotations
 
-import json
-
 import aiohttp
 
 from ...prompts.answer_generator_prompt import (
     SYSTEM_PROMPT,
-    build_user_message_json_context,
+    build_user_message,
 )
 from ..citations import (
     append_or_replace_sources_suffix,
     collect_source_file_names,
 )
+from ..context_normalizer import build_llm_context_payload
 from ..http_client import post_json
 from ..logging_adapter import log_llm_request, log_llm_response
 from ..models import NO_ANSWER_FALLBACK, AnswerGeneratorConfig, NormalizedRagDoc
@@ -49,17 +48,17 @@ async def generate_via_openrouter(
     if not cfg.url:
         raise RuntimeError("OPENROUTER_URL is missing when ANSWER_GENERATOR_LLM_PROVIDER=OPENROUTER.")
 
-    rag_context_json = json.dumps(rag_docs, ensure_ascii=False, indent=2)
+    rag_context_payload = build_llm_context_payload(rag_docs)
     log_llm_request(
         provider="OPENROUTER",
         model=cfg.model,
         user_query=user_query,
-        rag_context_payload=rag_context_json,
+        rag_context_payload=rag_context_payload,
     )
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": build_user_message_json_context(rag_docs, user_query)},
+        {"role": "user", "content": build_user_message(rag_context_payload, user_query)},
     ]
 
     payload = {

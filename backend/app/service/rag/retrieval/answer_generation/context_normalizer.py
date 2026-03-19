@@ -7,6 +7,7 @@ input validation. It should not read environment variables or call external APIs
 
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from .models import NormalizedMetadata, NormalizedRagDoc
@@ -81,3 +82,54 @@ def normalize_rag_docs(rag_docs: list[dict[str, Any]]) -> list[NormalizedRagDoc]
         )
 
     return normalized
+
+
+def build_llm_context_docs(rag_docs: list[NormalizedRagDoc]) -> list[dict[str, str]]:
+    """Build the reduced context schema sent to answer-generation providers.
+
+    Output intentionally excludes internal fields such as `id`, `type`, and full
+    `metadata` (including `parent_chunk_number`). Only source filename and text
+    content are sent to the LLM.
+    """
+    context_docs: list[dict[str, str]] = []
+
+    for doc in rag_docs:
+        reduced: dict[str, str] = {
+            "page_content": str(doc.get("page_content") or ""),
+        }
+
+        metadata = doc.get("metadata")
+        if isinstance(metadata, dict):
+            file_name = metadata.get("file_name")
+            if isinstance(file_name, str) and file_name.strip():
+                reduced["file_name"] = file_name.strip()
+
+        context_docs.append(reduced)
+
+    return context_docs
+
+
+def build_llm_context_payload(rag_docs: list[NormalizedRagDoc]) -> str:
+    """Build numbered context blocks for answer-generation prompts.
+
+    Format:
+        [1]
+        file_name: filename.pdf
+        page_content: "..."
+    """
+    context_docs = build_llm_context_docs(rag_docs)
+    blocks: list[str] = []
+
+    for idx, doc in enumerate(context_docs, start=1):
+        file_name = doc.get("file_name")
+        normalized_file_name = file_name if isinstance(file_name, str) and file_name.strip() else "filename unknown"
+        page_content = str(doc.get("page_content") or "")
+        escaped_page_content = json.dumps(page_content, ensure_ascii=False)
+        block = (
+            f"[{idx}]\n"
+            f"file_name: {normalized_file_name}\n"
+            f"page_content: {escaped_page_content}"
+        )
+        blocks.append(block)
+
+    return "\n\n".join(blocks)
