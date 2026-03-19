@@ -45,3 +45,4 @@ backend/debug/logs/*.txt
 
 # Artifacts
 backend/_local_uploads/docling_previews/*
+backend/_local_uploads/*

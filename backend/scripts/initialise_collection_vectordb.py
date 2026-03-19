@@ -107,7 +107,6 @@ def main() -> int:
 
     # --- Parent (non-vector) collection definition ---
     parent_definition = CollectionDefinition(
-        lexical=english_lexical_options,
         indexing={
             "allow": [
                 "value.metadata.file_metadata.file_name",
