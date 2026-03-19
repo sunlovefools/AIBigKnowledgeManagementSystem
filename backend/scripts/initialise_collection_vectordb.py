@@ -40,6 +40,7 @@ from astrapy.info import (
     CollectionDefinition,
     CollectionVectorOptions,
     CollectionDefaultIDOptions,
+    CollectionLexicalOptions,
 )
 
 load_dotenv()
@@ -72,8 +73,23 @@ def main() -> int:
 
     database = get_database()
 
+    # Standard English lexical options for both collections
+    english_lexical_options = CollectionLexicalOptions(
+        enabled=True,
+        analyzer={
+            "tokenizer": {"name": "standard"},
+            "filters": [
+                {"name": "lowercase"},
+                {"name": "porterstem"},
+                {"name": "asciifolding"},
+                {"name": "stop"},
+            ],
+        }
+    )
+
     # --- Child (vector) collection definition ---
     child_definition = CollectionDefinition(
+        lexical=english_lexical_options,
         vector=CollectionVectorOptions(
             dimension=768,
             metric=VectorMetric.COSINE,
@@ -91,6 +107,7 @@ def main() -> int:
 
     # --- Parent (non-vector) collection definition ---
     parent_definition = CollectionDefinition(
+        lexical=english_lexical_options,
         indexing={
             "allow": [
                 "value.metadata.file_metadata.file_name",
@@ -100,7 +117,6 @@ def main() -> int:
         },
         default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
     )
-
     ensure_collection(database, child_name, child_definition)
     ensure_collection(database, parent_name, parent_definition)
 
