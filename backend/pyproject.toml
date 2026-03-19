@@ -35,6 +35,7 @@ dependencies = [
     "uvicorn[standard]",
     "einops",
     "uuid6>=2025.0.1",
+    "langgraph>=1.0.1",
 ]
 
 [build-system]

@@ -49,9 +49,113 @@ class AgentModifyResponse(BaseModel):
     proposals: list[ProposalItem]
 
 
+class AgentV2ModifyRequest(BaseModel):
+    """Request payload for v2 retrieval brief extraction."""
+    user_instructions: str
+
+
+class AgentV2ModifyResponse(BaseModel):
+    """Response payload for v2 retrieval brief extraction."""
+    goal: str
+    anchors: list[str]
+    constraint: str
+
+
 @router.get("/health")
 def agent_health():
     return {"agent": "ok"}
+
+
+@router.post("/v2/modify", response_model=AgentV2ModifyResponse)
+async def agent_v2_modify(request: AgentV2ModifyRequest):
+    """
+    Run Agent v2 retrieval brief extractor pipeline (node 1 only).
+    """
+    if not request.user_instructions.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="user_instructions must not be empty.",
+        )
+
+    try:
+        from app.service.rag.agent_v2.retrieval_brief_graph import retrieval_brief_graph
+    except ModuleNotFoundError as exc:
+        # Only support local fallback when package root `app` itself is missing.
+        # Do not swallow real dependency/import errors from inside the v2 module.
+        if exc.name != "app":
+            raise
+        from retrieval_brief_graph import retrieval_brief_graph
+
+    import aiohttp
+
+    run_id = uuid4().hex
+    initial_state = {
+        "user_instructions": request.user_instructions.strip(),
+        "run_id": run_id,
+        "goal": "",
+        "anchors": [],
+        "constraint": "None",
+        "token_prompt_total": 0,
+        "token_completion_total": 0,
+        "token_total": 0,
+        "llm_call_count": 0,
+        "error": None,
+        "_session": None,
+    }
+
+    print("[Agentic Modification V2] Retrieval brief pipeline started")
+    print(f"   User instructions: {request.user_instructions}")
+    print(f"{'='*50}")
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            initial_state["_session"] = session
+            final_state = await retrieval_brief_graph.ainvoke(initial_state)
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Agent v2 pipeline failed: {str(e)}",
+        )
+
+    if final_state.get("error"):
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Agent v2 error: {final_state['error']}",
+        )
+
+    goal = str(final_state.get("goal", "") or "").strip()
+    anchors = [
+        str(anchor).strip()
+        for anchor in (final_state.get("anchors", []) or [])
+        if str(anchor).strip()
+    ]
+    constraint = str(final_state.get("constraint", "None") or "").strip() or "None"
+
+    token_prompt_total = int(final_state.get("token_prompt_total", 0) or 0)
+    token_completion_total = int(final_state.get("token_completion_total", 0) or 0)
+    token_total = int(final_state.get("token_total", 0) or 0)
+    llm_call_count = int(final_state.get("llm_call_count", 0) or 0)
+
+    log_token_usage(
+        provider="OPENROUTER",
+        model="modification-agent-v2-run",
+        prompt_tokens=token_prompt_total,
+        completion_tokens=token_completion_total,
+        total_tokens=token_total,
+        estimated_cost_usd=0.0,
+        operation="modification_agent_v2_run",
+        run_id=run_id,
+        step=f"llm_calls={llm_call_count}",
+    )
+
+    print(f"\nPipeline v2 complete - anchors={len(anchors)}")
+
+    return AgentV2ModifyResponse(
+        goal=goal,
+        anchors=anchors,
+        constraint=constraint,
+    )
 
 
 @router.post("/modify", response_model=AgentModifyResponse)
