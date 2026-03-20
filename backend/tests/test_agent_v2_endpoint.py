@@ -24,8 +24,21 @@ class _FakeGraph:
         return {
             **state,
             "goal": "Update UK refund policy from 14 days to 30 days.",
-            "anchors": ["14 days", "UK", "refund policy"],
+            "lexical_anchors": ["14 days", "UK", "refund policy"],
+            "semantic_anchors": ["UK refund policy", "refund policy with 14 days period"],
+            "anchors": [
+                "14 days",
+                "UK",
+                "refund policy",
+                "UK refund policy",
+                "refund policy with 14 days period",
+            ],
             "constraint": "Only update text that applies to UK refund policy.",
+            "node2_search_group_result": {
+                "run_summary": {
+                    "top_k_per_query": 15,
+                }
+            },
             "token_prompt_total": 10,
             "token_completion_total": 8,
             "token_total": 18,
@@ -41,7 +54,7 @@ def test_agent_v2_modify_rejects_empty_user_instructions():
     assert exc.value.status_code == 422
 
 
-def test_agent_v2_modify_returns_direct_retrieval_brief(monkeypatch):
+def test_agent_v2_modify_returns_retrieval_brief_and_node2_output(monkeypatch):
     monkeypatch.setattr(router_agent, "log_token_usage", lambda **kwargs: None)
     monkeypatch.setattr(retrieval_brief_graph_module, "retrieval_brief_graph", _FakeGraph())
 
@@ -50,7 +63,19 @@ def test_agent_v2_modify_returns_direct_retrieval_brief(monkeypatch):
 
     assert payload == {
         "goal": "Update UK refund policy from 14 days to 30 days.",
-        "anchors": ["14 days", "UK", "refund policy"],
+        "lexical_anchors": ["14 days", "UK", "refund policy"],
+        "semantic_anchors": ["UK refund policy", "refund policy with 14 days period"],
+        "anchors": [
+            "14 days",
+            "UK",
+            "refund policy",
+            "UK refund policy",
+            "refund policy with 14 days period",
+        ],
         "constraint": "Only update text that applies to UK refund policy.",
+        "node2_search_group_result": {
+            "run_summary": {
+                "top_k_per_query": 15,
+            }
+        },
     }
-

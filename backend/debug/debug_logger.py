@@ -319,6 +319,32 @@ def log_modification_agent_llm_response(
         print(f"Warning: failed to write modification agent response debug log: {exc}")
 
 
+def log_modification_agent_search_group(
+    *,
+    run_id: str | None,
+    step: str | None,
+    payload: dict[str, Any],
+) -> None:
+    """Append node-2 search/group payload to backend/debug/logs/modification_agent_debug.txt."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        lines = [
+            "=" * 50,
+            "DEBUG: MODIFICATION AGENT SEARCH GROUP",
+            "-" * 50,
+            f"Timestamp: {timestamp}",
+            f"Run ID: {run_id if run_id else 'N/A'}",
+            f"Step: {step if step else 'N/A'}",
+            "<SEARCH_GROUP_PAYLOAD>",
+            json.dumps(payload, ensure_ascii=False, indent=2),
+            "</SEARCH_GROUP_PAYLOAD>",
+            "=" * 50,
+        ]
+        _append(_MOD_AGENT_FILE, lines)
+    except Exception as exc:
+        print(f"Warning: failed to write modification agent search/group debug log: {exc}")
+
+
 _TOKEN_USAGE_FILE = "token_usage.txt"
 _TOKEN_USAGE_SUMMARY_FILE = "token_usage_summary.txt"
 

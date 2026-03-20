@@ -5,7 +5,7 @@ POST /api/agent/modify
 from __future__ import annotations
 
 import traceback
-from typing import Optional
+from typing import Any, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, status
@@ -57,8 +57,11 @@ class AgentV2ModifyRequest(BaseModel):
 class AgentV2ModifyResponse(BaseModel):
     """Response payload for v2 retrieval brief extraction."""
     goal: str
+    lexical_anchors: list[str]
+    semantic_anchors: list[str]
     anchors: list[str]
     constraint: str
+    node2_search_group_result: dict[str, Any]
 
 
 @router.get("/health")
@@ -69,7 +72,7 @@ def agent_health():
 @router.post("/v2/modify", response_model=AgentV2ModifyResponse)
 async def agent_v2_modify(request: AgentV2ModifyRequest):
     """
-    Run Agent v2 retrieval brief extractor pipeline (node 1 only).
+    Run Agent v2 retrieval brief + search/group pipeline.
     """
     if not request.user_instructions.strip():
         raise HTTPException(
@@ -93,8 +96,11 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         "user_instructions": request.user_instructions.strip(),
         "run_id": run_id,
         "goal": "",
+        "lexical_anchors": [],
+        "semantic_anchors": [],
         "anchors": [],
         "constraint": "None",
+        "node2_search_group_result": {},
         "token_prompt_total": 0,
         "token_completion_total": 0,
         "token_total": 0,
@@ -104,8 +110,7 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
     }
 
     print("[Agentic Modification V2] Retrieval brief pipeline started")
-    print(f"   User instructions: {request.user_instructions}")
-    print(f"{'='*50}")
+    print(f"[Agentic Modification V2] User instructions: {request.user_instructions}")
 
     try:
         async with aiohttp.ClientSession() as session:
@@ -125,12 +130,25 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         )
 
     goal = str(final_state.get("goal", "") or "").strip()
+    lexical_anchors = [
+        str(anchor).strip()
+        for anchor in (final_state.get("lexical_anchors", []) or [])
+        if str(anchor).strip()
+    ]
+    semantic_anchors = [
+        str(anchor).strip()
+        for anchor in (final_state.get("semantic_anchors", []) or [])
+        if str(anchor).strip()
+    ]
     anchors = [
         str(anchor).strip()
         for anchor in (final_state.get("anchors", []) or [])
         if str(anchor).strip()
     ]
     constraint = str(final_state.get("constraint", "None") or "").strip() or "None"
+    node2_search_group_result = final_state.get("node2_search_group_result", {})
+    if not isinstance(node2_search_group_result, dict):
+        node2_search_group_result = {}
 
     token_prompt_total = int(final_state.get("token_prompt_total", 0) or 0)
     token_completion_total = int(final_state.get("token_completion_total", 0) or 0)
@@ -149,12 +167,18 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         step=f"llm_calls={llm_call_count}",
     )
 
-    print(f"\nPipeline v2 complete - anchors={len(anchors)}")
+    print(
+        "[Agentic Modification V2] Pipeline complete - "
+        f"lexical={len(lexical_anchors)} semantic={len(semantic_anchors)}"
+    )
 
     return AgentV2ModifyResponse(
         goal=goal,
+        lexical_anchors=lexical_anchors,
+        semantic_anchors=semantic_anchors,
         anchors=anchors,
         constraint=constraint,
+        node2_search_group_result=node2_search_group_result,
     )
 
 

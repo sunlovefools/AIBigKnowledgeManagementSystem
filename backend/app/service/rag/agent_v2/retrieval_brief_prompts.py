@@ -9,18 +9,17 @@ Return JSON only with this schema:
 
 {
   "goal": "string",
-  "anchors": ["string"],
+  "lexical_anchors": ["string"],
+  "semantic_anchors": ["string"],
   "constraint": "string"
 }
 
 Rules:
 - goal must be a short sentence that summarizes the intended modification.
-- anchors must contain only retrieval-useful terms for finding the existing text to edit.
-- Prefer anchors that are likely to already appear in the documents, such as current values, topic phrases, named entities, jurisdictions, or document terms.
-- Do not include the desired new value in anchors unless it is genuinely useful for locating existing text.
+- lexical_anchors must contain literal from user instructions that are likely to appear in the documents (e.g. current values, named entities, jurisdictions, document terms).
+- Do not include the desired new value in lexical anchors unless it is genuinely useful for locating existing text.
+- semantic_anchors must be short semantic search phrases (not full sentences) that help retrieve relevant content using embeddings.
 - constraint must be a single natural-language sentence describing what text is allowed to be edited, or "None" if there is no clear constraint.
-- Do not generate multiple search queries.
-- Do not generate edit instructions.
 - Do not include explanations.
 - Keep anchors concise and non-redundant.
 """
@@ -35,7 +34,8 @@ Change the refund day from 14 days to 30 days for all refund policy under UK.
 Output:
 {{
   "goal": "Update UK refund policy from 14 days to 30 days.",
-  "anchors": ["14 days", "UK", "refund policy"],
+  "lexical_anchors": ["14 days", "UK", "refund policy"],
+  "semantic_anchors": ["UK refund policy", "refund policy with 14 days period"],
   "constraint": "Only update text that applies to UK refund policy."
 }}
 
@@ -46,7 +46,8 @@ Remove the late payment penalty clause from all invoice terms.
 Output:
 {{
   "goal": "Remove the late payment penalty clause from invoice terms.",
-  "anchors": ["late payment penalty", "invoice terms"],
+  "lexical_anchors": ["late payment penalty", "invoice terms"],
+  "semantic_anchors": ["invoice terms with penalty clause", "late payment clause in invoice terms"],
   "constraint": "Only update text that defines invoice payment terms."
 }}
 

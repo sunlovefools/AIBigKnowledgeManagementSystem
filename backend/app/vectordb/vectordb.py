@@ -4,9 +4,15 @@ from typing import List, Dict, Any, Tuple
 from collections import defaultdict, deque
 
 from langchain_core.documents import Document
+from astrapy import DataAPIClient
 
 # Import vector DB initilisation logic
-from .vectordb_init import init_vector_db
+from .vectordb_init import (
+    init_vector_db,
+    ASTRA_DB_URL,
+    ASTRA_DB_TOKEN,
+    CHILD_COLLECTION_NAME,
+)
 from app.service.rag.retrieval.reranker import ZeRankerService
 
 try:
@@ -19,6 +25,7 @@ RAG_STORES = init_vector_db()  # A dictionary with 'vector_store' and 'parent_st
 VECTOR_STORE = RAG_STORES['vector_store']  # LangChain AstraDBVectorStore for Child Chunks
 PARENT_STORE = RAG_STORES['parent_store']  # LangChain AstraDBStore for Parent Documents
 _RERANKER_SERVICE = ZeRankerService()
+_RAW_CHILD_COLLECTION = None
 
 # --- Ingestion / Upsertion Operations ---
 def _to_deleted_count(delete_result: Any) -> int:
@@ -461,6 +468,19 @@ def _normalize_lexical_child_row(raw_row: Any) -> Dict[str, Any] | None:
     }
 
 
+def _get_raw_child_collection() -> Any:
+    """Return a lazy-initialized raw Astra child collection handle."""
+    global _RAW_CHILD_COLLECTION
+    if _RAW_CHILD_COLLECTION is None:
+        if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
+            raise RuntimeError("Astra DB credentials are missing for lexical child-chunk search.")
+        client = DataAPIClient()
+        _RAW_CHILD_COLLECTION = client.get_database(
+            ASTRA_DB_URL, token=ASTRA_DB_TOKEN
+        ).get_collection(CHILD_COLLECTION_NAME)
+    return _RAW_CHILD_COLLECTION
+
+
 async def lexical_search_child_chunks(query: str, top_k: int = 20) -> List[Dict[str, Any]]:
     """
     Perform lexical search directly against the child-chunk Astra collection.
@@ -477,16 +497,23 @@ async def lexical_search_child_chunks(query: str, top_k: int = 20) -> List[Dict[
     if top_k <= 0:
         raise ValueError("top_k must be greater than 0.")
 
-    collection = getattr(VECTOR_STORE, "collection", None)
-    if collection is None:
-        raise RuntimeError("Vector store does not expose a raw Astra collection for lexical search.")
+    collection = _get_raw_child_collection()
 
     def _find_rows() -> List[Dict[str, Any]]:
         try:
-            cursor = collection.find(
-                sort={"$lexical": normalized_query},
-                limit=top_k,
-            )
+            try:
+                cursor = collection.find(
+                    filter={},
+                    sort={"$lexical": normalized_query},
+                    limit=top_k,
+                )
+            except TypeError:
+                # Some collection APIs accept positional filter only.
+                cursor = collection.find(
+                    {},
+                    sort={"$lexical": normalized_query},
+                    limit=top_k,
+                )
             rows: List[Dict[str, Any]] = []
             for row in cursor:
                 normalized_row = _normalize_lexical_child_row(row)

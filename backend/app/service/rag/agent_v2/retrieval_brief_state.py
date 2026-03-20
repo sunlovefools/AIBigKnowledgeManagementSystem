@@ -1,5 +1,5 @@
 """
-LangGraph state definition for the Agent v2 retrieval brief pipeline.
+LangGraph state definition for the Agent v2 retrieval brief + search/group pipeline.
 """
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from typing_extensions import TypedDict
 
 
 class RetrievalBriefState(TypedDict):
-    """Shared state for the single-node retrieval brief extraction graph."""
+    """Shared state for Agent v2 nodes."""
 
     # --- Input ---
     user_instructions: str
@@ -16,8 +16,11 @@ class RetrievalBriefState(TypedDict):
 
     # --- Intermediate / Output ---
     goal: str
+    lexical_anchors: list[str]
+    semantic_anchors: list[str]
     anchors: list[str]
     constraint: str
+    node2_search_group_result: dict[str, Any]
     error: Optional[str]
 
     # --- Observability ---
@@ -28,4 +31,3 @@ class RetrievalBriefState(TypedDict):
 
     # --- Infrastructure ---
     _session: Optional[Any]
-
