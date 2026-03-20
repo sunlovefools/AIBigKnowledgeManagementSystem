@@ -111,6 +111,7 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         "llm_call_count": 0,
         "error": None,
         "_session": None,
+        "_retrieval_cache": {},
     }
 
     print("[Agentic Modification V2] Retrieval brief pipeline started")

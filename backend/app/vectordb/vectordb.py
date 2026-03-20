@@ -481,7 +481,42 @@ def _get_raw_child_collection() -> Any:
     return _RAW_CHILD_COLLECTION
 
 
-async def lexical_search_child_chunks(query: str, top_k: int = 20) -> List[Dict[str, Any]]:
+def _normalize_excluded_file_ids(raw_excluded_file_ids: Any) -> List[str]:
+    if isinstance(raw_excluded_file_ids, set):
+        candidates = list(raw_excluded_file_ids)
+    elif isinstance(raw_excluded_file_ids, list):
+        candidates = raw_excluded_file_ids
+    elif isinstance(raw_excluded_file_ids, tuple):
+        candidates = list(raw_excluded_file_ids)
+    else:
+        candidates = []
+
+    normalized: List[str] = []
+    seen: set[str] = set()
+    for item in candidates:
+        value = str(item or "").strip()
+        if not value or value in seen:
+            continue
+        seen.add(value)
+        normalized.append(value)
+    return normalized
+
+
+def _extract_row_file_id(raw_row: Dict[str, Any]) -> str:
+    metadata = raw_row.get("metadata")
+    if not isinstance(metadata, dict):
+        metadata = {}
+    file_metadata = metadata.get("file_metadata")
+    if not isinstance(file_metadata, dict):
+        file_metadata = {}
+    return str(file_metadata.get("file_id") or metadata.get("file_id") or "").strip()
+
+
+async def lexical_search_child_chunks(
+    query: str,
+    top_k: int = 20,
+    excluded_file_ids: List[str] | set[str] | tuple[str, ...] | None = None,
+) -> List[Dict[str, Any]]:
     """
     Perform lexical search directly against the child-chunk Astra collection.
     """
@@ -498,28 +533,65 @@ async def lexical_search_child_chunks(query: str, top_k: int = 20) -> List[Dict[
         raise ValueError("top_k must be greater than 0.")
 
     collection = _get_raw_child_collection()
+    normalized_excluded_file_ids = _normalize_excluded_file_ids(excluded_file_ids)
 
     def _find_rows() -> List[Dict[str, Any]]:
+        filter_candidates: List[Dict[str, Any]]
+        if normalized_excluded_file_ids:
+            filter_candidates = [
+                {"metadata.file_metadata.file_id": {"$nin": normalized_excluded_file_ids}},
+                {"file_metadata.file_id": {"$nin": normalized_excluded_file_ids}},
+                {},
+            ]
+        else:
+            filter_candidates = [{}]
+
+        runtime_errors: List[Exception] = []
         try:
-            try:
-                cursor = collection.find(
-                    filter={},
-                    sort={"$lexical": normalized_query},
-                    limit=top_k,
-                )
-            except TypeError:
-                # Some collection APIs accept positional filter only.
-                cursor = collection.find(
-                    {},
-                    sort={"$lexical": normalized_query},
-                    limit=top_k,
-                )
-            rows: List[Dict[str, Any]] = []
-            for row in cursor:
-                normalized_row = _normalize_lexical_child_row(row)
-                if normalized_row is not None:
-                    rows.append(normalized_row)
-            return rows
+            for filter_doc in filter_candidates:
+                try:
+                    try:
+                        cursor = collection.find(
+                            filter=filter_doc,
+                            sort={"$lexical": normalized_query},
+                            limit=top_k,
+                        )
+                    except TypeError:
+                        # Some collection APIs accept positional filter only.
+                        cursor = collection.find(
+                            filter_doc,
+                            sort={"$lexical": normalized_query},
+                            limit=top_k,
+                        )
+                    rows: List[Dict[str, Any]] = []
+                    for row in cursor:
+                        normalized_row = _normalize_lexical_child_row(row)
+                        if normalized_row is not None:
+                            rows.append(normalized_row)
+
+                    if not normalized_excluded_file_ids:
+                        return rows
+
+                    # Validate filter effectiveness and enforce exclusion as safety net.
+                    leaked_excluded = False
+                    filtered_rows: List[Dict[str, Any]] = []
+                    for row in rows:
+                        row_file_id = _extract_row_file_id(row)
+                        if row_file_id in normalized_excluded_file_ids:
+                            leaked_excluded = True
+                            continue
+                        filtered_rows.append(row)
+
+                    if leaked_excluded and filter_doc:
+                        continue
+                    return filtered_rows[:top_k]
+                except Exception as candidate_error:
+                    runtime_errors.append(candidate_error)
+                    continue
+
+            if runtime_errors:
+                raise runtime_errors[-1]
+            return []
         except Exception as error:
             raise RuntimeError(
                 "Lexical child-chunk search failed. Ensure the Astra collection already "

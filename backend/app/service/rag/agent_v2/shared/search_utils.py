@@ -120,15 +120,14 @@ def _parent_sort_key(item: dict[str, Any]) -> tuple[int, str]:
 def _build_parent_chunks_prompt_payload(parent_chunks: list[dict[str, Any]]) -> str:
     """Build a prompt payload string from parent chunk metadata for file filtering."""
     if not parent_chunks:
-        return "[none]\nchunk_number: unknown\npage_content: \"\""
+        return "chunk_number: unknown\npage_content: \"\""
 
     blocks: list[str] = []
-    for index, parent_chunk in enumerate(parent_chunks, start=1):
+    for parent_chunk in parent_chunks:
         chunk_number = parent_chunk.get("chunk_number")
         chunk_number_display = str(chunk_number) if isinstance(chunk_number, int) else "unknown"
         page_content = str(parent_chunk.get("page_content") or "")
         block = (
-            f"[{index}]\n"
             f"chunk_number: {chunk_number_display}\n"
             f"page_content: {json.dumps(page_content, ensure_ascii=False)}"
         )
@@ -155,6 +154,8 @@ def _normalize_file_filter_result(
 
     confidence = _safe_float(raw_parsed.get("confidence"))
     suggested_numbers_raw = raw_parsed.get("suggested_chunk_numbers")
+    if not isinstance(suggested_numbers_raw, list):
+        suggested_numbers_raw = raw_parsed.get("clue_chunk_numbers")
     if not isinstance(suggested_numbers_raw, list):
         suggested_numbers_raw = []
 
@@ -224,4 +225,3 @@ def _extract_fetched_file_ids_from_search_batch(search_batch_result: dict[str, A
         if file_id:
             file_ids.add(file_id)
     return file_ids
-

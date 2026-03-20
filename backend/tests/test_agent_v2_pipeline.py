@@ -33,6 +33,7 @@ def _state(user_instructions: str) -> dict:
         "llm_call_count": 0,
         "error": None,
         "_session": None,
+        "_retrieval_cache": {},
     }
 
 

@@ -45,7 +45,15 @@ async def run_search_and_group_batch(
 
         for index, multiplier in enumerate(SEARCH_EXCLUSION_OVERFETCH_MULTIPLIERS):
             request_k = max(SEARCH_TOP_K, SEARCH_TOP_K * int(multiplier))
-            rows = await vector_search._run_lexical_search(query=anchor, top_k=request_k)
+            try:
+                rows = await vector_search._run_lexical_search(
+                    query=anchor,
+                    top_k=request_k,
+                    excluded_file_ids=excluded_ids,
+                )
+            except TypeError:
+                # Backward-compatible fallback for test monkeypatches using old signature.
+                rows = await vector_search._run_lexical_search(query=anchor, top_k=request_k)
             if index > 0:
                 used_overfetch = True
 
@@ -84,7 +92,15 @@ async def run_search_and_group_batch(
 
         for index, multiplier in enumerate(SEARCH_EXCLUSION_OVERFETCH_MULTIPLIERS):
             request_k = max(SEARCH_TOP_K, SEARCH_TOP_K * int(multiplier))
-            items = await vector_search._run_semantic_search(query=anchor, top_k=request_k)
+            try:
+                items = await vector_search._run_semantic_search(
+                    query=anchor,
+                    top_k=request_k,
+                    excluded_file_ids=excluded_ids,
+                )
+            except TypeError:
+                # Backward-compatible fallback for test monkeypatches using old signature.
+                items = await vector_search._run_semantic_search(query=anchor, top_k=request_k)
             if index > 0:
                 used_overfetch = True
 
@@ -338,4 +354,3 @@ async def search_and_group_node(state: RetrievalBriefState) -> dict:
         return {
             "error": error_message,
         }
-

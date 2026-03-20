@@ -25,6 +25,7 @@ def _base_state() -> dict:
         "llm_call_count": 0,
         "error": None,
         "_session": None,
+        "_retrieval_cache": {},
     }
 
 

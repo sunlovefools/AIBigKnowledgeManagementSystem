@@ -30,6 +30,7 @@ def _base_state(*, lexical_anchors=None, semantic_anchors=None):
         "llm_call_count": 0,
         "error": None,
         "_session": None,
+        "_retrieval_cache": {},
     }
 
 

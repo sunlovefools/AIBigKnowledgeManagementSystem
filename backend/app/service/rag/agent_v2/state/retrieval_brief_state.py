@@ -34,4 +34,4 @@ class RetrievalBriefState(TypedDict):
 
     # --- Infrastructure ---
     _session: Optional[Any]
-
+    _retrieval_cache: Optional[Any]

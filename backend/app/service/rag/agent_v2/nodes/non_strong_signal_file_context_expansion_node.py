@@ -1,4 +1,4 @@
-"""Node 3: expand non-strong-signal files."""
+"""Node 3: expand file context with semantic anchors (all candidate files)."""
 from __future__ import annotations
 
 import asyncio
@@ -29,18 +29,24 @@ async def run_non_strong_signal_file_context_expansion_batch(
     search_group_result: dict[str, Any],
     batch_id: int | None = None,
 ) -> dict[str, Any]:
-    """Reusable non-strong-file expansion batch runner."""
+    """Reusable expansion batch runner across all candidate files."""
     files = search_group_result.get("files") if isinstance(search_group_result, dict) else []
     if not isinstance(files, list):
         files = []
 
     semantic_anchors = _normalize_anchors(state.get("semantic_anchors"))
+    candidate_files = [item for item in files if isinstance(item, dict)]
     non_strong_signal_files = [
         item for item in files if isinstance(item, dict) and not bool(item.get("strong_signal_file", False))
     ]
+    strong_signal_files = [
+        item for item in files if isinstance(item, dict) and bool(item.get("strong_signal_file", False))
+    ]
     resolved_batch_id = int(batch_id or 1)
+    retrieval_cache = vector_search._ensure_retrieval_cache(state.get("_retrieval_cache"))
+    state["_retrieval_cache"] = retrieval_cache
 
-    if not non_strong_signal_files or not semantic_anchors:
+    if not candidate_files or not semantic_anchors:
         return {
             "batch_id": resolved_batch_id,
             "queries": {
@@ -49,13 +55,17 @@ async def run_non_strong_signal_file_context_expansion_batch(
             "files": [],
             "run_summary": {
                 "top_k_per_anchor_per_file": NON_STRONG_SIGNAL_FILE_TOP_K,
+                "candidate_file_count": len(candidate_files),
                 "candidate_non_strong_file_count": len(non_strong_signal_files),
+                "candidate_strong_signal_file_count": len(strong_signal_files),
                 "expanded_file_count": 0,
                 "expanded_child_chunk_count": 0,
                 "expanded_parent_chunk_count": 0,
                 "error_count": 0,
+                "cache_stats": vector_search._snapshot_retrieval_cache_stats(retrieval_cache),
             },
             "errors": "none",
+            "_retrieval_cache": retrieval_cache,
         }
 
     async def _expand_one_file(file_item: dict[str, Any]) -> dict[str, Any]:
@@ -67,11 +77,20 @@ async def run_non_strong_signal_file_context_expansion_batch(
         child_aggregate: dict[str, dict[str, Any]] = {}
 
         for anchor in semantic_anchors:
-            items, search_mode = await vector_search._run_semantic_search_for_file(
-                query=anchor,
-                file_id=file_id,
-                top_k=NON_STRONG_SIGNAL_FILE_TOP_K,
-            )
+            try:
+                items, search_mode = await vector_search._run_semantic_search_for_file(
+                    query=anchor,
+                    file_id=file_id,
+                    top_k=NON_STRONG_SIGNAL_FILE_TOP_K,
+                    excluded_child_chunk_ids=set(),
+                    cache=retrieval_cache,
+                )
+            except TypeError:
+                items, search_mode = await vector_search._run_semantic_search_for_file(
+                    query=anchor,
+                    file_id=file_id,
+                    top_k=NON_STRONG_SIGNAL_FILE_TOP_K,
+                )
             semantic_query_modes[anchor] = search_mode
             anchor_hits: list[dict[str, Any]] = []
 
@@ -152,7 +171,13 @@ async def run_non_strong_signal_file_context_expansion_batch(
 
         parent_chunks: list[dict[str, Any]] = []
         if parent_ids:
-            parent_rows = await vector_search._fetch_parent_chunks(parent_ids)
+            try:
+                parent_rows = await vector_search._fetch_parent_chunks(
+                    parent_ids,
+                    cache=retrieval_cache,
+                )
+            except TypeError:
+                parent_rows = await vector_search._fetch_parent_chunks(parent_ids)
             for parent_id, raw_doc in zip(parent_ids, parent_rows):
                 if not isinstance(raw_doc, dict):
                     continue
@@ -174,6 +199,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
         return {
             "file_id": file_id,
             "file_name": file_name,
+            "semantic_anchors": semantic_anchors,
             "semantic_query_modes": semantic_query_modes,
             "query_hits": {
                 "semantic": semantic_query_hits,
@@ -184,13 +210,13 @@ async def run_non_strong_signal_file_context_expansion_batch(
         }
 
     expanded_file_results_raw = await asyncio.gather(
-        *[_expand_one_file(file_item) for file_item in non_strong_signal_files],
+        *[_expand_one_file(file_item) for file_item in candidate_files],
         return_exceptions=True,
     )
 
     expanded_file_results: list[dict[str, Any]] = []
     expansion_errors: list[dict[str, str]] = []
-    for file_item, result in zip(non_strong_signal_files, expanded_file_results_raw):
+    for file_item, result in zip(candidate_files, expanded_file_results_raw):
         if isinstance(result, Exception):
             expansion_errors.append(
                 {
@@ -210,7 +236,9 @@ async def run_non_strong_signal_file_context_expansion_batch(
         "files": expanded_file_results,
         "run_summary": {
             "top_k_per_anchor_per_file": NON_STRONG_SIGNAL_FILE_TOP_K,
+            "candidate_file_count": len(candidate_files),
             "candidate_non_strong_file_count": len(non_strong_signal_files),
+            "candidate_strong_signal_file_count": len(strong_signal_files),
             "expanded_file_count": len(expanded_file_results),
             "expanded_child_chunk_count": sum(
                 len(file_item.get("expanded_child_chunks", []))
@@ -221,14 +249,16 @@ async def run_non_strong_signal_file_context_expansion_batch(
                 for file_item in expanded_file_results
             ),
             "error_count": len(expansion_errors),
+            "cache_stats": vector_search._snapshot_retrieval_cache_stats(retrieval_cache),
         },
         "errors": expansion_errors if expansion_errors else "none",
+        "_retrieval_cache": retrieval_cache,
     }
 
 
 async def non_strong_signal_file_context_expansion_node(state: RetrievalBriefState) -> dict:
-    """Node 3 wrapper: run one non-strong-file expansion batch."""
-    print("[Agent v2 - Node 3] Expanding context for non-strong files...")
+    """Node 3 wrapper: run one expansion batch across all candidate files."""
+    print("[Agent v2 - Node 3] Expanding context for candidate files...")
     run_id = state.get("run_id")
     node2_result = state.get("node2_search_group_result", {})
     semantic_anchors = _normalize_anchors(state.get("semantic_anchors"))
