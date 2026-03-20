@@ -62,6 +62,8 @@ class AgentV2ModifyResponse(BaseModel):
     anchors: list[str]
     constraint: str
     node2_search_group_result: dict[str, Any]
+    node3_non_strong_signal_file_context_expansion_result: dict[str, Any]
+    node4_file_filtering_result: dict[str, Any]
 
 
 @router.get("/health")
@@ -81,13 +83,13 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         )
 
     try:
-        from app.service.rag.agent_v2.retrieval_brief_graph import retrieval_brief_graph
+        from app.service.rag.agent_v2.graph.retrieval_brief_graph import retrieval_brief_graph
     except ModuleNotFoundError as exc:
         # Only support local fallback when package root `app` itself is missing.
         # Do not swallow real dependency/import errors from inside the v2 module.
         if exc.name != "app":
             raise
-        from retrieval_brief_graph import retrieval_brief_graph
+        from graph.retrieval_brief_graph import retrieval_brief_graph
 
     import aiohttp
 
@@ -101,6 +103,8 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         "anchors": [],
         "constraint": "None",
         "node2_search_group_result": {},
+        "node3_non_strong_signal_file_context_expansion_result": {},
+        "node4_file_filtering_result": {},
         "token_prompt_total": 0,
         "token_completion_total": 0,
         "token_total": 0,
@@ -149,6 +153,15 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
     node2_search_group_result = final_state.get("node2_search_group_result", {})
     if not isinstance(node2_search_group_result, dict):
         node2_search_group_result = {}
+    node3_non_strong_signal_file_context_expansion_result = final_state.get(
+        "node3_non_strong_signal_file_context_expansion_result",
+        {},
+    )
+    if not isinstance(node3_non_strong_signal_file_context_expansion_result, dict):
+        node3_non_strong_signal_file_context_expansion_result = {}
+    node4_file_filtering_result = final_state.get("node4_file_filtering_result", {})
+    if not isinstance(node4_file_filtering_result, dict):
+        node4_file_filtering_result = {}
 
     token_prompt_total = int(final_state.get("token_prompt_total", 0) or 0)
     token_completion_total = int(final_state.get("token_completion_total", 0) or 0)
@@ -179,6 +192,8 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         anchors=anchors,
         constraint=constraint,
         node2_search_group_result=node2_search_group_result,
+        node3_non_strong_signal_file_context_expansion_result=node3_non_strong_signal_file_context_expansion_result,
+        node4_file_filtering_result=node4_file_filtering_result,
     )
 
 

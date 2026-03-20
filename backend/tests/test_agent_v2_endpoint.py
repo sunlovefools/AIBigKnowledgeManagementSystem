@@ -8,7 +8,7 @@ from fastapi import HTTPException
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.api import router_agent
-from app.service.rag.agent_v2 import retrieval_brief_graph as retrieval_brief_graph_module
+from app.service.rag.agent_v2.graph import retrieval_brief_graph as retrieval_brief_graph_module
 
 
 def _build_payload(**overrides):
@@ -39,6 +39,16 @@ class _FakeGraph:
                     "top_k_per_query": 15,
                 }
             },
+            "node3_non_strong_signal_file_context_expansion_result": {
+                "run_summary": {
+                    "expanded_file_count": 1,
+                }
+            },
+            "node4_file_filtering_result": {
+                "run_summary": {
+                    "promoted_file_count": 1,
+                }
+            },
             "token_prompt_total": 10,
             "token_completion_total": 8,
             "token_total": 18,
@@ -54,7 +64,7 @@ def test_agent_v2_modify_rejects_empty_user_instructions():
     assert exc.value.status_code == 422
 
 
-def test_agent_v2_modify_returns_retrieval_brief_and_node2_output(monkeypatch):
+def test_agent_v2_modify_returns_retrieval_brief_and_node_outputs(monkeypatch):
     monkeypatch.setattr(router_agent, "log_token_usage", lambda **kwargs: None)
     monkeypatch.setattr(retrieval_brief_graph_module, "retrieval_brief_graph", _FakeGraph())
 
@@ -76,6 +86,16 @@ def test_agent_v2_modify_returns_retrieval_brief_and_node2_output(monkeypatch):
         "node2_search_group_result": {
             "run_summary": {
                 "top_k_per_query": 15,
+            }
+        },
+        "node3_non_strong_signal_file_context_expansion_result": {
+            "run_summary": {
+                "expanded_file_count": 1,
+            }
+        },
+        "node4_file_filtering_result": {
+            "run_summary": {
+                "promoted_file_count": 1,
             }
         },
     }

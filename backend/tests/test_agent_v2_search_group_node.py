@@ -8,7 +8,8 @@ from langchain_core.documents import Document
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.service.rag.agent_v2 import retrieval_brief_nodes
+from app.service.rag.agent_v2.nodes import search_and_group_node
+from app.service.rag.agent_v2.services import vector_search
 
 
 def _base_state(*, lexical_anchors=None, semantic_anchors=None):
@@ -21,6 +22,8 @@ def _base_state(*, lexical_anchors=None, semantic_anchors=None):
         "anchors": [],
         "constraint": "None",
         "node2_search_group_result": {},
+        "node3_non_strong_signal_file_context_expansion_result": {},
+        "node4_file_filtering_result": {},
         "token_prompt_total": 0,
         "token_completion_total": 0,
         "token_total": 0,
@@ -82,12 +85,12 @@ def test_node2_mixed_hits_produce_strong_chunk_and_strong_file(monkeypatch):
             )
         ]
 
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_lexical_search", _fake_lexical_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_semantic_search", _fake_semantic_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "log_modification_agent_search_group", lambda **kwargs: None)
+    monkeypatch.setattr(vector_search, "_run_lexical_search", _fake_lexical_search)
+    monkeypatch.setattr(vector_search, "_run_semantic_search", _fake_semantic_search)
+    monkeypatch.setattr(search_and_group_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(
-        retrieval_brief_nodes.search_and_group_node(
+        search_and_group_node.search_and_group_node(
             _base_state(lexical_anchors=["$50"], semantic_anchors=["minimum order"])
         )
     )
@@ -123,12 +126,12 @@ def test_node2_file_with_both_sources_is_strong_even_with_low_semantic_score(mon
             )
         ]
 
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_lexical_search", _fake_lexical_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_semantic_search", _fake_semantic_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "log_modification_agent_search_group", lambda **kwargs: None)
+    monkeypatch.setattr(vector_search, "_run_lexical_search", _fake_lexical_search)
+    monkeypatch.setattr(vector_search, "_run_semantic_search", _fake_semantic_search)
+    monkeypatch.setattr(search_and_group_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(
-        retrieval_brief_nodes.search_and_group_node(
+        search_and_group_node.search_and_group_node(
             _base_state(lexical_anchors=["$50"], semantic_anchors=["minimum order"])
         )
     )
@@ -149,12 +152,12 @@ def test_node2_file_with_only_lexical_hits_is_not_strong(monkeypatch):
     async def _fake_semantic_search(query: str, top_k: int):
         return []
 
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_lexical_search", _fake_lexical_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_semantic_search", _fake_semantic_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "log_modification_agent_search_group", lambda **kwargs: None)
+    monkeypatch.setattr(vector_search, "_run_lexical_search", _fake_lexical_search)
+    monkeypatch.setattr(vector_search, "_run_semantic_search", _fake_semantic_search)
+    monkeypatch.setattr(search_and_group_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(
-        retrieval_brief_nodes.search_and_group_node(
+        search_and_group_node.search_and_group_node(
             _base_state(lexical_anchors=["$50"], semantic_anchors=["minimum order"])
         )
     )
@@ -181,12 +184,12 @@ def test_node2_file_with_only_semantic_hits_is_not_strong(monkeypatch):
             )
         ]
 
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_lexical_search", _fake_lexical_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_semantic_search", _fake_semantic_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "log_modification_agent_search_group", lambda **kwargs: None)
+    monkeypatch.setattr(vector_search, "_run_lexical_search", _fake_lexical_search)
+    monkeypatch.setattr(vector_search, "_run_semantic_search", _fake_semantic_search)
+    monkeypatch.setattr(search_and_group_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(
-        retrieval_brief_nodes.search_and_group_node(
+        search_and_group_node.search_and_group_node(
             _base_state(lexical_anchors=["$50"], semantic_anchors=["minimum order"])
         )
     )
@@ -224,12 +227,12 @@ def test_node2_high_signal_chunk_auto_marks_associated_file(monkeypatch):
             )
         ]
 
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_lexical_search", _fake_lexical_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_semantic_search", _fake_semantic_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "log_modification_agent_search_group", lambda **kwargs: None)
+    monkeypatch.setattr(vector_search, "_run_lexical_search", _fake_lexical_search)
+    monkeypatch.setattr(vector_search, "_run_semantic_search", _fake_semantic_search)
+    monkeypatch.setattr(search_and_group_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(
-        retrieval_brief_nodes.search_and_group_node(
+        search_and_group_node.search_and_group_node(
             _base_state(lexical_anchors=["x"], semantic_anchors=["y"])
         )
     )
@@ -258,12 +261,12 @@ def test_node2_missing_child_id_fails_node(monkeypatch):
             )
         ]
 
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_lexical_search", _fake_lexical_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "_run_semantic_search", _fake_semantic_search)
-    monkeypatch.setattr(retrieval_brief_nodes, "log_modification_agent_search_group", lambda **kwargs: None)
+    monkeypatch.setattr(vector_search, "_run_lexical_search", _fake_lexical_search)
+    monkeypatch.setattr(vector_search, "_run_semantic_search", _fake_semantic_search)
+    monkeypatch.setattr(search_and_group_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(
-        retrieval_brief_nodes.search_and_group_node(
+        search_and_group_node.search_and_group_node(
             _base_state(lexical_anchors=["$50"], semantic_anchors=["minimum order"])
         )
     )
@@ -291,10 +294,10 @@ def test_node2_real_backend_search_with_fake_anchors_from_env(monkeypatch):
     lexical_anchors, semantic_anchors = _anchors_from_env()
     assert lexical_anchors or semantic_anchors, "At least one lexical or semantic anchor is required."
 
-    monkeypatch.setattr(retrieval_brief_nodes, "log_modification_agent_search_group", lambda **kwargs: None)
+    monkeypatch.setattr(search_and_group_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(
-        retrieval_brief_nodes.search_and_group_node(
+        search_and_group_node.search_and_group_node(
             _base_state(lexical_anchors=lexical_anchors, semantic_anchors=semantic_anchors)
         )
     )

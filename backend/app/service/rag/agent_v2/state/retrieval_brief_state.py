@@ -4,6 +4,7 @@ LangGraph state definition for the Agent v2 retrieval brief + search/group pipel
 from __future__ import annotations
 
 from typing import Any, Optional
+
 from typing_extensions import TypedDict
 
 
@@ -20,7 +21,9 @@ class RetrievalBriefState(TypedDict):
     semantic_anchors: list[str]
     anchors: list[str]
     constraint: str
-    node2_search_group_result: dict[str, Any]
+    node2_search_group_result: dict[str, Any] # Might need a better name
+    node3_non_strong_signal_file_context_expansion_result: dict[str, Any]
+    node4_file_filtering_result: dict[str, Any]
     error: Optional[str]
 
     # --- Observability ---
@@ -31,3 +34,4 @@ class RetrievalBriefState(TypedDict):
 
     # --- Infrastructure ---
     _session: Optional[Any]
+
