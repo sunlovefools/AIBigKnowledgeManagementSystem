@@ -350,6 +350,101 @@ def test_node2_missing_child_id_fails_node(monkeypatch):
     assert "Missing child_chunk_id" in result["error"]
 
 
+def test_node2_respects_excluded_child_chunk_ids_by_file(monkeypatch):
+    async def _fake_lexical_search(query: str, top_k: int, **kwargs):
+        return [
+            {
+                "_id": "child-excluded",
+                "metadata": {"file_metadata": {"file_id": "file-1", "file_name": "a.md"}},
+            },
+            {
+                "_id": "child-allowed",
+                "metadata": {"file_metadata": {"file_id": "file-1", "file_name": "a.md"}},
+            },
+        ]
+
+    async def _fake_semantic_search(query: str, top_k: int, **kwargs):
+        return [
+            (
+                Document(
+                    page_content="x",
+                    metadata={
+                        "child_chunk_id": "child-semantic-excluded",
+                        "file_metadata": {"file_id": "file-1", "file_name": "a.md"},
+                    },
+                ),
+                0.9,
+            ),
+            (
+                Document(
+                    page_content="x",
+                    metadata={
+                        "child_chunk_id": "child-semantic-allowed",
+                        "file_metadata": {"file_id": "file-1", "file_name": "a.md"},
+                    },
+                ),
+                0.8,
+            ),
+        ]
+
+    monkeypatch.setattr(vector_search, "_run_lexical_search", _fake_lexical_search)
+    monkeypatch.setattr(vector_search, "_run_semantic_search", _fake_semantic_search)
+
+    node2 = asyncio.run(
+        search_and_group_node.run_search_and_group_batch(
+            _base_state(lexical_anchors=["x"], semantic_anchors=["y"]),
+            excluded_file_ids=set(),
+            excluded_child_chunk_ids_by_file={
+                "file-1": {"child-excluded", "child-semantic-excluded"},
+            },
+            batch_id=1,
+        )
+    )
+
+    returned_ids = {item["child_chunk_id"] for item in node2["children"]}
+    assert returned_ids == {"child-allowed", "child-semantic-allowed"}
+    assert node2["run_summary"]["excluded_child_chunk_id_count"] == 2
+
+
+def test_node2_overfetch_still_fills_results_after_child_exclusion(monkeypatch):
+    excluded_ids = {f"child-excluded-{index}" for index in range(15)}
+
+    async def _fake_lexical_search(query: str, top_k: int, **kwargs):
+        if top_k <= 15:
+            return [
+                {
+                    "_id": f"child-excluded-{index}",
+                    "metadata": {"file_metadata": {"file_id": "file-1", "file_name": "a.md"}},
+                }
+                for index in range(15)
+            ]
+        return [
+            {
+                "_id": f"child-valid-{index}",
+                "metadata": {"file_metadata": {"file_id": "file-1", "file_name": "a.md"}},
+            }
+            for index in range(15)
+        ]
+
+    async def _fake_semantic_search(query: str, top_k: int, **kwargs):
+        return []
+
+    monkeypatch.setattr(vector_search, "_run_lexical_search", _fake_lexical_search)
+    monkeypatch.setattr(vector_search, "_run_semantic_search", _fake_semantic_search)
+
+    node2 = asyncio.run(
+        search_and_group_node.run_search_and_group_batch(
+            _base_state(lexical_anchors=["x"], semantic_anchors=[]),
+            excluded_file_ids=set(),
+            excluded_child_chunk_ids_by_file={"file-1": excluded_ids},
+            batch_id=1,
+        )
+    )
+
+    assert len(node2["children"]) == 15
+    assert node2["query_modes"]["lexical"]["x"] == "overfetch_post_filter"
+
+
 def test_node2_real_backend_search_with_fake_anchors_from_env(monkeypatch):
     """
     Optional integration test:

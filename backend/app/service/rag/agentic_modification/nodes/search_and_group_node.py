@@ -39,10 +39,41 @@ def _normalize_allowed_file_ids(raw_allowed_file_ids: Any) -> set[str]:
     return normalized
 
 
+def _normalize_excluded_child_chunk_ids_by_file(
+    raw_value: Any,
+) -> dict[str, set[str]]:
+    if not isinstance(raw_value, dict):
+        return {}
+
+    normalized: dict[str, set[str]] = {}
+    for raw_file_id, raw_child_ids in raw_value.items():
+        file_id = str(raw_file_id or "").strip()
+        if not file_id:
+            continue
+        if isinstance(raw_child_ids, set):
+            child_candidates = list(raw_child_ids)
+        elif isinstance(raw_child_ids, list):
+            child_candidates = raw_child_ids
+        elif isinstance(raw_child_ids, tuple):
+            child_candidates = list(raw_child_ids)
+        else:
+            child_candidates = []
+        child_ids: set[str] = set()
+        for item in child_candidates:
+            child_id = str(item or "").strip()
+            if child_id:
+                child_ids.add(child_id)
+        if child_ids:
+            normalized[file_id] = child_ids
+    return normalized
+
+
 async def run_search_and_group_batch(
     state: RetrievalBriefState,
     *,
     excluded_file_ids: set[str] | None = None,
+    allowed_file_ids_override: set[str] | None = None,
+    excluded_child_chunk_ids_by_file: dict[str, set[str]] | None = None,
     batch_id: int | None = None,
 ) -> dict[str, Any]:
     """Reusable search/group batch runner with optional file-id exclusion."""
@@ -52,7 +83,12 @@ async def run_search_and_group_batch(
     semantic_anchors = _normalize_anchors(state.get("semantic_anchors"))
 
     excluded_ids = _normalize_excluded_file_ids(excluded_file_ids)
-    allowed_file_ids = _normalize_allowed_file_ids(state.get("file_ids"))
+    allowed_file_ids = (
+        _normalize_allowed_file_ids(allowed_file_ids_override)
+        if allowed_file_ids_override is not None
+        else _normalize_allowed_file_ids(state.get("file_ids"))
+    )
+    excluded_child_ids_by_file = _normalize_excluded_child_chunk_ids_by_file(excluded_child_chunk_ids_by_file)
     resolved_batch_id = int(batch_id or 1)
 
     async def _run_lexical_query(anchor: str) -> tuple[str, list[dict[str, Any]], str]:
@@ -89,6 +125,8 @@ async def run_search_and_group_batch(
                 if allowed_file_ids and file_id not in allowed_file_ids:
                     continue
                 if file_id in excluded_ids:
+                    continue
+                if child_chunk_id in excluded_child_ids_by_file.get(file_id, set()):
                     continue
 
                 seen_child_ids.add(child_chunk_id)
@@ -143,6 +181,8 @@ async def run_search_and_group_batch(
                 if allowed_file_ids and file_id not in allowed_file_ids:
                     continue
                 if file_id in excluded_ids:
+                    continue
+                if child_chunk_id in excluded_child_ids_by_file.get(file_id, set()):
                     continue
 
                 seen_child_ids.add(child_chunk_id)
@@ -309,6 +349,13 @@ async def run_search_and_group_batch(
         "batch_id": resolved_batch_id,
         "allowed_file_ids": sorted(allowed_file_ids),
         "excluded_file_ids": sorted(excluded_ids),
+        "excluded_child_chunk_ids_by_file": [
+            {
+                "file_id": file_id,
+                "child_chunk_ids": sorted(child_ids),
+            }
+            for file_id, child_ids in sorted(excluded_child_ids_by_file.items())
+        ],
         "query_modes": {
             "lexical": lexical_query_modes,
             "semantic": semantic_query_modes,
@@ -336,6 +383,7 @@ async def run_search_and_group_batch(
             "allowed_file_ids": sorted(allowed_file_ids) if allowed_file_ids else "none",
             "excluded_file_id_count": len(excluded_ids),
             "excluded_file_ids": sorted(excluded_ids) if excluded_ids else "none",
+            "excluded_child_chunk_id_count": sum(len(child_ids) for child_ids in excluded_child_ids_by_file.values()),
             "fetched_file_ids": fetched_file_ids if fetched_file_ids else "none",
             "strong_signal_chunk_count": sum(1 for item in child_results if item["strong_signal_chunk"]),
             "strong_signal_file_count": sum(1 for item in file_results if item["strong_signal_file"]),

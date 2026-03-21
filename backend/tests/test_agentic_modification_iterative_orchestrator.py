@@ -5,9 +5,6 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.service.rag.agentic_modification.nodes import iterative_search_filter_orchestrator_node
-from app.service.rag.agentic_modification.shared.constants import (
-    ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
-)
 
 
 def _base_state() -> dict:
@@ -86,189 +83,90 @@ def _expansion_batch(batch_id: int, file_id: str | None) -> dict:
 
 def _filter_batch(
     batch_id: int,
-    file_id: str | None,
-    promoted_count: int,
     *,
-    evaluated_count: int = 1,
+    file_id: str | None,
+    potential_chunk_numbers: list[int],
+    confirmed_chunk_numbers: list[int] | None = None,
+    excluded_child_chunk_ids: list[str] | None = None,
 ) -> dict:
-    promoted_files = []
-    if promoted_count > 0:
-        base_file_id = file_id or f"batch-{batch_id}-file"
-        for index in range(promoted_count):
-            promoted_file_id = base_file_id if index == 0 else f"{base_file_id}-p{index}"
-            promoted_files.append(
-                {
-                    "file_id": promoted_file_id,
-                    "file_name": f"{promoted_file_id}.md",
-                    "promotion_reason": "direct_match",
-                    "confidence": 1.0,
-                    "decision": "direct_match",
-                }
-            )
-    promoted_ratio = (
-        float(promoted_count) / float(evaluated_count)
-        if evaluated_count > 0
-        else 0.0
-    )
+    confirmed_chunk_numbers = confirmed_chunk_numbers or []
+    excluded_child_chunk_ids = excluded_child_chunk_ids or []
+    file_name = f"{file_id}.md" if file_id else "unknown.md"
+    potential_refs = [
+        {"file_id": file_id, "file_name": file_name, "parent_chunk_number": number}
+        for number in potential_chunk_numbers
+        if file_id
+    ]
+    confirmed_refs = [
+        {"file_id": file_id, "file_name": file_name, "parent_chunk_number": number}
+        for number in confirmed_chunk_numbers
+        if file_id
+    ]
     return {
         "batch_id": batch_id,
         "goal": "Update policy.",
         "constraint": "Only policy section.",
-        "confidence_threshold_for_potential_match": 0.70,
         "strong_signal_files": [],
-        "evaluations": [],
-        "promoted_files": promoted_files,
-        "dropped_files": [],
+        "evaluations": [
+            {
+                "file_id": file_id or "unknown",
+                "file_name": file_name,
+                "confirmed_parent_chunks": confirmed_chunk_numbers,
+                "potential_parent_chunks": potential_chunk_numbers,
+                "reasoning_summary": "synthetic",
+            }
+        ],
+        "merged_confirmed_parent_chunk_refs": confirmed_refs,
+        "merged_potential_parent_chunk_refs": potential_refs,
+        "potential_file_ids": [file_id] if file_id and potential_chunk_numbers else [],
+        "excluded_child_chunk_ids_by_file": (
+            [{"file_id": file_id, "child_chunk_ids": excluded_child_chunk_ids}]
+            if file_id and excluded_child_chunk_ids
+            else []
+        ),
         "run_summary": {
-            "promoted_file_count": promoted_count,
-            "evaluated_file_count": evaluated_count,
-            "evaluated_non_strong_file_count": evaluated_count,
-            "dropped_file_count": max(0, evaluated_count - promoted_count),
-            "promoted_ratio_current_batch": promoted_ratio,
-            "continue_ratio_threshold": ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
+            "evaluated_file_count": 1,
+            "confirmed_file_count": 1 if confirmed_chunk_numbers else 0,
+            "potential_file_count": 1 if potential_chunk_numbers else 0,
+            "confirmed_parent_chunk_ref_count": len(confirmed_refs),
+            "potential_parent_chunk_ref_count": len(potential_refs),
         },
     }
 
 
-def test_orchestrator_excludes_all_fetched_file_ids_between_batches(monkeypatch):
-    state = _base_state()
-    seen_excluded: list[set[str]] = []
+def _clue_batch(batch_id: int, refs: list[dict] | None = None) -> dict:
+    refs = refs or []
+    return {
+        "batch_id": batch_id,
+        "goal": "Update policy.",
+        "constraint": "Only policy section.",
+        "explorations": [],
+        "confirmed_parent_chunks_by_file": [],
+        "merged_confirmed_parent_chunk_refs": refs,
+        "run_summary": {
+            "exploration_count": 0,
+            "confirmed_exploration_count": 0,
+            "dead_end_count": 0,
+            "confirmed_parent_chunk_ref_count": len(refs),
+            "tool_call_count": 0,
+            "llm_round_count": 0,
+        },
+    }
 
-    async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
-        seen_excluded.append(set(excluded_file_ids))
+
+def test_orchestrator_loops_on_potential_files_and_forwards_child_exclusions(monkeypatch):
+    state = _base_state()
+    seen_search_kwargs: list[dict] = []
+
+    async def _fake_search_batch(_state, **kwargs):
+        seen_search_kwargs.append(kwargs)
+        batch_id = int(kwargs.get("batch_id", 1))
         if batch_id == 1:
             return _search_batch(1, "file-a", strong=True)
         if batch_id == 2:
-            return _search_batch(2, "file-b", strong=False)
-        return _search_batch(batch_id, None, strong=False)
-
-    async def _fake_expand_batch(_state, *, search_group_result, batch_id):
-        files = search_group_result.get("files", [])
-        file_id = files[0]["file_id"] if files else None
-        return _expansion_batch(batch_id, file_id)
-
-    async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
-        files = search_group_result.get("files", [])
-        file_id = files[0]["file_id"] if files else None
-        promoted_count = 1 if batch_id == 1 else 6
-        evaluated_count = 1 if batch_id == 1 else 10
-        return _filter_batch(
-            batch_id,
-            file_id,
-            promoted_count=promoted_count,
-            evaluated_count=evaluated_count,
-        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
-
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
-    monkeypatch.setattr(
-        iterative_search_filter_orchestrator_node,
-        "run_non_strong_signal_file_context_expansion_batch",
-        _fake_expand_batch,
-    )
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
-
-    result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
-    node2 = result["node2_search_group_result"]
-
-    assert seen_excluded[0] == set()
-    assert seen_excluded[1] == {"file-a"}
-    assert node2["run_summary"]["batch_count"] == 2
-    assert node2["run_summary"]["termination_reason"] == "promotion_ratio_below_threshold"
-
-
-def test_orchestrator_prefetch_starts_while_filtering_runs(monkeypatch):
-    state = _base_state()
-    prefetch_started = asyncio.Event()
-    allow_prefetch_finish = asyncio.Event()
-    marker = {"started_before_filter": False}
-
-    async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
-        if batch_id == 1:
-            return _search_batch(1, "file-a", strong=False)
-        prefetch_started.set()
-        await allow_prefetch_finish.wait()
-        return _search_batch(batch_id, None, strong=False)
-
-    async def _fake_expand_batch(_state, *, search_group_result, batch_id):
-        files = search_group_result.get("files", [])
-        file_id = files[0]["file_id"] if files else None
-        return _expansion_batch(batch_id, file_id)
-
-    async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
-        marker["started_before_filter"] = prefetch_started.is_set()
-        allow_prefetch_finish.set()
-        files = search_group_result.get("files", [])
-        file_id = files[0]["file_id"] if files else None
-        return _filter_batch(
-            batch_id,
-            file_id,
-            promoted_count=1,
-            evaluated_count=1,
-        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
-
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
-    monkeypatch.setattr(
-        iterative_search_filter_orchestrator_node,
-        "run_non_strong_signal_file_context_expansion_batch",
-        _fake_expand_batch,
-    )
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
-
-    asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
-    assert marker["started_before_filter"] is True
-
-
-def test_orchestrator_stops_immediately_and_cancels_prefetch_when_ratio_below_threshold(monkeypatch):
-    state = _base_state()
-    cancelled = {"value": False}
-
-    async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
-        if batch_id == 1:
-            return _search_batch(1, "file-a", strong=True)
-        try:
-            await asyncio.sleep(10)
-        except asyncio.CancelledError:
-            cancelled["value"] = True
-            raise
-        return _search_batch(batch_id, "file-b", strong=False)
-
-    async def _fake_expand_batch(_state, *, search_group_result, batch_id):
-        files = search_group_result.get("files", [])
-        file_id = files[0]["file_id"] if files else None
-        return _expansion_batch(batch_id, file_id)
-
-    async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
-        return _filter_batch(
-            batch_id,
-            None,
-            promoted_count=0,
-            evaluated_count=10,
-        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
-
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
-    monkeypatch.setattr(
-        iterative_search_filter_orchestrator_node,
-        "run_non_strong_signal_file_context_expansion_batch",
-        _fake_expand_batch,
-    )
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
-
-    result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
-    assert result["node4_file_filtering_result"]["run_summary"]["termination_reason"] == "promotion_ratio_below_threshold"
-    assert cancelled["value"] is True
-
-
-def test_orchestrator_deduplicates_global_promoted_files(monkeypatch):
-    state = _base_state()
-
-    async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
-        if batch_id == 1:
-            return _search_batch(1, "file-a", strong=True)
-        if batch_id == 2:
-            return _search_batch(2, "file-a", strong=True)
+            assert kwargs.get("allowed_file_ids_override") == {"file-a"}
+            assert kwargs.get("excluded_child_chunk_ids_by_file") == {"file-a": {"child-1", "child-2"}}
+            return _search_batch(2, None, strong=False)
         return _search_batch(batch_id, None, strong=False)
 
     async def _fake_expand_batch(_state, *, search_group_result, batch_id):
@@ -282,16 +180,18 @@ def test_orchestrator_deduplicates_global_promoted_files(monkeypatch):
         if batch_id == 1:
             return _filter_batch(
                 batch_id,
-                file_id,
-                promoted_count=1,
-                evaluated_count=1,
+                file_id=file_id,
+                potential_chunk_numbers=[3],
+                excluded_child_chunk_ids=["child-1", "child-2"],
             ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
         return _filter_batch(
             batch_id,
-            None,
-            promoted_count=0,
-            evaluated_count=10,
+            file_id=file_id,
+            potential_chunk_numbers=[],
         ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+
+    async def _fake_clue_batch(_state, *, file_filtering_result, batch_id):
+        return _clue_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -300,22 +200,27 @@ def test_orchestrator_deduplicates_global_promoted_files(monkeypatch):
         _fake_expand_batch,
     )
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_clue_chunk_explorer_batch", _fake_clue_batch)
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
-    promoted = result["node4_file_filtering_result"]["promoted_files"]
-    assert len(promoted) == 1
-    assert promoted[0]["file_id"] == "file-a"
+    assert result["node2_search_group_result"]["run_summary"]["batch_count"] == 2
+    assert result["node4_file_filtering_result"]["run_summary"]["termination_reason"] == "search_exhausted"
+    assert len(seen_search_kwargs) >= 2
 
 
-def test_orchestrator_continues_when_promoted_ratio_meets_threshold(monkeypatch):
+def test_orchestrator_prefetch_starts_before_clue_explorer(monkeypatch):
     state = _base_state()
-    seen_batches: list[int] = []
+    prefetch_started = asyncio.Event()
+    allow_prefetch_finish = asyncio.Event()
+    clue_saw_prefetch = {"value": False}
 
-    async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
-        seen_batches.append(batch_id)
+    async def _fake_search_batch(_state, **kwargs):
+        batch_id = int(kwargs.get("batch_id", 1))
         if batch_id == 1:
             return _search_batch(1, "file-a", strong=False)
+        prefetch_started.set()
+        await allow_prefetch_finish.wait()
         return _search_batch(batch_id, None, strong=False)
 
     async def _fake_expand_batch(_state, *, search_group_result, batch_id):
@@ -328,10 +233,14 @@ def test_orchestrator_continues_when_promoted_ratio_meets_threshold(monkeypatch)
         file_id = files[0]["file_id"] if files else None
         return _filter_batch(
             batch_id,
-            file_id,
-            promoted_count=7,
-            evaluated_count=10,
+            file_id=file_id,
+            potential_chunk_numbers=[1],
         ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+
+    async def _fake_clue_batch(_state, *, file_filtering_result, batch_id):
+        clue_saw_prefetch["value"] = prefetch_started.is_set()
+        allow_prefetch_finish.set()
+        return _clue_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -340,44 +249,31 @@ def test_orchestrator_continues_when_promoted_ratio_meets_threshold(monkeypatch)
         _fake_expand_batch,
     )
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_clue_chunk_explorer_batch", _fake_clue_batch)
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
-    result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
-    assert result["node2_search_group_result"]["run_summary"]["batch_count"] == 2
-    assert result["node2_search_group_result"]["run_summary"]["termination_reason"] == "search_exhausted"
-    assert seen_batches[:2] == [1, 2]
+    asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
+    assert clue_saw_prefetch["value"] is True
 
 
-def test_orchestrator_stops_when_promoted_ratio_below_threshold(monkeypatch):
+def test_orchestrator_stops_when_no_potential_parent_chunks(monkeypatch):
     state = _base_state()
-    cancelled = {"value": False}
-    started = {"value": False}
 
-    async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
-        if batch_id == 1:
-            return _search_batch(1, "file-a", strong=False)
-        started["value"] = True
-        try:
-            await asyncio.sleep(10)
-        except asyncio.CancelledError:
-            cancelled["value"] = True
-            raise
-        return _search_batch(batch_id, "file-b", strong=False)
+    async def _fake_search_batch(_state, **kwargs):
+        return _search_batch(1, "file-a", strong=True)
 
     async def _fake_expand_batch(_state, *, search_group_result, batch_id):
-        files = search_group_result.get("files", [])
-        file_id = files[0]["file_id"] if files else None
-        return _expansion_batch(batch_id, file_id)
+        return _expansion_batch(batch_id, "file-a")
 
     async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
-        files = search_group_result.get("files", [])
-        file_id = files[0]["file_id"] if files else None
         return _filter_batch(
             batch_id,
-            file_id,
-            promoted_count=6,
-            evaluated_count=10,
+            file_id="file-a",
+            potential_chunk_numbers=[],
         ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+
+    async def _fake_clue_batch(_state, *, file_filtering_result, batch_id):
+        return _clue_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -386,10 +282,50 @@ def test_orchestrator_stops_when_promoted_ratio_below_threshold(monkeypatch):
         _fake_expand_batch,
     )
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_clue_chunk_explorer_batch", _fake_clue_batch)
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
     assert result["node2_search_group_result"]["run_summary"]["batch_count"] == 1
-    assert result["node2_search_group_result"]["run_summary"]["termination_reason"] == "promotion_ratio_below_threshold"
-    assert started["value"] is True
-    assert cancelled["value"] is True
+    assert result["node4_file_filtering_result"]["run_summary"]["termination_reason"] == "no_potential_parent_chunks"
+
+
+def test_orchestrator_merges_confirmed_refs_from_node4_and_node5(monkeypatch):
+    state = _base_state()
+
+    async def _fake_search_batch(_state, **kwargs):
+        batch_id = int(kwargs.get("batch_id", 1))
+        if batch_id == 1:
+            return _search_batch(1, "file-a", strong=True)
+        return _search_batch(batch_id, None, strong=False)
+
+    async def _fake_expand_batch(_state, *, search_group_result, batch_id):
+        return _expansion_batch(batch_id, "file-a")
+
+    async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
+        return _filter_batch(
+            batch_id,
+            file_id="file-a",
+            potential_chunk_numbers=[3],
+            confirmed_chunk_numbers=[1],
+        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+
+    async def _fake_clue_batch(_state, *, file_filtering_result, batch_id):
+        return _clue_batch(
+            batch_id,
+            refs=[{"file_id": "file-a", "file_name": "file-a.md", "parent_chunk_number": 2}],
+        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
+    monkeypatch.setattr(
+        iterative_search_filter_orchestrator_node,
+        "run_non_strong_signal_file_context_expansion_batch",
+        _fake_expand_batch,
+    )
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_clue_chunk_explorer_batch", _fake_clue_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
+
+    result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
+    merged_refs = result["node5_clue_chunk_explorer_result"]["merged_confirmed_parent_chunk_refs"]
+    assert sorted(item["parent_chunk_number"] for item in merged_refs) == [1, 2]

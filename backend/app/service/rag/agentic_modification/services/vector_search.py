@@ -9,6 +9,7 @@ from langchain_core.documents import Document
 
 from ..shared.constants import SEMANTIC_FILE_FILTER_FALLBACK_K_STEPS
 from ..shared.search_utils import (
+    _extract_parent_child_chunk_ids,
     _extract_file_metadata,
     _extract_parent_chunk_number,
     _resolve_semantic_child_chunk_id,
@@ -254,6 +255,7 @@ def _build_parent_chunk_payload(
         metadata = {}
     file_id, file_name = _extract_file_metadata(metadata)
     chunk_number = _extract_parent_chunk_number(metadata)
+    child_chunk_ids = _extract_parent_child_chunk_ids(metadata)
     if not isinstance(chunk_number, int):
         return None
     if file_id == "unknown":
@@ -261,6 +263,7 @@ def _build_parent_chunk_payload(
     return {
         "parent_id": str(parent_id or "").strip(),
         "chunk_number": chunk_number,
+        "child_chunk_ids": child_chunk_ids,
         "page_content": str(raw_doc.get("page_content") or ""),
         "file_id": file_id,
         "file_name": file_name,

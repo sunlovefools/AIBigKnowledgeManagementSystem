@@ -137,20 +137,17 @@ def test_node5_explores_clues_concurrently_and_deduplicates_confirmed_chunks(mon
             {
                 "file_id": "file-a",
                 "file_name": "a.md",
-                "decision": "potential_match",
-                "suggested_chunk_numbers": [10, 11],
+                "potential_parent_chunks": [10, 11],
             },
             {
                 "file_id": "file-a",
                 "file_name": "a.md",
-                "decision": "direct_match",
-                "suggested_chunk_numbers": [11],
+                "potential_parent_chunks": [11],
             },
             {
                 "file_id": "file-b",
                 "file_name": "b.md",
-                "decision": "reject",
-                "suggested_chunk_numbers": [9],
+                "potential_parent_chunks": [],
             },
         ]
     }
@@ -252,14 +249,12 @@ def test_node5_tool_loop_bridge_and_dead_end_normalization(monkeypatch):
             {
                 "file_id": "file-a",
                 "file_name": "a.md",
-                "decision": "potential_match",
-                "suggested_chunk_numbers": [4],
+                "potential_parent_chunks": [4],
             },
             {
                 "file_id": "file-a",
                 "file_name": "a.md",
-                "decision": "potential_match",
-                "suggested_chunk_numbers": [8],
+                "potential_parent_chunks": [8],
             },
         ]
     }

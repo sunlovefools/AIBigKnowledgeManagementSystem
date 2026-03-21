@@ -357,13 +357,11 @@ async def run_clue_chunk_explorer_batch(
     for evaluation in evaluations:
         if not isinstance(evaluation, dict):
             continue
-        if str(evaluation.get("decision") or "").strip().lower() == "reject":
-            continue
         file_id = str(evaluation.get("file_id") or "").strip()
         file_name = str(evaluation.get("file_name") or "").strip() or "unknown"
         if not file_id:
             continue
-        clue_chunk_numbers = _normalize_chunk_numbers(evaluation.get("suggested_chunk_numbers"))
+        clue_chunk_numbers = _normalize_chunk_numbers(evaluation.get("potential_parent_chunks"))
         for clue_chunk_number in clue_chunk_numbers:
             input_key = f"{file_id}::{clue_chunk_number}"
             if input_key in seen_input_keys:

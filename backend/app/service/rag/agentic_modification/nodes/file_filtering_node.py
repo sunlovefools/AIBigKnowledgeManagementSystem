@@ -1,21 +1,14 @@
-"""Node 4: iterative file filtering with in-file semantic expansion."""
+"""Node 4: classify parent chunks into confirmed and potential edit targets."""
 from __future__ import annotations
 
 import asyncio
 from typing import Any
-
-from langchain_core.documents import Document
 
 from ..prompts.retrieval_brief_prompts import (
     FILE_FILTERING_SYSTEM_PROMPT,
     FILE_FILTERING_USER_PROMPT,
 )
 from ..services import llm_client, vector_search
-from ..shared.constants import (
-    ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
-    NON_STRONG_SIGNAL_FILE_TOP_K,
-    POTENTIAL_MATCH_PROMOTION_THRESHOLD,
-)
 from ..shared.logging import log_modification_agent_search_group
 from ..shared.normalization import (
     _normalize_anchors,
@@ -24,15 +17,8 @@ from ..shared.normalization import (
     _parse_json_object,
 )
 from ..shared.search_utils import (
-    _average_or_none,
-    _build_parent_chunks_prompt_payload,
-    _extract_file_metadata,
-    _extract_parent_chunk_number,
     _normalize_file_filter_result,
-    _parent_sort_key,
-    _resolve_semantic_child_chunk_id,
-    _resolve_semantic_parent_id,
-    _safe_float,
+    _build_parent_chunks_prompt_payload,
 )
 from ..state.retrieval_brief_state import RetrievalBriefState
 
@@ -53,151 +39,18 @@ def _extract_available_chunk_numbers(parent_chunks: list[dict[str, Any]]) -> set
     }
 
 
-async def _expand_file_context_one_round(
-    *,
-    file_id: str,
-    file_name: str,
-    semantic_anchors: list[str],
-    seen_child_chunk_ids: set[str],
-    seen_parent_ids: set[str],
-    retrieval_cache: dict[str, Any],
-) -> dict[str, Any]:
-    semantic_query_hits: dict[str, list[dict[str, Any]]] = {}
-    semantic_query_modes: dict[str, str] = {}
-    child_aggregate: dict[str, dict[str, Any]] = {}
-
-    for anchor in semantic_anchors:
-        try:
-            items, search_mode = await vector_search._run_semantic_search_for_file(
-                query=anchor,
-                file_id=file_id,
-                top_k=NON_STRONG_SIGNAL_FILE_TOP_K,
-                excluded_child_chunk_ids=seen_child_chunk_ids,
-                cache=retrieval_cache,
-            )
-        except TypeError:
-            items, search_mode = await vector_search._run_semantic_search_for_file(
-                query=anchor,
-                file_id=file_id,
-                top_k=NON_STRONG_SIGNAL_FILE_TOP_K,
-            )
-        semantic_query_modes[anchor] = search_mode
-        anchor_hits: list[dict[str, Any]] = []
-
-        for item in items:
-            if not isinstance(item, tuple) or len(item) < 2:
-                continue
-            doc_candidate = item[0]
-            if not isinstance(doc_candidate, Document):
-                continue
-
-            try:
-                child_chunk_id = _resolve_semantic_child_chunk_id(doc_candidate, query=anchor)
-            except ValueError:
-                continue
-            if child_chunk_id in seen_child_chunk_ids:
-                continue
-
-            metadata = doc_candidate.metadata if isinstance(doc_candidate.metadata, dict) else {}
-            row_file_id, row_file_name = _extract_file_metadata(metadata)
-            parent_id = _resolve_semantic_parent_id(doc_candidate)
-            score = _safe_float(item[1])
-
-            hit = {
-                "source": "semantic",
-                "query": anchor,
-                "child_chunk_id": child_chunk_id,
-                "parent_id": parent_id,
-                "file_id": row_file_id,
-                "file_name": row_file_name,
-                "score": score,
-            }
-            anchor_hits.append(hit)
-
-            entry = child_aggregate.setdefault(
-                child_chunk_id,
-                {
-                    "child_chunk_id": child_chunk_id,
-                    "parent_id": parent_id,
-                    "file_id": row_file_id,
-                    "file_name": row_file_name,
-                    "queries": set(),
-                    "scores": [],
-                },
-            )
-            entry["queries"].add(anchor)
-            if isinstance(score, float):
-                entry["scores"].append(score)
-            if not entry.get("parent_id") and parent_id:
-                entry["parent_id"] = parent_id
-
-        semantic_query_hits[anchor] = anchor_hits
-
-    new_child_chunks: list[dict[str, Any]] = []
-    for entry in child_aggregate.values():
-        new_child_chunks.append(
-            {
-                "child_chunk_id": entry["child_chunk_id"],
-                "parent_id": entry.get("parent_id"),
-                "file_id": entry["file_id"],
-                "file_name": entry["file_name"],
-                "query_hit_count": len(entry["queries"]),
-                "avg_semantic_score": _average_or_none(entry["scores"]),
-            }
-        )
-    new_child_chunks.sort(
-        key=lambda item: (
-            -int(item.get("query_hit_count", 0)),
-            -(item.get("avg_semantic_score") if isinstance(item.get("avg_semantic_score"), float) else -10**9),
-            str(item.get("child_chunk_id", "")),
-        )
-    )
-
-    new_parent_ids: list[str] = []
-    for child_item in new_child_chunks:
-        parent_id = str(child_item.get("parent_id") or "").strip()
-        if not parent_id or parent_id in seen_parent_ids:
+def _normalize_child_chunk_ids(raw_ids: Any) -> list[str]:
+    if not isinstance(raw_ids, list):
+        return []
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for item in raw_ids:
+        child_id = str(item or "").strip()
+        if not child_id or child_id in seen:
             continue
-        if parent_id in new_parent_ids:
-            continue
-        new_parent_ids.append(parent_id)
-
-    new_parent_chunks: list[dict[str, Any]] = []
-    if new_parent_ids:
-        try:
-            parent_rows = await vector_search._fetch_parent_chunks(
-                new_parent_ids,
-                cache=retrieval_cache,
-            )
-        except TypeError:
-            parent_rows = await vector_search._fetch_parent_chunks(new_parent_ids)
-
-        for parent_id, raw_doc in zip(new_parent_ids, parent_rows):
-            if not isinstance(raw_doc, dict):
-                continue
-            metadata = raw_doc.get("metadata")
-            if not isinstance(metadata, dict):
-                metadata = {}
-            row_file_id, row_file_name = _extract_file_metadata(metadata)
-            new_parent_chunks.append(
-                {
-                    "parent_id": parent_id,
-                    "chunk_number": _extract_parent_chunk_number(metadata),
-                    "page_content": str(raw_doc.get("page_content") or ""),
-                    "file_id": row_file_id if row_file_id != "unknown" else file_id,
-                    "file_name": row_file_name if row_file_name != "unknown" else file_name,
-                }
-            )
-        new_parent_chunks.sort(key=_parent_sort_key)
-
-    return {
-        "semantic_query_modes": semantic_query_modes,
-        "query_hits": {
-            "semantic": semantic_query_hits,
-        },
-        "new_child_chunks": new_child_chunks,
-        "new_parent_chunks": new_parent_chunks,
-    }
+        seen.add(child_id)
+        normalized.append(child_id)
+    return normalized
 
 
 def _build_filter_candidates(
@@ -224,7 +77,6 @@ def _build_filter_candidates(
             key = _file_key(file_id, file_name)
             base = node3_by_key.get(key, {})
             parent_chunks = base.get("parent_chunks", []) if isinstance(base, dict) else []
-            expanded_child_chunks = base.get("expanded_child_chunks", []) if isinstance(base, dict) else []
             semantic_anchors = (
                 _normalize_anchors(base.get("semantic_anchors")) if isinstance(base, dict) else []
             )
@@ -236,9 +88,6 @@ def _build_filter_candidates(
                     "file_name": file_name,
                     "strong_signal_file": bool(node2_item.get("strong_signal_file", False)),
                     "parent_chunks": parent_chunks if isinstance(parent_chunks, list) else [],
-                    "expanded_child_chunks": (
-                        expanded_child_chunks if isinstance(expanded_child_chunks, list) else []
-                    ),
                     "semantic_anchors": semantic_anchors,
                 }
             )
@@ -262,15 +111,90 @@ def _build_filter_candidates(
                     if isinstance(node3_item.get("parent_chunks"), list)
                     else []
                 ),
-                "expanded_child_chunks": (
-                    node3_item.get("expanded_child_chunks", [])
-                    if isinstance(node3_item.get("expanded_child_chunks"), list)
-                    else []
-                ),
                 "semantic_anchors": semantic_anchors,
             }
         )
     return candidates
+
+
+def _build_parent_chunk_refs(file_id: str, file_name: str, chunk_numbers: list[int]) -> list[dict[str, Any]]:
+    return [
+        {
+            "file_id": file_id,
+            "file_name": file_name,
+            "parent_chunk_number": number,
+        }
+        for number in chunk_numbers
+    ]
+
+
+def _dedupe_parent_chunk_refs(raw_refs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    deduped_by_key: dict[str, dict[str, Any]] = {}
+    for ref in raw_refs:
+        if not isinstance(ref, dict):
+            continue
+        file_id = str(ref.get("file_id") or "").strip()
+        file_name = str(ref.get("file_name") or "").strip() or "unknown"
+        parent_chunk_number = ref.get("parent_chunk_number")
+        if not file_id or not isinstance(parent_chunk_number, int):
+            continue
+        deduped_by_key.setdefault(
+            f"{file_id}::{parent_chunk_number}",
+            {
+                "file_id": file_id,
+                "file_name": file_name,
+                "parent_chunk_number": parent_chunk_number,
+            },
+        )
+    deduped = list(deduped_by_key.values())
+    deduped.sort(
+        key=lambda item: (
+            str(item.get("file_name") or ""),
+            str(item.get("file_id") or ""),
+            int(item.get("parent_chunk_number", 10**9)),
+        )
+    )
+    return deduped
+
+
+def _merge_child_exclusion_maps(raw_maps: list[dict[str, list[str]]]) -> dict[str, set[str]]:
+    merged: dict[str, set[str]] = {}
+    for raw_map in raw_maps:
+        if not isinstance(raw_map, dict):
+            continue
+        for file_id, child_ids in raw_map.items():
+            normalized_file_id = str(file_id or "").strip()
+            if not normalized_file_id:
+                continue
+            normalized_ids = _normalize_child_chunk_ids(child_ids)
+            if not normalized_ids:
+                continue
+            merged.setdefault(normalized_file_id, set()).update(normalized_ids)
+    return merged
+
+
+def _extract_selected_child_chunk_ids(
+    *,
+    parent_chunks: list[dict[str, Any]],
+    selected_chunk_numbers: set[int],
+) -> list[str]:
+    if not selected_chunk_numbers:
+        return []
+    selected_child_ids: list[str] = []
+    seen: set[str] = set()
+    for parent_chunk in parent_chunks:
+        if not isinstance(parent_chunk, dict):
+            continue
+        chunk_number = parent_chunk.get("chunk_number")
+        if not isinstance(chunk_number, int) or chunk_number not in selected_chunk_numbers:
+            continue
+        child_ids = _normalize_child_chunk_ids(parent_chunk.get("child_chunk_ids"))
+        for child_id in child_ids:
+            if child_id in seen:
+                continue
+            seen.add(child_id)
+            selected_child_ids.append(child_id)
+    return selected_child_ids
 
 
 async def _evaluate_filter_candidate(
@@ -279,36 +203,19 @@ async def _evaluate_filter_candidate(
     candidate_index: int,
     goal: str,
     constraint: str,
-    fallback_semantic_anchors: list[str],
     retrieval_cache: dict[str, Any],
     session: Any,
     run_id: str | None,
 ) -> dict[str, Any]:
     file_id = str(file_item.get("file_id") or "unknown")
     file_name = str(file_item.get("file_name") or "unknown")
-
     parent_chunks = [
         dict(parent_chunk)
         for parent_chunk in file_item.get("parent_chunks", [])
         if isinstance(parent_chunk, dict)
     ]
     semantic_anchors = _normalize_anchors(file_item.get("semantic_anchors"))
-    if not semantic_anchors:
-        semantic_anchors = fallback_semantic_anchors
-
-    seen_child_chunk_ids: set[str] = set()
-    for child_item in file_item.get("expanded_child_chunks", []):
-        if not isinstance(child_item, dict):
-            continue
-        child_id = str(child_item.get("child_chunk_id") or "").strip()
-        if child_id:
-            seen_child_chunk_ids.add(child_id)
-
-    seen_parent_ids: set[str] = set()
-    for parent_chunk in parent_chunks:
-        parent_id = str(parent_chunk.get("parent_id") or "").strip()
-        if parent_id:
-            seen_parent_ids.add(parent_id)
+    available_chunk_numbers = _extract_available_chunk_numbers(parent_chunks)
 
     usage_totals = {
         "prompt_tokens": 0,
@@ -317,126 +224,42 @@ async def _evaluate_filter_candidate(
     }
     llm_calls_made = 0
 
-    final_normalized = _normalize_file_filter_result(
-        {},
-        available_chunk_numbers=_extract_available_chunk_numbers(parent_chunks),
-        fallback_reason="No LLM evaluation completed.",
-    )
-    exhaustion_reason = "not_started"
-    round_history: list[dict[str, Any]] = []
-    round_index = 1
-
-    while True:
-        available_chunk_numbers = _extract_available_chunk_numbers(parent_chunks)
-        parent_chunks_payload = _build_parent_chunks_prompt_payload(parent_chunks)
-
-        try:
-            llm_text, usage = await llm_client._call_llm(
-                system_prompt=FILE_FILTERING_SYSTEM_PROMPT,
-                user_message=FILE_FILTERING_USER_PROMPT.format(
-                    goal=goal,
-                    constraint=constraint,
-                    parent_chunks=parent_chunks_payload,
-                ),
-                session=session,
-                run_id=run_id,
-                step="file_filtering",
-                max_tokens=512,
-            )
-            llm_calls_made += 1
-            usage_totals["prompt_tokens"] += int(usage.get("prompt_tokens", 0) or 0)
-            usage_totals["completion_tokens"] += int(usage.get("completion_tokens", 0) or 0)
-            usage_totals["total_tokens"] += int(usage.get("total_tokens", 0) or 0)
-
-            parsed = _parse_json_object(llm_text)
-            final_normalized = _normalize_file_filter_result(
-                parsed,
-                available_chunk_numbers=available_chunk_numbers,
-                fallback_reason="Model response normalized.",
-            )
-        except Exception as error:
-            final_normalized = _normalize_file_filter_result(
-                {},
-                available_chunk_numbers=available_chunk_numbers,
-                fallback_reason=f"Fallback reject due to file filtering error: {error}",
-            )
-
-        round_record: dict[str, Any] = {
-            "round_index": round_index,
-            "decision": final_normalized["decision"],
-            "confidence": float(final_normalized["confidence"]),
-            "reasoning_summary": final_normalized["reasoning_summary"],
-            "suggested_chunk_numbers": final_normalized["suggested_chunk_numbers"],
-            "parent_chunk_count_before": len(parent_chunks),
-            "new_child_chunk_count": 0,
-            "new_parent_chunk_count": 0,
-            "semantic_query_modes": {},
-            "round_exhaustion_reason": "",
-        }
-
-        if float(final_normalized["confidence"]) < POTENTIAL_MATCH_PROMOTION_THRESHOLD:
-            exhaustion_reason = "confidence_below_threshold"
-            round_record["round_exhaustion_reason"] = exhaustion_reason
-            round_history.append(round_record)
-            break
-
-        if not semantic_anchors:
-            exhaustion_reason = "no_semantic_anchors"
-            round_record["round_exhaustion_reason"] = exhaustion_reason
-            round_history.append(round_record)
-            break
-
-        expansion = await _expand_file_context_one_round(
-            file_id=file_id,
-            file_name=file_name,
-            semantic_anchors=semantic_anchors,
-            seen_child_chunk_ids=seen_child_chunk_ids,
-            seen_parent_ids=seen_parent_ids,
-            retrieval_cache=retrieval_cache,
+    try:
+        llm_text, usage = await llm_client._call_llm(
+            system_prompt=FILE_FILTERING_SYSTEM_PROMPT,
+            user_message=FILE_FILTERING_USER_PROMPT.format(
+                goal=goal,
+                constraint=constraint,
+                parent_chunks=_build_parent_chunks_prompt_payload(parent_chunks),
+            ),
+            session=session,
+            run_id=run_id,
+            step="file_filtering",
+            max_tokens=512,
         )
-        new_child_chunks = expansion.get("new_child_chunks", [])
-        new_parent_chunks = expansion.get("new_parent_chunks", [])
-        round_record["semantic_query_modes"] = expansion.get("semantic_query_modes", {})
-        round_record["new_child_chunk_count"] = len(new_child_chunks) if isinstance(new_child_chunks, list) else 0
-        round_record["new_parent_chunk_count"] = len(new_parent_chunks) if isinstance(new_parent_chunks, list) else 0
+        llm_calls_made = 1
+        usage_totals["prompt_tokens"] += int(usage.get("prompt_tokens", 0) or 0)
+        usage_totals["completion_tokens"] += int(usage.get("completion_tokens", 0) or 0)
+        usage_totals["total_tokens"] += int(usage.get("total_tokens", 0) or 0)
+        parsed = _parse_json_object(llm_text)
+        final_normalized = _normalize_file_filter_result(
+            parsed,
+            available_chunk_numbers=available_chunk_numbers,
+            fallback_reason="Model response normalized.",
+        )
+    except Exception as error:
+        final_normalized = _normalize_file_filter_result(
+            {},
+            available_chunk_numbers=available_chunk_numbers,
+            fallback_reason=f"Fallback empty classification due to file filtering error: {error}",
+        )
 
-        if not new_parent_chunks:
-            exhaustion_reason = "no_new_parent_chunks"
-            round_record["round_exhaustion_reason"] = exhaustion_reason
-            round_history.append(round_record)
-            break
+    confirmed_chunk_numbers = final_normalized["confirmed_parent_chunks"]
+    potential_chunk_numbers = final_normalized["potential_parent_chunks"]
 
-        for child_item in new_child_chunks:
-            if not isinstance(child_item, dict):
-                continue
-            child_id = str(child_item.get("child_chunk_id") or "").strip()
-            if child_id:
-                seen_child_chunk_ids.add(child_id)
-
-        added_parent_count = 0
-        for parent_chunk in new_parent_chunks:
-            if not isinstance(parent_chunk, dict):
-                continue
-            parent_id = str(parent_chunk.get("parent_id") or "").strip()
-            if not parent_id or parent_id in seen_parent_ids:
-                continue
-            seen_parent_ids.add(parent_id)
-            parent_chunks.append(parent_chunk)
-            added_parent_count += 1
-
-        if added_parent_count <= 0:
-            exhaustion_reason = "no_new_parent_chunks"
-            round_record["round_exhaustion_reason"] = exhaustion_reason
-            round_history.append(round_record)
-            break
-
-        round_record["round_exhaustion_reason"] = "continue"
-        round_history.append(round_record)
-        round_index += 1
-
-    is_promoted = final_normalized["decision"] == "direct_match" or (
-        final_normalized["decision"] == "potential_match"
-        and float(final_normalized["confidence"]) >= POTENTIAL_MATCH_PROMOTION_THRESHOLD
+    selected_child_chunk_ids = _extract_selected_child_chunk_ids(
+        parent_chunks=parent_chunks,
+        selected_chunk_numbers=set(confirmed_chunk_numbers) | set(potential_chunk_numbers),
     )
 
     evaluation = {
@@ -444,46 +267,24 @@ async def _evaluate_filter_candidate(
         "file_name": file_name,
         "parent_chunk_count": len(parent_chunks),
         "semantic_anchor_count": len(semantic_anchors),
-        "round_count": len(round_history),
-        "round_history": round_history,
-        "exhaustion_reason": exhaustion_reason,
-        **final_normalized,
-        "promoted": is_promoted,
+        "reasoning_summary": final_normalized["reasoning_summary"],
+        "confirmed_parent_chunks": confirmed_chunk_numbers,
+        "potential_parent_chunks": potential_chunk_numbers,
         "strong_signal_file": bool(file_item.get("strong_signal_file", False)),
+        "excluded_child_chunk_ids": selected_child_chunk_ids,
     }
 
-    promoted_candidate: dict[str, Any] | None = None
-    dropped_file: dict[str, Any] | None = None
-    if is_promoted:
-        promoted_candidate = {
-            "file_id": file_id,
-            "file_name": file_name,
-            "promotion_reason": (
-                "direct_match"
-                if final_normalized["decision"] == "direct_match"
-                else "potential_match_confidence_threshold"
-            ),
-            "confidence": float(final_normalized["confidence"]),
-            "decision": final_normalized["decision"],
-        }
-    else:
-        dropped_file = {
-            "file_id": file_id,
-            "file_name": file_name,
-            "decision": final_normalized["decision"],
-            "confidence": float(final_normalized["confidence"]),
-            "drop_reason": (
-                "reject_decision"
-                if final_normalized["decision"] == "reject"
-                else "potential_match_below_threshold"
-            ),
-        }
+    confirmed_refs = _build_parent_chunk_refs(file_id, file_name, confirmed_chunk_numbers)
+    potential_refs = _build_parent_chunk_refs(file_id, file_name, potential_chunk_numbers)
+    excluded_child_chunk_ids_by_file = {file_id: selected_child_chunk_ids} if selected_child_chunk_ids else {}
 
     return {
         "candidate_index": candidate_index,
         "evaluation": evaluation,
-        "promoted_candidate": promoted_candidate,
-        "dropped_file": dropped_file,
+        "confirmed_refs": confirmed_refs,
+        "potential_refs": potential_refs,
+        "potential_file_id": file_id if potential_chunk_numbers else "",
+        "excluded_child_chunk_ids_by_file": excluded_child_chunk_ids_by_file,
         "usage_totals": usage_totals,
         "llm_calls_made": llm_calls_made,
     }
@@ -523,18 +324,11 @@ async def run_file_filtering_batch(
         {
             "file_id": str(file_item.get("file_id") or "unknown"),
             "file_name": str(file_item.get("file_name") or "unknown"),
-            "promotion_reason": "strong_signal_file",
+            "reason": "strong_signal_file",
         }
         for file_item in filter_candidates
         if bool(file_item.get("strong_signal_file", False))
     ]
-    strong_signal_file_keys = {
-        _file_key(
-            str(file_item.get("file_id") or "unknown"),
-            str(file_item.get("file_name") or "unknown"),
-        )
-        for file_item in strong_signal_files
-    }
 
     goal = _normalize_goal(state.get("goal"), state.get("user_instructions", ""))
     constraint = _normalize_constraint(state.get("constraint"))
@@ -550,8 +344,10 @@ async def run_file_filtering_batch(
     }
     llm_calls_made = 0
     file_evaluations: list[dict[str, Any]] = []
-    promoted_candidates: list[dict[str, Any]] = []
-    dropped_files: list[dict[str, Any]] = []
+    confirmed_refs_all: list[dict[str, Any]] = []
+    potential_refs_all: list[dict[str, Any]] = []
+    potential_file_ids: set[str] = set()
+    child_exclusion_maps: list[dict[str, list[str]]] = []
     run_id = state.get("run_id")
 
     evaluation_tasks = [
@@ -561,7 +357,6 @@ async def run_file_filtering_batch(
                 candidate_index=index,
                 goal=goal,
                 constraint=constraint,
-                fallback_semantic_anchors=fallback_semantic_anchors,
                 retrieval_cache=retrieval_cache,
                 session=state.get("_session"),
                 run_id=run_id,
@@ -584,60 +379,58 @@ async def run_file_filtering_batch(
         if isinstance(evaluation, dict):
             file_evaluations.append(evaluation)
 
-        promoted_candidate = item.get("promoted_candidate")
-        if isinstance(promoted_candidate, dict):
-            promoted_candidates.append(promoted_candidate)
-            continue
+        confirmed_refs = item.get("confirmed_refs")
+        if isinstance(confirmed_refs, list):
+            confirmed_refs_all.extend(confirmed_refs)
 
-        dropped_file = item.get("dropped_file")
-        if isinstance(dropped_file, dict):
-            dropped_files.append(dropped_file)
+        potential_refs = item.get("potential_refs")
+        if isinstance(potential_refs, list):
+            potential_refs_all.extend(potential_refs)
 
-    promoted_by_key: dict[str, dict[str, Any]] = {}
-    for item in promoted_candidates:
-        file_id = str(item.get("file_id") or "").strip()
-        file_name = str(item.get("file_name") or "").strip()
-        key = _file_key(file_id, file_name)
-        if key not in promoted_by_key:
-            promoted_by_key[key] = item
+        potential_file_id = str(item.get("potential_file_id") or "").strip()
+        if potential_file_id:
+            potential_file_ids.add(potential_file_id)
 
-    evaluated_file_count = len(file_evaluations)
-    promoted_file_count = len(promoted_by_key)
-    promoted_ratio_current_batch = (
-        float(promoted_file_count) / float(evaluated_file_count)
-        if evaluated_file_count > 0
-        else 0.0
-    )
+        child_exclusion_map = item.get("excluded_child_chunk_ids_by_file")
+        if isinstance(child_exclusion_map, dict):
+            child_exclusion_maps.append(child_exclusion_map)
+
+    merged_confirmed_refs = _dedupe_parent_chunk_refs(confirmed_refs_all)
+    merged_potential_refs = _dedupe_parent_chunk_refs(potential_refs_all)
+    merged_child_exclusions = _merge_child_exclusion_maps(child_exclusion_maps)
+    excluded_child_chunk_ids_by_file = [
+        {
+            "file_id": file_id,
+            "child_chunk_ids": sorted(child_ids),
+        }
+        for file_id, child_ids in sorted(merged_child_exclusions.items())
+        if child_ids
+    ]
 
     node_result = {
         "batch_id": resolved_batch_id,
         "goal": goal,
         "constraint": constraint,
-        "confidence_threshold_for_potential_match": POTENTIAL_MATCH_PROMOTION_THRESHOLD,
         "strong_signal_files": strong_signal_files,
         "evaluations": file_evaluations,
-        "promoted_files": list(promoted_by_key.values()) if promoted_by_key else [],
-        "dropped_files": dropped_files,
+        "merged_confirmed_parent_chunk_refs": merged_confirmed_refs,
+        "merged_potential_parent_chunk_refs": merged_potential_refs,
+        "potential_file_ids": sorted(potential_file_ids),
+        "excluded_child_chunk_ids_by_file": excluded_child_chunk_ids_by_file,
         "run_summary": {
             "strong_signal_file_count": len(strong_signal_files),
-            "evaluated_file_count": evaluated_file_count,
-            "evaluated_non_strong_file_count": sum(
-                1
-                for evaluation in file_evaluations
-                if _file_key(
-                    str(evaluation.get("file_id") or ""),
-                    str(evaluation.get("file_name") or ""),
-                )
-                not in strong_signal_file_keys
+            "evaluated_file_count": len(file_evaluations),
+            "confirmed_file_count": len(
+                {
+                    str(ref.get("file_id") or "").strip()
+                    for ref in merged_confirmed_refs
+                    if isinstance(ref, dict) and str(ref.get("file_id") or "").strip()
+                }
             ),
-            "promoted_file_count": promoted_file_count,
-            "promoted_ratio_current_batch": promoted_ratio_current_batch,
-            "continue_ratio_threshold": ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
-            "dropped_file_count": len(dropped_files),
-            "llm_round_count": sum(
-                int(evaluation.get("round_count", 0) or 0)
-                for evaluation in file_evaluations
-            ),
+            "potential_file_count": len(potential_file_ids),
+            "confirmed_parent_chunk_ref_count": len(merged_confirmed_refs),
+            "potential_parent_chunk_ref_count": len(merged_potential_refs),
+            "llm_call_count": llm_calls_made,
             "cache_stats": vector_search._snapshot_retrieval_cache_stats(retrieval_cache),
         },
     }

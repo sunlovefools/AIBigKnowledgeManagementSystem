@@ -13,6 +13,7 @@ from ..shared.normalization import _normalize_anchors
 from ..shared.search_utils import (
     _average_or_none,
     _build_parent_chunks_prompt_payload,
+    _extract_parent_child_chunk_ids,
     _extract_file_metadata,
     _extract_parent_chunk_number,
     _parent_sort_key,
@@ -189,6 +190,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
                     {
                         "parent_id": parent_id,
                         "chunk_number": _extract_parent_chunk_number(metadata),
+                        "child_chunk_ids": _extract_parent_child_chunk_ids(metadata),
                         "page_content": str(raw_doc.get("page_content") or ""),
                         "file_id": row_file_id if row_file_id != "unknown" else file_id,
                         "file_name": row_file_name if row_file_name != "unknown" else file_name,

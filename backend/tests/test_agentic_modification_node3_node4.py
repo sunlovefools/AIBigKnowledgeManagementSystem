@@ -7,14 +7,11 @@ from langchain_core.documents import Document
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.service.rag.agentic_modification.nodes import (
+from app.service.rag.agentic_modification.nodes import (  # noqa: E402
     file_filtering_node,
     non_strong_signal_file_context_expansion_node,
 )
-from app.service.rag.agentic_modification.shared.constants import (
-    ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
-)
-from app.service.rag.agentic_modification.services import llm_client, vector_search
+from app.service.rag.agentic_modification.services import llm_client, vector_search  # noqa: E402
 
 
 def _base_state() -> dict:
@@ -74,7 +71,10 @@ def test_node3_expands_all_candidate_files_and_builds_parent_payload(monkeypatch
                 "page_content": "Parent content",
                 "metadata": {
                     "file_metadata": {"file_id": "file-weak", "file_name": "weak.md"},
-                    "parent_chunk_metadata": {"parent_chunk_number": 3},
+                    "parent_chunk_metadata": {
+                        "parent_chunk_number": 3,
+                        "child_chunks_ids": ["child-a", "child-b"],
+                    },
                 },
             }
         ]
@@ -84,17 +84,23 @@ def test_node3_expands_all_candidate_files_and_builds_parent_payload(monkeypatch
         "_run_semantic_search_for_file",
         _fake_run_semantic_search_for_file,
     )
-    monkeypatch.setattr(non_strong_signal_file_context_expansion_node, "log_modification_agent_search_group", lambda **kwargs: None)
-
+    monkeypatch.setattr(
+        non_strong_signal_file_context_expansion_node,
+        "log_modification_agent_search_group",
+        lambda **kwargs: None,
+    )
     monkeypatch.setattr(vector_search, "_fetch_parent_chunks", _fake_fetch_parent_chunks)
 
-    result = asyncio.run(non_strong_signal_file_context_expansion_node.non_strong_signal_file_context_expansion_node(state))
+    result = asyncio.run(
+        non_strong_signal_file_context_expansion_node.non_strong_signal_file_context_expansion_node(state)
+    )
     node3 = result["node3_non_strong_signal_file_context_expansion_result"]
 
     assert len(node3["files"]) == 2
     files_by_id = {item["file_id"]: item for item in node3["files"]}
     assert set(files_by_id.keys()) == {"file-strong", "file-weak"}
     assert files_by_id["file-weak"]["parent_chunks"][0]["chunk_number"] == 3
+    assert files_by_id["file-weak"]["parent_chunks"][0]["child_chunk_ids"] == ["child-a", "child-b"]
     assert "chunk_number: 3" in files_by_id["file-weak"]["parent_chunks_prompt_payload"]
     assert "file_name:" not in files_by_id["file-weak"]["parent_chunks_prompt_payload"]
     assert {item[1] for item in calls} == {"file-strong", "file-weak"}
@@ -108,6 +114,7 @@ def test_node3_processes_strong_only_candidates(monkeypatch):
             {"file_id": "file-strong", "file_name": "strong.md", "strong_signal_file": True},
         ]
     }
+
     async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int):
         doc = Document(
             page_content="child",
@@ -136,9 +143,15 @@ def test_node3_processes_strong_only_candidates(monkeypatch):
         _fake_run_semantic_search_for_file,
     )
     monkeypatch.setattr(vector_search, "_fetch_parent_chunks", _fake_fetch_parent_chunks)
-    monkeypatch.setattr(non_strong_signal_file_context_expansion_node, "log_modification_agent_search_group", lambda **kwargs: None)
+    monkeypatch.setattr(
+        non_strong_signal_file_context_expansion_node,
+        "log_modification_agent_search_group",
+        lambda **kwargs: None,
+    )
 
-    result = asyncio.run(non_strong_signal_file_context_expansion_node.non_strong_signal_file_context_expansion_node(state))
+    result = asyncio.run(
+        non_strong_signal_file_context_expansion_node.non_strong_signal_file_context_expansion_node(state)
+    )
     node3 = result["node3_non_strong_signal_file_context_expansion_result"]
 
     assert len(node3["files"]) == 1
@@ -146,7 +159,7 @@ def test_node3_processes_strong_only_candidates(monkeypatch):
     assert node3["run_summary"]["expanded_file_count"] == 1
 
 
-def test_node4_promotes_direct_and_potential_above_threshold(monkeypatch):
+def test_node4_classifies_confirmed_and_potential_and_builds_refs(monkeypatch):
     state = _base_state()
     state["token_prompt_total"] = 5
     state["token_completion_total"] = 7
@@ -156,80 +169,53 @@ def test_node4_promotes_direct_and_potential_above_threshold(monkeypatch):
     state["node3_non_strong_signal_file_context_expansion_result"] = {
         "files": [
             {
-                "file_id": "file-direct",
-                "file_name": "direct.md",
-                "parent_chunks": [{"chunk_number": 2, "page_content": "A"}],
-                "parent_chunks_prompt_payload": "[1]\nchunk_number: 2\npage_content: \"A\"",
-            },
-            {
-                "file_id": "file-p75",
-                "file_name": "p75.md",
-                "parent_chunks": [{"chunk_number": 3, "page_content": "B"}],
-                "parent_chunks_prompt_payload": "[1]\nchunk_number: 3\npage_content: \"B\"",
-            },
-            {
-                "file_id": "file-p69",
-                "file_name": "p69.md",
-                "parent_chunks": [{"chunk_number": 4, "page_content": "C"}],
-                "parent_chunks_prompt_payload": "[1]\nchunk_number: 4\npage_content: \"C\"",
-            },
+                "file_id": "file-a",
+                "file_name": "a.md",
+                "parent_chunks": [
+                    {"chunk_number": 2, "page_content": "A", "child_chunk_ids": ["child-2"]},
+                    {"chunk_number": 3, "page_content": "B", "child_chunk_ids": ["child-3"]},
+                    {"chunk_number": 4, "page_content": "C", "child_chunk_ids": ["child-4"]},
+                ],
+            }
         ]
     }
 
     async def _fake_call_llm(*args, **kwargs):
-        user_message = str(kwargs.get("user_message") or "")
-        matches = re.findall(r"chunk_number:\s*(\d+)", user_message)
-        if not matches:
-            raise AssertionError(f"Unexpected prompt payload: {user_message}")
-        chunk_number = int(matches[-1])
-        if chunk_number == 2:
-            return (
-                '{"decision":"direct_match","confidence":0.1,"reasoning_summary":"exact","suggested_chunk_numbers":[2]}',
-                {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
-            )
-        if chunk_number == 3:
-            return (
-                '{"decision":"potential_match","confidence":0.75,"reasoning_summary":"maybe","suggested_chunk_numbers":[3]}',
-                {"prompt_tokens": 8, "completion_tokens": 4, "total_tokens": 12},
-            )
-        if chunk_number == 4:
-            return (
-                '{"decision":"potential_match","confidence":0.69,"reasoning_summary":"weak","suggested_chunk_numbers":[4]}',
-                {"prompt_tokens": 6, "completion_tokens": 3, "total_tokens": 9},
-            )
-        raise AssertionError(f"Unexpected prompt payload: {user_message}")
-
-    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int, **kwargs):
-        return [], "native_filter"
+        return (
+            '{"confirmed_parent_chunks":[2],"potential_parent_chunks":[3,4],"reasoning_summary":"exact + nearby"}',
+            {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
+        )
 
     monkeypatch.setattr(llm_client, "_call_llm", _fake_call_llm)
-    monkeypatch.setattr(vector_search, "_run_semantic_search_for_file", _fake_run_semantic_search_for_file)
     monkeypatch.setattr(file_filtering_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(file_filtering_node.file_filtering_node(state))
     node4 = result["node4_file_filtering_result"]
-    promoted_ids = {item["file_id"] for item in node4["promoted_files"]}
-    dropped_ids = {item["file_id"] for item in node4["dropped_files"]}
+    evaluation = node4["evaluations"][0]
 
-    assert promoted_ids == {"file-direct", "file-p75"}
-    assert dropped_ids == {"file-p69"}
+    assert evaluation["confirmed_parent_chunks"] == [2]
+    assert evaluation["potential_parent_chunks"] == [3, 4]
+    assert node4["run_summary"]["evaluated_file_count"] == 1
+    assert node4["run_summary"]["confirmed_parent_chunk_ref_count"] == 1
+    assert node4["run_summary"]["potential_parent_chunk_ref_count"] == 2
+    assert node4["potential_file_ids"] == ["file-a"]
+    assert node4["merged_confirmed_parent_chunk_refs"] == [
+        {"file_id": "file-a", "file_name": "a.md", "parent_chunk_number": 2}
+    ]
+    assert node4["merged_potential_parent_chunk_refs"] == [
+        {"file_id": "file-a", "file_name": "a.md", "parent_chunk_number": 3},
+        {"file_id": "file-a", "file_name": "a.md", "parent_chunk_number": 4},
+    ]
+    assert node4["excluded_child_chunk_ids_by_file"] == [
+        {"file_id": "file-a", "child_chunk_ids": ["child-2", "child-3", "child-4"]}
+    ]
+    assert result["token_prompt_total"] == 15
+    assert result["token_completion_total"] == 12
+    assert result["token_total"] == 27
+    assert result["llm_call_count"] == 2
 
-    evaluations = {item["file_id"]: item for item in node4["evaluations"]}
-    assert evaluations["file-direct"]["confidence"] == 1.0
-    assert evaluations["file-direct"]["suggested_chunk_numbers"] == [2]
-    assert evaluations["file-p75"]["suggested_chunk_numbers"] == [3]
-    assert node4["run_summary"]["evaluated_file_count"] == 3
-    assert node4["run_summary"]["promoted_file_count"] == 2
-    assert abs(node4["run_summary"]["promoted_ratio_current_batch"] - (2.0 / 3.0)) < 1e-9
-    assert node4["run_summary"]["continue_ratio_threshold"] == ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD
 
-    assert result["token_prompt_total"] == 29
-    assert result["token_completion_total"] == 19
-    assert result["token_total"] == 48
-    assert result["llm_call_count"] == 4
-
-
-def test_node4_rejects_on_malformed_llm_output(monkeypatch):
+def test_node4_malformed_output_falls_back_to_empty_lists(monkeypatch):
     state = _base_state()
     state["node2_search_group_result"] = {"files": []}
     state["node3_non_strong_signal_file_context_expansion_result"] = {
@@ -238,7 +224,6 @@ def test_node4_rejects_on_malformed_llm_output(monkeypatch):
                 "file_id": "file-a",
                 "file_name": "a.md",
                 "parent_chunks": [{"chunk_number": 5, "page_content": "content"}],
-                "parent_chunks_prompt_payload": "[1]\nchunk_number: 5\npage_content: \"content\"",
             }
         ]
     }
@@ -253,121 +238,10 @@ def test_node4_rejects_on_malformed_llm_output(monkeypatch):
     node4 = result["node4_file_filtering_result"]
     evaluation = node4["evaluations"][0]
 
-    assert evaluation["decision"] == "reject"
-    assert evaluation["confidence"] == 0.0
-    assert evaluation["suggested_chunk_numbers"] == []
-    assert node4["promoted_files"] == []
-
-
-def test_node4_strong_signal_file_is_llm_evaluated(monkeypatch):
-    state = _base_state()
-    state["node2_search_group_result"] = {
-        "files": [
-            {"file_id": "file-strong", "file_name": "strong.md", "strong_signal_file": True},
-        ]
-    }
-    state["node3_non_strong_signal_file_context_expansion_result"] = {
-        "files": [
-            {
-                "file_id": "file-strong",
-                "file_name": "strong.md",
-                "semantic_anchors": ["anchor one"],
-                "expanded_child_chunks": [],
-                "parent_chunks": [{"parent_id": "parent-1", "chunk_number": 1, "page_content": "x"}],
-            }
-        ]
-    }
-
-    call_counter = {"count": 0}
-
-    async def _fake_call_llm(*args, **kwargs):
-        call_counter["count"] += 1
-        return (
-            '{"decision":"direct_match","confidence":1.0,"reasoning_summary":"exact","suggested_chunk_numbers":[]}',
-            {"prompt_tokens": 3, "completion_tokens": 2, "total_tokens": 5},
-        )
-
-    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int, **kwargs):
-        return [], "native_filter"
-
-    monkeypatch.setattr(llm_client, "_call_llm", _fake_call_llm)
-    monkeypatch.setattr(vector_search, "_run_semantic_search_for_file", _fake_run_semantic_search_for_file)
-    monkeypatch.setattr(file_filtering_node, "log_modification_agent_search_group", lambda **kwargs: None)
-
-    result = asyncio.run(file_filtering_node.file_filtering_node(state))
-    node4 = result["node4_file_filtering_result"]
-
-    assert call_counter["count"] == 1
-    assert node4["run_summary"]["strong_signal_file_count"] == 1
-    assert node4["evaluations"][0]["strong_signal_file"] is True
-    assert {item["file_id"] for item in node4["promoted_files"]} == {"file-strong"}
-
-
-def test_node4_confidence_loop_researches_until_no_new_parents(monkeypatch):
-    state = _base_state()
-    state["node2_search_group_result"] = {"files": []}
-    state["node3_non_strong_signal_file_context_expansion_result"] = {
-        "files": [
-            {
-                "file_id": "file-a",
-                "file_name": "a.md",
-                "semantic_anchors": ["anchor one"],
-                "expanded_child_chunks": [],
-                "parent_chunks": [{"parent_id": "parent-1", "chunk_number": 1, "page_content": "base"}],
-            }
-        ]
-    }
-
-    llm_responses = [
-        ('{"decision":"potential_match","confidence":0.8,"reasoning_summary":"more context needed","suggested_chunk_numbers":[1]}', {"prompt_tokens": 2, "completion_tokens": 2, "total_tokens": 4}),
-        ('{"decision":"direct_match","confidence":1.0,"reasoning_summary":"now exact","suggested_chunk_numbers":[]}', {"prompt_tokens": 2, "completion_tokens": 2, "total_tokens": 4}),
-    ]
-    search_calls = {"count": 0}
-
-    async def _fake_call_llm(*args, **kwargs):
-        return llm_responses.pop(0)
-
-    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int, **kwargs):
-        search_calls["count"] += 1
-        if search_calls["count"] == 1:
-            doc = Document(
-                page_content="child",
-                metadata={
-                    "child_chunk_id": "child-new",
-                    "file_metadata": {"file_id": file_id, "file_name": "a.md"},
-                    "child_chunk_metadata": {"parent_id": "parent-2"},
-                },
-            )
-            return [(doc, 0.8)], "native_filter"
-        return [], "native_filter"
-
-    async def _fake_fetch_parent_chunks(parent_ids, **kwargs):
-        assert parent_ids == ["parent-2"]
-        return [
-            {
-                "page_content": "new parent context",
-                "metadata": {
-                    "file_metadata": {"file_id": "file-a", "file_name": "a.md"},
-                    "parent_chunk_metadata": {"parent_chunk_number": 2},
-                },
-            }
-        ]
-
-    monkeypatch.setattr(llm_client, "_call_llm", _fake_call_llm)
-    monkeypatch.setattr(vector_search, "_run_semantic_search_for_file", _fake_run_semantic_search_for_file)
-    monkeypatch.setattr(vector_search, "_fetch_parent_chunks", _fake_fetch_parent_chunks)
-    monkeypatch.setattr(file_filtering_node, "log_modification_agent_search_group", lambda **kwargs: None)
-
-    result = asyncio.run(file_filtering_node.file_filtering_node(state))
-    node4 = result["node4_file_filtering_result"]
-    evaluation = node4["evaluations"][0]
-
-    assert evaluation["round_count"] == 2
-    assert evaluation["exhaustion_reason"] == "no_new_parent_chunks"
-    assert evaluation["parent_chunk_count"] == 2
-    assert evaluation["promoted"] is True
-    assert search_calls["count"] == 2
-    assert "cache_stats" in node4["run_summary"]
+    assert evaluation["confirmed_parent_chunks"] == []
+    assert evaluation["potential_parent_chunks"] == []
+    assert node4["merged_confirmed_parent_chunk_refs"] == []
+    assert node4["merged_potential_parent_chunk_refs"] == []
 
 
 def test_node4_evaluates_files_in_parallel_and_preserves_order(monkeypatch):
@@ -379,19 +253,16 @@ def test_node4_evaluates_files_in_parallel_and_preserves_order(monkeypatch):
                 "file_id": "file-a",
                 "file_name": "a.md",
                 "parent_chunks": [{"chunk_number": 11, "page_content": "A"}],
-                "parent_chunks_prompt_payload": "[1]\nchunk_number: 11\npage_content: \"A\"",
             },
             {
                 "file_id": "file-b",
                 "file_name": "b.md",
                 "parent_chunks": [{"chunk_number": 12, "page_content": "B"}],
-                "parent_chunks_prompt_payload": "[1]\nchunk_number: 12\npage_content: \"B\"",
             },
             {
                 "file_id": "file-c",
                 "file_name": "c.md",
                 "parent_chunks": [{"chunk_number": 13, "page_content": "C"}],
-                "parent_chunks_prompt_payload": "[1]\nchunk_number: 13\npage_content: \"C\"",
             },
         ]
     }
@@ -419,16 +290,13 @@ def test_node4_evaluates_files_in_parallel_and_preserves_order(monkeypatch):
         if len(started_files) == 3:
             all_started.set()
         await all_started.wait()
+        potential_number = {"file-a": 11, "file-b": 12, "file-c": 13}[file_id]
         return (
-            '{"decision":"direct_match","confidence":1.0,"reasoning_summary":"exact","suggested_chunk_numbers":[]}',
+            f'{{"confirmed_parent_chunks":[],"potential_parent_chunks":[{potential_number}],"reasoning_summary":"need exploration"}}',
             {"prompt_tokens": 1, "completion_tokens": 0, "total_tokens": 1},
         )
 
-    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int, **kwargs):
-        return [], "native_filter"
-
     monkeypatch.setattr(llm_client, "_call_llm", _fake_call_llm)
-    monkeypatch.setattr(vector_search, "_run_semantic_search_for_file", _fake_run_semantic_search_for_file)
     monkeypatch.setattr(file_filtering_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(asyncio.wait_for(file_filtering_node.file_filtering_node(state), timeout=2))
@@ -437,8 +305,6 @@ def test_node4_evaluates_files_in_parallel_and_preserves_order(monkeypatch):
     assert started_files == {"file-a", "file-b", "file-c"}
     assert [item["file_id"] for item in node4["evaluations"]] == ["file-a", "file-b", "file-c"]
     assert node4["run_summary"]["evaluated_file_count"] == 3
-    assert node4["run_summary"]["promoted_file_count"] == 3
-    assert node4["run_summary"]["promoted_ratio_current_batch"] == 1.0
-    assert node4["run_summary"]["continue_ratio_threshold"] == ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD
+    assert node4["run_summary"]["potential_file_count"] == 3
     assert result["llm_call_count"] == 3
     assert result["token_total"] == 3

@@ -96,51 +96,6 @@ Output JSON only:
 """
 
 
-"""\
-You are a file-filtering agent in a document-editing retrieval pipeline.
-
-Your task is to determine whether a candidate file contains signals that satisfy a user's requested edit.
-
-You will be given:
-1. A user goal
-2. A constraint describing what kind of content should be updated
-3. Parent chunks from one candidate file
-
-Decision rules:
-- "direct_match": explicit evidence in the chunks satisfies the goal and constraint
-- "potential_match": no exact proof, but strong indication the file may contain relevant content
-- "reject": unlikely to contain relevant content
-
-Requirements:
-- Be strict for "direct_match" — only when evidence is clearly present
-- Allow "potential_match" when evidence is suggestive but incomplete
-- Do not reject solely due to missing exact wording if context strongly matches
-- Ensure relevance falls within the constraint scope
-
-Confidence rules:
-- direct_match → 1.0
-- reject → 0.0
-- potential_match → between 0.0 and 1.0
-
-You must return relevant chunk numbers:
-- For "direct_match":
-  - include chunk numbers with explicit evidence
-  - also include additional related chunks that may require similar edits if clearly relevant
-- For "potential_match":
-  - include chunk numbers that are strong clues worth exploring
-- For "reject":
-  - return an empty list
-- Only include chunk numbers from the provided input
-- Avoid redundant or overlapping chunk selections
-
-Output JSON only:
-{
-  "decision": "direct_match" | "potential_match" | "reject",
-  "confidence": 0.0,
-  "reasoning_summary": "string",
-  "clue_chunk_numbers": [1, 2, 3]
-}
-"""
 
 
 FILE_FILTERING_USER_PROMPT = """\
@@ -219,10 +174,9 @@ page_content: "Invoices must be paid within 30 days."
 
 Output:
 {{
-  "decision": "reject",
-  "confidence": 0.0,
+  "confirmed_parent_chunks": [],
+  "potential_parent_chunks": [],
   "reasoning_summary": "No penalty or late payment rule present.",
-  "clue_chunk_numbers": []
 }}
 
 Now evaluate:
@@ -385,3 +339,4 @@ Text:
 
 Output:
 """
+

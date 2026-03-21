@@ -110,6 +110,60 @@ def _extract_parent_chunk_number(metadata: dict[str, Any]) -> int | None:
     return None
 
 
+def _normalize_chunk_number_list(raw_values: Any, *, allowed_chunk_numbers: set[int] | None = None) -> list[int]:
+    """Normalize a list-like value into unique chunk numbers preserving order."""
+    if not isinstance(raw_values, list):
+        return []
+
+    normalized: list[int] = []
+    seen: set[int] = set()
+    for item in raw_values:
+        if isinstance(item, bool):
+            continue
+        if isinstance(item, int):
+            chunk_number = item
+        elif isinstance(item, float):
+            chunk_number = int(item)
+        elif isinstance(item, str):
+            value = item.strip()
+            if not value:
+                continue
+            try:
+                chunk_number = int(value)
+            except ValueError:
+                continue
+        else:
+            continue
+        if allowed_chunk_numbers is not None and chunk_number not in allowed_chunk_numbers:
+            continue
+        if chunk_number in seen:
+            continue
+        seen.add(chunk_number)
+        normalized.append(chunk_number)
+    return normalized
+
+
+def _extract_parent_child_chunk_ids(metadata: dict[str, Any]) -> list[str]:
+    """Extract normalized child chunk IDs linked from a parent chunk metadata payload."""
+    parent_metadata = metadata.get("parent_chunk_metadata")
+    if not isinstance(parent_metadata, dict):
+        parent_metadata = {}
+
+    raw_values = parent_metadata.get("child_chunks_ids")
+    if not isinstance(raw_values, list):
+        return []
+
+    normalized: list[str] = []
+    seen: set[str] = set()
+    for item in raw_values:
+        child_id = str(item or "").strip()
+        if not child_id or child_id in seen:
+            continue
+        seen.add(child_id)
+        normalized.append(child_id)
+    return normalized
+
+
 def _parent_sort_key(item: dict[str, Any]) -> tuple[int, str]:
     """Sort key for parent chunks, prioritizing valid chunk numbers and then parent IDs."""
     chunk_number = item.get("chunk_number")
@@ -142,69 +196,27 @@ def _normalize_file_filter_result(
     fallback_reason: str,
 ) -> dict[str, Any]:
     """
-    Normalize the file filter result from the LLM, ensuring it has a valid structure and values.
+    Normalize Node-4 file filter output into confirmed/potential parent chunk lists.
     """
-    decision_raw = str(raw_parsed.get("decision", "")).strip().lower()
     reasoning_summary = str(raw_parsed.get("reasoning_summary", "")).strip()
     if not reasoning_summary:
         reasoning_summary = fallback_reason
 
-    if decision_raw not in {"direct_match", "potential_match", "reject"}:
-        decision_raw = "reject"
-
-    confidence = _safe_float(raw_parsed.get("confidence"))
-    suggested_numbers_raw = raw_parsed.get("suggested_chunk_numbers")
-    if not isinstance(suggested_numbers_raw, list):
-        suggested_numbers_raw = raw_parsed.get("clue_chunk_numbers")
-    if not isinstance(suggested_numbers_raw, list):
-        suggested_numbers_raw = []
-
-    normalized_suggestions: list[int] = []
-    for item in suggested_numbers_raw:
-        if isinstance(item, bool):
-            continue
-        if isinstance(item, int):
-            chunk_number = item
-        elif isinstance(item, float):
-            chunk_number = int(item)
-        elif isinstance(item, str):
-            try:
-                chunk_number = int(item.strip())
-            except ValueError:
-                continue
-        else:
-            continue
-        if chunk_number in available_chunk_numbers and chunk_number not in normalized_suggestions:
-            normalized_suggestions.append(chunk_number)
-
-    if decision_raw == "direct_match":
-        return {
-            "decision": "direct_match",
-            "confidence": 1.0,
-            "reasoning_summary": reasoning_summary,
-            "suggested_chunk_numbers": normalized_suggestions,
-        }
-
-    if decision_raw == "reject":
-        return {
-            "decision": "reject",
-            "confidence": 0.0,
-            "reasoning_summary": reasoning_summary,
-            "suggested_chunk_numbers": [],
-        }
-
-    if confidence is None:
-        confidence = 0.5
-    if confidence <= 0.0:
-        confidence = 0.01
-    if confidence >= 1.0:
-        confidence = 0.99
+    confirmed = _normalize_chunk_number_list(
+        raw_parsed.get("confirmed_parent_chunks"),
+        allowed_chunk_numbers=available_chunk_numbers,
+    )
+    potential = _normalize_chunk_number_list(
+        raw_parsed.get("potential_parent_chunks"),
+        allowed_chunk_numbers=available_chunk_numbers,
+    )
+    confirmed_set = set(confirmed)
+    potential = [number for number in potential if number not in confirmed_set]
 
     return {
-        "decision": "potential_match",
-        "confidence": round(confidence, 6),
+        "confirmed_parent_chunks": confirmed,
+        "potential_parent_chunks": potential,
         "reasoning_summary": reasoning_summary,
-        "suggested_chunk_numbers": normalized_suggestions,
     }
 
 

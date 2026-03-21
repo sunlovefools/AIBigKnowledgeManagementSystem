@@ -3,12 +3,9 @@ from __future__ import annotations
 
 import asyncio
 from contextlib import suppress
+from typing import Any
 
-from ..shared.constants import (
-    ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
-    POTENTIAL_MATCH_PROMOTION_THRESHOLD,
-    SEARCH_TOP_K,
-)
+from ..shared.constants import SEARCH_TOP_K
 from ..shared.logging import log_modification_agent_search_group
 from ..shared.search_utils import _extract_fetched_file_ids_from_search_batch
 from ..state.retrieval_brief_state import RetrievalBriefState
@@ -20,29 +17,120 @@ from .non_strong_signal_file_context_expansion_node import (
 from .search_and_group_node import run_search_and_group_batch
 
 
+def _normalize_file_ids(raw_file_ids: Any) -> set[str]:
+    if isinstance(raw_file_ids, set):
+        candidates = list(raw_file_ids)
+    elif isinstance(raw_file_ids, list):
+        candidates = raw_file_ids
+    elif isinstance(raw_file_ids, tuple):
+        candidates = list(raw_file_ids)
+    else:
+        candidates = []
+
+    normalized: set[str] = set()
+    for item in candidates:
+        file_id = str(item or "").strip()
+        if file_id:
+            normalized.add(file_id)
+    return normalized
+
+
+def _normalize_parent_chunk_refs(raw_refs: Any) -> list[dict[str, Any]]:
+    if not isinstance(raw_refs, list):
+        return []
+
+    normalized: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for raw_ref in raw_refs:
+        if not isinstance(raw_ref, dict):
+            continue
+        file_id = str(raw_ref.get("file_id") or "").strip()
+        file_name = str(raw_ref.get("file_name") or "").strip() or "unknown"
+        parent_chunk_number = raw_ref.get("parent_chunk_number")
+        if not file_id or not isinstance(parent_chunk_number, int):
+            continue
+        key = f"{file_id}::{parent_chunk_number}"
+        if key in seen:
+            continue
+        seen.add(key)
+        normalized.append(
+            {
+                "file_id": file_id,
+                "file_name": file_name,
+                "parent_chunk_number": parent_chunk_number,
+            }
+        )
+    return normalized
+
+
+def _normalize_excluded_child_chunk_ids_by_file(raw_entries: Any) -> dict[str, set[str]]:
+    if not isinstance(raw_entries, list):
+        return {}
+
+    normalized: dict[str, set[str]] = {}
+    for entry in raw_entries:
+        if not isinstance(entry, dict):
+            continue
+        file_id = str(entry.get("file_id") or "").strip()
+        if not file_id:
+            continue
+        raw_child_ids = entry.get("child_chunk_ids")
+        if not isinstance(raw_child_ids, list):
+            continue
+        child_ids: set[str] = set()
+        for item in raw_child_ids:
+            child_id = str(item or "").strip()
+            if child_id:
+                child_ids.add(child_id)
+        if child_ids:
+            normalized.setdefault(file_id, set()).update(child_ids)
+    return normalized
+
+
+def _merge_excluded_child_chunk_maps(
+    left_map: dict[str, set[str]],
+    right_map: dict[str, set[str]],
+) -> dict[str, set[str]]:
+    merged: dict[str, set[str]] = {file_id: set(child_ids) for file_id, child_ids in left_map.items()}
+    for file_id, child_ids in right_map.items():
+        if not child_ids:
+            continue
+        merged.setdefault(file_id, set()).update(child_ids)
+    return merged
+
+
+def _serialize_excluded_child_chunk_map(raw_map: dict[str, set[str]]) -> list[dict[str, Any]]:
+    return [
+        {
+            "file_id": file_id,
+            "child_chunk_ids": sorted(child_ids),
+        }
+        for file_id, child_ids in sorted(raw_map.items())
+        if child_ids
+    ]
+
+
 async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) -> dict:
     """
-    Entry point of Node 2: Iterative Search/Filter Orchestrator.
-
     Iterative orchestrator:
-    - Repeats search/group batches with file-id exclusion.
-    - Prefetches one next search batch while current expansion/filtering runs.
-    - Continues only when promoted/evaluated ratio of current filtering batch meets threshold.
+    - Repeats search/group batches using potential-file scoping.
+    - Re-runs the same file scope while excluding previously seen child chunks.
+    - Continues only when current Node-4 batch outputs potential parent chunks.
     """
     print("[Agentic Modification - Orchestrator] Running iterative search/filter loop...")
     run_id = state.get("run_id")
 
-    excluded_file_ids: set[str] = set()
     current_batch_id = 1
+    current_allowed_file_ids: set[str] | None = _normalize_file_ids(state.get("file_ids")) or None
+    excluded_child_chunk_ids_by_file: dict[str, set[str]] = {}
 
-    node2_batches: list[dict] = []
-    node3_batches: list[dict] = []
-    node4_batches: list[dict] = []
-    node5_batches: list[dict] = []
+    node2_batches: list[dict[str, Any]] = []
+    node3_batches: list[dict[str, Any]] = []
+    node4_batches: list[dict[str, Any]] = []
+    node5_batches: list[dict[str, Any]] = []
 
-    promoted_global_by_key: dict[str, dict] = {}
     fetched_file_ids_global: set[str] = set()
-    confirmed_parent_chunk_refs_global_by_key: dict[str, dict] = {}
+    confirmed_parent_chunk_refs_global_by_key: dict[str, dict[str, Any]] = {}
 
     usage_prompt_increment = 0
     usage_completion_increment = 0
@@ -51,16 +139,37 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
 
     termination_reason = "search_exhausted"
 
+    async def _run_search_batch(
+        *,
+        batch_id: int,
+        allowed_file_ids_override: set[str] | None,
+        excluded_child_chunk_ids_by_file_override: dict[str, set[str]],
+    ) -> dict[str, Any]:
+        kwargs: dict[str, Any] = {
+            "excluded_file_ids": set(),
+            "batch_id": batch_id,
+        }
+        if allowed_file_ids_override is not None:
+            kwargs["allowed_file_ids_override"] = allowed_file_ids_override
+        if excluded_child_chunk_ids_by_file_override:
+            kwargs["excluded_child_chunk_ids_by_file"] = excluded_child_chunk_ids_by_file_override
+
+        try:
+            return await run_search_and_group_batch(state, **kwargs)
+        except TypeError:
+            # Backward compatibility for tests or call-sites monkeypatching the older signature.
+            kwargs.pop("allowed_file_ids_override", None)
+            kwargs.pop("excluded_child_chunk_ids_by_file", None)
+            return await run_search_and_group_batch(state, **kwargs)
+
     try:
-        # Start the first search batch without exclusion to get initial results and signals
-        current_search_batch = await run_search_and_group_batch(
-            state,
-            excluded_file_ids=excluded_file_ids,
+        current_search_batch = await _run_search_batch(
             batch_id=current_batch_id,
+            allowed_file_ids_override=current_allowed_file_ids,
+            excluded_child_chunk_ids_by_file_override=excluded_child_chunk_ids_by_file,
         )
 
         while True:
-            # Append the current search batch results to the list of batches for node 2
             node2_batches.append(current_search_batch)
             log_modification_agent_search_group(
                 run_id=run_id,
@@ -71,24 +180,11 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             current_files = current_search_batch.get("files", [])
             if not isinstance(current_files, list):
                 current_files = []
-
             if not current_files:
                 termination_reason = "search_exhausted"
                 break
 
-            current_fetched_ids = _extract_fetched_file_ids_from_search_batch(current_search_batch)
-            fetched_file_ids_global.update(current_fetched_ids)
-            next_excluded_file_ids = excluded_file_ids | current_fetched_ids
-
-            prefetch_task: asyncio.Task = asyncio.create_task(
-                run_search_and_group_batch(
-                    state,
-                    excluded_file_ids=next_excluded_file_ids,
-                    batch_id=current_batch_id + 1,
-                )
-            )
-            # Yield once so prefetch starts before current batch filtering work.
-            await asyncio.sleep(0)
+            fetched_file_ids_global.update(_extract_fetched_file_ids_from_search_batch(current_search_batch))
 
             current_expansion_batch = await run_non_strong_signal_file_context_expansion_batch(
                 state,
@@ -120,6 +216,26 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             usage_total_increment += int(usage_totals.get("total_tokens", 0) or 0)
             llm_calls_increment += int(llm_calls_made or 0)
 
+            potential_file_ids = _normalize_file_ids(current_filtering_batch.get("potential_file_ids", []))
+            current_batch_exclusions = _normalize_excluded_child_chunk_ids_by_file(
+                current_filtering_batch.get("excluded_child_chunk_ids_by_file", [])
+            )
+            next_excluded_child_chunk_ids_by_file = _merge_excluded_child_chunk_maps(
+                excluded_child_chunk_ids_by_file,
+                current_batch_exclusions,
+            )
+
+            prefetch_task: asyncio.Task | None = None
+            if potential_file_ids:
+                prefetch_task = asyncio.create_task(
+                    _run_search_batch(
+                        batch_id=current_batch_id + 1,
+                        allowed_file_ids_override=potential_file_ids,
+                        excluded_child_chunk_ids_by_file_override=next_excluded_child_chunk_ids_by_file,
+                    )
+                )
+                await asyncio.sleep(0)
+
             current_clue_batch, clue_usage_totals, clue_llm_calls_made = await run_clue_chunk_explorer_batch(
                 state,
                 file_filtering_result=current_filtering_batch,
@@ -137,53 +253,30 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             usage_total_increment += int(clue_usage_totals.get("total_tokens", 0) or 0)
             llm_calls_increment += int(clue_llm_calls_made or 0)
 
-            batch_confirmed_refs = current_clue_batch.get("merged_confirmed_parent_chunk_refs", [])
-            if not isinstance(batch_confirmed_refs, list):
-                batch_confirmed_refs = []
+            batch_confirmed_refs = _normalize_parent_chunk_refs(
+                current_filtering_batch.get("merged_confirmed_parent_chunk_refs", [])
+            ) + _normalize_parent_chunk_refs(
+                current_clue_batch.get("merged_confirmed_parent_chunk_refs", [])
+            )
             for ref in batch_confirmed_refs:
-                if not isinstance(ref, dict):
-                    continue
-                file_id = str(ref.get("file_id") or "").strip()
-                parent_chunk_number = ref.get("parent_chunk_number")
-                if not file_id or not isinstance(parent_chunk_number, int):
-                    continue
-                key = f"{file_id}::{parent_chunk_number}"
+                key = f"{ref['file_id']}::{ref['parent_chunk_number']}"
                 confirmed_parent_chunk_refs_global_by_key.setdefault(key, ref)
 
-            batch_promoted_files = current_filtering_batch.get("promoted_files", [])
-            if not isinstance(batch_promoted_files, list):
-                batch_promoted_files = []
-            for item in batch_promoted_files:
-                if not isinstance(item, dict):
-                    continue
-                file_id = str(item.get("file_id") or "").strip()
-                file_name = str(item.get("file_name") or "").strip()
-                if not file_id:
-                    continue
-                promoted_global_by_key.setdefault(f"{file_id}::{file_name}", item)
-
-            filtering_summary = current_filtering_batch.get("run_summary", {})
-            evaluated_count = 0
-            promoted_count = 0
-            if isinstance(filtering_summary, dict):
-                evaluated_count = int(filtering_summary.get("evaluated_file_count", 0) or 0)
-                promoted_count = int(filtering_summary.get("promoted_file_count", 0) or 0)
-            promoted_ratio = (
-                float(promoted_count) / float(evaluated_count)
-                if evaluated_count > 0
-                else 0.0
-            )
-
-            if promoted_ratio < ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD:
-                termination_reason = "promotion_ratio_below_threshold"
-                if not prefetch_task.done():
+            if not potential_file_ids:
+                termination_reason = "no_potential_parent_chunks"
+                if prefetch_task and not prefetch_task.done():
                     prefetch_task.cancel()
                     with suppress(asyncio.CancelledError):
                         await prefetch_task
                 break
 
+            if prefetch_task is None:
+                termination_reason = "search_exhausted"
+                break
+
             current_search_batch = await prefetch_task
-            excluded_file_ids = next_excluded_file_ids
+            current_allowed_file_ids = potential_file_ids
+            excluded_child_chunk_ids_by_file = next_excluded_child_chunk_ids_by_file
             current_batch_id += 1
 
         latest_node2_batch = node2_batches[-1] if node2_batches else {}
@@ -221,6 +314,10 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                     for batch in node2_batches
                     if isinstance(batch, dict)
                 ),
+                "excluded_child_chunk_ids_by_file": _serialize_excluded_child_chunk_map(
+                    excluded_child_chunk_ids_by_file
+                )
+                or "none",
                 "unique_fetched_file_count": len(fetched_file_ids_global),
                 "unique_fetched_file_ids": sorted(fetched_file_ids_global) if fetched_file_ids_global else "none",
             },
@@ -252,38 +349,66 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             "latest_batch": latest_node4_batch,
             "goal": latest_node4_batch.get("goal", "") if isinstance(latest_node4_batch, dict) else "",
             "constraint": latest_node4_batch.get("constraint", "None") if isinstance(latest_node4_batch, dict) else "None",
-            "confidence_threshold_for_potential_match": POTENTIAL_MATCH_PROMOTION_THRESHOLD,
             "strong_signal_files": (
                 latest_node4_batch.get("strong_signal_files", [])
                 if isinstance(latest_node4_batch, dict)
                 else []
             ),
             "evaluations": latest_node4_batch.get("evaluations", []) if isinstance(latest_node4_batch, dict) else [],
-            "dropped_files": latest_node4_batch.get("dropped_files", []) if isinstance(latest_node4_batch, dict) else [],
-            "promoted_files": list(promoted_global_by_key.values()),
+            "merged_confirmed_parent_chunk_refs": _normalize_parent_chunk_refs(
+                latest_node4_batch.get("merged_confirmed_parent_chunk_refs", [])
+                if isinstance(latest_node4_batch, dict)
+                else []
+            ),
+            "merged_potential_parent_chunk_refs": _normalize_parent_chunk_refs(
+                latest_node4_batch.get("merged_potential_parent_chunk_refs", [])
+                if isinstance(latest_node4_batch, dict)
+                else []
+            ),
+            "potential_file_ids": (
+                sorted(_normalize_file_ids(latest_node4_batch.get("potential_file_ids", [])))
+                if isinstance(latest_node4_batch, dict)
+                else []
+            ),
+            "excluded_child_chunk_ids_by_file": (
+                latest_node4_batch.get("excluded_child_chunk_ids_by_file", [])
+                if isinstance(latest_node4_batch, dict)
+                else []
+            ),
             "run_summary": {
                 "batch_count": len(node4_batches),
                 "termination_reason": termination_reason,
-                "promoted_file_count": len(promoted_global_by_key),
-                "evaluated_non_strong_file_count": sum(
-                    int(batch.get("run_summary", {}).get("evaluated_non_strong_file_count", 0) or 0)
+                "evaluated_file_count": sum(
+                    int(batch.get("run_summary", {}).get("evaluated_file_count", 0) or 0)
                     for batch in node4_batches
                     if isinstance(batch, dict)
                 ),
-                "dropped_file_count": sum(
-                    int(batch.get("run_summary", {}).get("dropped_file_count", 0) or 0)
+                "confirmed_file_count": sum(
+                    int(batch.get("run_summary", {}).get("confirmed_file_count", 0) or 0)
                     for batch in node4_batches
                     if isinstance(batch, dict)
                 ),
-                "promoted_ratio_current_batch": (
-                    float(
-                        latest_node4_batch.get("run_summary", {}).get("promoted_ratio_current_batch", 0.0)
-                    )
-                    if isinstance(latest_node4_batch, dict)
-                    else 0.0
+                "potential_file_count": sum(
+                    int(batch.get("run_summary", {}).get("potential_file_count", 0) or 0)
+                    for batch in node4_batches
+                    if isinstance(batch, dict)
                 ),
-                "continue_ratio_threshold": ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
-                "confidence_threshold_for_potential_match": POTENTIAL_MATCH_PROMOTION_THRESHOLD,
+                "confirmed_parent_chunk_ref_count": len(
+                    {
+                        f"{ref['file_id']}::{ref['parent_chunk_number']}"
+                        for batch in node4_batches
+                        if isinstance(batch, dict)
+                        for ref in _normalize_parent_chunk_refs(batch.get("merged_confirmed_parent_chunk_refs", []))
+                    }
+                ),
+                "potential_parent_chunk_ref_count": len(
+                    {
+                        f"{ref['file_id']}::{ref['parent_chunk_number']}"
+                        for batch in node4_batches
+                        if isinstance(batch, dict)
+                        for ref in _normalize_parent_chunk_refs(batch.get("merged_potential_parent_chunk_refs", []))
+                    }
+                ),
             },
         }
 
