@@ -11,16 +11,29 @@ const RESERVED_NAMES = new Set([
 ]);
 const MAX_NAME_LENGTH = 200;
 
+// Extensions that imply a binary format.
+// New blank files are always plain text — these extensions would be misleading.
+const BINARY_EXTENSIONS = new Set([
+    "pdf","doc","docx","xls","xlsx","ppt","pptx",
+    "odt","ods","odp","rtf","pages","numbers","key",
+    "zip","rar","7z","tar","gz",
+    "png","jpg","jpeg","gif","webp","svg","bmp","tiff",
+    "mp3","mp4","wav","avi","mov","mkv",
+    "exe","dll","bin","iso",
+]);
+
 /**
  * Returns an error string when the name is invalid, or null when it is fine.
  * @param name - the candidate file name
  * @param existingFiles - current sidebar file list for duplicate detection
  * @param excludeFileId - skip this fileId when checking duplicates (used for rename)
+ * @param isCreate - when true, also blocks binary-format extensions
  */
 function validateFileName(
     name: string,
     existingFiles: SidebarFileSummary[],
-    excludeFileId?: string
+    excludeFileId?: string,
+    isCreate?: boolean
 ): string | null {
     const trimmed = name.trim();
 
@@ -48,6 +61,18 @@ function validateFileName(
     const base = trimmed.split(".")[0].toUpperCase();
     if (RESERVED_NAMES.has(base))
         return `"${base}" is a reserved system name and cannot be used.`;
+
+    // Binary extension check — only for new file creation, not rename
+    if (isCreate) {
+        const ext = trimmed.includes(".")
+            ? trimmed.split(".").pop()!.toLowerCase()
+            : "";
+        if (ext && BINARY_EXTENSIONS.has(ext)) {
+            return `".${ext}" files cannot be created as blank text files. `
+                + `Use the Upload button to add a real ${ext.toUpperCase()} file, `
+                + `or create a plain text file without that extension (e.g. "${trimmed.replace(/\.[^.]+$/, "")}" or "${trimmed.replace(/\.[^.]+$/, "")}.txt").`;
+        }
+    }
 
     // Duplicate check (case-insensitive)
     const lower = trimmed.toLowerCase();
@@ -80,6 +105,8 @@ type SidebarProps = {
     // New file / rename
     onCreateBlankFile: (fileName: string) => Promise<{ ok: boolean; fileId?: string; error?: string }>;
     onRenameFile: (fileId: string, newName: string) => Promise<{ ok: boolean; error?: string }>;
+    // Optimistic creation: IDs still being committed to the DB
+    pendingCreationFileIds: Set<string>;
 };
 
 export default function Sidebar({
@@ -99,6 +126,7 @@ export default function Sidebar({
     onRefreshFiles,
     onCreateBlankFile,
     onRenameFile,
+    pendingCreationFileIds,
 }: SidebarProps) {
     const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -113,7 +141,6 @@ export default function Sidebar({
     const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
     const [renameValue, setRenameValue] = useState("");
     const [renameError, setRenameError] = useState<string | null>(null);
-    const [isSubmittingRename, setIsSubmittingRename] = useState(false);
     const renameInputRef = useRef<HTMLInputElement | null>(null);
 
     // Focus the new-file input whenever it becomes visible
@@ -153,7 +180,7 @@ export default function Sidebar({
 
     const submitCreate = async () => {
         const trimmed = newFileName.trim();
-        const validationError = validateFileName(trimmed, files);
+        const validationError = validateFileName(trimmed, files, undefined, true);
         if (validationError) {
             setCreateError(validationError);
             newFileInputRef.current?.focus();
@@ -197,11 +224,10 @@ export default function Sidebar({
         setRenameError(null);
     };
 
-    const submitRename = async (fileId: string) => {
+    const submitRename = (fileId: string) => {
         const trimmed = renameValue.trim();
         const originalName = files.find((f) => f.fileId === fileId)?.fileName ?? "";
         if (trimmed === originalName) {
-            // No change — just close without a network request
             cancelRename();
             return;
         }
@@ -211,22 +237,19 @@ export default function Sidebar({
             renameInputRef.current?.focus();
             return;
         }
-        setIsSubmittingRename(true);
-        setRenameError(null);
-        const result = await onRenameFile(fileId, trimmed);
-        setIsSubmittingRename(false);
-        if (!result.ok) {
-            setRenameError(result.error ?? "Failed to rename file.");
-            renameInputRef.current?.focus();
-            return;
-        }
+
+        // ── Close the UI immediately — optimistic ──────────────────────────
+        // onRenameFile already patches local state first, so the sidebar name
+        // changes at once. We fire the DB write in the background and only
+        // surface an error in the chat area if it fails.
         cancelRename();
+        void onRenameFile(fileId, trimmed);
     };
 
     const handleRenameKeyDown = (e: KeyboardEvent<HTMLInputElement>, fileId: string) => {
         if (e.key === "Enter") {
             e.preventDefault();
-            void submitRename(fileId);
+            submitRename(fileId);
         } else if (e.key === "Escape") {
             cancelRename();
         }
@@ -339,16 +362,19 @@ export default function Sidebar({
                                 setNewFileName(e.target.value);
                                 // Clear error as soon as the current value becomes valid
                                 if (createError) {
-                                    const err = validateFileName(e.target.value.trim(), files);
+                                    const err = validateFileName(e.target.value.trim(), files, undefined, true);
                                     if (!err) setCreateError(null);
                                 }
                             }}
                             onKeyDown={handleCreateKeyDown}
-                            placeholder="File name…"
+                            placeholder="e.g. meeting-notes or notes.txt"
                             disabled={isSubmittingCreate}
                             maxLength={MAX_NAME_LENGTH}
                             aria-label="New file name"
                         />
+                        <div className="sidebar-create-hint">
+                            Plain text / Markdown only. To add a PDF or Word doc, use the Upload button above.
+                        </div>
                         {createError && (
                             <div className="sidebar-rename-error">{createError}</div>
                         )}
@@ -411,8 +437,7 @@ export default function Sidebar({
                                             value={renameValue}
                                             onChange={(e) => setRenameValue(e.target.value)}
                                             onKeyDown={(e) => handleRenameKeyDown(e, file.fileId)}
-                                            disabled={isSubmittingRename}
-                                            maxLength={200}
+                                            maxLength={MAX_NAME_LENGTH}
                                             aria-label={`Rename ${file.fileName}`}
                                         />
                                         {renameError && (
@@ -422,16 +447,14 @@ export default function Sidebar({
                                             <button
                                                 className="sidebar-rename-confirm-btn"
                                                 type="button"
-                                                onClick={() => { void submitRename(file.fileId); }}
-                                                disabled={isSubmittingRename}
+                                                onClick={() => submitRename(file.fileId)}
                                             >
-                                                {isSubmittingRename ? "Saving…" : "Save"}
+                                                Save
                                             </button>
                                             <button
                                                 className="sidebar-rename-cancel-btn"
                                                 type="button"
                                                 onClick={cancelRename}
-                                                disabled={isSubmittingRename}
                                             >
                                                 Cancel
                                             </button>
@@ -445,7 +468,14 @@ export default function Sidebar({
                                             onClick={() => onOpenFile(file.fileId)}
                                             type="button"
                                         >
-                                            <div className="sidebar-document-title">{file.fileName}</div>
+                                            <div className="sidebar-document-title">
+                                                {file.fileName}
+                                                {pendingCreationFileIds.has(file.fileId) && (
+                                                    <span className="sidebar-creating-badge" aria-label="Saving to database">
+                                                        saving…
+                                                    </span>
+                                                )}
+                                            </div>
                                             <div className="sidebar-document-preview">
                                                 {file.previewTexts || "..."}
                                             </div>
@@ -455,6 +485,8 @@ export default function Sidebar({
                                             type="button"
                                             title={`Rename "${file.fileName}"`}
                                             aria-label={`Rename ${file.fileName}`}
+                                            // Disable rename while creation is still pending
+                                            disabled={pendingCreationFileIds.has(file.fileId)}
                                             onClick={(e) => {
                                                 e.stopPropagation();
                                                 startRename(file.fileId, file.fileName);

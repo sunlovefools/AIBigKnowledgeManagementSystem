@@ -1,9 +1,9 @@
 // The main orchestrator hook used by components
 // Contain of all the facade hooks related to document file management, editing, and agent interactions.
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { deleteKnowledgeFile, createBlankFile, renameKnowledgeFile, getAxiosErrorDetail, type DeleteFileResponse, type RenameFileResponse } from "./api/documentsApi";
-import { removeFileFromState, closeTabState, openTabState } from "./state/transitions";
+import { removeFileFromState, closeTabState, openTabState, swapTempFileId, patchFileName } from "./state/transitions";
 import { useDocumentAgent } from "./subhooks/useDocumentAgent";
 import { useDocumentEditing } from "./subhooks/useDocumentEditing";
 import { useDocumentFiles } from "./subhooks/useDocumentFiles";
@@ -180,66 +180,153 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         [agentDomain, editingDomain, fileDomain]
     );
 
+    // Tracks fileIds that are still being written to the DB (temp IDs in flight).
+    // Used to block save until the real ID is available.
+    const [pendingCreationFileIds, setPendingCreationFileIds] = useState<Set<string>>(new Set());
+
     const createNewBlankFile = useCallback(
         async (fileName: string): Promise<CreateFileResult> => {
             if (!fileName.trim()) return { ok: false, error: "File name must not be empty." };
-            try {
-                const result = await createBlankFile(fileName.trim());
 
-                // ── Inject the new file directly into local state ──────────────
-                // This avoids a fetchFiles() DB round-trip for the sidebar refresh
-                // and a loadFileChunks() round-trip for the editor open.
-                // The real parentId from the backend is used so that
-                // saveEditingActiveDocument can map edits to chunks correctly —
-                // a fake parentId would cause fast_updates / boundary_rechunk to
-                // fail when they look it up in the DB.
-                const syntheticChunk = {
-                    parentId: result.parentId,
-                    content: result.content,
-                    size: result.content.length,
-                    pageNumbers: [] as number[],
-                };
-                fileDomain.setFilesState((prev) => ({
-                    ...prev,
-                    byId: {
-                        ...prev.byId,
-                        [result.fileId]: {
-                            fileId: result.fileId,
-                            fileName: result.fileName,
-                            previewTexts: result.content.slice(0, 240),
-                            contentState: {
-                                chunks: [syntheticChunk],
-                                hasMore: false,
-                                nextCursor: null,
-                            },
-                        },
+            // ── Step 1: Generate a client-side temp ID and inject state immediately ──
+            // The user sees the editor open with zero network wait.
+            const tempId = `tmp-${crypto.randomUUID()}`;
+            const placeholderContent = `# ${fileName.trim()}\n\n(blank file — start writing here)`;
+            const syntheticChunk = {
+                parentId: tempId,           // will be swapped to real parentId on commit
+                content: placeholderContent,
+                size: placeholderContent.length,
+                pageNumbers: [] as number[],
+            };
+
+            // Inject the optimistic file entry into sidebar + chunk state
+            fileDomain.setFilesState((prev) => ({
+                ...prev,
+                byId: {
+                    ...prev.byId,
+                    [tempId]: {
+                        fileId: tempId,
+                        fileName: fileName.trim(),
+                        previewTexts: placeholderContent.slice(0, 240),
+                        contentState: { chunks: [syntheticChunk], hasMore: false, nextCursor: null },
                     },
-                    sidebarFileIds: [...prev.sidebarFileIds, result.fileId],
-                }));
-                fileDomain.setChunkAsyncByFileId((prev) => ({
-                    ...prev,
-                    [result.fileId]: { isLoading: false, isInitialized: true, error: null },
-                }));
+                },
+                sidebarFileIds: [...prev.sidebarFileIds, tempId],
+            }));
+            fileDomain.setChunkAsyncByFileId((prev) => ({
+                ...prev,
+                [tempId]: { isLoading: false, isInitialized: true, error: null },
+            }));
 
-                return { ok: true, fileId: result.fileId, initialContent: result.content };
-            } catch (error) {
+            // Mark this tempId as pending so the save guard can block if needed
+            setPendingCreationFileIds((prev) => new Set([...prev, tempId]));
+
+            // ── Step 2: Fire the DB write in the background ────────────────────────
+            // We do NOT await — the editor opens instantly while this runs.
+            createBlankFile(fileName.trim()).then((result) => {
+                // ── Step 3 (success): swap temp ID → real ID across all state ──────
+                fileDomain.setFilesState((prev) =>
+                    swapTempFileId(prev, tempId, result.fileId, result.parentId)
+                );
+                fileDomain.setChunkAsyncByFileId((prev) => {
+                    const next = { ...prev };
+                    next[result.fileId] = next[tempId] ?? { isLoading: false, isInitialized: true, error: null };
+                    delete next[tempId];
+                    return next;
+                });
+                // Swap editing draft so saves go to the real ID
+                editingDomain.setEditingFileId((prev) => (prev === tempId ? result.fileId : prev));
+                editingDomain.setEditingDraftByFileId((prev) => {
+                    const next = { ...prev };
+                    if (next[tempId] !== undefined) {
+                        next[result.fileId] = next[tempId];
+                        delete next[tempId];
+                    }
+                    return next;
+                });
+                setPendingCreationFileIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(tempId);
+                    return next;
+                });
+                // ── Background chunk reload ───────────────────────────────────────
+                // Replaces the synthetic chunk with the real parentId from the DB.
+                // This runs while the user is typing, so UX is unaffected.
+                // It ensures applyFullFileUpdate (triggered on save) always sees a
+                // real parentId in state instead of a stale "local-xxx" fallback.
+                void fileDomain.loadFileChunks(result.fileId, true);
+            }).catch((error) => {
+                // ── Step 3 (failure): rollback the optimistic state ───────────────
+                fileDomain.setFilesState((prev) => removeFileFromState(prev, tempId));
+                fileDomain.setChunkAsyncByFileId((prev) => {
+                    const next = { ...prev };
+                    delete next[tempId];
+                    return next;
+                });
+                editingDomain.setEditingFileId((prev) => (prev === tempId ? null : prev));
+                editingDomain.setEditingDraftByFileId((prev) => {
+                    const next = { ...prev };
+                    delete next[tempId];
+                    return next;
+                });
+                setPendingCreationFileIds((prev) => {
+                    const next = new Set(prev);
+                    next.delete(tempId);
+                    return next;
+                });
                 const detail = getAxiosErrorDetail(error);
-                return { ok: false, error: detail ?? "Failed to create file." };
-            }
+                editingDomain.setSaveError(detail ?? "Failed to create file — please try again.");
+            });
+
+            // Return immediately with the temp ID so the caller can open the editor
+            return { ok: true, fileId: tempId, initialContent: placeholderContent };
         },
-        [fileDomain]
+        [editingDomain, fileDomain]
     );
+
+    // Wraps saveEditingActiveDocument so that if the user somehow saves before the
+    // background creation commits, we surface a clear message instead of a DB error.
+    const saveEditingActiveDocumentGuarded = useCallback(async (): Promise<boolean> => {
+        const tab = fileDomain.activeTab;
+        if (tab && pendingCreationFileIds.has(tab)) {
+            editingDomain.setSaveError("File is still being created — please wait a moment, then save again.");
+            return false;
+        }
+        // Secondary guard: if local state still has a synthetic/fake parentId
+        // (local-xxx or tmp-xxx), the background chunk reload hasn't finished.
+        // Block the save to prevent a broken batch-update request.
+        if (tab) {
+            const chunks = fileDomain.getContentStateById(tab).chunks;
+            const hasFakeId = chunks.some(
+                (c) => c.parentId.startsWith("tmp-") || c.parentId.startsWith("local-")
+            );
+            if (hasFakeId) {
+                editingDomain.setSaveError("File is still syncing — please wait a moment, then save again.");
+                return false;
+            }
+        }
+        return editingDomain.saveEditingActiveDocument();
+    }, [editingDomain, fileDomain, pendingCreationFileIds]);
 
     const renameFile = useCallback(
         async (fileId: string, newFileName: string): Promise<RenameFileResult> => {
             if (!fileId) return { ok: false, error: "Missing file ID." };
-            if (!newFileName.trim()) return { ok: false, error: "File name must not be empty." };
+            const trimmed = newFileName.trim();
+            if (!trimmed) return { ok: false, error: "File name must not be empty." };
+
+            // Snapshot the old name so we can rollback on failure
+            const oldFileName = fileDomain.filesState.byId[fileId]?.fileName ?? "";
+
+            // ── Step 1: Update local state immediately (zero wait) ─────────────
+            fileDomain.setFilesState((prev) => patchFileName(prev, fileId, trimmed));
+
+            // ── Step 2: Fire the DB write in the background ────────────────────
             try {
-                const result = await renameKnowledgeFile(fileId, newFileName.trim());
-                // Refresh sidebar to reflect the updated name everywhere
-                await fileDomain.fetchFiles();
+                const result = await renameKnowledgeFile(fileId, trimmed);
                 return { ok: true, data: result };
             } catch (error) {
+                // ── Rollback on failure: restore old name ──────────────────────
+                fileDomain.setFilesState((prev) => patchFileName(prev, fileId, oldFileName));
                 const detail = getAxiosErrorDetail(error);
                 return { ok: false, error: detail ?? "Failed to rename file." };
             }
@@ -277,7 +364,8 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         startEditingActiveDocument: editingDomain.startEditingActiveDocument,
         setActiveEditingDocumentContent: editingDomain.setActiveEditingDocumentContent,
         cancelEditingActiveDocument: editingDomain.cancelEditingActiveDocument,
-        saveEditingActiveDocument: editingDomain.saveEditingActiveDocument,
+        saveEditingActiveDocument: saveEditingActiveDocumentGuarded,
+        pendingCreationFileIds,
         getFileNameById: fileDomain.getFileNameById,
         getFileIdByName: fileDomain.getFileIdByName,
         isAgentGenerating: agentDomain.isAgentGenerating,

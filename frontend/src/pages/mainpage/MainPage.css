@@ -2334,3 +2334,28 @@ html,
     gap: 5px;
     box-sizing: border-box;
 }
+
+/* Optimistic creation: "saving…" badge on pending sidebar items */
+.sidebar-creating-badge {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 10px;
+    font-weight: 500;
+    color: #7c3aed;
+    opacity: 0.75;
+    animation: sidebar-badge-pulse 1.4s ease-in-out infinite;
+    vertical-align: middle;
+}
+
+@keyframes sidebar-badge-pulse {
+    0%, 100% { opacity: 0.4; }
+    50%       { opacity: 0.9; }
+}
+
+/* Create-file form: small hint below the input */
+.sidebar-create-hint {
+    font-size: 10.5px;
+    color: #94a3b8;
+    line-height: 1.4;
+    padding: 1px 2px;
+}

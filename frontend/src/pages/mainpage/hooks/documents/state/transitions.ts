@@ -193,7 +193,57 @@ export function remapAfterFullFileUpdate(
     };
 }
 
-// Adjusts accepted proposal offsets after one accepted change shifts document positions.
+// Optimistically updates just the fileName field for a given fileId.
+// Used by the rename flow so the sidebar reflects the new name instantly
+// without waiting for the backend round-trip.
+export function patchFileName(prev: FilesState, fileId: string, newFileName: string): FilesState {
+    const entry = prev.byId[fileId];
+    if (!entry) return prev;
+    return {
+        ...prev,
+        byId: {
+            ...prev.byId,
+            [fileId]: { ...entry, fileName: newFileName },
+        },
+    };
+}
+
+// Replaces a temporary (optimistic) file ID with the real ID returned by the backend.
+// Updates every FilesState map that holds the ID, and replaces the synthetic parentId
+// inside the chunk list so that save operations find the correct DB record.
+export function swapTempFileId(
+    prev: FilesState,
+    tempId: string,
+    realId: string,
+    realParentId: string,
+): FilesState {
+    const tempEntry = prev.byId[tempId];
+    if (!tempEntry) return prev;
+
+    const realEntry: FileEntry = {
+        ...tempEntry,
+        fileId: realId,
+        contentState: {
+            ...tempEntry.contentState,
+            chunks: tempEntry.contentState.chunks.map((c) =>
+                c.parentId === tempId || c.parentId.startsWith("tmp-")
+                    ? { ...c, parentId: realParentId }
+                    : c
+            ),
+        },
+    };
+
+    const nextById = { ...prev.byId };
+    delete nextById[tempId];
+    nextById[realId] = realEntry;
+
+    return {
+        byId: nextById,
+        sidebarFileIds: prev.sidebarFileIds.map((id) => (id === tempId ? realId : id)),
+        openTabIds: prev.openTabIds.map((id) => (id === tempId ? realId : id)),
+        activeFileId: prev.activeFileId === tempId ? realId : prev.activeFileId,
+    };
+}
 export function remapAcceptedAgentOffsets(
     prev: Map<string, AgentProposal>,
     targetParentId: string,

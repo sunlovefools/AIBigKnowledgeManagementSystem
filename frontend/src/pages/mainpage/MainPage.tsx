@@ -57,6 +57,7 @@ export default function MainPage() {
         invalidateDocumentCache,
         createNewBlankFile,
         renameFile,
+        pendingCreationFileIds,
         editingDocumentContent,
         isEditingActiveDocument,
         isSavingActiveDocument,
@@ -397,12 +398,13 @@ export default function MainPage() {
                     }}
                     onRefreshFiles={() => { void handleRefreshDocuments(); }}
                     onCreateBlankFile={async (fileName) => {
+                        // createNewBlankFile returns immediately (optimistic) with a tempId.
+                        // The DB write happens in the background — no await needed here.
                         const result = await createNewBlankFile(fileName);
                         if (result.ok && result.fileId) {
                             setIsModificationPanelOpen(true);
-                            // Open the tab AND immediately enter edit mode so the
-                            // user can start typing without an extra click.
-                            await openDocumentTabAndEdit(result.fileId);
+                            // initialContent is the placeholder; skip the DB load entirely.
+                            await openDocumentTabAndEdit(result.fileId, result.initialContent);
                         }
                         return result;
                     }}
@@ -413,6 +415,7 @@ export default function MainPage() {
                         }
                         return result;
                     }}
+                    pendingCreationFileIds={pendingCreationFileIds}
                 />
             </div>
 
