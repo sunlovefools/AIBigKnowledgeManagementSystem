@@ -8,6 +8,7 @@ from ..shared.constants import POTENTIAL_MATCH_PROMOTION_THRESHOLD, SEARCH_TOP_K
 from ..shared.logging import log_modification_agent_search_group
 from ..shared.search_utils import _extract_fetched_file_ids_from_search_batch
 from ..state.retrieval_brief_state import RetrievalBriefState
+from .clue_chunk_explorer_node import run_clue_chunk_explorer_batch
 from .file_filtering_node import run_file_filtering_batch
 from .non_strong_signal_file_context_expansion_node import (
     run_non_strong_signal_file_context_expansion_batch,
@@ -17,6 +18,8 @@ from .search_and_group_node import run_search_and_group_batch
 
 async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) -> dict:
     """
+    Entry point of Node 2: Iterative Search/Filter Orchestrator.
+
     Iterative orchestrator:
     - Repeats search/group batches with file-id exclusion.
     - Prefetches one next search batch while current expansion/filtering runs.
@@ -31,9 +34,11 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
     node2_batches: list[dict] = []
     node3_batches: list[dict] = []
     node4_batches: list[dict] = []
+    node5_batches: list[dict] = []
 
     promoted_global_by_key: dict[str, dict] = {}
     fetched_file_ids_global: set[str] = set()
+    confirmed_parent_chunk_refs_global_by_key: dict[str, dict] = {}
 
     usage_prompt_increment = 0
     usage_completion_increment = 0
@@ -43,6 +48,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
     termination_reason = "search_exhausted"
 
     try:
+        # Start the first search batch without exclusion to get initial results and signals
         current_search_batch = await run_search_and_group_batch(
             state,
             excluded_file_ids=excluded_file_ids,
@@ -50,6 +56,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
         )
 
         while True:
+            # Append the current search batch results to the list of batches for node 2
             node2_batches.append(current_search_batch)
             log_modification_agent_search_group(
                 run_id=run_id,
@@ -116,6 +123,36 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             usage_total_increment += int(usage_totals.get("total_tokens", 0) or 0)
             llm_calls_increment += int(llm_calls_made or 0)
 
+            current_clue_batch, clue_usage_totals, clue_llm_calls_made = await run_clue_chunk_explorer_batch(
+                state,
+                file_filtering_result=current_filtering_batch,
+                batch_id=current_batch_id,
+            )
+            node5_batches.append(current_clue_batch)
+            log_modification_agent_search_group(
+                run_id=run_id,
+                step="clue_chunk_explorer_batch",
+                payload=current_clue_batch,
+            )
+
+            usage_prompt_increment += int(clue_usage_totals.get("prompt_tokens", 0) or 0)
+            usage_completion_increment += int(clue_usage_totals.get("completion_tokens", 0) or 0)
+            usage_total_increment += int(clue_usage_totals.get("total_tokens", 0) or 0)
+            llm_calls_increment += int(clue_llm_calls_made or 0)
+
+            batch_confirmed_refs = current_clue_batch.get("merged_confirmed_parent_chunk_refs", [])
+            if not isinstance(batch_confirmed_refs, list):
+                batch_confirmed_refs = []
+            for ref in batch_confirmed_refs:
+                if not isinstance(ref, dict):
+                    continue
+                file_id = str(ref.get("file_id") or "").strip()
+                parent_chunk_number = ref.get("parent_chunk_number")
+                if not file_id or not isinstance(parent_chunk_number, int):
+                    continue
+                key = f"{file_id}::{parent_chunk_number}"
+                confirmed_parent_chunk_refs_global_by_key.setdefault(key, ref)
+
             batch_promoted_files = current_filtering_batch.get("promoted_files", [])
             if not isinstance(batch_promoted_files, list):
                 batch_promoted_files = []
@@ -153,6 +190,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
         latest_node2_batch = node2_batches[-1] if node2_batches else {}
         latest_node3_batch = node3_batches[-1] if node3_batches else {}
         latest_node4_batch = node4_batches[-1] if node4_batches else {}
+        latest_node5_batch = node5_batches[-1] if node5_batches else {}
 
         node2_result = {
             "batches": node2_batches,
@@ -242,6 +280,57 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             },
         }
 
+        node5_result = {
+            "batches": node5_batches,
+            "latest_batch": latest_node5_batch,
+            "goal": latest_node5_batch.get("goal", "") if isinstance(latest_node5_batch, dict) else "",
+            "constraint": latest_node5_batch.get("constraint", "None") if isinstance(latest_node5_batch, dict) else "None",
+            "explorations": latest_node5_batch.get("explorations", []) if isinstance(latest_node5_batch, dict) else [],
+            "confirmed_parent_chunks_by_file": (
+                latest_node5_batch.get("confirmed_parent_chunks_by_file", [])
+                if isinstance(latest_node5_batch, dict)
+                else []
+            ),
+            "merged_confirmed_parent_chunk_refs": list(confirmed_parent_chunk_refs_global_by_key.values()),
+            "run_summary": {
+                "batch_count": len(node5_batches),
+                "termination_reason": termination_reason,
+                "exploration_count": sum(
+                    int(batch.get("run_summary", {}).get("exploration_count", 0) or 0)
+                    for batch in node5_batches
+                    if isinstance(batch, dict)
+                ),
+                "confirmed_exploration_count": sum(
+                    int(batch.get("run_summary", {}).get("confirmed_exploration_count", 0) or 0)
+                    for batch in node5_batches
+                    if isinstance(batch, dict)
+                ),
+                "dead_end_count": sum(
+                    int(batch.get("run_summary", {}).get("dead_end_count", 0) or 0)
+                    for batch in node5_batches
+                    if isinstance(batch, dict)
+                ),
+                "confirmed_file_count": len(
+                    {
+                        str(ref.get("file_id") or "").strip()
+                        for ref in confirmed_parent_chunk_refs_global_by_key.values()
+                        if isinstance(ref, dict) and str(ref.get("file_id") or "").strip()
+                    }
+                ),
+                "confirmed_parent_chunk_ref_count": len(confirmed_parent_chunk_refs_global_by_key),
+                "tool_call_count": sum(
+                    int(batch.get("run_summary", {}).get("tool_call_count", 0) or 0)
+                    for batch in node5_batches
+                    if isinstance(batch, dict)
+                ),
+                "llm_round_count": sum(
+                    int(batch.get("run_summary", {}).get("llm_round_count", 0) or 0)
+                    for batch in node5_batches
+                    if isinstance(batch, dict)
+                ),
+            },
+        }
+
         log_modification_agent_search_group(
             run_id=run_id,
             step="iterative_search_filter_orchestrator",
@@ -249,6 +338,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 "node2_run_summary": node2_result["run_summary"],
                 "node3_run_summary": node3_result["run_summary"],
                 "node4_run_summary": node4_result["run_summary"],
+                "node5_run_summary": node5_result["run_summary"],
             },
         )
 
@@ -256,6 +346,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             "node2_search_group_result": node2_result,
             "node3_non_strong_signal_file_context_expansion_result": node3_result,
             "node4_file_filtering_result": node4_result,
+            "node5_clue_chunk_explorer_result": node5_result,
             "token_prompt_total": int(state.get("token_prompt_total", 0) or 0) + usage_prompt_increment,
             "token_completion_total": int(state.get("token_completion_total", 0) or 0) + usage_completion_increment,
             "token_total": int(state.get("token_total", 0) or 0) + usage_total_increment,

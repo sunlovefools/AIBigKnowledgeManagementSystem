@@ -19,6 +19,8 @@ def _state(user_instructions: str) -> dict:
     return {
         "user_instructions": user_instructions,
         "run_id": "run-1",
+        "file_ids": None,
+        "intention": "edit",
         "goal": "",
         "lexical_anchors": [],
         "semantic_anchors": [],
@@ -27,6 +29,9 @@ def _state(user_instructions: str) -> dict:
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
+        "node5_clue_chunk_explorer_result": {},
+        "node6_editor_result": {},
+        "proposals": [],
         "token_prompt_total": 0,
         "token_completion_total": 0,
         "token_total": 0,
@@ -132,7 +137,7 @@ def test_retrieval_brief_node_anchor_normalization(monkeypatch):
     assert result["semantic_anchors"] == ["uk refund policy"]
 
 
-def test_retrieval_brief_graph_runs_four_nodes(monkeypatch):
+def test_retrieval_brief_graph_runs_six_nodes(monkeypatch):
     async def _fake_call_llm(*args, **kwargs):
         return (
             '{"goal":"Remove late payment penalty clause.","lexical_anchors":["late payment penalty","invoice terms"],"semantic_anchors":["invoice terms with penalty clause"],"constraint":"Only update text that defines invoice payment terms."}',
@@ -167,3 +172,7 @@ def test_retrieval_brief_graph_runs_four_nodes(monkeypatch):
     assert result["node2_search_group_result"]["run_summary"]["top_k_per_query"] == 15
     assert isinstance(result["node3_non_strong_signal_file_context_expansion_result"], dict)
     assert isinstance(result["node4_file_filtering_result"], dict)
+    assert isinstance(result["node5_clue_chunk_explorer_result"], dict)
+    assert isinstance(result["node6_editor_result"], dict)
+    assert isinstance(result["proposals"], list)
+    assert result["intention"] == "edit"
