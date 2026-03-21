@@ -57,7 +57,46 @@ Now process this user request:
 """
 
 
-FILE_FILTERING_SYSTEM_PROMPT = """\
+FILE_FILTERING_SYSTEM_PROMPT = """
+You are a file-chunk filtering agent in a document-editing retrieval pipeline.
+
+Your task is to examine parent chunks from one candidate file and identify which chunks are relevant to a requested edit.
+
+You will be given:
+1. A user goal
+2. A constraint describing what kind of content should be updated
+3. Parent chunks from one candidate file
+
+You must classify parent chunks into TWO categories:
+
+1. "confirmed_parent_chunks":
+   - Chunks that clearly satisfy BOTH the goal and the constraint
+   - If either the goal or the constraint is not fully satisfied, the chunk should not be included in this list
+
+2. "potential_parent_chunks":
+   - Chunks that contain the target content to be edited, or strongly match the goal-relevant signal but they do NOT clearly satisfy the constraint
+   - These chunks may still be editable after further exploration
+
+Rules:
+- Only include chunk numbers from the provided input
+- Do NOT include the same chunk in both lists
+- Be strict for confirmed_parent_chunks
+- A chunk may be "potential" if it clearly matches the goal but constraint evidence is missing, partial, or indirect
+- Avoid redundant or weakly related chunks
+- If no chunks are relevant, return empty lists for both categories
+- Keep the reasoning summary short and concrete
+
+Output JSON only:
+
+{
+  "confirmed_parent_chunks": [1, 2],
+  "potential_parent_chunks": [3, 4],
+  "reasoning_summary": "string"
+}
+"""
+
+
+"""\
 You are a file-filtering agent in a document-editing retrieval pipeline.
 
 Your task is to determine whether a candidate file contains signals that satisfy a user's requested edit.
@@ -105,11 +144,27 @@ Output JSON only:
 
 
 FILE_FILTERING_USER_PROMPT = """\
-Evaluate whether the file contains signals satisfying the requested edit.
----
+Identify which parent chunks from this file are confirmed for editing and which are worth further exploration.
+
+Definitions:
+- confirmed_parent_chunks:
+  Chunks that clearly satisfy both the goal and the constraint.
+
+- potential_parent_chunks:
+  Chunks that clearly contain the target content to be edited, or strongly match the goal-relevant signal,
+  but do not clearly satisfy the constraint.
+
+Be careful:
+- Do not include the same chunk in both lists.
+- Only include chunk numbers from the provided input.
+- Do not include weakly related chunks.
+- If nothing is relevant, return empty lists.
+
 Example 1  
-Goal: Remove ID verification before refunds  
-Constraint: Only refund procedures with ID verification  
+Goal:
+Remove ID verification before refunds  
+Constraint:
+Only refund procedures with ID verification  
 
 Chunks:
 chunk_number: 12  
@@ -120,38 +175,43 @@ page_content: "Refunds are processed within 5 business days after approval."
 
 Output:
 {{
-  "decision": "direct_match",
-  "confidence": 1.0,
-  "reasoning_summary": "Chunk 12 explicitly requires ID verification. Chunk 13 is part of the same refund process and may also require update.",
-  "clue_chunk_numbers": [12, 13]
+  "confirmed_parent_chunks": [12],
+  "potential_parent_chunks": [],
+  "reasoning_summary": "Chunk 12 explicitly contains the refund rule with ID verification and satisfies both the goal and the constraint. Chunk 13 is about refunds generally but does not contain the ID verification requirement."
 }}
 
 ---
 
 Example 2  
-Goal: Change cancellation notice from 48h to 24h  
-Constraint: Only cancellation section  
+Goal: 
+Change cancellation notice from 48h to 24h
+Constraint: 
+Only UK regulations
 
 Chunks:
 chunk_number: 5  
-page_content: "Customers may cancel bookings in advance."  
+page_content: "Customers may cancel bookings in advance (48 hours)."  
 
 chunk_number: 6  
-page_content: "Late cancellations may incur a fee."
+page_content: "Customer service is available 24/7 for cancellations."
+
+chunk_number: 0  
+page_content: "Resident in the UK can cancel bookings with a 48-hour notice."
 
 Output:
 {{
-  "decision": "potential_match",
-  "confidence": 0.75,
-  "reasoning_summary": "Relevant cancellation section but no explicit 48h rule.",
-  "clue_chunk_numbers": [5, 6]
+  "confirmed_parent_chunks": [0],
+  "potential_parent_chunks": [5],
+  "reasoning_summary": "Chunk 0 contains the 48-hour rule under UK context. Chunk 5 contains the 48-hour rule but lacks UK context. Chunk 6 does not contain the target content."
 }}
 
 ---
 
 Example 3  
-Goal: Add 5% penalty for late payments  
-Constraint: Only late payment penalties  
+Goal:
+Add 5% penalty for late payments  
+Constraint:
+Only late payment penalties  
 
 Chunks:
 chunk_number: 2  
@@ -165,13 +225,9 @@ Output:
   "clue_chunk_numbers": []
 }}
 
----
-
 Now evaluate:
-
 Goal:
 {goal}
-
 Constraint:
 {constraint}
 

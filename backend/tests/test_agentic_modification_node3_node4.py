@@ -1,4 +1,5 @@
 import asyncio
+import re
 import sys
 from pathlib import Path
 
@@ -9,6 +10,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from app.service.rag.agentic_modification.nodes import (
     file_filtering_node,
     non_strong_signal_file_context_expansion_node,
+)
+from app.service.rag.agentic_modification.shared.constants import (
+    ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
 )
 from app.service.rag.agentic_modification.services import llm_client, vector_search
 
@@ -172,14 +176,28 @@ def test_node4_promotes_direct_and_potential_above_threshold(monkeypatch):
         ]
     }
 
-    responses = [
-        ('{"decision":"direct_match","confidence":0.1,"reasoning_summary":"exact","suggested_chunk_numbers":[2]}', {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15}),
-        ('{"decision":"potential_match","confidence":0.75,"reasoning_summary":"maybe","suggested_chunk_numbers":[3]}', {"prompt_tokens": 8, "completion_tokens": 4, "total_tokens": 12}),
-        ('{"decision":"potential_match","confidence":0.69,"reasoning_summary":"weak","suggested_chunk_numbers":[4]}', {"prompt_tokens": 6, "completion_tokens": 3, "total_tokens": 9}),
-    ]
-
     async def _fake_call_llm(*args, **kwargs):
-        return responses.pop(0)
+        user_message = str(kwargs.get("user_message") or "")
+        matches = re.findall(r"chunk_number:\s*(\d+)", user_message)
+        if not matches:
+            raise AssertionError(f"Unexpected prompt payload: {user_message}")
+        chunk_number = int(matches[-1])
+        if chunk_number == 2:
+            return (
+                '{"decision":"direct_match","confidence":0.1,"reasoning_summary":"exact","suggested_chunk_numbers":[2]}',
+                {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
+            )
+        if chunk_number == 3:
+            return (
+                '{"decision":"potential_match","confidence":0.75,"reasoning_summary":"maybe","suggested_chunk_numbers":[3]}',
+                {"prompt_tokens": 8, "completion_tokens": 4, "total_tokens": 12},
+            )
+        if chunk_number == 4:
+            return (
+                '{"decision":"potential_match","confidence":0.69,"reasoning_summary":"weak","suggested_chunk_numbers":[4]}',
+                {"prompt_tokens": 6, "completion_tokens": 3, "total_tokens": 9},
+            )
+        raise AssertionError(f"Unexpected prompt payload: {user_message}")
 
     async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int, **kwargs):
         return [], "native_filter"
@@ -200,6 +218,10 @@ def test_node4_promotes_direct_and_potential_above_threshold(monkeypatch):
     assert evaluations["file-direct"]["confidence"] == 1.0
     assert evaluations["file-direct"]["suggested_chunk_numbers"] == [2]
     assert evaluations["file-p75"]["suggested_chunk_numbers"] == [3]
+    assert node4["run_summary"]["evaluated_file_count"] == 3
+    assert node4["run_summary"]["promoted_file_count"] == 2
+    assert abs(node4["run_summary"]["promoted_ratio_current_batch"] - (2.0 / 3.0)) < 1e-9
+    assert node4["run_summary"]["continue_ratio_threshold"] == ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD
 
     assert result["token_prompt_total"] == 29
     assert result["token_completion_total"] == 19
@@ -346,3 +368,77 @@ def test_node4_confidence_loop_researches_until_no_new_parents(monkeypatch):
     assert evaluation["promoted"] is True
     assert search_calls["count"] == 2
     assert "cache_stats" in node4["run_summary"]
+
+
+def test_node4_evaluates_files_in_parallel_and_preserves_order(monkeypatch):
+    state = _base_state()
+    state["node2_search_group_result"] = {"files": []}
+    state["node3_non_strong_signal_file_context_expansion_result"] = {
+        "files": [
+            {
+                "file_id": "file-a",
+                "file_name": "a.md",
+                "parent_chunks": [{"chunk_number": 11, "page_content": "A"}],
+                "parent_chunks_prompt_payload": "[1]\nchunk_number: 11\npage_content: \"A\"",
+            },
+            {
+                "file_id": "file-b",
+                "file_name": "b.md",
+                "parent_chunks": [{"chunk_number": 12, "page_content": "B"}],
+                "parent_chunks_prompt_payload": "[1]\nchunk_number: 12\npage_content: \"B\"",
+            },
+            {
+                "file_id": "file-c",
+                "file_name": "c.md",
+                "parent_chunks": [{"chunk_number": 13, "page_content": "C"}],
+                "parent_chunks_prompt_payload": "[1]\nchunk_number: 13\npage_content: \"C\"",
+            },
+        ]
+    }
+
+    started_files: set[str] = set()
+    all_started = asyncio.Event()
+
+    def _resolve_file_id(user_message: str) -> str:
+        matches = re.findall(r"chunk_number:\s*(\d+)", user_message)
+        if not matches:
+            raise AssertionError(f"Unexpected prompt payload: {user_message}")
+        chunk_number = int(matches[-1])
+        if chunk_number == 11:
+            return "file-a"
+        if chunk_number == 12:
+            return "file-b"
+        if chunk_number == 13:
+            return "file-c"
+        raise AssertionError(f"Unexpected prompt payload: {user_message}")
+
+    async def _fake_call_llm(*args, **kwargs):
+        user_message = str(kwargs.get("user_message") or "")
+        file_id = _resolve_file_id(user_message)
+        started_files.add(file_id)
+        if len(started_files) == 3:
+            all_started.set()
+        await all_started.wait()
+        return (
+            '{"decision":"direct_match","confidence":1.0,"reasoning_summary":"exact","suggested_chunk_numbers":[]}',
+            {"prompt_tokens": 1, "completion_tokens": 0, "total_tokens": 1},
+        )
+
+    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int, **kwargs):
+        return [], "native_filter"
+
+    monkeypatch.setattr(llm_client, "_call_llm", _fake_call_llm)
+    monkeypatch.setattr(vector_search, "_run_semantic_search_for_file", _fake_run_semantic_search_for_file)
+    monkeypatch.setattr(file_filtering_node, "log_modification_agent_search_group", lambda **kwargs: None)
+
+    result = asyncio.run(asyncio.wait_for(file_filtering_node.file_filtering_node(state), timeout=2))
+    node4 = result["node4_file_filtering_result"]
+
+    assert started_files == {"file-a", "file-b", "file-c"}
+    assert [item["file_id"] for item in node4["evaluations"]] == ["file-a", "file-b", "file-c"]
+    assert node4["run_summary"]["evaluated_file_count"] == 3
+    assert node4["run_summary"]["promoted_file_count"] == 3
+    assert node4["run_summary"]["promoted_ratio_current_batch"] == 1.0
+    assert node4["run_summary"]["continue_ratio_threshold"] == ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD
+    assert result["llm_call_count"] == 3
+    assert result["token_total"] == 3

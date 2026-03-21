@@ -5,6 +5,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.service.rag.agentic_modification.nodes import iterative_search_filter_orchestrator_node
+from app.service.rag.agentic_modification.shared.constants import (
+    ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
+)
 
 
 def _base_state() -> dict:
@@ -81,18 +84,32 @@ def _expansion_batch(batch_id: int, file_id: str | None) -> dict:
     }
 
 
-def _filter_batch(batch_id: int, file_id: str | None, promoted_count: int) -> dict:
+def _filter_batch(
+    batch_id: int,
+    file_id: str | None,
+    promoted_count: int,
+    *,
+    evaluated_count: int = 1,
+) -> dict:
     promoted_files = []
-    if file_id is not None and promoted_count > 0:
-        promoted_files.append(
-            {
-                "file_id": file_id,
-                "file_name": f"{file_id}.md",
-                "promotion_reason": "direct_match",
-                "confidence": 1.0,
-                "decision": "direct_match",
-            }
-        )
+    if promoted_count > 0:
+        base_file_id = file_id or f"batch-{batch_id}-file"
+        for index in range(promoted_count):
+            promoted_file_id = base_file_id if index == 0 else f"{base_file_id}-p{index}"
+            promoted_files.append(
+                {
+                    "file_id": promoted_file_id,
+                    "file_name": f"{promoted_file_id}.md",
+                    "promotion_reason": "direct_match",
+                    "confidence": 1.0,
+                    "decision": "direct_match",
+                }
+            )
+    promoted_ratio = (
+        float(promoted_count) / float(evaluated_count)
+        if evaluated_count > 0
+        else 0.0
+    )
     return {
         "batch_id": batch_id,
         "goal": "Update policy.",
@@ -104,8 +121,11 @@ def _filter_batch(batch_id: int, file_id: str | None, promoted_count: int) -> di
         "dropped_files": [],
         "run_summary": {
             "promoted_file_count": promoted_count,
-            "evaluated_non_strong_file_count": 0,
-            "dropped_file_count": 0,
+            "evaluated_file_count": evaluated_count,
+            "evaluated_non_strong_file_count": evaluated_count,
+            "dropped_file_count": max(0, evaluated_count - promoted_count),
+            "promoted_ratio_current_batch": promoted_ratio,
+            "continue_ratio_threshold": ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
         },
     }
 
@@ -130,7 +150,14 @@ def test_orchestrator_excludes_all_fetched_file_ids_between_batches(monkeypatch)
     async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
         files = search_group_result.get("files", [])
         file_id = files[0]["file_id"] if files else None
-        return _filter_batch(batch_id, file_id, promoted_count=1), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+        promoted_count = 1 if batch_id == 1 else 6
+        evaluated_count = 1 if batch_id == 1 else 10
+        return _filter_batch(
+            batch_id,
+            file_id,
+            promoted_count=promoted_count,
+            evaluated_count=evaluated_count,
+        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -147,7 +174,7 @@ def test_orchestrator_excludes_all_fetched_file_ids_between_batches(monkeypatch)
     assert seen_excluded[0] == set()
     assert seen_excluded[1] == {"file-a"}
     assert node2["run_summary"]["batch_count"] == 2
-    assert node2["run_summary"]["termination_reason"] == "no_strong_signal_for_repeat"
+    assert node2["run_summary"]["termination_reason"] == "promotion_ratio_below_threshold"
 
 
 def test_orchestrator_prefetch_starts_while_filtering_runs(monkeypatch):
@@ -158,7 +185,7 @@ def test_orchestrator_prefetch_starts_while_filtering_runs(monkeypatch):
 
     async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
         if batch_id == 1:
-            return _search_batch(1, "file-a", strong=True)
+            return _search_batch(1, "file-a", strong=False)
         prefetch_started.set()
         await allow_prefetch_finish.wait()
         return _search_batch(batch_id, None, strong=False)
@@ -173,7 +200,12 @@ def test_orchestrator_prefetch_starts_while_filtering_runs(monkeypatch):
         allow_prefetch_finish.set()
         files = search_group_result.get("files", [])
         file_id = files[0]["file_id"] if files else None
-        return _filter_batch(batch_id, file_id, promoted_count=1), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+        return _filter_batch(
+            batch_id,
+            file_id,
+            promoted_count=1,
+            evaluated_count=1,
+        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -188,7 +220,7 @@ def test_orchestrator_prefetch_starts_while_filtering_runs(monkeypatch):
     assert marker["started_before_filter"] is True
 
 
-def test_orchestrator_stops_immediately_and_cancels_prefetch_when_no_advancing_files(monkeypatch):
+def test_orchestrator_stops_immediately_and_cancels_prefetch_when_ratio_below_threshold(monkeypatch):
     state = _base_state()
     cancelled = {"value": False}
 
@@ -208,7 +240,12 @@ def test_orchestrator_stops_immediately_and_cancels_prefetch_when_no_advancing_f
         return _expansion_batch(batch_id, file_id)
 
     async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
-        return _filter_batch(batch_id, None, promoted_count=0), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+        return _filter_batch(
+            batch_id,
+            None,
+            promoted_count=0,
+            evaluated_count=10,
+        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -220,7 +257,7 @@ def test_orchestrator_stops_immediately_and_cancels_prefetch_when_no_advancing_f
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
-    assert result["node4_file_filtering_result"]["run_summary"]["termination_reason"] == "no_advancing_files"
+    assert result["node4_file_filtering_result"]["run_summary"]["termination_reason"] == "promotion_ratio_below_threshold"
     assert cancelled["value"] is True
 
 
@@ -243,8 +280,18 @@ def test_orchestrator_deduplicates_global_promoted_files(monkeypatch):
         files = search_group_result.get("files", [])
         file_id = files[0]["file_id"] if files else None
         if batch_id == 1:
-            return _filter_batch(batch_id, file_id, promoted_count=1), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
-        return _filter_batch(batch_id, None, promoted_count=0), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+            return _filter_batch(
+                batch_id,
+                file_id,
+                promoted_count=1,
+                evaluated_count=1,
+            ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+        return _filter_batch(
+            batch_id,
+            None,
+            promoted_count=0,
+            evaluated_count=10,
+        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -259,3 +306,90 @@ def test_orchestrator_deduplicates_global_promoted_files(monkeypatch):
     promoted = result["node4_file_filtering_result"]["promoted_files"]
     assert len(promoted) == 1
     assert promoted[0]["file_id"] == "file-a"
+
+
+def test_orchestrator_continues_when_promoted_ratio_meets_threshold(monkeypatch):
+    state = _base_state()
+    seen_batches: list[int] = []
+
+    async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
+        seen_batches.append(batch_id)
+        if batch_id == 1:
+            return _search_batch(1, "file-a", strong=False)
+        return _search_batch(batch_id, None, strong=False)
+
+    async def _fake_expand_batch(_state, *, search_group_result, batch_id):
+        files = search_group_result.get("files", [])
+        file_id = files[0]["file_id"] if files else None
+        return _expansion_batch(batch_id, file_id)
+
+    async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
+        files = search_group_result.get("files", [])
+        file_id = files[0]["file_id"] if files else None
+        return _filter_batch(
+            batch_id,
+            file_id,
+            promoted_count=7,
+            evaluated_count=10,
+        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
+    monkeypatch.setattr(
+        iterative_search_filter_orchestrator_node,
+        "run_non_strong_signal_file_context_expansion_batch",
+        _fake_expand_batch,
+    )
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
+
+    result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
+    assert result["node2_search_group_result"]["run_summary"]["batch_count"] == 2
+    assert result["node2_search_group_result"]["run_summary"]["termination_reason"] == "search_exhausted"
+    assert seen_batches[:2] == [1, 2]
+
+
+def test_orchestrator_stops_when_promoted_ratio_below_threshold(monkeypatch):
+    state = _base_state()
+    cancelled = {"value": False}
+    started = {"value": False}
+
+    async def _fake_search_batch(_state, *, excluded_file_ids, batch_id):
+        if batch_id == 1:
+            return _search_batch(1, "file-a", strong=False)
+        started["value"] = True
+        try:
+            await asyncio.sleep(10)
+        except asyncio.CancelledError:
+            cancelled["value"] = True
+            raise
+        return _search_batch(batch_id, "file-b", strong=False)
+
+    async def _fake_expand_batch(_state, *, search_group_result, batch_id):
+        files = search_group_result.get("files", [])
+        file_id = files[0]["file_id"] if files else None
+        return _expansion_batch(batch_id, file_id)
+
+    async def _fake_filter_batch(_state, *, search_group_result, expansion_result, batch_id):
+        files = search_group_result.get("files", [])
+        file_id = files[0]["file_id"] if files else None
+        return _filter_batch(
+            batch_id,
+            file_id,
+            promoted_count=6,
+            evaluated_count=10,
+        ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
+    monkeypatch.setattr(
+        iterative_search_filter_orchestrator_node,
+        "run_non_strong_signal_file_context_expansion_batch",
+        _fake_expand_batch,
+    )
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
+
+    result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
+    assert result["node2_search_group_result"]["run_summary"]["batch_count"] == 1
+    assert result["node2_search_group_result"]["run_summary"]["termination_reason"] == "promotion_ratio_below_threshold"
+    assert started["value"] is True
+    assert cancelled["value"] is True

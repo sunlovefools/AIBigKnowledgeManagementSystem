@@ -4,7 +4,11 @@ from __future__ import annotations
 import asyncio
 from contextlib import suppress
 
-from ..shared.constants import POTENTIAL_MATCH_PROMOTION_THRESHOLD, SEARCH_TOP_K
+from ..shared.constants import (
+    ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
+    POTENTIAL_MATCH_PROMOTION_THRESHOLD,
+    SEARCH_TOP_K,
+)
 from ..shared.logging import log_modification_agent_search_group
 from ..shared.search_utils import _extract_fetched_file_ids_from_search_batch
 from ..state.retrieval_brief_state import RetrievalBriefState
@@ -23,7 +27,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
     Iterative orchestrator:
     - Repeats search/group batches with file-id exclusion.
     - Prefetches one next search batch while current expansion/filtering runs.
-    - Stops immediately when the current filtering batch advances zero files.
+    - Continues only when promoted/evaluated ratio of current filtering batch meets threshold.
     """
     print("[Agentic Modification - Orchestrator] Running iterative search/filter loop...")
     run_id = state.get("run_id")
@@ -76,22 +80,15 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             fetched_file_ids_global.update(current_fetched_ids)
             next_excluded_file_ids = excluded_file_ids | current_fetched_ids
 
-            run_summary = current_search_batch.get("run_summary", {})
-            strong_signal_file_count = 0
-            if isinstance(run_summary, dict):
-                strong_signal_file_count = int(run_summary.get("strong_signal_file_count", 0) or 0)
-
-            prefetch_task: asyncio.Task | None = None
-            if strong_signal_file_count > 0:
-                prefetch_task = asyncio.create_task(
-                    run_search_and_group_batch(
-                        state,
-                        excluded_file_ids=next_excluded_file_ids,
-                        batch_id=current_batch_id + 1,
-                    )
+            prefetch_task: asyncio.Task = asyncio.create_task(
+                run_search_and_group_batch(
+                    state,
+                    excluded_file_ids=next_excluded_file_ids,
+                    batch_id=current_batch_id + 1,
                 )
-                # Yield once so prefetch starts before current batch filtering work.
-                await asyncio.sleep(0)
+            )
+            # Yield once so prefetch starts before current batch filtering work.
+            await asyncio.sleep(0)
 
             current_expansion_batch = await run_non_strong_signal_file_context_expansion_batch(
                 state,
@@ -166,21 +163,23 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 promoted_global_by_key.setdefault(f"{file_id}::{file_name}", item)
 
             filtering_summary = current_filtering_batch.get("run_summary", {})
+            evaluated_count = 0
             promoted_count = 0
             if isinstance(filtering_summary, dict):
+                evaluated_count = int(filtering_summary.get("evaluated_file_count", 0) or 0)
                 promoted_count = int(filtering_summary.get("promoted_file_count", 0) or 0)
+            promoted_ratio = (
+                float(promoted_count) / float(evaluated_count)
+                if evaluated_count > 0
+                else 0.0
+            )
 
-            if promoted_count <= 0:
-                termination_reason = "no_advancing_files"
-                if prefetch_task is not None and not prefetch_task.done():
+            if promoted_ratio < ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD:
+                termination_reason = "promotion_ratio_below_threshold"
+                if not prefetch_task.done():
                     prefetch_task.cancel()
                     with suppress(asyncio.CancelledError):
                         await prefetch_task
-                break
-
-            if prefetch_task is None:
-                termination_reason = "no_strong_signal_for_repeat"
-                excluded_file_ids = next_excluded_file_ids
                 break
 
             current_search_batch = await prefetch_task
@@ -276,6 +275,14 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                     for batch in node4_batches
                     if isinstance(batch, dict)
                 ),
+                "promoted_ratio_current_batch": (
+                    float(
+                        latest_node4_batch.get("run_summary", {}).get("promoted_ratio_current_batch", 0.0)
+                    )
+                    if isinstance(latest_node4_batch, dict)
+                    else 0.0
+                ),
+                "continue_ratio_threshold": ITERATION_CONTINUE_PROMOTED_RATIO_THRESHOLD,
                 "confidence_threshold_for_potential_match": POTENTIAL_MATCH_PROMOTION_THRESHOLD,
             },
         }
