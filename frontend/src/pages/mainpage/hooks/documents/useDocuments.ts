@@ -2,7 +2,7 @@
 // Contain of all the facade hooks related to document file management, editing, and agent interactions.
 
 import { useCallback, useRef } from "react";
-import { deleteKnowledgeFile, getAxiosErrorDetail, type DeleteFileResponse } from "./api/documentsApi";
+import { deleteKnowledgeFile, createBlankFile, renameKnowledgeFile, getAxiosErrorDetail, type DeleteFileResponse, type RenameFileResponse } from "./api/documentsApi";
 import { removeFileFromState, closeTabState, openTabState } from "./state/transitions";
 import { useDocumentAgent } from "./subhooks/useDocumentAgent";
 import { useDocumentEditing } from "./subhooks/useDocumentEditing";
@@ -12,6 +12,19 @@ import { useDocumentFiles } from "./subhooks/useDocumentFiles";
 type DeleteFileResult = {
     ok: boolean;
     data?: DeleteFileResponse;
+    error?: string;
+};
+
+type CreateFileResult = {
+    ok: boolean;
+    fileId?: string;
+    initialContent?: string;
+    error?: string;
+};
+
+type RenameFileResult = {
+    ok: boolean;
+    data?: RenameFileResponse;
     error?: string;
 };
 
@@ -79,6 +92,33 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         [editingDomain, fileDomain]
     );
 
+    // Like openDocumentTab, but immediately enters edit mode after chunks load.
+    // Uses fileId directly to avoid stale-closure issues with activeTab/activeTabData.
+    // When initialContent is supplied (e.g. right after a blank-file creation) the DB
+    // load is skipped entirely — content is already in local state.
+    const openDocumentTabAndEdit = useCallback(
+        async (fileId: string, initialContent?: string) => {
+            if (!editingDomain.confirmDiscardUnsavedChanges()) return;
+            fileDomain.setFilesState((prev) => openTabState(prev, fileId));
+
+            let editContent = initialContent;
+            if (editContent === undefined) {
+                // Normal open: load chunks from DB
+                const chunks = await fileDomain.loadFileChunks(fileId, true);
+                if (!chunks.length) return;
+                editContent = chunks.map((c) => c.content).join("\n\n");
+            }
+
+            editingDomain.setEditingFileId(fileId);
+            editingDomain.setEditingDraftByFileId((prev) => ({
+                ...prev,
+                [fileId]: prev[fileId] ?? editContent!,
+            }));
+            editingDomain.setSaveError(null);
+        },
+        [editingDomain, fileDomain]
+    );
+
     const closeDocumentTab = useCallback((fileId: string) => {
         if (!editingDomain.confirmDiscardUnsavedChanges()) return;
         fileDomain.setFilesState((prev) => closeTabState(prev, fileId));
@@ -140,6 +180,73 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         [agentDomain, editingDomain, fileDomain]
     );
 
+    const createNewBlankFile = useCallback(
+        async (fileName: string): Promise<CreateFileResult> => {
+            if (!fileName.trim()) return { ok: false, error: "File name must not be empty." };
+            try {
+                const result = await createBlankFile(fileName.trim());
+
+                // ── Inject the new file directly into local state ──────────────
+                // This avoids a fetchFiles() DB round-trip for the sidebar refresh
+                // and a loadFileChunks() round-trip for the editor open.
+                // The real parentId from the backend is used so that
+                // saveEditingActiveDocument can map edits to chunks correctly —
+                // a fake parentId would cause fast_updates / boundary_rechunk to
+                // fail when they look it up in the DB.
+                const syntheticChunk = {
+                    parentId: result.parentId,
+                    content: result.content,
+                    size: result.content.length,
+                    pageNumbers: [] as number[],
+                };
+                fileDomain.setFilesState((prev) => ({
+                    ...prev,
+                    byId: {
+                        ...prev.byId,
+                        [result.fileId]: {
+                            fileId: result.fileId,
+                            fileName: result.fileName,
+                            previewTexts: result.content.slice(0, 240),
+                            contentState: {
+                                chunks: [syntheticChunk],
+                                hasMore: false,
+                                nextCursor: null,
+                            },
+                        },
+                    },
+                    sidebarFileIds: [...prev.sidebarFileIds, result.fileId],
+                }));
+                fileDomain.setChunkAsyncByFileId((prev) => ({
+                    ...prev,
+                    [result.fileId]: { isLoading: false, isInitialized: true, error: null },
+                }));
+
+                return { ok: true, fileId: result.fileId, initialContent: result.content };
+            } catch (error) {
+                const detail = getAxiosErrorDetail(error);
+                return { ok: false, error: detail ?? "Failed to create file." };
+            }
+        },
+        [fileDomain]
+    );
+
+    const renameFile = useCallback(
+        async (fileId: string, newFileName: string): Promise<RenameFileResult> => {
+            if (!fileId) return { ok: false, error: "Missing file ID." };
+            if (!newFileName.trim()) return { ok: false, error: "File name must not be empty." };
+            try {
+                const result = await renameKnowledgeFile(fileId, newFileName.trim());
+                // Refresh sidebar to reflect the updated name everywhere
+                await fileDomain.fetchFiles();
+                return { ok: true, data: result };
+            } catch (error) {
+                const detail = getAxiosErrorDetail(error);
+                return { ok: false, error: detail ?? "Failed to rename file." };
+            }
+        },
+        [fileDomain]
+    );
+
     return {
         files: fileDomain.files,
         filesState: fileDomain.filesState,
@@ -155,7 +262,10 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         handleRefreshDocuments,
         invalidateDocumentCache: fileDomain.invalidateDocumentCache,
         deleteFile,
+        createNewBlankFile,
+        renameFile,
         openDocumentTab,
+        openDocumentTabAndEdit,
         closeDocumentTab,
         setActiveDocumentTab,
         loadMoreActiveTab,

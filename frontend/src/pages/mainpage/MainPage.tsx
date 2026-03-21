@@ -50,10 +50,13 @@ export default function MainPage() {
         handleRefreshDocuments,
         deleteFile,
         openDocumentTab,
+        openDocumentTabAndEdit,
         closeDocumentTab,
         setActiveDocumentTab,
         loadMoreActiveTab,
         invalidateDocumentCache,
+        createNewBlankFile,
+        renameFile,
         editingDocumentContent,
         isEditingActiveDocument,
         isSavingActiveDocument,
@@ -393,6 +396,23 @@ export default function MainPage() {
                         setIsModificationPanelOpen(true);
                     }}
                     onRefreshFiles={() => { void handleRefreshDocuments(); }}
+                    onCreateBlankFile={async (fileName) => {
+                        const result = await createNewBlankFile(fileName);
+                        if (result.ok && result.fileId) {
+                            setIsModificationPanelOpen(true);
+                            // Open the tab AND immediately enter edit mode so the
+                            // user can start typing without an extra click.
+                            await openDocumentTabAndEdit(result.fileId);
+                        }
+                        return result;
+                    }}
+                    onRenameFile={async (fileId, newName) => {
+                        const result = await renameFile(fileId, newName);
+                        if (!result.ok) {
+                            appendMessage({ role: "ai", text: result.error ?? `Failed to rename file.` });
+                        }
+                        return result;
+                    }}
                 />
             </div>
 
