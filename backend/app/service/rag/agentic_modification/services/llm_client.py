@@ -1,7 +1,9 @@
 """LLM service helpers for Agentic Modification."""
 from __future__ import annotations
 
+import json
 import os
+from typing import Any
 
 import aiohttp
 
@@ -48,9 +50,10 @@ def calculate_total_cost(
 
 
 async def _call_llm(
-    system_prompt: str,
-    user_message: str,
+    system_prompt: str | None = None,
+    user_message: str | None = None,
     *,
+    messages: list[dict[str, Any]] | None = None,
     session: aiohttp.ClientSession | None = None,
     run_id: str | None = None,
     step: str | None = None,
@@ -60,12 +63,31 @@ async def _call_llm(
     if not _DEEPSEEK_KEY:
         raise RuntimeError("MOD_AGENT_LLM_KEY is not set.")
 
+    normalized_messages: list[dict[str, str]] = []
+    if isinstance(messages, list):
+        for raw_message in messages:
+            if not isinstance(raw_message, dict):
+                continue
+            role = str(raw_message.get("role") or "").strip().lower()
+            if role not in {"system", "user", "assistant", "tool"}:
+                continue
+            normalized_messages.append(
+                {
+                    "role": role,
+                    "content": str(raw_message.get("content") or ""),
+                }
+            )
+        if not normalized_messages:
+            raise RuntimeError("messages must include at least one valid chat message.")
+    else:
+        normalized_messages = [
+            {"role": "system", "content": str(system_prompt or "")},
+            {"role": "user", "content": str(user_message or "")},
+        ]
+
     payload = {
         "model": _DEEPSEEK_MODEL,
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_message},
-        ],
+        "messages": normalized_messages,
         "temperature": 0,
         "max_tokens": max_tokens,
     }
@@ -75,14 +97,20 @@ async def _call_llm(
     }
     timeout = aiohttp.ClientTimeout(total=120.0)
 
+    system_prompt_for_log = str(system_prompt or "")
+    user_message_for_log = str(user_message or "")
+    if isinstance(messages, list):
+        system_prompt_for_log = "[message_mode]"
+        user_message_for_log = json.dumps(normalized_messages, ensure_ascii=False)
+
     # Log the LLM request details for observability before making the API call
     log_modification_agent_llm_request(
         provider="MOD_AGENT_LLM",
         model=_DEEPSEEK_MODEL,
         step=step,
         run_id=run_id,
-        system_prompt=system_prompt,
-        user_message=user_message,
+        system_prompt=system_prompt_for_log,
+        user_message=user_message_for_log,
     )
 
     async def _do_request(http_session: aiohttp.ClientSession) -> dict:
@@ -170,4 +198,3 @@ def _accumulate_usage(
         "token_total": int(state.get("token_total", 0) or 0) + total_tokens,
         "llm_call_count": int(state.get("llm_call_count", 0) or 0) + should_count_call,
     }
-

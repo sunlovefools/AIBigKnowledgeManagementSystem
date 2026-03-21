@@ -77,7 +77,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
         semantic_query_modes: dict[str, str] = {}
         child_aggregate: dict[str, dict[str, Any]] = {}
 
-        for anchor in semantic_anchors:
+        async def _run_semantic_anchor(anchor: str) -> tuple[str, list[tuple[Document, float | None]], str]:
             try:
                 items, search_mode = await vector_search._run_semantic_search_for_file(
                     query=anchor,
@@ -92,6 +92,12 @@ async def run_non_strong_signal_file_context_expansion_batch(
                     file_id=file_id,
                     top_k=NON_STRONG_SIGNAL_FILE_TOP_K,
                 )
+            return anchor, items, search_mode
+
+        anchor_results = await asyncio.gather(
+            *[_run_semantic_anchor(anchor) for anchor in semantic_anchors]
+        )
+        for anchor, items, search_mode in anchor_results:
             semantic_query_modes[anchor] = search_mode
             anchor_hits: list[dict[str, Any]] = []
 

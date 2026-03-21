@@ -26,7 +26,7 @@ def _base_state(*, lexical_anchors=None, semantic_anchors=None):
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
-        "node5_clue_chunk_explorer_result": {},
+        "node5_parent_chunk_constraint_verifier_result": {},
         "node6_editor_result": {},
         "proposals": [],
         "token_prompt_total": 0,

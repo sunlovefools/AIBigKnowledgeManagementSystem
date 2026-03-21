@@ -204,7 +204,7 @@ async def _edit_one_parent_chunk(
 async def run_editor_batch(
     state: RetrievalBriefState,
     *,
-    clue_chunk_explorer_result: dict[str, Any],
+    parent_chunk_constraint_verifier_result: dict[str, Any],
     batch_id: int | None = None,
 ) -> tuple[dict[str, Any], dict[str, int], int, list[dict[str, Any]]]:
     goal = _normalize_goal(state.get("goal"), state.get("user_instructions", ""))
@@ -220,8 +220,8 @@ async def run_editor_batch(
     llm_calls_made = 0
 
     raw_refs = (
-        clue_chunk_explorer_result.get("merged_confirmed_parent_chunk_refs", [])
-        if isinstance(clue_chunk_explorer_result, dict)
+        parent_chunk_constraint_verifier_result.get("merged_confirmed_parent_chunk_refs", [])
+        if isinstance(parent_chunk_constraint_verifier_result, dict)
         else []
     )
     confirmed_refs = _normalize_confirmed_parent_chunk_refs(raw_refs)
@@ -402,7 +402,7 @@ async def editor_node(state: RetrievalBriefState) -> dict:
     """Node 6 wrapper: edit confirmed parent chunks and emit proposals."""
     print("[Agentic Modification - Node 6] Editing confirmed parent chunks...")
     run_id = state.get("run_id")
-    node5_result = state.get("node5_clue_chunk_explorer_result", {})
+    node5_result = state.get("node5_parent_chunk_constraint_verifier_result", {})
     batch_id = 1
     if isinstance(node5_result, dict) and isinstance(node5_result.get("batch_id"), int):
         batch_id = int(node5_result.get("batch_id", 1))
@@ -413,7 +413,7 @@ async def editor_node(state: RetrievalBriefState) -> dict:
     try:
         node_result, usage_totals, llm_calls_made, proposals = await run_editor_batch(
             state,
-            clue_chunk_explorer_result=node5_result if isinstance(node5_result, dict) else {},
+            parent_chunk_constraint_verifier_result=node5_result if isinstance(node5_result, dict) else {},
             batch_id=batch_id,
         )
         log_modification_agent_search_group(

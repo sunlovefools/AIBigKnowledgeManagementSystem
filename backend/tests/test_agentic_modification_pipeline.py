@@ -29,7 +29,7 @@ def _state(user_instructions: str) -> dict:
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
-        "node5_clue_chunk_explorer_result": {},
+        "node5_parent_chunk_constraint_verifier_result": {},
         "node6_editor_result": {},
         "proposals": [],
         "token_prompt_total": 0,
@@ -172,7 +172,7 @@ def test_retrieval_brief_graph_runs_six_nodes(monkeypatch):
     assert result["node2_search_group_result"]["run_summary"]["top_k_per_query"] == 15
     assert isinstance(result["node3_non_strong_signal_file_context_expansion_result"], dict)
     assert isinstance(result["node4_file_filtering_result"], dict)
-    assert isinstance(result["node5_clue_chunk_explorer_result"], dict)
+    assert isinstance(result["node5_parent_chunk_constraint_verifier_result"], dict)
     assert isinstance(result["node6_editor_result"], dict)
     assert isinstance(result["proposals"], list)
     assert result["intention"] == "edit"

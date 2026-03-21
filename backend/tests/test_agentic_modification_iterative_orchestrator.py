@@ -21,7 +21,7 @@ def _base_state() -> dict:
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
-        "node5_clue_chunk_explorer_result": {},
+        "node5_parent_chunk_constraint_verifier_result": {},
         "node6_editor_result": {},
         "proposals": [],
         "token_prompt_total": 0,
@@ -134,22 +134,22 @@ def _filter_batch(
     }
 
 
-def _clue_batch(batch_id: int, refs: list[dict] | None = None) -> dict:
+def _verifier_batch(batch_id: int, refs: list[dict] | None = None) -> dict:
     refs = refs or []
     return {
         "batch_id": batch_id,
         "goal": "Update policy.",
         "constraint": "Only policy section.",
-        "explorations": [],
+        "verifications": [],
         "confirmed_parent_chunks_by_file": [],
         "merged_confirmed_parent_chunk_refs": refs,
         "run_summary": {
-            "exploration_count": 0,
-            "confirmed_exploration_count": 0,
-            "dead_end_count": 0,
+            "verification_count": 0,
+            "confirmed_verification_count": 0,
+            "rejected_verification_count": 0,
             "confirmed_parent_chunk_ref_count": len(refs),
             "tool_call_count": 0,
-            "llm_round_count": 0,
+            "llm_call_count": 0,
         },
     }
 
@@ -190,8 +190,8 @@ def test_orchestrator_loops_on_potential_files_and_forwards_child_exclusions(mon
             potential_chunk_numbers=[],
         ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
-    async def _fake_clue_batch(_state, *, file_filtering_result, batch_id):
-        return _clue_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+    async def _fake_verifier_batch(_state, *, file_filtering_result, batch_id):
+        return _verifier_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -200,7 +200,7 @@ def test_orchestrator_loops_on_potential_files_and_forwards_child_exclusions(mon
         _fake_expand_batch,
     )
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_clue_chunk_explorer_batch", _fake_clue_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_parent_chunk_constraint_verifier_batch", _fake_verifier_batch)
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
@@ -209,11 +209,11 @@ def test_orchestrator_loops_on_potential_files_and_forwards_child_exclusions(mon
     assert len(seen_search_kwargs) >= 2
 
 
-def test_orchestrator_prefetch_starts_before_clue_explorer(monkeypatch):
+def test_orchestrator_prefetch_starts_before_parent_chunk_constraint_verifier(monkeypatch):
     state = _base_state()
     prefetch_started = asyncio.Event()
     allow_prefetch_finish = asyncio.Event()
-    clue_saw_prefetch = {"value": False}
+    verifier_saw_prefetch = {"value": False}
 
     async def _fake_search_batch(_state, **kwargs):
         batch_id = int(kwargs.get("batch_id", 1))
@@ -237,10 +237,10 @@ def test_orchestrator_prefetch_starts_before_clue_explorer(monkeypatch):
             potential_chunk_numbers=[1],
         ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
-    async def _fake_clue_batch(_state, *, file_filtering_result, batch_id):
-        clue_saw_prefetch["value"] = prefetch_started.is_set()
+    async def _fake_verifier_batch(_state, *, file_filtering_result, batch_id):
+        verifier_saw_prefetch["value"] = prefetch_started.is_set()
         allow_prefetch_finish.set()
-        return _clue_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+        return _verifier_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -249,11 +249,11 @@ def test_orchestrator_prefetch_starts_before_clue_explorer(monkeypatch):
         _fake_expand_batch,
     )
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_clue_chunk_explorer_batch", _fake_clue_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_parent_chunk_constraint_verifier_batch", _fake_verifier_batch)
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
-    assert clue_saw_prefetch["value"] is True
+    assert verifier_saw_prefetch["value"] is True
 
 
 def test_orchestrator_stops_when_no_potential_parent_chunks(monkeypatch):
@@ -272,8 +272,8 @@ def test_orchestrator_stops_when_no_potential_parent_chunks(monkeypatch):
             potential_chunk_numbers=[],
         ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
-    async def _fake_clue_batch(_state, *, file_filtering_result, batch_id):
-        return _clue_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
+    async def _fake_verifier_batch(_state, *, file_filtering_result, batch_id):
+        return _verifier_batch(batch_id), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_search_and_group_batch", _fake_search_batch)
     monkeypatch.setattr(
@@ -282,7 +282,7 @@ def test_orchestrator_stops_when_no_potential_parent_chunks(monkeypatch):
         _fake_expand_batch,
     )
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_clue_chunk_explorer_batch", _fake_clue_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_parent_chunk_constraint_verifier_batch", _fake_verifier_batch)
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
@@ -310,8 +310,8 @@ def test_orchestrator_merges_confirmed_refs_from_node4_and_node5(monkeypatch):
             confirmed_chunk_numbers=[1],
         ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
 
-    async def _fake_clue_batch(_state, *, file_filtering_result, batch_id):
-        return _clue_batch(
+    async def _fake_verifier_batch(_state, *, file_filtering_result, batch_id):
+        return _verifier_batch(
             batch_id,
             refs=[{"file_id": "file-a", "file_name": "file-a.md", "parent_chunk_number": 2}],
         ), {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}, 0
@@ -323,9 +323,9 @@ def test_orchestrator_merges_confirmed_refs_from_node4_and_node5(monkeypatch):
         _fake_expand_batch,
     )
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_file_filtering_batch", _fake_filter_batch)
-    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_clue_chunk_explorer_batch", _fake_clue_batch)
+    monkeypatch.setattr(iterative_search_filter_orchestrator_node, "run_parent_chunk_constraint_verifier_batch", _fake_verifier_batch)
     monkeypatch.setattr(iterative_search_filter_orchestrator_node, "log_modification_agent_search_group", lambda **kwargs: None)
 
     result = asyncio.run(iterative_search_filter_orchestrator_node.iterative_search_filter_orchestrator_node(state))
-    merged_refs = result["node5_clue_chunk_explorer_result"]["merged_confirmed_parent_chunk_refs"]
+    merged_refs = result["node5_parent_chunk_constraint_verifier_result"]["merged_confirmed_parent_chunk_refs"]
     assert sorted(item["parent_chunk_number"] for item in merged_refs) == [1, 2]

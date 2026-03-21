@@ -204,9 +204,11 @@ async def run_search_and_group_batch(
         query_mode = "overfetch_post_filter" if used_overfetch else "base"
         return anchor, hits[:SEARCH_TOP_K], query_mode
 
-    # Call lexical and semantic queries concurrently for all anchors, then aggregate and group results by child chunk and file
-    lexical_results = await asyncio.gather(*[_run_lexical_query(anchor) for anchor in lexical_anchors])
-    semantic_results = await asyncio.gather(*[_run_semantic_query(anchor) for anchor in semantic_anchors])
+    # Run lexical and semantic query groups in parallel to reduce end-to-end Node-2 latency.
+    lexical_results, semantic_results = await asyncio.gather(
+        asyncio.gather(*[_run_lexical_query(anchor) for anchor in lexical_anchors]),
+        asyncio.gather(*[_run_semantic_query(anchor) for anchor in semantic_anchors]),
+    )
 
     lexical_hits_by_query = {anchor: hits for anchor, hits, _ in lexical_results}
     semantic_hits_by_query = {anchor: hits for anchor, hits, _ in semantic_results}

@@ -51,7 +51,7 @@ class AgenticModificationResponse(BaseModel):
     node2_search_group_result: dict[str, Any]
     node3_non_strong_signal_file_context_expansion_result: dict[str, Any]
     node4_file_filtering_result: dict[str, Any]
-    node5_clue_chunk_explorer_result: dict[str, Any]
+    node5_parent_chunk_constraint_verifier_result: dict[str, Any]
     node6_editor_result: dict[str, Any]
 
 
@@ -100,7 +100,7 @@ async def agentic_modify(request: AgenticModificationRequest):
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
-        "node5_clue_chunk_explorer_result": {},
+        "node5_parent_chunk_constraint_verifier_result": {},
         "node6_editor_result": {},
         "proposals": [],
         "token_prompt_total": 0,
@@ -165,9 +165,12 @@ async def agentic_modify(request: AgenticModificationRequest):
     if not isinstance(node4_file_filtering_result, dict):
         node4_file_filtering_result = {}
 
-    node5_clue_chunk_explorer_result = final_state.get("node5_clue_chunk_explorer_result", {})
-    if not isinstance(node5_clue_chunk_explorer_result, dict):
-        node5_clue_chunk_explorer_result = {}
+    node5_parent_chunk_constraint_verifier_result = final_state.get(
+        "node5_parent_chunk_constraint_verifier_result",
+        {},
+    )
+    if not isinstance(node5_parent_chunk_constraint_verifier_result, dict):
+        node5_parent_chunk_constraint_verifier_result = {}
 
     node6_editor_result = final_state.get("node6_editor_result", {})
     if not isinstance(node6_editor_result, dict):
@@ -244,6 +247,6 @@ async def agentic_modify(request: AgenticModificationRequest):
         node2_search_group_result=node2_search_group_result,
         node3_non_strong_signal_file_context_expansion_result=node3_non_strong_signal_file_context_expansion_result,
         node4_file_filtering_result=node4_file_filtering_result,
-        node5_clue_chunk_explorer_result=node5_clue_chunk_explorer_result,
+        node5_parent_chunk_constraint_verifier_result=node5_parent_chunk_constraint_verifier_result,
         node6_editor_result=node6_editor_result,
     )

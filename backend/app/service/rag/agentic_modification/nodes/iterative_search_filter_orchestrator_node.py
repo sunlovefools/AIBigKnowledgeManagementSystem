@@ -9,7 +9,7 @@ from ..shared.constants import SEARCH_TOP_K
 from ..shared.logging import log_modification_agent_search_group
 from ..shared.search_utils import _extract_fetched_file_ids_from_search_batch
 from ..state.retrieval_brief_state import RetrievalBriefState
-from .clue_chunk_explorer_node import run_clue_chunk_explorer_batch
+from .parent_chunk_constraint_verifier_node import run_parent_chunk_constraint_verifier_batch
 from .file_filtering_node import run_file_filtering_batch
 from .non_strong_signal_file_context_expansion_node import (
     run_non_strong_signal_file_context_expansion_batch,
@@ -236,27 +236,27 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 )
                 await asyncio.sleep(0)
 
-            current_clue_batch, clue_usage_totals, clue_llm_calls_made = await run_clue_chunk_explorer_batch(
+            current_verifier_batch, verifier_usage_totals, verifier_llm_calls_made = await run_parent_chunk_constraint_verifier_batch(
                 state,
                 file_filtering_result=current_filtering_batch,
                 batch_id=current_batch_id,
             )
-            node5_batches.append(current_clue_batch)
+            node5_batches.append(current_verifier_batch)
             log_modification_agent_search_group(
                 run_id=run_id,
-                step="clue_chunk_explorer_batch",
-                payload=current_clue_batch,
+                step="parent_chunk_constraint_verifier_batch",
+                payload=current_verifier_batch,
             )
 
-            usage_prompt_increment += int(clue_usage_totals.get("prompt_tokens", 0) or 0)
-            usage_completion_increment += int(clue_usage_totals.get("completion_tokens", 0) or 0)
-            usage_total_increment += int(clue_usage_totals.get("total_tokens", 0) or 0)
-            llm_calls_increment += int(clue_llm_calls_made or 0)
+            usage_prompt_increment += int(verifier_usage_totals.get("prompt_tokens", 0) or 0)
+            usage_completion_increment += int(verifier_usage_totals.get("completion_tokens", 0) or 0)
+            usage_total_increment += int(verifier_usage_totals.get("total_tokens", 0) or 0)
+            llm_calls_increment += int(verifier_llm_calls_made or 0)
 
             batch_confirmed_refs = _normalize_parent_chunk_refs(
                 current_filtering_batch.get("merged_confirmed_parent_chunk_refs", [])
             ) + _normalize_parent_chunk_refs(
-                current_clue_batch.get("merged_confirmed_parent_chunk_refs", [])
+                current_verifier_batch.get("merged_confirmed_parent_chunk_refs", [])
             )
             for ref in batch_confirmed_refs:
                 key = f"{ref['file_id']}::{ref['parent_chunk_number']}"
@@ -417,7 +417,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             "latest_batch": latest_node5_batch,
             "goal": latest_node5_batch.get("goal", "") if isinstance(latest_node5_batch, dict) else "",
             "constraint": latest_node5_batch.get("constraint", "None") if isinstance(latest_node5_batch, dict) else "None",
-            "explorations": latest_node5_batch.get("explorations", []) if isinstance(latest_node5_batch, dict) else [],
+            "verifications": latest_node5_batch.get("verifications", []) if isinstance(latest_node5_batch, dict) else [],
             "confirmed_parent_chunks_by_file": (
                 latest_node5_batch.get("confirmed_parent_chunks_by_file", [])
                 if isinstance(latest_node5_batch, dict)
@@ -427,18 +427,18 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             "run_summary": {
                 "batch_count": len(node5_batches),
                 "termination_reason": termination_reason,
-                "exploration_count": sum(
-                    int(batch.get("run_summary", {}).get("exploration_count", 0) or 0)
+                "verification_count": sum(
+                    int(batch.get("run_summary", {}).get("verification_count", 0) or 0)
                     for batch in node5_batches
                     if isinstance(batch, dict)
                 ),
-                "confirmed_exploration_count": sum(
-                    int(batch.get("run_summary", {}).get("confirmed_exploration_count", 0) or 0)
+                "confirmed_verification_count": sum(
+                    int(batch.get("run_summary", {}).get("confirmed_verification_count", 0) or 0)
                     for batch in node5_batches
                     if isinstance(batch, dict)
                 ),
-                "dead_end_count": sum(
-                    int(batch.get("run_summary", {}).get("dead_end_count", 0) or 0)
+                "rejected_verification_count": sum(
+                    int(batch.get("run_summary", {}).get("rejected_verification_count", 0) or 0)
                     for batch in node5_batches
                     if isinstance(batch, dict)
                 ),
@@ -455,8 +455,8 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                     for batch in node5_batches
                     if isinstance(batch, dict)
                 ),
-                "llm_round_count": sum(
-                    int(batch.get("run_summary", {}).get("llm_round_count", 0) or 0)
+                "llm_call_count": sum(
+                    int(batch.get("run_summary", {}).get("llm_call_count", 0) or 0)
                     for batch in node5_batches
                     if isinstance(batch, dict)
                 ),
@@ -478,7 +478,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             "node2_search_group_result": node2_result,
             "node3_non_strong_signal_file_context_expansion_result": node3_result,
             "node4_file_filtering_result": node4_result,
-            "node5_clue_chunk_explorer_result": node5_result,
+            "node5_parent_chunk_constraint_verifier_result": node5_result,
             "token_prompt_total": int(state.get("token_prompt_total", 0) or 0) + usage_prompt_increment,
             "token_completion_total": int(state.get("token_completion_total", 0) or 0) + usage_completion_increment,
             "token_total": int(state.get("token_total", 0) or 0) + usage_total_increment,

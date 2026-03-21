@@ -22,7 +22,7 @@ def _base_state() -> dict:
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
-        "node5_clue_chunk_explorer_result": {},
+        "node5_parent_chunk_constraint_verifier_result": {},
         "node6_editor_result": {},
         "proposals": [],
         "token_prompt_total": 0,
@@ -37,7 +37,7 @@ def _base_state() -> dict:
 
 def test_node6_builds_proposals_deduplicates_refs_and_drops_unchanged(monkeypatch):
     state = _base_state()
-    clue_result = {
+    verifier_result = {
         "merged_confirmed_parent_chunk_refs": [
             {"file_id": "file-a", "file_name": "policy.md", "parent_chunk_number": 1},
             {"file_id": "file-a", "file_name": "policy.md", "parent_chunk_number": 1},
@@ -83,7 +83,7 @@ def test_node6_builds_proposals_deduplicates_refs_and_drops_unchanged(monkeypatc
     node_result, usage_totals, llm_calls, proposals = asyncio.run(
         editor_node.run_editor_batch(
             state,
-            clue_chunk_explorer_result=clue_result,
+            parent_chunk_constraint_verifier_result=verifier_result,
             batch_id=2,
         )
     )
@@ -103,7 +103,7 @@ def test_node6_builds_proposals_deduplicates_refs_and_drops_unchanged(monkeypatc
 
 def test_node6_handles_missing_parent_chunks_without_llm_calls(monkeypatch):
     state = _base_state()
-    clue_result = {
+    verifier_result = {
         "merged_confirmed_parent_chunk_refs": [
             {"file_id": "file-missing", "file_name": "missing.md", "parent_chunk_number": 9},
         ]
@@ -117,7 +117,7 @@ def test_node6_handles_missing_parent_chunks_without_llm_calls(monkeypatch):
     node_result, usage_totals, llm_calls, proposals = asyncio.run(
         editor_node.run_editor_batch(
             state,
-            clue_chunk_explorer_result=clue_result,
+            parent_chunk_constraint_verifier_result=verifier_result,
             batch_id=1,
         )
     )
@@ -137,7 +137,7 @@ def test_node6_wrapper_returns_intention_proposals_and_usage(monkeypatch):
     state["token_completion_total"] = 4
     state["token_total"] = 11
     state["llm_call_count"] = 2
-    state["node5_clue_chunk_explorer_result"] = {
+    state["node5_parent_chunk_constraint_verifier_result"] = {
         "merged_confirmed_parent_chunk_refs": [
             {"file_id": "file-a", "file_name": "policy.md", "parent_chunk_number": 1},
         ]

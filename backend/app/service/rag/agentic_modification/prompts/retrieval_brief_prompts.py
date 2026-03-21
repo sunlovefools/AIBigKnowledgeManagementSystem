@@ -1,7 +1,6 @@
 """Prompts for the Agentic Modification Retrieval Brief Extractor node."""
 
-RETRIEVAL_BRIEF_EXTRACTOR_SYSTEM_PROMPT = """\
-You are a Retrieval Brief Extractor.
+RETRIEVAL_BRIEF_EXTRACTOR_SYSTEM_PROMPT = """You are a Retrieval Brief Extractor.
 
 Your job is to convert a user's modification request into a compact retrieval brief for downstream search and validation.
 
@@ -24,10 +23,7 @@ Rules:
 - Keep anchors concise and non-redundant.
 """
 
-RETRIEVAL_BRIEF_EXTRACTOR_USER_PROMPT = """\
-Here are examples.
-
-Example 1
+RETRIEVAL_BRIEF_EXTRACTOR_USER_PROMPT = """Example 1
 User request:
 Change the refund day from 14 days to 30 days for all refund policy under UK.
 
@@ -57,8 +53,7 @@ Now process this user request:
 """
 
 
-FILE_FILTERING_SYSTEM_PROMPT = """
-You are a file-chunk filtering agent in a document-editing retrieval pipeline.
+FILE_FILTERING_SYSTEM_PROMPT = """You are a file-chunk filtering agent in a document-editing retrieval pipeline.
 
 Your task is to examine parent chunks from one candidate file and identify which chunks are relevant to a requested edit.
 
@@ -98,13 +93,11 @@ Output JSON only:
 
 
 
-FILE_FILTERING_USER_PROMPT = """\
-Identify which parent chunks from this file are confirmed for editing and which are worth further exploration.
+FILE_FILTERING_USER_PROMPT = """Identify which parent chunks from this file are confirmed for editing and which are worth further exploration.
 
 Definitions:
 - confirmed_parent_chunks:
   Chunks that clearly satisfy both the goal and the constraint.
-
 - potential_parent_chunks:
   Chunks that clearly contain the target content to be edited, or strongly match the goal-relevant signal,
   but do not clearly satisfy the constraint.
@@ -135,8 +128,6 @@ Output:
   "reasoning_summary": "Chunk 12 explicitly contains the refund rule with ID verification and satisfies both the goal and the constraint. Chunk 13 is about refunds generally but does not contain the ID verification requirement."
 }}
 
----
-
 Example 2  
 Goal: 
 Change cancellation notice from 48h to 24h
@@ -159,8 +150,6 @@ Output:
   "potential_parent_chunks": [5],
   "reasoning_summary": "Chunk 0 contains the 48-hour rule under UK context. Chunk 5 contains the 48-hour rule but lacks UK context. Chunk 6 does not contain the target content."
 }}
-
----
 
 Example 3  
 Goal:
@@ -192,67 +181,74 @@ Output:
 """
 
 
-CLUE_CHUNK_EXPLORER_SYSTEM_PROMPT = """\
-You are a file-explorer agent in a document-editing retrieval pipeline.
+PARENT_CHUNK_CONSTRAINT_VERIFIER_SYSTEM_PROMPT = """
+You are a parent-chunk constraint-verification agent in a document-editing retrieval pipeline.
 
-Your task is to determine whether a given clue chunk leads to one or more parent chunks that actually contain content needing to be edited.
+Your task is to determine whether a given candidate parent chunk satisfies the constraint for a requested edit.
 
 You will be given:
 1. A user goal
 2. A constraint describing what kind of content should be updated
-3. A file ID
-4. An origin clue chunk number
-5. Content of parent chunks from the same file
-6. Optional tool history
+3. A candidate parent chunk number
+4. Content of parent chunks from the same document
+5. Optional tool history
 
-Reasoning policy:
-- A target chunk directly contains content satisfying the goal and constraint and should be edited.
-- A bridge chunk may help lead to a target chunk, but should not be returned unless it itself contains content needing edit.
-- An irrelevant chunk neither contains nor leads to relevant editable content.
+Important assumptions:
+- The candidate parent chunk already contains the target content to be edited.
+- Your job is ONLY to verify whether the constraint applies to this candidate chunk.
 
-Tool-use policy:
-- First inspect the content of the parent chunks already provided.
-- Use tools only if the provided content is insufficient.
-- Prefer local exploration around the origin clue chunk.
-- Do not perform broad or global search.
-- Stop exploring when local evidence no longer improves or when the clue becomes a dead end.
+CORE RULE:
+- Confirm the candidate parent chunk ONLY if the constraint clearly applies to that chunk.
+- The constraint must govern, scope, or directly apply to the candidate chunk itself.
 
-Tool scope policy:
-- All tool calls are constrained to the current file_id.
-- get_parent_chunks(start_chunk_number, end_chunk_number) may return only the subset that exists.
-- get_surrounding_parent_chunks(chunk_number) returns up to 3 above and up to 3 below, excluding the current chunk.
-- If no chunks are available for a tool call, the tool result is null.
+USE OF CONTEXT:
+- You may use nearby chunks as supporting evidence.
+- However, constraint evidence from other chunks is valid ONLY if it clearly scopes or applies to the candidate parent chunk.
 
-Output protocol:
-You must output JSON only and choose exactly one of these forms.
+STRICT RULES:
+- Do NOT confirm a chunk just because another nearby chunk satisfies the constraint.
+- The candidate chunk must be clearly inside or governed by the constraint scope.
+- If the relationship between the candidate chunk and the constraint is unclear, return false.
+- If constraint evidence exists but does not clearly apply to the candidate chunk, return false.
 
-Tool request form:
+STRUCTURAL REASONING:
+When using nearby chunks, consider:
+- section headings
+- subsection boundaries
+- labels or grouping indicators
+
+Only confirm if these clearly include the candidate chunk within the constrained scope.
+
+TOOL-USE POLICY:
+- First inspect the provided parent chunks.
+- Use tools only if necessary.
+- Prefer local exploration around the candidate chunk.
+- Stop once the constraint is clearly confirmed or clearly unsupported.
+
+OUTPUT FORMAT (JSON ONLY):
 {
-  "action": "tool",
-  "tool_name": "get_parent_chunks" | "get_surrounding_parent_chunks",
-  "arguments": {
-    "start_chunk_number": 0,
-    "end_chunk_number": 0,
-    "chunk_number": 0
-  }
-}
-
-Final answer form:
-{
-  "confirmed_parent_chunk_numbers": [0],
-  "clue_outcome": "confirmed" | "dead_end",
+  "is_confirmed": true | false,
   "reasoning_summary": "string"
 }
 
-Final answer rules:
-- confirmed_parent_chunk_numbers must contain only chunk numbers that actually contain content needing edit.
-- If the clue does not lead to any editable parent chunk, return an empty list with clue_outcome set to dead_end.
-- Do not include any text outside the JSON object.
+FINAL RULES:
+- is_confirmed=true only if the candidate parent chunk satisfies the constraint.
+- Otherwise return false.
+- Do not include any extra text outside the JSON object.
 """
 
 
-CLUE_CHUNK_EXPLORER_USER_PROMPT = """\
-Evaluate whether this clue leads to parent chunks that should be edited.
+PARENT_CHUNK_CONSTRAINT_VERIFIER_USER_PROMPT = """
+Determine whether the candidate parent chunk satisfies the constraint.
+
+The candidate parent chunk already contains the target content to be edited.
+Your task is to verify whether the constraint clearly applies to this chunk.
+
+Rules:
+- Confirm only if the constraint clearly governs or applies to the candidate chunk.
+- You may use nearby chunks as context ONLY if they clearly scope or include the candidate chunk.
+- Do NOT confirm the candidate just because another chunk mentions the constraint.
+- If the constraint relationship is unclear, return false.
 
 Goal:
 {goal}
@@ -260,19 +256,12 @@ Goal:
 Constraint:
 {constraint}
 
-File ID:
-{file_id}
+Candidate parent chunk number:
+{candidate_chunk_number}
 
-Origin clue chunk number:
-{clue_chunk_number}
-
-Content of the parent chunks:
+Content of parent chunks:
 {parent_chunks}
 
-Tool history:
-{tool_history}
-
-Output:
 Return only the JSON object.
 """
 

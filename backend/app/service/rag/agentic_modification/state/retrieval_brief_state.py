@@ -26,7 +26,7 @@ class RetrievalBriefState(TypedDict):
     node2_search_group_result: dict[str, Any] # Might need a better name
     node3_non_strong_signal_file_context_expansion_result: dict[str, Any]
     node4_file_filtering_result: dict[str, Any]
-    node5_clue_chunk_explorer_result: dict[str, Any]
+    node5_parent_chunk_constraint_verifier_result: dict[str, Any]
     node6_editor_result: dict[str, Any]
     proposals: list[dict[str, Any]]
     error: Optional[str]
