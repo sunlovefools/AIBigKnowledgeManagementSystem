@@ -126,7 +126,7 @@ export async function requestAgentModify(
     fileIds: string[] | null
 ): Promise<AgentModifyResponse> {
     const response = await axios.post<AgentModifyResponse>(
-        `${API_BASE}/api/agent/v2/modify`,
+        `${API_BASE}/api/agent/modify`,
         { user_instructions: instruction, fileIds: fileIds && fileIds.length > 0 ? fileIds : null }
     );
     return response.data;
