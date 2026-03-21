@@ -1,4 +1,8 @@
-"""Node 5: verify candidate parent chunks against constraint scope."""
+"""Node 5: verify candidate parent chunks against constraint scope.
+
+Node 4 gives candidate chunks that likely contain target content. Node 5 performs
+a strict per-candidate constraint check and only forwards verified chunk refs.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -124,6 +128,7 @@ async def _run_one_parent_chunk_constraint_verification(
     known_parent_chunks_by_number: dict[int, dict[str, Any]] = {}
     tool_history: list[dict[str, Any]] = []
 
+    # Start from the candidate chunk itself; nearby context is pulled only if needed.
     origin_parent_chunks = await vector_search._get_parent_chunks_for_file_range(
         file_id=file_id,
         start_chunk_number=candidate_parent_chunk_number,
@@ -156,6 +161,7 @@ async def _run_one_parent_chunk_constraint_verification(
         )
 
     last_reasoning = "No final constraint verification decision produced."
+    # Tool loop allows local structural exploration while keeping calls file-scoped.
     for round_index in range(1, max_tool_rounds + 1):
         parent_chunks_payload = _build_parent_chunks_prompt_payload(
             [
@@ -199,6 +205,7 @@ async def _run_one_parent_chunk_constraint_verification(
             last_reasoning = "Model output was not valid JSON."
             break
 
+        # Final schema: a single boolean verdict for this candidate chunk only.
         if "is_confirmed" in raw_parsed or "reasoning_summary" in raw_parsed:
             normalized_confirmation = _normalize_boolean(raw_parsed.get("is_confirmed"))
             is_confirmed = bool(normalized_confirmation) if normalized_confirmation is not None else False
@@ -312,6 +319,7 @@ async def run_parent_chunk_constraint_verifier_batch(
     evaluations_raw = file_filtering_result.get("evaluations") if isinstance(file_filtering_result, dict) else []
     evaluations = evaluations_raw if isinstance(evaluations_raw, list) else []
 
+    # Candidate scope is intentionally limited to Node 4 "potential_parent_chunks".
     verification_inputs: list[dict[str, Any]] = []
     seen_input_keys: set[str] = set()
     for evaluation in evaluations:

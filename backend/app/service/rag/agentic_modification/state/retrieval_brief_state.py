@@ -17,12 +17,14 @@ class RetrievalBriefState(TypedDict):
     file_ids: list[str] | None
 
     # --- Intermediate / Output ---
+    # Node 1 output
     intention: str
     goal: str
     lexical_anchors: list[str]
     semantic_anchors: list[str]
     anchors: list[str]
     constraint: str
+    # Node 2..6 outputs
     node2_search_group_result: dict[str, Any] # Might need a better name
     node3_non_strong_signal_file_context_expansion_result: dict[str, Any]
     node4_file_filtering_result: dict[str, Any]

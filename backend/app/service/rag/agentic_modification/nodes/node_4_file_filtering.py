@@ -1,4 +1,9 @@
-"""Node 4: classify parent chunks into confirmed and potential edit targets."""
+"""Node 4: classify parent chunks into confirmed and potential edit targets.
+
+This node is the first strict scope gate:
+- `confirmed_parent_chunks`: ready for editing
+- `potential_parent_chunks`: require Node 5 verification
+"""
 from __future__ import annotations
 
 import asyncio
@@ -52,7 +57,7 @@ def _normalize_child_chunk_ids(raw_ids: Any) -> list[str]:
         normalized.append(child_id)
     return normalized
 
-
+# TODO: Remove this filter_candidate
 def _build_filter_candidates(
     *,
     node2_files: list[dict[str, Any]],
@@ -67,6 +72,7 @@ def _build_filter_candidates(
         file_name = str(file_item.get("file_name") or "").strip() or "unknown"
         node3_by_key[_file_key(file_id, file_name)] = file_item
 
+    # Build a deterministic candidate list by joining Node 2 and Node 3 views by file key.
     candidates: list[dict[str, Any]] = []
     if node2_files:
         for node2_item in node2_files:
@@ -224,6 +230,7 @@ async def _evaluate_filter_candidate(
     }
     llm_calls_made = 0
 
+    # Run one LLM classification call per file candidate.
     try:
         llm_text, usage = await llm_client._call_llm(
             system_prompt=FILE_FILTERING_SYSTEM_PROMPT,
@@ -298,6 +305,8 @@ async def run_file_filtering_batch(
     batch_id: int | None = None,
 ) -> tuple[dict[str, Any], dict[str, int], int]:
     """
+    Entry point from orchestration node to run file filtering over a batch of files from the search group result and expansion result, returning the consolidated node result which will use for the next node.
+
     Reusable file-filtering batch runner.
     Returns:
       (node_result, usage_totals, llm_calls_made)
@@ -350,6 +359,7 @@ async def run_file_filtering_batch(
     child_exclusion_maps: list[dict[str, list[str]]] = []
     run_id = state.get("run_id")
 
+    # Evaluate all candidate files in parallel; ordering is restored by candidate_index.
     evaluation_tasks = [
         asyncio.create_task(
             _evaluate_filter_candidate(
@@ -395,6 +405,7 @@ async def run_file_filtering_batch(
         if isinstance(child_exclusion_map, dict):
             child_exclusion_maps.append(child_exclusion_map)
 
+    # Consolidate refs for downstream orchestrator and editor consumption.
     merged_confirmed_refs = _dedupe_parent_chunk_refs(confirmed_refs_all)
     merged_potential_refs = _dedupe_parent_chunk_refs(potential_refs_all)
     merged_child_exclusions = _merge_child_exclusion_maps(child_exclusion_maps)

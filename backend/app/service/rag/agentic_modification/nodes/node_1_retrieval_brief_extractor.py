@@ -1,4 +1,10 @@
-"""Node 1: retrieval brief extractor."""
+"""Node 1: retrieval brief extractor.
+
+This node converts a free-form user edit request into structured retrieval intent:
+- `goal`: concise description of the desired change
+- `lexical_anchors` / `semantic_anchors`: retrieval signals for downstream nodes
+- `constraint`: scope guard used by Node 4 and Node 5
+"""
 from __future__ import annotations
 
 from ..prompts.retrieval_brief_prompts import (
@@ -29,6 +35,7 @@ async def retrieval_brief_extractor_node(state: RetrievalBriefState) -> dict:
     to ensure robustness against LLM failures or unexpected outputs.
     """
 
+    # Node 1 is the only stage that reads raw user instructions directly.
     print("[Agentic Modification - Node 1] Extracting retrieval brief...")
     user_instruction = state.get("user_instructions", "")
 
@@ -50,7 +57,7 @@ async def retrieval_brief_extractor_node(state: RetrievalBriefState) -> dict:
         "constraint": "None",
     }
 
-    # Calling the LLM to extract retrieval brief from user instructions
+    # Primary path: let the LLM build a structured brief from the raw request.
     try:
         llm_text, usage = await llm_client._call_llm(
             system_prompt=RETRIEVAL_BRIEF_EXTRACTOR_SYSTEM_PROMPT, 
@@ -73,7 +80,7 @@ async def retrieval_brief_extractor_node(state: RetrievalBriefState) -> dict:
         lexical_anchors = _normalize_anchors(parsed.get("lexical_anchors"))
         semantic_anchors = _normalize_anchors(parsed.get("semantic_anchors"))
 
-        # Use the fallback anchors if the LLM fails to provide one
+        # Fill any missing anchors so Node 2 always has at least one retrieval signal.
         if not lexical_anchors:
             lexical_anchors = fallback_lexical_anchors
         if not semantic_anchors and fallback_semantic_anchors:
@@ -97,4 +104,3 @@ async def retrieval_brief_extractor_node(state: RetrievalBriefState) -> dict:
     except Exception as error:
         print(f"Retrieval brief extraction failed: {error}. Falling back.")
         return fallback
-

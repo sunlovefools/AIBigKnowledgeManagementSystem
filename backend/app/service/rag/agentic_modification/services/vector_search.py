@@ -164,6 +164,9 @@ def _ensure_retrieval_cache(cache: dict[str, Any] | None) -> dict[str, Any]:
 
 
 def _snapshot_retrieval_cache_stats(cache: dict[str, Any] | None) -> dict[str, int]:
+    """
+    Extract a snapshot of retrieval cache stats, ensuring default values if the cache is malformed or missing expected keys.
+    """
     cache_obj = _ensure_retrieval_cache(cache)
     stats = cache_obj.get("stats")
     if not isinstance(stats, dict):

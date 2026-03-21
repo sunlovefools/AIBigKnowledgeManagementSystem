@@ -1,4 +1,9 @@
-"""Iterative orchestrator node for Agentic Modification."""
+"""Iterative orchestrator node for Agentic Modification.
+
+This orchestrator executes Node 2 -> Node 3 -> Node 4 -> Node 5 in batches,
+loops while Node 4 still yields potential chunks, and merges confirmed refs
+from Node 4 and Node 5 for Node 6.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -9,15 +14,18 @@ from ..shared.constants import SEARCH_TOP_K
 from ..shared.logging import log_modification_agent_search_group
 from ..shared.search_utils import _extract_fetched_file_ids_from_search_batch
 from ..state.retrieval_brief_state import RetrievalBriefState
-from .parent_chunk_constraint_verifier_node import run_parent_chunk_constraint_verifier_batch
-from .file_filtering_node import run_file_filtering_batch
-from .non_strong_signal_file_context_expansion_node import (
+from .node_3_non_strong_signal_file_context_expansion import (
     run_non_strong_signal_file_context_expansion_batch,
 )
-from .search_and_group_node import run_search_and_group_batch
+from .node_2_search_and_group import run_search_and_group_batch
+from .node_4_file_filtering import run_file_filtering_batch
+from .node_5_parent_chunk_constraint_verifier import run_parent_chunk_constraint_verifier_batch
 
 
 def _normalize_file_ids(raw_file_ids: Any) -> set[str]:
+    """
+    Normalize file IDs from various possible input formats into a set of clean strings.
+    """
     if isinstance(raw_file_ids, set):
         candidates = list(raw_file_ids)
     elif isinstance(raw_file_ids, list):
@@ -36,6 +44,9 @@ def _normalize_file_ids(raw_file_ids: Any) -> set[str]:
 
 
 def _normalize_parent_chunk_refs(raw_refs: Any) -> list[dict[str, Any]]:
+    """
+    Normalize parent chunk references by ensuring they are a list of unique, well-formed dicts
+    """
     if not isinstance(raw_refs, list):
         return []
 
@@ -64,6 +75,9 @@ def _normalize_parent_chunk_refs(raw_refs: Any) -> list[dict[str, Any]]:
 
 
 def _normalize_excluded_child_chunk_ids_by_file(raw_entries: Any) -> dict[str, set[str]]:
+    """
+    Normalize the excluded child chunk IDs by file from various possible input formats into a dict mapping file IDs to sets of child chunk IDs.
+    """
     if not isinstance(raw_entries, list):
         return {}
 
@@ -91,6 +105,9 @@ def _merge_excluded_child_chunk_maps(
     left_map: dict[str, set[str]],
     right_map: dict[str, set[str]],
 ) -> dict[str, set[str]]:
+    """
+    Merge two maps of excluded child chunk IDs by file, combining the sets of child chunk IDs for each file ID.
+    """
     merged: dict[str, set[str]] = {file_id: set(child_ids) for file_id, child_ids in left_map.items()}
     for file_id, child_ids in right_map.items():
         if not child_ids:
@@ -100,6 +117,9 @@ def _merge_excluded_child_chunk_maps(
 
 
 def _serialize_excluded_child_chunk_map(raw_map: dict[str, set[str]]) -> list[dict[str, Any]]:
+    """
+    Serialize the excluded child chunk IDs by file into a list of dictionaries.
+    """
     return [
         {
             "file_id": file_id,
@@ -112,6 +132,8 @@ def _serialize_excluded_child_chunk_map(raw_map: dict[str, set[str]]) -> list[di
 
 async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) -> dict:
     """
+    Entry point for the iterative search/filter orchestrator node.
+
     Iterative orchestrator:
     - Repeats search/group batches using potential-file scoping.
     - Re-runs the same file scope while excluding previously seen child chunks.
@@ -124,6 +146,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
     current_allowed_file_ids: set[str] | None = _normalize_file_ids(state.get("file_ids")) or None
     excluded_child_chunk_ids_by_file: dict[str, set[str]] = {}
 
+    # We keep appending to these lists for each batch, and also keep track of the latest batch for each node to include in the final result.
     node2_batches: list[dict[str, Any]] = []
     node3_batches: list[dict[str, Any]] = []
     node4_batches: list[dict[str, Any]] = []
@@ -145,6 +168,9 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
         allowed_file_ids_override: set[str] | None,
         excluded_child_chunk_ids_by_file_override: dict[str, set[str]],
     ) -> dict[str, Any]:
+        """
+        Internal helper to run a search batch with the given overrides for allowed file IDs and excluded child chunk IDs by file.
+        """
         kwargs: dict[str, Any] = {
             "excluded_file_ids": set(),
             "batch_id": batch_id,
@@ -162,6 +188,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             kwargs.pop("excluded_child_chunk_ids_by_file", None)
             return await run_search_and_group_batch(state, **kwargs)
 
+    # Run the first batch of search
     try:
         current_search_batch = await _run_search_batch(
             batch_id=current_batch_id,
@@ -170,6 +197,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
         )
 
         while True:
+            # Each loop iteration processes exactly one retrieval/filter/verify batch.
             node2_batches.append(current_search_batch)
             log_modification_agent_search_group(
                 run_id=run_id,
@@ -180,12 +208,16 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             current_files = current_search_batch.get("files", [])
             if not isinstance(current_files, list):
                 current_files = []
+            # If node 2 return empty files, it means the search is exhausted
             if not current_files:
                 termination_reason = "search_exhausted"
                 break
 
+            # Extract the fetched file IDs from the current search batch and add them to the global set of fetched file IDs to avoid fetching the same file again in the future when searching
             fetched_file_ids_global.update(_extract_fetched_file_ids_from_search_batch(current_search_batch))
 
+            # Run node 3 expansion for a single file to get more parent chunks in the file that have similar signal to the semantic anchors
+            # It will return the expanded parent chunks
             current_expansion_batch = await run_non_strong_signal_file_context_expansion_batch(
                 state,
                 search_group_result=current_search_batch,
@@ -198,6 +230,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 payload=current_expansion_batch,
             )
 
+            # Run node 4 filtering over the current expansion batch
             current_filtering_batch, usage_totals, llm_calls_made = await run_file_filtering_batch(
                 state,
                 search_group_result=current_search_batch,
@@ -225,8 +258,10 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 current_batch_exclusions,
             )
 
+            # Only create task if the current batch has potential file IDs to explore
             prefetch_task: asyncio.Task | None = None
             if potential_file_ids:
+                # Overlap next search batch with current Node 5 verification.
                 prefetch_task = asyncio.create_task(
                     _run_search_batch(
                         batch_id=current_batch_id + 1,
@@ -236,6 +271,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 )
                 await asyncio.sleep(0)
 
+            # Run node 5 for verification of potential parent chunks from node 4
             current_verifier_batch, verifier_usage_totals, verifier_llm_calls_made = await run_parent_chunk_constraint_verifier_batch(
                 state,
                 file_filtering_result=current_filtering_batch,
@@ -253,6 +289,7 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             usage_total_increment += int(verifier_usage_totals.get("total_tokens", 0) or 0)
             llm_calls_increment += int(verifier_llm_calls_made or 0)
 
+            # Node 4 and Node 5 are both allowed to contribute confirmed refs.
             batch_confirmed_refs = _normalize_parent_chunk_refs(
                 current_filtering_batch.get("merged_confirmed_parent_chunk_refs", [])
             ) + _normalize_parent_chunk_refs(

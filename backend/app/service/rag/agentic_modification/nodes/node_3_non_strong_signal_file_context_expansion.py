@@ -1,4 +1,8 @@
-"""Node 3: expand file context with semantic anchors (all candidate files)."""
+"""Node 3: expand file context with semantic anchors (all candidate files).
+
+Node 2 returns child-level evidence. Node 3 resolves those signals back to parent
+chunks so Node 4 can classify editability at parent-chunk granularity.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -30,7 +34,11 @@ async def run_non_strong_signal_file_context_expansion_batch(
     search_group_result: dict[str, Any],
     batch_id: int | None = None,
 ) -> dict[str, Any]:
-    """Reusable expansion batch runner across all candidate files."""
+    """
+    Entry point from orchestration node
+
+    Reusable expansion batch runner across all candidate files.
+    """
     files = search_group_result.get("files") if isinstance(search_group_result, dict) else []
     if not isinstance(files, list):
         files = []
@@ -43,7 +51,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
     strong_signal_files = [
         item for item in files if isinstance(item, dict) and bool(item.get("strong_signal_file", False))
     ]
-    resolved_batch_id = int(batch_id or 1)
+    resolved_batch_id = int(batch_id)
     retrieval_cache = vector_search._ensure_retrieval_cache(state.get("_retrieval_cache"))
     state["_retrieval_cache"] = retrieval_cache
 
@@ -70,6 +78,10 @@ async def run_non_strong_signal_file_context_expansion_batch(
         }
 
     async def _expand_one_file(file_item: dict[str, Any]) -> dict[str, Any]:
+        """
+        Internal function to expand context for a single file based on semantic anchors, returning the expanded child chunks and parent chunks with associated metadata.
+        """
+        # Expansion is isolated per file, which allows safe parallel fan-out.
         file_id = str(file_item.get("file_id") or "").strip() or "unknown"
         file_name = str(file_item.get("file_name") or "").strip() or "unknown"
 
@@ -78,6 +90,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
         child_aggregate: dict[str, dict[str, Any]] = {}
 
         async def _run_semantic_anchor(anchor: str) -> tuple[str, list[tuple[Document, float | None]], str]:
+            """Run a semantic search for a single anchor against the given file, returning the raw hits and the search mode used."""
             try:
                 items, search_mode = await vector_search._run_semantic_search_for_file(
                     query=anchor,
@@ -94,6 +107,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
                 )
             return anchor, items, search_mode
 
+        # Run all semantic anchors concurrently for this file.
         anchor_results = await asyncio.gather(
             *[_run_semantic_anchor(anchor) for anchor in semantic_anchors]
         )
@@ -167,6 +181,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
             )
         )
 
+        # De-duplicate parent ids before parent document fetch.
         parent_ids: list[str] = []
         seen_parent_ids: set[str] = set()
         for child_item in expanded_child_chunks:
@@ -217,6 +232,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
             "parent_chunks_prompt_payload": _build_parent_chunks_prompt_payload(parent_chunks),
         }
 
+    # Expand every candidate file in parallel to reduce Node 3 latency.
     expanded_file_results_raw = await asyncio.gather(
         *[_expand_one_file(file_item) for file_item in candidate_files],
         return_exceptions=True,

@@ -1,5 +1,6 @@
 """Prompts for the Agentic Modification Retrieval Brief Extractor node."""
 
+# Node 1 prompt pair: converts raw user instruction into structured retrieval brief.
 RETRIEVAL_BRIEF_EXTRACTOR_SYSTEM_PROMPT = """You are a Retrieval Brief Extractor.
 
 Your job is to convert a user's modification request into a compact retrieval brief for downstream search and validation.
@@ -53,6 +54,7 @@ Now process this user request:
 """
 
 
+# Node 4 prompt pair: classifies parent chunks into confirmed vs potential.
 FILE_FILTERING_SYSTEM_PROMPT = """You are a file-chunk filtering agent in a document-editing retrieval pipeline.
 
 Your task is to examine parent chunks from one candidate file and identify which chunks are relevant to a requested edit.
@@ -181,6 +183,7 @@ Output:
 """
 
 
+# Node 5 prompt pair: verifies whether a candidate parent chunk is within constraint scope.
 PARENT_CHUNK_CONSTRAINT_VERIFIER_SYSTEM_PROMPT = """
 You are a parent-chunk constraint-verification agent in a document-editing retrieval pipeline.
 
@@ -266,6 +269,7 @@ Return only the JSON object.
 """
 
 
+# Node 6 prompt pair: edits only the resolved parent-chunk text.
 EDITOR_NODE_SYSTEM_PROMPT = """\
 You are an editor in a document-editing pipeline.
 

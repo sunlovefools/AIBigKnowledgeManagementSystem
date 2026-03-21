@@ -1,4 +1,8 @@
-"""Node 2: search and grouping."""
+"""Node 2: search and grouping.
+
+This node fans out lexical + semantic retrieval using anchors from Node 1, then
+aggregates child/file-level hit statistics used by Node 3 and Node 4.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -22,6 +26,9 @@ from ..state.retrieval_brief_state import RetrievalBriefState
 
 
 def _normalize_allowed_file_ids(raw_allowed_file_ids: Any) -> set[str]:
+    """
+    Normalize the allowed file IDs from various possible input formats into a set of unique, non-empty strings.
+    """
     if isinstance(raw_allowed_file_ids, set):
         candidates = list(raw_allowed_file_ids)
     elif isinstance(raw_allowed_file_ids, list):
@@ -42,6 +49,9 @@ def _normalize_allowed_file_ids(raw_allowed_file_ids: Any) -> set[str]:
 def _normalize_excluded_child_chunk_ids_by_file(
     raw_value: Any,
 ) -> dict[str, set[str]]:
+    """
+    Normalize the excluded child chunk IDs by file from various possible input formats into a dict mapping file IDs to sets of child chunk IDs.
+    """
     if not isinstance(raw_value, dict):
         return {}
 
@@ -76,12 +86,15 @@ async def run_search_and_group_batch(
     excluded_child_chunk_ids_by_file: dict[str, set[str]] | None = None,
     batch_id: int | None = None,
 ) -> dict[str, Any]:
-    """Reusable search/group batch runner with optional file-id exclusion."""
-
+    """
+    The endpoint that orchestration node calls to run a reusable search/group batch runner with optional file-id exclusion.
+    """
+    print(f"[Agentic Modification - Node 2] Running search/group batch with batch_id={batch_id}...")
     #TODO: We can remove the normalise here since it is already nromalised at node 1 
     lexical_anchors = _normalize_anchors(state.get("lexical_anchors"))
     semantic_anchors = _normalize_anchors(state.get("semantic_anchors"))
 
+    # Normalise and get all the excluded file IDs, child chunk IDs and allowed file IDs for this batch
     excluded_ids = _normalize_excluded_file_ids(excluded_file_ids)
     allowed_file_ids = (
         _normalize_allowed_file_ids(allowed_file_ids_override)
@@ -99,9 +112,10 @@ async def run_search_and_group_batch(
         seen_child_ids: set[str] = set()
         used_overfetch = False
 
-        # 
+        # TODO: Not sure if we still need this multiplier
         for index, multiplier in enumerate(SEARCH_EXCLUSION_OVERFETCH_MULTIPLIERS):
             request_k = max(SEARCH_TOP_K, SEARCH_TOP_K * int(multiplier))
+            print(f"[Agentic Modification - Node 2] Running lexical search with request_k={request_k}...")
 
             # Call the lexical search with the current level of overfecting and server-side exclusion
             lexical_search_kwargs: dict[str, Any] = {
@@ -148,6 +162,9 @@ async def run_search_and_group_batch(
         return anchor, hits[:SEARCH_TOP_K], query_mode
 
     async def _run_semantic_query(anchor: str) -> tuple[str, list[dict[str, Any]], str]:
+        """
+        Internal function to run a semantic search query for a given anchor, applying overfetching and post-filtering based on excluded file IDs and child chunk IDs.
+        """
         hits: list[dict[str, Any]] = []
         seen_child_ids: set[str] = set()
         used_overfetch = False
@@ -215,12 +232,16 @@ async def run_search_and_group_batch(
     lexical_query_modes = {anchor: mode for anchor, _, mode in lexical_results}
     semantic_query_modes = {anchor: mode for anchor, _, mode in semantic_results}
 
+    # Merge lexical and semantic streams so downstream ranking logic is source-agnostic.
     all_hits: list[dict[str, Any]] = []
     for hits in lexical_hits_by_query.values():
         all_hits.extend(hits)
     for hits in semantic_hits_by_query.values():
         all_hits.extend(hits)
 
+    # Two aggregation views:
+    # - child_agg: per child chunk retrieval evidence
+    # - file_agg: per file retrieval evidence
     child_agg: dict[str, dict[str, Any]] = {}
     file_agg: dict[str, dict[str, Any]] = {}
 
@@ -244,6 +265,7 @@ async def run_search_and_group_batch(
             },
         )
 
+        # TODO: We can remove this total_hit_count in the dict since it is just the sum of lexical and semantic hit count which we already have
         child_entry["total_hit_count"] += 1
         if source == "lexical":
             child_entry["lexical_hit_count"] += 1
@@ -274,6 +296,10 @@ async def run_search_and_group_batch(
                 file_entry["semantic_scores"].append(score)
 
     child_results: list[dict[str, Any]] = []
+
+    # TODO: We can remove the avg_semantic_score in the dict as well as stong_signal_chunk
+    # The reason we can remove strong_signal chunk is because the current version, all the fecthed chunks will get their parent chunks and send to node 3 for relevance evaluation
+    # Hence no reason for us to have strong_signal_chunk anymore
     for child_entry in child_agg.values():
         avg_semantic_score = _average_or_none(child_entry["semantic_scores"])
         strong_signal_chunk = child_entry["lexical_hit_count"] > 0 and child_entry["semantic_hit_count"] > 0
@@ -290,6 +316,7 @@ async def run_search_and_group_batch(
             }
         )
 
+    # Sort the child chunks by strong signal, then total hit count, then child chunk ID for deterministic tie-breaking
     child_results.sort(
         key=lambda item: (
             -int(item.get("strong_signal_chunk", False)),
@@ -328,6 +355,7 @@ async def run_search_and_group_batch(
         )
     )
 
+    # "Strong signal" references are explicit debug artifacts used by later decision nodes.
     strong_signal_chunk_refs = [
         {
             "child_chunk_id": item["child_chunk_id"],
@@ -396,7 +424,11 @@ async def run_search_and_group_batch(
 
 
 async def search_and_group_node(state: RetrievalBriefState) -> dict:
-    """Node 2 wrapper: run one search/group batch with no exclusions."""
+    """
+    Node 2 wrapper: run one search/group batch with no exclusions.
+    
+    It is not used by the orchestration node
+    """
     print("[Agentic Modification - Node 2] Running search and grouping...")
     run_id = state.get("run_id")
     lexical_anchors = _normalize_anchors(state.get("lexical_anchors"))

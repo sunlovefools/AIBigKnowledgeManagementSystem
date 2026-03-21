@@ -1,4 +1,8 @@
-"""Node 6: edit confirmed parent chunks into frontend-ready proposals."""
+"""Node 6: edit confirmed parent chunks into frontend-ready proposals.
+
+This is the final generation stage. It consumes only confirmed parent chunk refs
+and produces proposal payloads consumed by the API/frontend.
+"""
 from __future__ import annotations
 
 import asyncio
@@ -130,6 +134,7 @@ async def _edit_one_parent_chunk(
             None,
         )
 
+    # One LLM edit call per resolved parent chunk.
     try:
         llm_text, llm_usage = await llm_client._call_llm(
             system_prompt=EDITOR_NODE_SYSTEM_PROMPT,
@@ -162,6 +167,7 @@ async def _edit_one_parent_chunk(
             None,
         )
 
+    # Guardrail normalization strips wrappers and rejects unsafe refusals.
     edited_text = _normalize_edited_text(llm_text, original_text)
     if edited_text.strip() == original_text.strip():
         return (
@@ -258,6 +264,7 @@ async def run_editor_batch(
         if ref["parent_chunk_number"] not in file_entry["chunk_numbers"]:
             file_entry["chunk_numbers"].append(ref["parent_chunk_number"])
 
+    # Fetch all confirmed parent chunks concurrently before edit generation.
     fetch_results = await asyncio.gather(
         *[
             vector_search._fetch_parent_chunks_for_file_chunk_numbers(
@@ -323,6 +330,7 @@ async def run_editor_batch(
         )
     )
 
+    # Bounded concurrency avoids flooding the LLM provider on large edit batches.
     semaphore = asyncio.Semaphore(_EDITOR_MAX_CONCURRENCY)
 
     async def _run_edit_with_limit(
