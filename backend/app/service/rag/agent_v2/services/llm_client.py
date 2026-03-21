@@ -74,6 +74,8 @@ async def _call_llm(
         "Content-Type": "application/json",
     }
     timeout = aiohttp.ClientTimeout(total=120.0)
+
+    # Log the LLM request details for observability before making the API call
     log_modification_agent_llm_request(
         provider="MOD_AGENT_LLM",
         model=_DEEPSEEK_MODEL,
@@ -93,6 +95,7 @@ async def _call_llm(
                 raise RuntimeError(f"DeepSeek API error ({resp.status}): {text}")
             return await resp.json()
 
+    # Requesting to the LLM API
     if session is not None:
         data = await _do_request(session)
     else:
@@ -103,6 +106,7 @@ async def _call_llm(
     if not isinstance(usage, dict):
         usage = {}
 
+    # Calculate the token usage and estimated cost, and log it for observability
     completion_tokens = int(usage.get("completion_tokens", 0) or 0)
     prompt_cache_hit_token = int(usage.get("prompt_cache_hit_tokens", 0) or 0)
     prompt_cache_miss_token = int(usage.get("prompt_cache_miss_tokens", 0) or 0)
@@ -126,6 +130,7 @@ async def _call_llm(
         step=step,
     )
 
+    # Extract the responses from the LLM output and log it for observability
     choices = data.get("choices", [])
     if not choices:
         raise RuntimeError("DeepSeek returned empty choices.")
@@ -140,6 +145,8 @@ async def _call_llm(
         response_text=content,
     )
 
+    # Return both the content and the usage details for further processing and accumulation
+    # TODO: Not sure why do we need to return the usage details here
     return content, {
         "prompt_tokens": prompt_tokens,
         "completion_tokens": completion_tokens,

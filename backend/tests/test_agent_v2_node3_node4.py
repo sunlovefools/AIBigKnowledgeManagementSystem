@@ -17,6 +17,8 @@ def _base_state() -> dict:
     return {
         "user_instructions": "update policy",
         "run_id": "run-node34",
+        "file_ids": None,
+        "intention": "edit",
         "goal": "Update policy.",
         "lexical_anchors": [],
         "semantic_anchors": ["anchor one", "anchor two"],
@@ -25,6 +27,9 @@ def _base_state() -> dict:
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
+        "node5_clue_chunk_explorer_result": {},
+        "node6_editor_result": {},
+        "proposals": [],
         "token_prompt_total": 0,
         "token_completion_total": 0,
         "token_total": 0,
@@ -193,7 +198,7 @@ def test_node4_promotes_direct_and_potential_above_threshold(monkeypatch):
 
     evaluations = {item["file_id"]: item for item in node4["evaluations"]}
     assert evaluations["file-direct"]["confidence"] == 1.0
-    assert evaluations["file-direct"]["suggested_chunk_numbers"] == []
+    assert evaluations["file-direct"]["suggested_chunk_numbers"] == [2]
     assert evaluations["file-p75"]["suggested_chunk_numbers"] == [3]
 
     assert result["token_prompt_total"] == 29

@@ -182,7 +182,7 @@ def _normalize_file_filter_result(
             "decision": "direct_match",
             "confidence": 1.0,
             "reasoning_summary": reasoning_summary,
-            "suggested_chunk_numbers": [],
+            "suggested_chunk_numbers": normalized_suggestions,
         }
 
     if decision_raw == "reject":

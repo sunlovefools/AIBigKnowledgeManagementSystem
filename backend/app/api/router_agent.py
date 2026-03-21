@@ -5,7 +5,7 @@ POST /api/agent/modify
 from __future__ import annotations
 
 import traceback
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, status
@@ -36,6 +36,9 @@ class ProposalItem(BaseModel):
     parentId: str
     original: str
     proposed: str
+    source: Optional[Literal["agent", "selection"]] = None
+    selectionStart: Optional[int] = None
+    selectionEnd: Optional[int] = None
 
 
 class AgentModifyResponse(BaseModel):
@@ -52,10 +55,13 @@ class AgentModifyResponse(BaseModel):
 class AgentV2ModifyRequest(BaseModel):
     """Request payload for v2 retrieval brief extraction."""
     user_instructions: str
+    fileIds: Optional[list[str]] = None
 
 
 class AgentV2ModifyResponse(BaseModel):
     """Response payload for v2 retrieval brief extraction."""
+    intention: str
+    proposals: list[ProposalItem]
     goal: str
     lexical_anchors: list[str]
     semantic_anchors: list[str]
@@ -64,6 +70,8 @@ class AgentV2ModifyResponse(BaseModel):
     node2_search_group_result: dict[str, Any]
     node3_non_strong_signal_file_context_expansion_result: dict[str, Any]
     node4_file_filtering_result: dict[str, Any]
+    node5_clue_chunk_explorer_result: dict[str, Any]
+    node6_editor_result: dict[str, Any]
 
 
 @router.get("/health")
@@ -94,9 +102,12 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
     import aiohttp
 
     run_id = uuid4().hex
+    file_ids = request.fileIds if request.fileIds else None
     initial_state = {
         "user_instructions": request.user_instructions.strip(),
         "run_id": run_id,
+        "file_ids": file_ids,
+        "intention": "edit",
         "goal": "",
         "lexical_anchors": [],
         "semantic_anchors": [],
@@ -105,6 +116,9 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
+        "node5_clue_chunk_explorer_result": {},
+        "node6_editor_result": {},
+        "proposals": [],
         "token_prompt_total": 0,
         "token_completion_total": 0,
         "token_total": 0,
@@ -163,6 +177,47 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
     node4_file_filtering_result = final_state.get("node4_file_filtering_result", {})
     if not isinstance(node4_file_filtering_result, dict):
         node4_file_filtering_result = {}
+    node5_clue_chunk_explorer_result = final_state.get("node5_clue_chunk_explorer_result", {})
+    if not isinstance(node5_clue_chunk_explorer_result, dict):
+        node5_clue_chunk_explorer_result = {}
+    node6_editor_result = final_state.get("node6_editor_result", {})
+    if not isinstance(node6_editor_result, dict):
+        node6_editor_result = {}
+
+    intention = str(final_state.get("intention", "edit") or "").strip() or "edit"
+    proposals_raw = final_state.get("proposals", [])
+    proposals_list: list[ProposalItem] = []
+    if isinstance(proposals_raw, list):
+        for item in proposals_raw:
+            if not isinstance(item, dict):
+                continue
+            file_id = str(item.get("fileId") or "").strip()
+            file_name = str(item.get("fileName") or "").strip() or "unknown"
+            parent_id = str(item.get("parentId") or "").strip()
+            original = str(item.get("original") or "")
+            proposed = str(item.get("proposed") or "")
+            source_raw = str(item.get("source") or "").strip().lower()
+            source: Literal["agent", "selection"] | None = None
+            if source_raw in {"agent", "selection"}:
+                source = source_raw
+            selection_start = item.get("selectionStart")
+            selection_end = item.get("selectionEnd")
+            selection_start_int = int(selection_start) if isinstance(selection_start, int) else None
+            selection_end_int = int(selection_end) if isinstance(selection_end, int) else None
+            if not file_id or not parent_id:
+                continue
+            proposals_list.append(
+                ProposalItem(
+                    fileId=file_id,
+                    fileName=file_name,
+                    parentId=parent_id,
+                    original=original,
+                    proposed=proposed,
+                    source=source,
+                    selectionStart=selection_start_int,
+                    selectionEnd=selection_end_int,
+                )
+            )
 
     token_prompt_total = int(final_state.get("token_prompt_total", 0) or 0)
     token_completion_total = int(final_state.get("token_completion_total", 0) or 0)
@@ -187,6 +242,8 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
     )
 
     return AgentV2ModifyResponse(
+        intention=intention,
+        proposals=proposals_list,
         goal=goal,
         lexical_anchors=lexical_anchors,
         semantic_anchors=semantic_anchors,
@@ -195,6 +252,8 @@ async def agent_v2_modify(request: AgentV2ModifyRequest):
         node2_search_group_result=node2_search_group_result,
         node3_non_strong_signal_file_context_expansion_result=node3_non_strong_signal_file_context_expansion_result,
         node4_file_filtering_result=node4_file_filtering_result,
+        node5_clue_chunk_explorer_result=node5_clue_chunk_explorer_result,
+        node6_editor_result=node6_editor_result,
     )
 
 

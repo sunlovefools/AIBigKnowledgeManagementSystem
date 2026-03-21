@@ -11,6 +11,8 @@ def _base_state() -> dict:
     return {
         "user_instructions": "update policy",
         "run_id": "run-iterative",
+        "file_ids": None,
+        "intention": "edit",
         "goal": "Update policy.",
         "lexical_anchors": ["policy"],
         "semantic_anchors": ["policy rule"],
@@ -19,6 +21,9 @@ def _base_state() -> dict:
         "node2_search_group_result": {},
         "node3_non_strong_signal_file_context_expansion_result": {},
         "node4_file_filtering_result": {},
+        "node5_clue_chunk_explorer_result": {},
+        "node6_editor_result": {},
+        "proposals": [],
         "token_prompt_total": 0,
         "token_completion_total": 0,
         "token_total": 0,

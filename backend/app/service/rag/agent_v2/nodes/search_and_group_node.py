@@ -21,6 +21,24 @@ from ..shared.search_utils import (
 from ..state.retrieval_brief_state import RetrievalBriefState
 
 
+def _normalize_allowed_file_ids(raw_allowed_file_ids: Any) -> set[str]:
+    if isinstance(raw_allowed_file_ids, set):
+        candidates = list(raw_allowed_file_ids)
+    elif isinstance(raw_allowed_file_ids, list):
+        candidates = raw_allowed_file_ids
+    elif isinstance(raw_allowed_file_ids, tuple):
+        candidates = list(raw_allowed_file_ids)
+    else:
+        candidates = []
+
+    normalized: set[str] = set()
+    for item in candidates:
+        value = str(item or "").strip()
+        if value:
+            normalized.add(value)
+    return normalized
+
+
 async def run_search_and_group_batch(
     state: RetrievalBriefState,
     *,
@@ -28,32 +46,36 @@ async def run_search_and_group_batch(
     batch_id: int | None = None,
 ) -> dict[str, Any]:
     """Reusable search/group batch runner with optional file-id exclusion."""
+
+    #TODO: We can remove the normalise here since it is already nromalised at node 1 
     lexical_anchors = _normalize_anchors(state.get("lexical_anchors"))
     semantic_anchors = _normalize_anchors(state.get("semantic_anchors"))
-    if not lexical_anchors and not semantic_anchors:
-        legacy_anchors = _normalize_anchors(state.get("anchors"))
-        lexical_anchors = legacy_anchors
-        semantic_anchors = legacy_anchors
 
     excluded_ids = _normalize_excluded_file_ids(excluded_file_ids)
+    allowed_file_ids = _normalize_allowed_file_ids(state.get("file_ids"))
     resolved_batch_id = int(batch_id or 1)
 
     async def _run_lexical_query(anchor: str) -> tuple[str, list[dict[str, Any]], str]:
+        """
+        Internal function to run a lexical search query for a given anchor, applying overfetching and post-filtering based on excluded file IDs.
+        """
         hits: list[dict[str, Any]] = []
         seen_child_ids: set[str] = set()
         used_overfetch = False
 
+        # 
         for index, multiplier in enumerate(SEARCH_EXCLUSION_OVERFETCH_MULTIPLIERS):
             request_k = max(SEARCH_TOP_K, SEARCH_TOP_K * int(multiplier))
-            try:
-                rows = await vector_search._run_lexical_search(
-                    query=anchor,
-                    top_k=request_k,
-                    excluded_file_ids=excluded_ids,
-                )
-            except TypeError:
-                # Backward-compatible fallback for test monkeypatches using old signature.
-                rows = await vector_search._run_lexical_search(query=anchor, top_k=request_k)
+
+            # Call the lexical search with the current level of overfecting and server-side exclusion
+            lexical_search_kwargs: dict[str, Any] = {
+                "query": anchor,
+                "top_k": request_k,
+                "excluded_file_ids": excluded_ids,
+            }
+            if allowed_file_ids:
+                lexical_search_kwargs["included_file_ids"] = allowed_file_ids
+            rows = await vector_search._run_lexical_search(**lexical_search_kwargs)
             if index > 0:
                 used_overfetch = True
 
@@ -64,6 +86,8 @@ async def run_search_and_group_batch(
                     continue
 
                 file_id, file_name = _extract_file_metadata(metadata)
+                if allowed_file_ids and file_id not in allowed_file_ids:
+                    continue
                 if file_id in excluded_ids:
                     continue
 
@@ -92,15 +116,14 @@ async def run_search_and_group_batch(
 
         for index, multiplier in enumerate(SEARCH_EXCLUSION_OVERFETCH_MULTIPLIERS):
             request_k = max(SEARCH_TOP_K, SEARCH_TOP_K * int(multiplier))
-            try:
-                items = await vector_search._run_semantic_search(
-                    query=anchor,
-                    top_k=request_k,
-                    excluded_file_ids=excluded_ids,
-                )
-            except TypeError:
-                # Backward-compatible fallback for test monkeypatches using old signature.
-                items = await vector_search._run_semantic_search(query=anchor, top_k=request_k)
+            semantic_search_kwargs: dict[str, Any] = {
+                "query": anchor,
+                "top_k": request_k,
+                "excluded_file_ids": excluded_ids,
+            }
+            if allowed_file_ids:
+                semantic_search_kwargs["included_file_ids"] = allowed_file_ids
+            items = await vector_search._run_semantic_search(**semantic_search_kwargs)
             if index > 0:
                 used_overfetch = True
 
@@ -117,6 +140,8 @@ async def run_search_and_group_batch(
 
                 metadata = doc_candidate.metadata if isinstance(doc_candidate.metadata, dict) else {}
                 file_id, file_name = _extract_file_metadata(metadata)
+                if allowed_file_ids and file_id not in allowed_file_ids:
+                    continue
                 if file_id in excluded_ids:
                     continue
 
@@ -139,6 +164,7 @@ async def run_search_and_group_batch(
         query_mode = "overfetch_post_filter" if used_overfetch else "base"
         return anchor, hits[:SEARCH_TOP_K], query_mode
 
+    # Call lexical and semantic queries concurrently for all anchors, then aggregate and group results by child chunk and file
     lexical_results = await asyncio.gather(*[_run_lexical_query(anchor) for anchor in lexical_anchors])
     semantic_results = await asyncio.gather(*[_run_semantic_query(anchor) for anchor in semantic_anchors])
 
@@ -281,6 +307,7 @@ async def run_search_and_group_batch(
 
     return {
         "batch_id": resolved_batch_id,
+        "allowed_file_ids": sorted(allowed_file_ids),
         "excluded_file_ids": sorted(excluded_ids),
         "query_modes": {
             "lexical": lexical_query_modes,
@@ -305,6 +332,8 @@ async def run_search_and_group_batch(
             "total_hits": len(all_hits),
             "total_child_chunks": len(child_results),
             "total_files": len(file_results),
+            "allowed_file_id_count": len(allowed_file_ids),
+            "allowed_file_ids": sorted(allowed_file_ids) if allowed_file_ids else "none",
             "excluded_file_id_count": len(excluded_ids),
             "excluded_file_ids": sorted(excluded_ids) if excluded_ids else "none",
             "fetched_file_ids": fetched_file_ids if fetched_file_ids else "none",
