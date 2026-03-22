@@ -15,6 +15,7 @@ from ..prompts.retrieval_brief_prompts import (
 from ..services import llm_client, vector_search
 from ..shared.logging import log_modification_agent_search_group
 from ..shared.normalization import _normalize_goal
+from ..shared.progress import emit_progress
 from ..state.retrieval_brief_state import RetrievalBriefState
 
 _EDITOR_MAX_CONCURRENCY = 5
@@ -417,6 +418,14 @@ async def editor_node(state: RetrievalBriefState) -> dict:
 
     retrieval_cache = vector_search._ensure_retrieval_cache(state.get("_retrieval_cache"))
     state["_retrieval_cache"] = retrieval_cache
+    # Final stage start signal (after iterative retrieval/filtering has finished).
+    await emit_progress(
+        state,
+        stage="editor_node",
+        status="started",
+        batch_id=batch_id,
+        message="Generating final edit proposals from confirmed chunks.",
+    )
 
     try:
         node_result, usage_totals, llm_calls_made, proposals = await run_editor_batch(
@@ -428,6 +437,15 @@ async def editor_node(state: RetrievalBriefState) -> dict:
             run_id=run_id,
             step="editor_node",
             payload=node_result,
+        )
+        # Proposal count helps UI summarize completion in a human-friendly way.
+        await emit_progress(
+            state,
+            stage="editor_node",
+            status="completed",
+            batch_id=batch_id,
+            message="Final edit proposals generated.",
+            metadata={"proposalCount": len(proposals)},
         )
         return {
             "intention": "edit",
@@ -443,6 +461,15 @@ async def editor_node(state: RetrievalBriefState) -> dict:
     except Exception as error:
         error_message = f"editor_node failed: {error}"
         print(error_message)
+        # Emit fail state before returning fallback payload.
+        await emit_progress(
+            state,
+            stage="editor_node",
+            status="failed",
+            batch_id=batch_id,
+            message="Final proposal generation failed.",
+            metadata={"error": error_message},
+        )
         log_modification_agent_search_group(
             run_id=run_id,
             step="editor_node",

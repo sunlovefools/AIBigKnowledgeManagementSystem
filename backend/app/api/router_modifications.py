@@ -3,10 +3,15 @@ API router for file modification and reconstruction operations.
 Handles file update operations.
 """
 
-import traceback
+import asyncio
+import json
 import re
-from typing import Literal
+import traceback
+from contextlib import suppress
+from datetime import datetime, timezone
+from typing import Any, Awaitable, Callable, Literal
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.service.modification.reconstruction_service import ReconstructionService
@@ -14,6 +19,7 @@ from app.service.modification.llm_editor_service import LlmEditorService
 
 # Setup the API router
 router = APIRouter()
+ProgressCallback = Callable[[dict[str, Any]], Awaitable[None]]
 
 # --- Data Models ---
 class BatchUpdateParentChunkItem(BaseModel):
@@ -344,6 +350,34 @@ def _resolve_selection_offsets(
     return mapped_start, mapped_end, existing_content[mapped_start:mapped_end]
 
 
+def _now_iso() -> str:
+    return datetime.now(timezone.utc).isoformat()
+
+
+def _build_progress_event(
+    *,
+    stage: str,
+    status_value: str,
+    message: str,
+    metadata: dict[str, Any] | None = None,
+) -> dict[str, Any]:
+    # Shared event contract for selection-preview stream progress updates.
+    event: dict[str, Any] = {
+        "stage": stage,
+        "status": status_value,
+        "message": message,
+        "timestamp": _now_iso(),
+    }
+    if isinstance(metadata, dict) and metadata:
+        event["metadata"] = metadata
+    return event
+
+
+def _format_sse(event_name: str, data: dict[str, Any]) -> str:
+    # Format one server-sent event frame.
+    return f"event: {event_name}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n"
+
+
 # --- API Endpoints ---
 
 @router.get("/health")
@@ -404,124 +438,203 @@ async def llm_edit_preview(payload: LlmEditPreviewRequest):
         )
 
 
-@router.post("/selection-edit-preview", response_model=SelectionEditPreviewResponse)
-async def selection_edit_preview(payload: SelectionEditPreviewRequest):
-    """Generate a non-persistent edit preview for a highlighted text selection."""
-
+async def _selection_edit_preview_core(
+    payload: SelectionEditPreviewRequest,
+    *,
+    progress_callback: ProgressCallback | None = None,
+) -> SelectionEditPreviewResponse:
     print(
         f"[Selection Edit Preview] Received request for modification with instruction: "
         f"'{payload.instruction}' on fileId: '{payload.fileId}'"
     )
 
-    try:
-        file_id = payload.fileId.strip()
-        file_name = payload.fileName.strip()
-        selected_text = payload.selectedText
-        instruction = payload.instruction.strip()
-        start_offset = payload.startOffset
-        end_offset = payload.endOffset
-        start_chunk_number = payload.startChunkNumber
-        end_chunk_number = payload.endChunkNumber
+    file_id = payload.fileId.strip()
+    file_name = payload.fileName.strip()
+    selected_text = payload.selectedText
+    instruction = payload.instruction.strip()
+    start_offset = payload.startOffset
+    end_offset = payload.endOffset
+    start_chunk_number = payload.startChunkNumber
+    end_chunk_number = payload.endChunkNumber
 
-        if not file_id:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="fileId must not be empty",
-            )
-
-        if not file_name:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="fileName must not be empty",
-            )
-
-        if not selected_text:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="selectedText must not be empty",
-            )
-
-        if not instruction:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="instruction must not be empty",
-            )
-
-        if start_offset < 0 or end_offset <= start_offset:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="startOffset/endOffset must describe a non-empty range",
-            )
-        if start_chunk_number < 1:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="startChunkNumber must be >= 1",
-            )
-        if end_chunk_number < start_chunk_number:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail="endChunkNumber must be >= startChunkNumber",
-            )
-
-        try:
-            # Resolve only the requested chunk window, not the whole file.
-            window_content, window_absolute_start = await ReconstructionService.get_file_chunk_window_content(
-                file_id=file_id,
-                file_name=file_name,
-                start_chunk_number=start_chunk_number,
-                end_chunk_number=end_chunk_number,
-            )
-        except FileNotFoundError:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"No parent chunks found for file ID '{file_id}'",
-            )
-        except ValueError as e:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-                detail=str(e),
-            )
-        except RuntimeError as e:
-            detail = str(e)
-            if "belongs to" in detail:
-                raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=detail,
-                )
-            raise
-
-        # Resolve range-local offsets against the selected chunk window content.
-        resolved_selection = _resolve_selection_offsets(
-            existing_content=window_content,
-            selected_text_from_view=selected_text,
-            start_offset_from_view=start_offset,
-            end_offset_from_view=end_offset,
+    if not file_id:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="fileId must not be empty",
         )
-        if not resolved_selection:
+
+    if not file_name:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="fileName must not be empty",
+        )
+
+    if not selected_text:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="selectedText must not be empty",
+        )
+
+    if not instruction:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="instruction must not be empty",
+        )
+
+    if start_offset < 0 or end_offset <= start_offset:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="startOffset/endOffset must describe a non-empty range",
+        )
+    if start_chunk_number < 1:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="startChunkNumber must be >= 1",
+        )
+    if end_chunk_number < start_chunk_number:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="endChunkNumber must be >= startChunkNumber",
+        )
+
+    if progress_callback:
+        # Top-level lifecycle event for selection edit preview.
+        await progress_callback(
+            _build_progress_event(
+                stage="selection_edit_preview",
+                status_value="started",
+                message="Selection edit preview started.",
+                metadata={"fileId": file_id},
+            )
+        )
+
+    if progress_callback:
+        # Explicit start/completion signals for chunk window resolution.
+        await progress_callback(
+            _build_progress_event(
+                stage="selection_window_resolution",
+                status_value="started",
+                message="Resolving selected chunk window.",
+            )
+        )
+    try:
+        # Resolve only the requested chunk window, not the whole file.
+        window_content, window_absolute_start = await ReconstructionService.get_file_chunk_window_content(
+            file_id=file_id,
+            file_name=file_name,
+            start_chunk_number=start_chunk_number,
+            end_chunk_number=end_chunk_number,
+        )
+    except FileNotFoundError:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"No parent chunks found for file ID '{file_id}'",
+        )
+    except ValueError as e:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
+    except RuntimeError as e:
+        detail = str(e)
+        if "belongs to" in detail:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="selectedText does not match the current content at the provided offsets",
+                detail=detail,
             )
-        resolved_start_offset_local, resolved_end_offset_local, selected_text_for_patch = resolved_selection
-        resolved_start_offset = window_absolute_start + resolved_start_offset_local
-        resolved_end_offset = window_absolute_start + resolved_end_offset_local
+        raise
 
-        # Generate the edit result from LLM based on the selectiion and instruction
-        preview = await LlmEditorService.generate_selection_edit_preview(
-            file_name=file_name,
-            selected_text=selected_text,
-            instruction=instruction,
+    if progress_callback:
+        await progress_callback(
+            _build_progress_event(
+                stage="selection_window_resolution",
+                status_value="completed",
+                message="Selection chunk window resolved.",
+            )
         )
 
-        return SelectionEditPreviewResponse(
-            fileId=file_id,
-            fileName=file_name,
-            selectionId=f"selection:{resolved_start_offset}:{resolved_end_offset}",
-            selectedText=selected_text_for_patch,
-            proposedText=preview["proposedText"],
-            startOffset=resolved_start_offset,
-            endOffset=resolved_end_offset,
+    # Resolve range-local offsets against the selected chunk window content.
+    if progress_callback:
+        # Map UI offsets to canonical markdown offsets before patch generation.
+        await progress_callback(
+            _build_progress_event(
+                stage="selection_offset_mapping",
+                status_value="started",
+                message="Mapping selected text to latest markdown offsets.",
+            )
         )
+    resolved_selection = _resolve_selection_offsets(
+        existing_content=window_content,
+        selected_text_from_view=selected_text,
+        start_offset_from_view=start_offset,
+        end_offset_from_view=end_offset,
+    )
+    if not resolved_selection:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="selectedText does not match the current content at the provided offsets",
+        )
+    resolved_start_offset_local, resolved_end_offset_local, selected_text_for_patch = resolved_selection
+    resolved_start_offset = window_absolute_start + resolved_start_offset_local
+    resolved_end_offset = window_absolute_start + resolved_end_offset_local
+    if progress_callback:
+        await progress_callback(
+            _build_progress_event(
+                stage="selection_offset_mapping",
+                status_value="completed",
+                message="Selection offsets resolved against latest content.",
+            )
+        )
+
+    # Generate the edit result from LLM based on the selection and instruction.
+    if progress_callback:
+        # Separate LLM stage so UI can reflect model-generation latency specifically.
+        await progress_callback(
+            _build_progress_event(
+                stage="selection_llm_generation",
+                status_value="started",
+                message="Generating rewritten text from the LLM.",
+            )
+        )
+    preview = await LlmEditorService.generate_selection_edit_preview(
+        file_name=file_name,
+        selected_text=selected_text,
+        instruction=instruction,
+    )
+    if progress_callback:
+        await progress_callback(
+            _build_progress_event(
+                stage="selection_llm_generation",
+                status_value="completed",
+                message="LLM rewrite generated.",
+            )
+        )
+
+    response = SelectionEditPreviewResponse(
+        fileId=file_id,
+        fileName=file_name,
+        selectionId=f"selection:{resolved_start_offset}:{resolved_end_offset}",
+        selectedText=selected_text_for_patch,
+        proposedText=preview["proposedText"],
+        startOffset=resolved_start_offset,
+        endOffset=resolved_end_offset,
+    )
+    if progress_callback:
+        await progress_callback(
+            _build_progress_event(
+                stage="selection_edit_preview",
+                status_value="completed",
+                message="Selection edit preview completed.",
+            )
+        )
+    return response
+
+
+@router.post("/selection-edit-preview", response_model=SelectionEditPreviewResponse)
+async def selection_edit_preview(payload: SelectionEditPreviewRequest):
+    """Generate a non-persistent edit preview for a highlighted text selection."""
+    try:
+        return await _selection_edit_preview_core(payload)
     except HTTPException:
         raise
     except RuntimeError as e:
@@ -535,6 +648,84 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to generate selection edit preview: {str(e)}",
         )
+
+
+@router.post("/selection-edit-preview-stream")
+async def selection_edit_preview_stream(payload: SelectionEditPreviewRequest):
+    # Queue allows asynchronous production of progress and final result frames.
+    queue: asyncio.Queue[str | None] = asyncio.Queue()
+
+    async def _push_progress(event_payload: dict[str, Any]) -> None:
+        await queue.put(_format_sse("progress", event_payload))
+
+    async def _runner() -> None:
+        try:
+            response = await _selection_edit_preview_core(
+                payload,
+                progress_callback=_push_progress,
+            )
+            # Emit normalized API response as the terminal result event.
+            await queue.put(_format_sse("result", response.model_dump()))
+        except HTTPException as exc:
+            await queue.put(
+                _format_sse(
+                    "error",
+                    {
+                        "statusCode": int(exc.status_code),
+                        "detail": str(exc.detail),
+                    },
+                )
+            )
+        except RuntimeError as exc:
+            await queue.put(
+                _format_sse(
+                    "error",
+                    {
+                        "statusCode": status.HTTP_503_SERVICE_UNAVAILABLE,
+                        "detail": f"LLM service error: {str(exc)}",
+                    },
+                )
+            )
+        except Exception as exc:
+            traceback.print_exc()
+            await queue.put(
+                _format_sse(
+                    "error",
+                    {
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        "detail": f"Failed to generate selection edit preview: {str(exc)}",
+                    },
+                )
+            )
+        finally:
+            # Sentinel value to close event-stream generator.
+            await queue.put(None)
+
+    task = asyncio.create_task(_runner())
+
+    async def _event_stream():
+        try:
+            while True:
+                next_item = await queue.get()
+                if next_item is None:
+                    break
+                yield next_item
+        finally:
+            # Stop background work if the client disconnects mid-stream.
+            if not task.done():
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+
+    return StreamingResponse(
+        _event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 @router.post("/parent-chunks/batch-update", response_model=BatchUpdateParentChunksResponse)
 async def batch_update_parent_chunks(payload: BatchUpdateParentChunksRequest):

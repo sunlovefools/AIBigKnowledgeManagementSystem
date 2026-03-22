@@ -68,6 +68,118 @@ export type SelectionEditPreviewResponse = {
     endOffset: number;
 };
 
+export type ModificationProgressEvent = {
+    stage: string;
+    status: "started" | "in_progress" | "completed" | "failed" | string;
+    message: string;
+    timestamp?: string;
+    batchId?: number;
+    metadata?: Record<string, unknown>;
+};
+
+type StreamEvent = {
+    event: string;
+    data: string;
+};
+
+function parseStreamEvent(rawChunk: string): StreamEvent | null {
+    // Parse one SSE block (event + one or more data lines).
+    const lines = rawChunk
+        .split("\n")
+        .map((line) => line.trimEnd())
+        .filter((line) => line.length > 0 && !line.startsWith(":"));
+    if (!lines.length) return null;
+
+    let event = "message";
+    const dataLines: string[] = [];
+    for (const line of lines) {
+        if (line.startsWith("event:")) {
+            event = line.slice("event:".length).trim();
+            continue;
+        }
+        if (line.startsWith("data:")) {
+            dataLines.push(line.slice("data:".length).trimStart());
+        }
+    }
+    if (!dataLines.length) return null;
+    return { event, data: dataLines.join("\n") };
+}
+
+async function readJsonStreamResult<T>(
+    response: Response,
+    onProgress?: (progress: ModificationProgressEvent) => void
+): Promise<T> {
+    if (!response.ok) {
+        const bodyText = await response.text();
+        let detail = bodyText || `Request failed with status ${response.status}.`;
+        try {
+            const parsed = JSON.parse(bodyText) as { detail?: unknown };
+            if (typeof parsed.detail === "string" && parsed.detail.trim()) {
+                detail = parsed.detail;
+            }
+        } catch {
+            // Ignore JSON parse error and keep text fallback.
+        }
+        throw new Error(detail);
+    }
+
+    if (!response.body) {
+        throw new Error("No response stream received from server.");
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder("utf-8");
+    let buffer = "";
+    let result: T | null = null;
+
+    while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        // Buffer chunks until we reach SSE frame boundaries (`\n\n`).
+        buffer += decoder.decode(value, { stream: true });
+        let boundaryIndex = buffer.indexOf("\n\n");
+        while (boundaryIndex !== -1) {
+            const rawEvent = buffer.slice(0, boundaryIndex);
+            buffer = buffer.slice(boundaryIndex + 2);
+
+            const parsed = parseStreamEvent(rawEvent);
+            if (parsed) {
+                if (parsed.event === "progress") {
+                    // Forward live backend stage updates to the UI callback.
+                    try {
+                        onProgress?.(JSON.parse(parsed.data) as ModificationProgressEvent);
+                    } catch {
+                        // Ignore malformed progress frames.
+                    }
+                } else if (parsed.event === "result") {
+                    // Terminal success payload.
+                    result = JSON.parse(parsed.data) as T;
+                } else if (parsed.event === "error") {
+                    // Terminal failure payload.
+                    let detail = "Streaming request failed.";
+                    try {
+                        const errorPayload = JSON.parse(parsed.data) as { detail?: unknown };
+                        if (typeof errorPayload.detail === "string" && errorPayload.detail.trim()) {
+                            detail = errorPayload.detail;
+                        }
+                    } catch {
+                        detail = parsed.data || detail;
+                    }
+                    throw new Error(detail);
+                }
+            }
+
+            boundaryIndex = buffer.indexOf("\n\n");
+        }
+    }
+
+    if (result === null) {
+        throw new Error("Stream ended without a result payload.");
+    }
+    return result;
+}
+
 // Loads sidebar metadata for all files currently available in the knowledge base.
 export async function getAllPreviewFiles(): Promise<SidebarFileSummary[]> {
     const response = await axios.get(`${API_BASE}/api/retrieve/all-preview-files`);
@@ -123,23 +235,38 @@ export async function batchUpdateParentChunks(payload: {
 // Requests multi-file edit proposals from the backend agent.
 export async function requestAgentModify(
     instruction: string,
-    fileIds: string[] | null
+    fileIds: string[] | null,
+    onProgress?: (progress: ModificationProgressEvent) => void
 ): Promise<AgentModifyResponse> {
-    const response = await axios.post<AgentModifyResponse>(
-        `${API_BASE}/api/agent/modify`,
-        { user_instructions: instruction, fileIds: fileIds && fileIds.length > 0 ? fileIds : null }
-    );
-    return response.data;
+    // Use fetch instead of axios here because we need direct stream-reader access.
+    const response = await fetch(`${API_BASE}/api/agent/modify-stream`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream",
+        },
+        body: JSON.stringify({
+            user_instructions: instruction,
+            fileIds: fileIds && fileIds.length > 0 ? fileIds : null,
+        }),
+    });
+    return await readJsonStreamResult<AgentModifyResponse>(response, onProgress);
 }
 
 // Requests a single selection-based rewrite proposal.
 export async function requestSelectionPreview(
     instruction: string,
-    selection: HighlightedSelection
+    selection: HighlightedSelection,
+    onProgress?: (progress: ModificationProgressEvent) => void
 ): Promise<SelectionEditPreviewResponse> {
-    const response = await axios.post<SelectionEditPreviewResponse>(
-        `${API_BASE}/api/modifications/selection-edit-preview`,
-        {
+    // Stream variant exposes real backend stages for highlighted edits.
+    const response = await fetch(`${API_BASE}/api/modifications/selection-edit-preview-stream`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "text/event-stream",
+        },
+        body: JSON.stringify({
             fileId: selection.fileId,
             fileName: selection.fileName,
             selectedText: selection.selectedText,
@@ -148,9 +275,9 @@ export async function requestSelectionPreview(
             startChunkNumber: selection.startChunkNumber,
             endChunkNumber: selection.endChunkNumber,
             instruction,
-        }
-    );
-    return response.data;
+        }),
+    });
+    return await readJsonStreamResult<SelectionEditPreviewResponse>(response, onProgress);
 }
 
 // Extracts backend detail text from Axios errors for UI messages.

@@ -8,6 +8,7 @@ import type { ChatMessage } from "../types";
 type ChatAreaProps = {
     messages: ChatMessage[]; // An array of chat messages to be displayed in the chat area
     isUploading: boolean;
+    processingStatusText?: string | null;
     bottomRef: RefObject<HTMLDivElement | null>;
     emptyStateMode?: "welcome" | "no-document";
 };
@@ -15,6 +16,7 @@ type ChatAreaProps = {
 export default function ChatArea({
     messages,
     isUploading,
+    processingStatusText,
     bottomRef,
     emptyStateMode = "welcome",
 }: ChatAreaProps) {
@@ -61,6 +63,15 @@ export default function ChatArea({
                             <div className="message-avatar">AI</div>
                             <div className="message-content">
                                 <span className="typing-indicator">Reading document...</span>
+                            </div>
+                        </div>
+                    )}
+                    {/* Backend-driven progress indicator shown only while edit request is active. */}
+                    {processingStatusText && (
+                        <div className="message ai">
+                            <div className="message-avatar">AI</div>
+                            <div className="message-content">
+                                <span className="typing-indicator">{processingStatusText}</span>
                             </div>
                         </div>
                     )}

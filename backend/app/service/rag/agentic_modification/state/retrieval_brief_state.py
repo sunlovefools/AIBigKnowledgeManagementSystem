@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Optional
 
-from typing_extensions import TypedDict
+from typing_extensions import NotRequired, TypedDict
 
 
 class RetrievalBriefState(TypedDict):
@@ -42,3 +42,5 @@ class RetrievalBriefState(TypedDict):
     # --- Infrastructure ---
     _session: Optional[Any]
     _retrieval_cache: Optional[Any]
+    # Optional async callback injected by stream endpoints to receive live stage updates.
+    _progress_callback: NotRequired[Any]

@@ -22,6 +22,7 @@ from ..shared.normalization import (
     _normalize_goal,
     _parse_json_object,
 )
+from ..shared.progress import emit_progress
 from ..state.retrieval_brief_state import RetrievalBriefState
 
 
@@ -37,6 +38,13 @@ async def retrieval_brief_extractor_node(state: RetrievalBriefState) -> dict:
 
     # Node 1 is the only stage that reads raw user instructions directly.
     print("[Agentic Modification - Node 1] Extracting retrieval brief...")
+    # Emit concrete stage status so UI can show true backend progress.
+    await emit_progress(
+        state,
+        stage="retrieval_brief_extractor",
+        status="started",
+        message="Extracting retrieval brief from the user instruction.",
+    )
     user_instruction = state.get("user_instructions", "")
 
     #TODO: I think we can remove this in the future once we have more confidence in the LLM performance, or we can keep it as a lightweight safety net.
@@ -92,6 +100,17 @@ async def retrieval_brief_extractor_node(state: RetrievalBriefState) -> dict:
             semantic_anchors = fallback_semantic_anchors
 
         anchors = _combine_anchors(lexical_anchors, semantic_anchors)
+        # Include lightweight counts for debugging in frontend progress consumers.
+        await emit_progress(
+            state,
+            stage="retrieval_brief_extractor",
+            status="completed",
+            message="Retrieval brief extracted.",
+            metadata={
+                "lexicalAnchorCount": len(lexical_anchors),
+                "semanticAnchorCount": len(semantic_anchors),
+            },
+        )
 
         return {
             "goal": goal,
@@ -103,4 +122,12 @@ async def retrieval_brief_extractor_node(state: RetrievalBriefState) -> dict:
         }
     except Exception as error:
         print(f"Retrieval brief extraction failed: {error}. Falling back.")
+        # Surface failure before fallback so UI does not look stalled.
+        await emit_progress(
+            state,
+            stage="retrieval_brief_extractor",
+            status="failed",
+            message="Retrieval brief extraction failed. Falling back to heuristic anchors.",
+            metadata={"error": str(error)},
+        )
         return fallback

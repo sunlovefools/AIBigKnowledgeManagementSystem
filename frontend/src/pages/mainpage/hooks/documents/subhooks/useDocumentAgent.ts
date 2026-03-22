@@ -1,6 +1,11 @@
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 import type { AgentProposal, FileContentState, FilesState, HighlightedSelection, ParentChunkContent } from "../../../types";
-import { requestAgentModify, requestSelectionPreview, type AgentModifyResponse } from "../api/documentsApi";
+import {
+    requestAgentModify,
+    requestSelectionPreview,
+    type AgentModifyResponse,
+    type ModificationProgressEvent,
+} from "../api/documentsApi";
 import { buildChunkRanges } from "../utils/chunkText";
 import { findNearestOccurrence } from "../utils/editText";
 import { remapAcceptedAgentOffsets } from "../state/transitions";
@@ -99,7 +104,11 @@ export function useDocumentAgent({
     );
 
     const requestAgentEditPreview = useCallback(
-        async (instruction: string, fileIds: string[] | null): Promise<RequestAgentResult> => {
+        async (
+            instruction: string,
+            fileIds: string[] | null,
+            onProgress?: (progress: ModificationProgressEvent) => void
+        ): Promise<RequestAgentResult> => {
             const trimmed = instruction.trim();
             if (!trimmed) return { ok: false, error: "Instruction cannot be empty." };
             if (isAgentGenerating) return { ok: false, error: "Agent is already running." };
@@ -118,7 +127,8 @@ export function useDocumentAgent({
             setAgentIntention(null);
 
             try {
-                const { intention, proposals } = await requestAgentModify(trimmed, fileIds);
+                // Progress callback is forwarded unchanged to stream API layer.
+                const { intention, proposals } = await requestAgentModify(trimmed, fileIds, onProgress);
                 const mapped = proposals.map(normalizeIncomingProposal);
                 setAgentIntention(intention);
                 setAgentProposals(mapped);
@@ -140,7 +150,11 @@ export function useDocumentAgent({
 
     // Requests an edit proposal for an explicit highlighted text region.
     const requestSelectionEditPreview = useCallback(
-        async (instruction: string, selection: HighlightedSelection): Promise<RequestAgentResult> => {
+        async (
+            instruction: string,
+            selection: HighlightedSelection,
+            onProgress?: (progress: ModificationProgressEvent) => void
+        ): Promise<RequestAgentResult> => {
             const trimmed = instruction.trim();
             if (!trimmed) return { ok: false, error: "Instruction cannot be empty." };
             if (isAgentGenerating) return { ok: false, error: "Agent is already running." };
@@ -166,7 +180,8 @@ export function useDocumentAgent({
             setAgentIntention("selection");
 
             try {
-                const preview = await requestSelectionPreview(trimmed, selection);
+                // Same progress callback path for highlighted-selection rewrite stages.
+                const preview = await requestSelectionPreview(trimmed, selection, onProgress);
                 setAgentProposals([
                     {
                         fileId: preview.fileId,

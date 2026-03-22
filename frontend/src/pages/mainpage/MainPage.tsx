@@ -11,6 +11,7 @@ import { useDocuments } from "./hooks/documents/useDocuments";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
 import type { HighlightedSelection } from "./types";
+import type { ModificationProgressEvent } from "./hooks/documents/api/documentsApi";
 
 export default function MainPage() {
     const navigate = useNavigate();
@@ -20,6 +21,8 @@ export default function MainPage() {
     const [highlightedSelection, setHighlightedSelection] = useState<HighlightedSelection | null>(null);
     const [selectionError, setSelectionError] = useState<string | null>(null);
     const [pendingDeleteFile, setPendingDeleteFile] = useState<{ fileId: string; fileName: string } | null>(null);
+    // Transient chat status text driven by backend progress events.
+    const [processingStatusText, setProcessingStatusText] = useState<string | null>(null);
 
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -93,22 +96,45 @@ export default function MainPage() {
         if (isEditMode) {
             appendMessage({ role: "user", text: textInput });
             setInput("");
-            const result = highlightedSelection // If there is a highlightSelection then requestSelectionEditPreview
-                // TODO: We should chanege the name without Preview once it is done testing
-                ? await requestSelectionEditPreview(textInput, highlightedSelection)
-                : await requestAgentEditPreview(
-                    textInput,
-                    selectedFileIds.size > 0 ? Array.from(selectedFileIds) : null
+            const selectedRange = highlightedSelection;
+            const onProgress = (progress: ModificationProgressEvent) => {
+                // Normalize backend progress payload into one user-facing chat line.
+                const baseText = typeof progress.message === "string" && progress.message.trim()
+                    ? progress.message.trim()
+                    : "Processing...";
+                setProcessingStatusText(
+                    typeof progress.batchId === "number" && !baseText.toLowerCase().startsWith("batch ")
+                        ? `Batch ${progress.batchId}: ${baseText}`
+                        : baseText
                 );
-            appendMessage({
-                role: "ai",
-                text: result.ok
-                    ? result.summary ?? "Review the proposals in the edit panel."
-                    : `Edit failed: ${result.error ?? "Unknown error"}`,
-            });
-            if (result.ok && highlightedSelection) {
-                setHighlightedSelection(null);
-                setSelectionError(null);
+            };
+            setProcessingStatusText(
+                selectedRange
+                    ? "Selection edit preview started."
+                    : "Agentic modification started."
+            );
+            try {
+                const result = selectedRange // If there is a highlightSelection then requestSelectionEditPreview
+                    // TODO: We should chanege the name without Preview once it is done testing
+                    ? await requestSelectionEditPreview(textInput, selectedRange, onProgress)
+                    : await requestAgentEditPreview(
+                        textInput,
+                        selectedFileIds.size > 0 ? Array.from(selectedFileIds) : null,
+                        onProgress
+                    );
+                appendMessage({
+                    role: "ai",
+                    text: result.ok
+                        ? result.summary ?? "Review the proposals in the edit panel."
+                        : `Edit failed: ${result.error ?? "Unknown error"}`,
+                });
+                if (result.ok && selectedRange) {
+                    setHighlightedSelection(null);
+                    setSelectionError(null);
+                }
+            } finally {
+                // Always clear transient status after terminal success/failure.
+                setProcessingStatusText(null);
             }
             return;
         }
@@ -189,6 +215,7 @@ export default function MainPage() {
             <ChatArea
                 messages={messages}
                 isUploading={isUploading}
+                processingStatusText={processingStatusText}
                 bottomRef={bottomRef}
                 emptyStateMode={emptyStateMode}
             />
@@ -209,8 +236,9 @@ export default function MainPage() {
     );
 
     useEffect(() => {
+        // Include transient progress text updates so long-running jobs stay in view.
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isQuerying, isUploading]);
+    }, [messages, isQuerying, isUploading, processingStatusText]);
 
     useEffect(() => {
         if (!isEditMode || isEditingActiveDocument) {

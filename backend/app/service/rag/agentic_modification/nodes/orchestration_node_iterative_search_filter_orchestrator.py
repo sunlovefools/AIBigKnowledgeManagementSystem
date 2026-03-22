@@ -12,6 +12,7 @@ from typing import Any
 
 from ..shared.constants import SEARCH_TOP_K
 from ..shared.logging import log_modification_agent_search_group
+from ..shared.progress import emit_progress
 from ..shared.search_utils import _extract_fetched_file_ids_from_search_batch
 from ..state.retrieval_brief_state import RetrievalBriefState
 from .node_3_non_strong_signal_file_context_expansion import (
@@ -140,6 +141,13 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
     - Continues only when current Node-4 batch outputs potential parent chunks.
     """
     print("[Agentic Modification - Orchestrator] Running iterative search/filter loop...")
+    # High-level stage event so frontend knows the iterative loop has begun.
+    await emit_progress(
+        state,
+        stage="iterative_search_filter_orchestrator",
+        status="started",
+        message="Starting iterative retrieval and filtering loop.",
+    )
     run_id = state.get("run_id")
 
     current_batch_id = 1
@@ -190,6 +198,14 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
 
     # Run the first batch of search
     try:
+        # Explicit first batch start event before we enter the while-loop body.
+        await emit_progress(
+            state,
+            stage="search_and_group_batch",
+            status="started",
+            batch_id=current_batch_id,
+            message=f"Batch {current_batch_id}: running search and grouping.",
+        )
         current_search_batch = await _run_search_batch(
             batch_id=current_batch_id,
             allowed_file_ids_override=current_allowed_file_ids,
@@ -204,10 +220,19 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 step="search_and_group_batch",
                 payload=current_search_batch,
             )
-
             current_files = current_search_batch.get("files", [])
             if not isinstance(current_files, list):
                 current_files = []
+            # Emit completion per batch so UI can show repeated node passes clearly.
+            await emit_progress(
+                state,
+                stage="search_and_group_batch",
+                status="completed",
+                batch_id=current_batch_id,
+                message=f"Batch {current_batch_id}: search completed.",
+                metadata={"fileCount": len(current_files)},
+            )
+
             # If node 2 return empty files, it means the search is exhausted
             if not current_files:
                 termination_reason = "search_exhausted"
@@ -218,6 +243,14 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
 
             # Run node 3 expansion for a single file to get more parent chunks in the file that have similar signal to the semantic anchors
             # It will return the expanded parent chunks
+            # Batch-scoped start/finish events keep iterative behavior visible in chat.
+            await emit_progress(
+                state,
+                stage="non_strong_signal_file_context_expansion_batch",
+                status="started",
+                batch_id=current_batch_id,
+                message=f"Batch {current_batch_id}: expanding non-strong-signal file context.",
+            )
             current_expansion_batch = await run_non_strong_signal_file_context_expansion_batch(
                 state,
                 search_group_result=current_search_batch,
@@ -229,8 +262,26 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 step="non_strong_signal_file_context_expansion_batch",
                 payload=current_expansion_batch,
             )
+            expanded_files = current_expansion_batch.get("files", [])
+            if not isinstance(expanded_files, list):
+                expanded_files = []
+            await emit_progress(
+                state,
+                stage="non_strong_signal_file_context_expansion_batch",
+                status="completed",
+                batch_id=current_batch_id,
+                message=f"Batch {current_batch_id}: context expansion completed.",
+                metadata={"expandedFileCount": len(expanded_files)},
+            )
 
             # Run node 4 filtering over the current expansion batch
+            await emit_progress(
+                state,
+                stage="file_filtering_batch",
+                status="started",
+                batch_id=current_batch_id,
+                message=f"Batch {current_batch_id}: filtering candidate files/chunks.",
+            )
             current_filtering_batch, usage_totals, llm_calls_made = await run_file_filtering_batch(
                 state,
                 search_group_result=current_search_batch,
@@ -250,6 +301,14 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             llm_calls_increment += int(llm_calls_made or 0)
 
             potential_file_ids = _normalize_file_ids(current_filtering_batch.get("potential_file_ids", []))
+            await emit_progress(
+                state,
+                stage="file_filtering_batch",
+                status="completed",
+                batch_id=current_batch_id,
+                message=f"Batch {current_batch_id}: filtering completed.",
+                metadata={"potentialFileCount": len(potential_file_ids)},
+            )
             current_batch_exclusions = _normalize_excluded_child_chunk_ids_by_file(
                 current_filtering_batch.get("excluded_child_chunk_ids_by_file", [])
             )
@@ -262,6 +321,14 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             prefetch_task: asyncio.Task | None = None
             if potential_file_ids:
                 # Overlap next search batch with current Node 5 verification.
+                # We emit this early because prefetch begins before Node 5 finishes.
+                await emit_progress(
+                    state,
+                    stage="search_and_group_batch",
+                    status="started",
+                    batch_id=current_batch_id + 1,
+                    message=f"Batch {current_batch_id + 1}: prefetching next search batch.",
+                )
                 prefetch_task = asyncio.create_task(
                     _run_search_batch(
                         batch_id=current_batch_id + 1,
@@ -272,6 +339,13 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 await asyncio.sleep(0)
 
             # Run node 5 for verification of potential parent chunks from node 4
+            await emit_progress(
+                state,
+                stage="parent_chunk_constraint_verifier_batch",
+                status="started",
+                batch_id=current_batch_id,
+                message=f"Batch {current_batch_id}: verifying potential parent chunks.",
+            )
             current_verifier_batch, verifier_usage_totals, verifier_llm_calls_made = await run_parent_chunk_constraint_verifier_batch(
                 state,
                 file_filtering_result=current_filtering_batch,
@@ -288,13 +362,22 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
             usage_completion_increment += int(verifier_usage_totals.get("completion_tokens", 0) or 0)
             usage_total_increment += int(verifier_usage_totals.get("total_tokens", 0) or 0)
             llm_calls_increment += int(verifier_llm_calls_made or 0)
+            current_confirmed_refs = _normalize_parent_chunk_refs(
+                current_verifier_batch.get("merged_confirmed_parent_chunk_refs", [])
+            )
+            await emit_progress(
+                state,
+                stage="parent_chunk_constraint_verifier_batch",
+                status="completed",
+                batch_id=current_batch_id,
+                message=f"Batch {current_batch_id}: constraint verification completed.",
+                metadata={"confirmedRefCount": len(current_confirmed_refs)},
+            )
 
             # Node 4 and Node 5 are both allowed to contribute confirmed refs.
             batch_confirmed_refs = _normalize_parent_chunk_refs(
                 current_filtering_batch.get("merged_confirmed_parent_chunk_refs", [])
-            ) + _normalize_parent_chunk_refs(
-                current_verifier_batch.get("merged_confirmed_parent_chunk_refs", [])
-            )
+            ) + current_confirmed_refs
             for ref in batch_confirmed_refs:
                 key = f"{ref['file_id']}::{ref['parent_chunk_number']}"
                 confirmed_parent_chunk_refs_global_by_key.setdefault(key, ref)
@@ -510,6 +593,17 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
                 "node5_run_summary": node5_result["run_summary"],
             },
         )
+        # Final orchestrator event includes total batches + stop reason for quick audit.
+        await emit_progress(
+            state,
+            stage="iterative_search_filter_orchestrator",
+            status="completed",
+            message="Iterative retrieval and filtering completed.",
+            metadata={
+                "batchCount": len(node2_batches),
+                "terminationReason": termination_reason,
+            },
+        )
 
         return {
             "node2_search_group_result": node2_result,
@@ -524,6 +618,14 @@ async def iterative_search_filter_orchestrator_node(state: RetrievalBriefState) 
     except Exception as error:
         error_message = f"iterative search/filter orchestrator failed: {error}"
         print(error_message)
+        # Emit failure event before returning error state to caller.
+        await emit_progress(
+            state,
+            stage="iterative_search_filter_orchestrator",
+            status="failed",
+            message="Iterative retrieval and filtering failed.",
+            metadata={"error": error_message},
+        )
         log_modification_agent_search_group(
             run_id=run_id,
             step="iterative_search_filter_orchestrator",
