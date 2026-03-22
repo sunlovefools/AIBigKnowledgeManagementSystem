@@ -8,7 +8,14 @@ import pandas as pd
 from datasets import Dataset
 from dotenv import load_dotenv
 from typing import Any
+
 import mlflow
+
+# To view MLflow results after running evaluation:
+# cd backend
+# .venv/Scripts/python -m mlflow ui
+# Then open http://127.0.0.1:5000
+
 
 # 1. FIX: Use Legacy Imports (Lowercase)
 # These allow custom/local embeddings without strict "Modern" checks
