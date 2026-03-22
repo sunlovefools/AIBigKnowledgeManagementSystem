@@ -905,6 +905,203 @@ html,
     border-color: #dbeafe;
 }
 
+.typing-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #1d4ed8;
+    font-weight: 600;
+}
+
+.progress-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 14px;
+    padding: 12px 13px;
+}
+
+.progress-card::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: #3b82f6;
+}
+
+.progress-card.running::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(110deg, rgba(255, 255, 255, 0) 25%, rgba(59, 130, 246, 0.12) 50%, rgba(255, 255, 255, 0) 75%);
+    transform: translateX(-120%);
+    animation: progress-card-shimmer 1.7s linear infinite;
+    pointer-events: none;
+}
+
+.progress-card.failed::before {
+    background: #ef4444;
+}
+
+.progress-card.completed::before {
+    background: #10b981;
+}
+
+.progress-card-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.progress-card-title {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #334155;
+}
+
+.progress-current-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 8px;
+}
+
+.progress-live-indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    flex: 0 0 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    background: transparent;
+    border: 1px solid #d4dee9;
+}
+
+.progress-live-indicator span {
+    display: none;
+}
+
+.progress-live-indicator.running {
+    border-color: transparent;
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.55);
+    animation: progress-pulse 1.2s ease-out infinite;
+    background: #dbeafe;
+}
+
+.progress-live-indicator.running span {
+    display: block;
+    width: 3px;
+    height: 3px;
+    margin: 0 1px;
+    border-radius: 50%;
+    background: #1d4ed8;
+    animation: progress-dot-bounce 0.9s infinite ease-in-out;
+}
+
+.progress-live-indicator.running span:nth-child(2) {
+    animation-delay: 0.15s;
+}
+
+.progress-live-indicator.running span:nth-child(3) {
+    animation-delay: 0.3s;
+}
+
+.progress-live-indicator.completed {
+    display: none;
+}
+
+.progress-live-indicator.failed {
+    display: none;
+}
+
+.progress-current-text {
+    color: #0f172a;
+    font-size: 0.84rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.progress-history-toggle {
+    width: 18px;
+    height: 18px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: #64748b;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: color 0.16s ease, background-color 0.16s ease;
+}
+
+.progress-history-toggle:hover {
+    background: rgba(148, 163, 184, 0.16);
+    color: #334155;
+}
+
+.progress-chevron {
+    width: 6px;
+    height: 6px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(45deg) translateY(-1px);
+    transition: transform 0.16s ease;
+}
+
+.progress-history-toggle.expanded .progress-chevron {
+    transform: rotate(-135deg) translateY(-1px);
+}
+
+.progress-step-list {
+    margin: 6px 0 0;
+    padding: 0 0 0 10px;
+    list-style: none;
+    border-left: 1px solid #e2e8f0;
+    display: grid;
+    gap: 4px;
+}
+
+.progress-step-item {
+    color: #64748b;
+    font-size: 0.76rem;
+    letter-spacing: 0.01em;
+    line-height: 1.35;
+}
+
+@keyframes progress-pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+    }
+}
+
+@keyframes progress-dot-bounce {
+    0%, 80%, 100% {
+        transform: translateY(0);
+        opacity: 0.55;
+    }
+    40% {
+        transform: translateY(-3px);
+        opacity: 1;
+    }
+}
+
+@keyframes progress-card-shimmer {
+    100% {
+        transform: translateX(120%);
+    }
+}
+
 /* Input Area (Floating) */
 .input-area-wrapper {
     width: 100%;

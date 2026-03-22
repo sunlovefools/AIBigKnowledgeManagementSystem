@@ -21,8 +21,6 @@ export default function MainPage() {
     const [highlightedSelection, setHighlightedSelection] = useState<HighlightedSelection | null>(null);
     const [selectionError, setSelectionError] = useState<string | null>(null);
     const [pendingDeleteFile, setPendingDeleteFile] = useState<{ fileId: string; fileName: string } | null>(null);
-    // Transient chat status text driven by backend progress events.
-    const [processingStatusText, setProcessingStatusText] = useState<string | null>(null);
 
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -39,7 +37,17 @@ export default function MainPage() {
         startModPanelResize,
     } = useResizableLayout();
 
-    const { messages, input, isQuerying, setInput, appendMessage, handleQuery } = useChat();
+    const {
+        messages,
+        input,
+        isQuerying,
+        setInput,
+        appendMessage,
+        startProgressMessage,
+        pushProgressStep,
+        finishProgressMessage,
+        handleQuery,
+    } = useChat();
 
     const {
         files,
@@ -97,22 +105,14 @@ export default function MainPage() {
             appendMessage({ role: "user", text: textInput });
             setInput("");
             const selectedRange = highlightedSelection;
-            const onProgress = (progress: ModificationProgressEvent) => {
-                // Normalize backend progress payload into one user-facing chat line.
-                const baseText = typeof progress.message === "string" && progress.message.trim()
-                    ? progress.message.trim()
-                    : "Processing...";
-                setProcessingStatusText(
-                    typeof progress.batchId === "number" && !baseText.toLowerCase().startsWith("batch ")
-                        ? `Batch ${progress.batchId}: ${baseText}`
-                        : baseText
-                );
-            };
-            setProcessingStatusText(
-                selectedRange
-                    ? "Selection edit preview started."
-                    : "Agentic modification started."
+            const progressMessageId = startProgressMessage(
+                selectedRange ? "selection" : "agentic",
+                selectedRange ? "Selection edit preview started." : "Agentic modification started."
             );
+            const onProgress = (progress: ModificationProgressEvent) => {
+                pushProgressStep(progressMessageId, progress);
+            };
+            let progressStatus: "completed" | "failed" = "failed";
             try {
                 const result = selectedRange // If there is a highlightSelection then requestSelectionEditPreview
                     // TODO: We should chanege the name without Preview once it is done testing
@@ -124,17 +124,17 @@ export default function MainPage() {
                     );
                 appendMessage({
                     role: "ai",
-                    text: result.ok
-                        ? result.summary ?? "Review the proposals in the edit panel."
-                        : `Edit failed: ${result.error ?? "Unknown error"}`,
+                        text: result.ok
+                            ? result.summary ?? "Review the proposals in the edit panel."
+                            : `Edit failed: ${result.error ?? "Unknown error"}`,
                 });
+                progressStatus = result.ok ? "completed" : "failed";
                 if (result.ok && selectedRange) {
                     setHighlightedSelection(null);
                     setSelectionError(null);
                 }
             } finally {
-                // Always clear transient status after terminal success/failure.
-                setProcessingStatusText(null);
+                finishProgressMessage(progressMessageId, progressStatus);
             }
             return;
         }
@@ -215,7 +215,6 @@ export default function MainPage() {
             <ChatArea
                 messages={messages}
                 isUploading={isUploading}
-                processingStatusText={processingStatusText}
                 bottomRef={bottomRef}
                 emptyStateMode={emptyStateMode}
             />
@@ -236,9 +235,8 @@ export default function MainPage() {
     );
 
     useEffect(() => {
-        // Include transient progress text updates so long-running jobs stay in view.
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isQuerying, isUploading, processingStatusText]);
+    }, [messages, isQuerying, isUploading]);
 
     useEffect(() => {
         if (!isEditMode || isEditingActiveDocument) {

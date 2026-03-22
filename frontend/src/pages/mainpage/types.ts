@@ -2,11 +2,36 @@
   Type definitions for the main page of the frontend application.
 */
 
-// Chat message exchanged between the user and AI.
-export type ChatMessage = {
-    role: "user" | "ai";
+export type ChatRole = "user" | "ai";
+
+// Normal conversational chat message.
+export type ChatTextMessage = {
+    id: string;
+    kind: "text";
+    role: ChatRole;
     text: string;
 };
+
+// One backend-emitted progress step for an in-flight edit call.
+export type ChatProgressStep = {
+    stage: string;
+    message: string;
+    batchId?: number;
+};
+
+// Progress timeline card that remains in chat history per call.
+export type ChatProgressMessage = {
+    id: string;
+    kind: "progress";
+    role: "ai";
+    status: "running" | "completed" | "failed";
+    scope: "agentic" | "selection";
+    currentStageText: string;
+    steps: ChatProgressStep[];
+};
+
+// Chat message exchanged between the user and AI.
+export type ChatMessage = ChatTextMessage | ChatProgressMessage;
 
 // One file item shown in the sidebar.
 export type SidebarFileSummary = {
