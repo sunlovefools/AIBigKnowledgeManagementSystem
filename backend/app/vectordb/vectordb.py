@@ -256,7 +256,7 @@ async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, 
 
     print(f"Reranking {len(child_texts)} candidates...")
 
-    rerank_top_k = top_k // 2
+    rerank_top_k = top_k  # Reranker filters to top_k best candidates from top_k*2 retrieved
 
     # Rerank the retrieved child chunks using the BGE Reranker
     reranked_pairs = await _RERANKER_SERVICE.rerank_documents(

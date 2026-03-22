@@ -8,6 +8,7 @@ import pandas as pd
 from datasets import Dataset
 from dotenv import load_dotenv
 from typing import Any
+import mlflow
 
 # 1. FIX: Use Legacy Imports (Lowercase)
 # These allow custom/local embeddings without strict "Modern" checks
@@ -400,12 +401,12 @@ def _print_metric_values(df: pd.DataFrame, metric_names: list[str]) -> None:
         print(f"- {metric_name}: {numeric_series.mean():.4f}")
 
 
-async def generate_rag_responses(dataset_path: str):
+async def generate_rag_responses(dataset_path: str, top_k: int = 7):
     print(f"📂 Loading Golden Dataset from: {dataset_path}")
-    
+
     with open(dataset_path, "r") as f:
         golden_data = json.load(f)
-    
+
     golden_data = golden_data[:120]
     
     questions = []
@@ -429,8 +430,7 @@ async def generate_rag_responses(dataset_path: str):
         print(f"🔹 [{i+1}/{len(golden_data)}] Processing: {question[:50]}...")
 
         try:
-            rag_docs = await search_and_retrieve_context(query=question, top_k=5)
-            print(rag_docs)
+            rag_docs = await search_and_retrieve_context(query=question, top_k=top_k)
             answer = await generate_answer_api(rag_docs, question)
             answer = _strip_source_citations(answer)
 
@@ -455,9 +455,9 @@ async def generate_rag_responses(dataset_path: str):
     
     return data_dict
 
-def run_evaluation(data_dict):
+def run_evaluation(data_dict, top_k: int = 7):
     print("\n📊 Preparing Data for RAGAS Evaluation...")
-    
+
     dataset = Dataset.from_dict(data_dict)
 
     print("🤖 Connecting to Judge LLM & Embeddings...")
@@ -546,10 +546,37 @@ def run_evaluation(data_dict):
     final_df.to_csv(output_file, index=False)
     print(f"💾 Detailed results (with averages on line 1) saved to: {output_file}")
 
+    # ------------------------------------------------------------------
+    # 📊 MLflow: Log experiment results
+    # ------------------------------------------------------------------
+    try:
+        judge_model = _load_eval_judge_model_name()
+        mlflow.set_experiment("RAG Evaluation")
+        with mlflow.start_run():
+            # Parameters — what settings were used
+            mlflow.log_param("top_k", top_k)
+            mlflow.log_param("num_questions", len(data_dict.get("question", [])))
+            mlflow.log_param("judge_model", judge_model)
+            mlflow.log_param("enabled_metrics", ", ".join(metric_names))
+
+            # Metrics — RAGAS scores
+            for col in numeric_cols:
+                score = float(averages[col])
+                mlflow.log_metric(col, score)
+
+            # Artifact — full CSV with per-question results
+            mlflow.log_artifact(output_file)
+
+            print("📊 MLflow: experiment results logged successfully.")
+            print(f"   Run UI: run `mlflow ui` in terminal, then open http://localhost:5000")
+    except Exception as mlflow_err:
+        print(f"⚠️  MLflow logging failed (non-critical): {mlflow_err}")
+
 async def main():
+    top_k = 7  # Change this value to experiment with different retrieval depths
     dataset_path = os.path.join(current_dir, "data", "golden_dataset.json")
-    rag_data = await generate_rag_responses(dataset_path)
-    run_evaluation(rag_data)
+    rag_data = await generate_rag_responses(dataset_path, top_k=top_k)
+    run_evaluation(rag_data, top_k=top_k)
 
 if __name__ == "__main__":
     asyncio.run(main())
