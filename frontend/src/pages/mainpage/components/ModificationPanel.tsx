@@ -1,13 +1,15 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 import MarkdownEditor from "./FileViewingAndModification";
 import type {
     AgentProposal,
     FileTabAsyncState,
     FileTabState,
     HighlightedSelection,
+    ResolvedProposalMarker,
     SidebarFileSummary,
 } from "../types";
 import { buildChunkRanges } from "../hooks/documents/utils/chunkText";
+import { buildInlineDiffTokens } from "../hooks/documents/utils/inlineDiff";
 
 type ModificationPanelProps = {
     files: SidebarFileSummary[];
@@ -35,6 +37,8 @@ type ModificationPanelProps = {
     hideTabs?: boolean;
     hideHeader?: boolean;
     hideDocumentToolbar?: boolean;
+    focusedProposalKey?: string | null;
+    onFocusedProposalHandled?: () => void;
     onRefreshDocuments: () => void;
     onClose: () => void;
     onTabSelect: (fileId: string) => void;
@@ -49,12 +53,36 @@ type ModificationPanelProps = {
     onSelectionErrorChange: (message: string | null) => void;
     onAcceptAgentProposal: (proposal: AgentProposal) => Promise<void>;
     onRejectAgentProposal: (parentId: string) => void;
+    onUndoAgentProposal: (parentId: string) => void;
     onClearAgentProposals: () => void;
 };
 
 function getContainerElement(node: Node): HTMLElement | null {
-    if (node instanceof HTMLElement) return node;
-    return node.parentElement;
+    return node instanceof HTMLElement ? node : node.parentElement;
+}
+
+function getProposalKey(proposal: AgentProposal): string {
+    return `${proposal.parentId}-${proposal.selectionStart ?? "full"}`;
+}
+
+function findNearestOccurrence(haystack: string, needle: string, expectedOffset: number): number {
+    if (!needle) return -1;
+    const first = haystack.indexOf(needle);
+    if (first === -1) return -1;
+    let best = first;
+    let bestDistance = Math.abs(first - expectedOffset);
+    let cursor = first;
+    while (cursor !== -1) {
+        const next = haystack.indexOf(needle, cursor + 1);
+        if (next === -1) break;
+        const distance = Math.abs(next - expectedOffset);
+        if (distance < bestDistance) {
+            best = next;
+            bestDistance = distance;
+        }
+        cursor = next;
+    }
+    return best;
 }
 
 function projectMarkdownToPlain(markdown: string): string {
@@ -62,50 +90,25 @@ function projectMarkdownToPlain(markdown: string): string {
     let index = 0;
     let lineStart = true;
     let inFence = false;
-
     while (index < markdown.length) {
-        if (lineStart) {
-            if (markdown.startsWith("```", index)) {
-                const newlineIndex = markdown.indexOf("\n", index);
-                if (newlineIndex === -1) break;
-                inFence = !inFence;
-                plainChars.push("\n");
-                index = newlineIndex + 1;
-                lineStart = true;
+        if (lineStart && markdown.startsWith("```", index)) {
+            const newlineIndex = markdown.indexOf("\n", index);
+            if (newlineIndex === -1) break;
+            inFence = !inFence;
+            plainChars.push("\n");
+            index = newlineIndex + 1;
+            continue;
+        }
+        if (lineStart && !inFence) {
+            const leadingSpaces = (markdown.slice(index).match(/^[ ]{0,3}/) ?? [""])[0];
+            const markerStart = index + leadingSpaces.length;
+            const markerMatch = markdown.slice(markerStart).match(/^(>|#{1,6}[ \t]+|[-*+][ \t]+|\d+[.)][ \t]+)/);
+            if (markerMatch) {
+                index = markerStart + markerMatch[0].length;
+                lineStart = false;
                 continue;
             }
-
-            if (!inFence) {
-                const leadingSpacesMatch = markdown.slice(index).match(/^[ ]{0,3}/);
-                const leadingSpaces = leadingSpacesMatch ? leadingSpacesMatch[0] : "";
-                const markerStart = index + leadingSpaces.length;
-                let markerConsumed = 0;
-
-                if (markerStart < markdown.length && markdown[markerStart] === ">") {
-                    markerConsumed = 1;
-                    if (
-                        markerStart + markerConsumed < markdown.length &&
-                        markdown[markerStart + markerConsumed] === " "
-                    ) {
-                        markerConsumed += 1;
-                    }
-                } else {
-                    const headingMatch = markdown.slice(markerStart).match(/^#{1,6}[ \t]+/);
-                    const unorderedListMatch = markdown.slice(markerStart).match(/^[-*+][ \t]+/);
-                    const orderedListMatch = markdown.slice(markerStart).match(/^\d+[.)][ \t]+/);
-                    if (headingMatch) markerConsumed = headingMatch[0].length;
-                    else if (unorderedListMatch) markerConsumed = unorderedListMatch[0].length;
-                    else if (orderedListMatch) markerConsumed = orderedListMatch[0].length;
-                }
-
-                if (markerConsumed > 0) {
-                    index = markerStart + markerConsumed;
-                    lineStart = false;
-                    continue;
-                }
-            }
         }
-
         const current = markdown[index];
         if (!inFence && (markdown.startsWith("**", index) || markdown.startsWith("__", index) || markdown.startsWith("~~", index))) {
             index += 2;
@@ -121,34 +124,11 @@ function projectMarkdownToPlain(markdown: string): string {
             index += 2;
             continue;
         }
-
         plainChars.push(current);
         lineStart = current === "\n";
         index += 1;
     }
-
     return plainChars.join("");
-}
-
-function findNearestOccurrence(haystack: string, needle: string, expectedOffset: number): number {
-    if (!needle) return -1;
-    const first = haystack.indexOf(needle);
-    if (first === -1) return -1;
-
-    let best = first;
-    let bestDistance = Math.abs(first - expectedOffset);
-    let cursor = first;
-    while (cursor !== -1) {
-        const next = haystack.indexOf(needle, cursor + 1);
-        if (next === -1) break;
-        const distance = Math.abs(next - expectedOffset);
-        if (distance < bestDistance) {
-            best = next;
-            bestDistance = distance;
-        }
-        cursor = next;
-    }
-    return best;
 }
 
 export default function ModificationPanel({
@@ -177,6 +157,8 @@ export default function ModificationPanel({
     hideTabs = false,
     hideHeader = false,
     hideDocumentToolbar = false,
+    focusedProposalKey = null,
+    onFocusedProposalHandled,
     onRefreshDocuments,
     onClose,
     onTabSelect,
@@ -191,16 +173,73 @@ export default function ModificationPanel({
     onSelectionErrorChange,
     onAcceptAgentProposal,
     onRejectAgentProposal,
+    onUndoAgentProposal,
     onClearAgentProposals,
 }: ModificationPanelProps) {
     const contentRef = useRef<HTMLDivElement | null>(null);
     const previousProposalCountRef = useRef(0);
-
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
-    const activeDocumentView = useMemo(
-        () => buildChunkRanges(activeTabData?.chunks ?? []),
-        [activeTabData?.chunks]
+    const activeDocumentView = useMemo(() => buildChunkRanges(activeTabData?.chunks ?? []), [activeTabData?.chunks]);
+    const activeFileProposals = useMemo(
+        () => (activeTab ? agentProposals.filter((proposal) => proposal.fileId === activeTab) : []),
+        [activeTab, agentProposals]
     );
+    const reviewBaseText = isEditing ? editingContent : activeDocumentView.fullText;
+    const resolvedInlineMarkers = useMemo<ResolvedProposalMarker[]>(() => {
+        if (!activeTab || !activeTabData?.chunks.length || !activeFileProposals.length) return [];
+        const baselineText = activeDocumentView.fullText;
+        const acceptedEntries = Array.from(agentAcceptedMap.values()).filter((entry) => entry.fileId === activeTab);
+        const markers: ResolvedProposalMarker[] = [];
+        for (const proposal of activeFileProposals) {
+            if (agentRejectedIds.has(proposal.parentId) && !agentAcceptedMap.has(proposal.parentId)) continue;
+            const accepted = agentAcceptedMap.get(proposal.parentId);
+            const status = accepted ? "accepted" : "pending";
+            let baselineOffset = -1;
+            if (proposal.source === "selection" && proposal.selectionStart !== undefined) {
+                baselineOffset = proposal.selectionStart;
+                if (baselineText.slice(baselineOffset, baselineOffset + proposal.original.length) !== proposal.original) {
+                    baselineOffset = findNearestOccurrence(baselineText, proposal.original, proposal.selectionStart);
+                }
+            } else {
+                const targetRange = activeDocumentView.ranges.find((range) => range.parentId === proposal.parentId);
+                const targetChunk = activeTabData.chunks.find((chunk) => chunk.parentId === proposal.parentId);
+                const chunkOffset = targetChunk?.content.indexOf(proposal.original) ?? -1;
+                baselineOffset = targetRange && chunkOffset >= 0
+                    ? targetRange.start + chunkOffset
+                    : findNearestOccurrence(baselineText, proposal.original, targetRange?.start ?? 0);
+            }
+            if (baselineOffset < 0) continue;
+            const priorDelta = acceptedEntries
+                .filter((entry) => entry.parentId !== proposal.parentId && typeof entry.patchBaselineOffset === "number" && entry.patchBaselineOffset < baselineOffset)
+                .reduce((sum, entry) => sum + (entry.proposed.length - entry.original.length), 0);
+            const expectedSourceText = status === "accepted" ? proposal.proposed : proposal.original;
+            let offset = status === "accepted" && accepted?.patchOffset !== undefined
+                ? accepted.patchOffset
+                : baselineOffset + priorDelta;
+            if (reviewBaseText.slice(offset, offset + expectedSourceText.length) !== expectedSourceText) {
+                offset = findNearestOccurrence(reviewBaseText, expectedSourceText, offset);
+            }
+            if (offset < 0) continue;
+            markers.push({
+                proposalKey: getProposalKey(proposal),
+                parentId: proposal.parentId,
+                fileId: proposal.fileId,
+                fileName: proposal.fileName,
+                offset,
+                baselineOffset,
+                sourceLength: expectedSourceText.length,
+                replacementLength: proposal.proposed.length,
+                status,
+                proposal,
+                tokens: buildInlineDiffTokens(proposal.original, proposal.proposed),
+            });
+        }
+        return markers.sort((left, right) => left.offset - right.offset);
+    }, [activeDocumentView.fullText, activeDocumentView.ranges, activeFileProposals, activeTab, activeTabData?.chunks, agentAcceptedMap, agentRejectedIds, reviewBaseText]);
+    const hasInlineReview = resolvedInlineMarkers.length > 0;
+    const pendingCount = resolvedInlineMarkers.filter((marker) => marker.status === "pending").length;
+    const acceptedCount = resolvedInlineMarkers.filter((marker) => marker.status === "accepted").length;
+    const showAgentSection = isEditMode && (isAgentGenerating || agentProposals.length > 0 || agentError !== null || !activeTab);
 
     useEffect(() => {
         const previousCount = previousProposalCountRef.current;
@@ -210,289 +249,165 @@ export default function ModificationPanel({
         previousProposalCountRef.current = agentProposals.length;
     }, [agentProposals.length]);
 
+    useEffect(() => {
+        if (!focusedProposalKey || !contentRef.current) return;
+        const marker = contentRef.current.querySelector<HTMLElement>(`.inline-diff-marker[data-proposal-key="${focusedProposalKey}"]`);
+        if (!marker) return;
+        marker.scrollIntoView({ behavior: "smooth", block: "center" });
+        marker.classList.add("focused");
+        const timerId = window.setTimeout(() => marker.classList.remove("focused"), 1800);
+        onFocusedProposalHandled?.();
+        return () => window.clearTimeout(timerId);
+    }, [focusedProposalKey, onFocusedProposalHandled, resolvedInlineMarkers]);
+
+    const inlineReviewNodes = useMemo(() => {
+        if (!hasInlineReview) return [] as ReactNode[];
+        const nodes: ReactNode[] = [];
+        let cursor = 0;
+        for (const marker of resolvedInlineMarkers) {
+            if (marker.offset < cursor) continue;
+            if (marker.offset > cursor) nodes.push(<span key={`t-${cursor}-${marker.offset}`}>{reviewBaseText.slice(cursor, marker.offset)}</span>);
+            nodes.push(
+                <span key={marker.proposalKey} className={`inline-diff-marker ${marker.status}`} data-proposal-key={marker.proposalKey}>
+                    <span className="inline-diff-content">
+                        {marker.tokens.map((token, index) => (
+                            <span key={`${marker.proposalKey}-${token.type}-${index}`} className={`inline-diff-token ${token.type}`}>{token.text}</span>
+                        ))}
+                    </span>
+                    <span className="inline-diff-actions">
+                        {marker.status === "pending" && (
+                            <>
+                                <button className="save-btn inline-action" type="button" onClick={() => { void onAcceptAgentProposal(marker.proposal); }}>Accept</button>
+                                <button className="cancel-btn inline-action" type="button" onClick={() => onRejectAgentProposal(marker.parentId)}>Reject</button>
+                            </>
+                        )}
+                        {marker.status === "accepted" && (
+                            <button className="cancel-btn inline-action" type="button" onClick={() => onUndoAgentProposal(marker.parentId)}>Undo</button>
+                        )}
+                    </span>
+                </span>
+            );
+            cursor = marker.offset + marker.sourceLength;
+        }
+        if (cursor < reviewBaseText.length) nodes.push(<span key={`t-${cursor}-end`}>{reviewBaseText.slice(cursor)}</span>);
+        return nodes;
+    }, [hasInlineReview, onAcceptAgentProposal, onRejectAgentProposal, onUndoAgentProposal, resolvedInlineMarkers, reviewBaseText]);
+
     const handleContentScroll = () => {
         if (!contentRef.current || !activeTabData || activeTabAsync?.isLoading || !activeTabData.hasMore) return;
         const { scrollTop, scrollHeight, clientHeight } = contentRef.current;
         if (scrollHeight - scrollTop - clientHeight < 120) void onLoadMoreActiveTab();
     };
 
-    // Handler to detect the user's text selection within the document for selection-based edits.
     const handleDocumentSelection = () => {
-        if (!isEditMode || isEditing || !activeTab || !activeTabData?.chunks.length) return;
-
+        if (!isEditMode || isEditing || hasInlineReview || !activeTab || !activeTabData?.chunks.length) return;
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !selection.toString().trim()) {
             onHighlightedSelectionChange(null);
             onSelectionErrorChange(null);
             return;
         }
-
         const range = selection.getRangeAt(0);
         const startElement = getContainerElement(range.startContainer);
         const endElement = getContainerElement(range.endContainer);
         const textRoot = contentRef.current?.querySelector<HTMLElement>(".mod-panel-document-text");
-
-        if (
-            !textRoot ||
-            !startElement ||
-            !endElement ||
-            !textRoot.contains(startElement) ||
-            !textRoot.contains(endElement)
-        ) {
+        if (!textRoot || !startElement || !endElement || !textRoot.contains(startElement) || !textRoot.contains(endElement)) {
             onHighlightedSelectionChange(null);
             onSelectionErrorChange(null);
             return;
         }
-
         const prefixRange = range.cloneRange();
         prefixRange.selectNodeContents(textRoot);
         prefixRange.setEnd(range.startContainer, range.startOffset);
-
         const selectedText = range.toString();
         const viewStartOffset = prefixRange.toString().length;
-        const viewEndOffset = viewStartOffset + selectedText.length;
         const plainChunkTexts = activeTabData.chunks.map((chunk) => projectMarkdownToPlain(chunk.content));
         const plainFullText = plainChunkTexts.join("\n\n");
-
         let resolvedStartOffset = viewStartOffset;
-        let resolvedEndOffset = viewEndOffset;
-        if (plainFullText.slice(resolvedStartOffset, resolvedEndOffset) !== selectedText) {
-            const nearestStart = findNearestOccurrence(plainFullText, selectedText, viewStartOffset);
-            if (nearestStart === -1) {
+        if (plainFullText.slice(resolvedStartOffset, resolvedStartOffset + selectedText.length) !== selectedText) {
+            resolvedStartOffset = findNearestOccurrence(plainFullText, selectedText, viewStartOffset);
+            if (resolvedStartOffset < 0) {
                 onSelectionErrorChange("The current selection does not match the stored chunk content.");
                 onHighlightedSelectionChange(null);
                 selection.removeAllRanges();
                 return;
             }
-            resolvedStartOffset = nearestStart;
-            resolvedEndOffset = nearestStart + selectedText.length;
         }
-
         let cursor = 0;
-        const plainRanges = plainChunkTexts.map((chunkText, index) => {
+        const ranges = plainChunkTexts.map((chunkText, index) => {
             const start = cursor;
             const end = start + chunkText.length;
-            cursor = end;
-            if (index < plainChunkTexts.length - 1) cursor += 2;
+            cursor = end + (index < plainChunkTexts.length - 1 ? 2 : 0);
             return { start, end };
         });
-
-        const touchedRangeIndexes = plainRanges
-            .map((chunkRange, index) =>
-                chunkRange.start < resolvedEndOffset && resolvedStartOffset < chunkRange.end ? index : -1
-            )
-            .filter((index) => index >= 0);
-        if (touchedRangeIndexes.length === 0) {
+        const touched = ranges.map((item, index) => (item.start < resolvedStartOffset + selectedText.length && resolvedStartOffset < item.end ? index : -1)).filter((index) => index >= 0);
+        if (!touched.length) {
             onSelectionErrorChange("The current selection is outside known chunk boundaries.");
             onHighlightedSelectionChange(null);
             selection.removeAllRanges();
             return;
         }
-
-        const firstTouchedIndex = touchedRangeIndexes[0];
-        const lastTouchedIndex = touchedRangeIndexes[touchedRangeIndexes.length - 1];
-        const firstTouchedRange = plainRanges[firstTouchedIndex];
-        const rangeLocalStartOffset = resolvedStartOffset - firstTouchedRange.start;
-        const rangeLocalEndOffset = resolvedEndOffset - firstTouchedRange.start;
-
+        const firstRange = ranges[touched[0]];
         const fileName = files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab;
         onSelectionErrorChange(null);
         onHighlightedSelectionChange({
             fileId: activeTab,
             fileName,
             selectedText,
-            startOffset: rangeLocalStartOffset,
-            endOffset: rangeLocalEndOffset,
-            startChunkNumber: firstTouchedIndex + 1,
-            endChunkNumber: lastTouchedIndex + 1,
+            startOffset: resolvedStartOffset - firstRange.start,
+            endOffset: resolvedStartOffset - firstRange.start + selectedText.length,
+            startChunkNumber: touched[0] + 1,
+            endChunkNumber: touched[touched.length - 1] + 1,
         });
     };
 
-    const editScopeLabel = selectedFileIds.size > 0
-        ? `${selectedFileIds.size} file(s) selected`
-        : "All files";
-    const activeFileName = activeTab
-        ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
-        : "No file selected";
-
-    const showAgentSection = isEditMode && (
-        isAgentGenerating ||
-        agentProposals.length > 0 ||
-        agentError !== null ||
-        !activeTab
-    );
+    const editScopeLabel = selectedFileIds.size > 0 ? `${selectedFileIds.size} file(s) selected` : "All files";
+    const activeFileName = activeTab ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab : "No file selected";
 
     return (
         <aside className="modification-panel">
             {!hideTabs && (
                 <div className="mod-panel-tabs" role="tablist" aria-label="Opened documents">
-                    {openTabs.length === 0 ? (
-                        <div className="mod-panel-tabs-empty">Open a file from the sidebar to view full content.</div>
-                    ) : (
-                        openTabs.map((fileId) => {
-                            const fileName = files.find((f) => f.fileId === fileId)?.fileName ?? fileId;
-                            return (
-                                <div key={fileId} className={`mod-panel-tab ${activeTab === fileId ? "active" : ""}`}>
-                                    <button className="mod-panel-tab-label" onClick={() => void onTabSelect(fileId)} type="button">
-                                        {fileName}
-                                    </button>
-                                    <button className="mod-panel-tab-close" onClick={() => onTabClose(fileId)} aria-label={`Close ${fileName}`} type="button">
-                                        x
-                                    </button>
-                                </div>
-                            );
-                        })
-                    )}
+                    {openTabs.length === 0 ? <div className="mod-panel-tabs-empty">Open a file from the sidebar to view full content.</div> : openTabs.map((fileId) => {
+                        const fileName = files.find((entry) => entry.fileId === fileId)?.fileName ?? fileId;
+                        return (
+                            <div key={fileId} className={`mod-panel-tab ${activeTab === fileId ? "active" : ""}`}>
+                                <button className="mod-panel-tab-label" onClick={() => void onTabSelect(fileId)} type="button">{fileName}</button>
+                                <button className="mod-panel-tab-close" onClick={() => onTabClose(fileId)} aria-label={`Close ${fileName}`} type="button">x</button>
+                            </div>
+                        );
+                    })}
                 </div>
             )}
-
             {!hideHeader && (
                 <div className="mod-panel-header">
-                    <div className="mod-panel-header-title">
-                        <h3>{activeFileName}</h3>
-                        {isEditMode && (
-                            <span className="mod-panel-edit-mode-badge">
-                                Edit - {editScopeLabel}
-                            </span>
-                        )}
-                    </div>
+                    <div className="mod-panel-header-title"><h3>{activeFileName}</h3>{isEditMode && <span className="mod-panel-edit-mode-badge">Edit - {editScopeLabel}</span>}</div>
                     <div className="mod-panel-header-actions">
-                        <button
-                            className="mod-panel-refresh-btn"
-                            onClick={onRefreshDocuments}
-                            disabled={isLoadingFiles}
-                            aria-label="Refresh documents"
-                            title="Refresh from database"
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <polyline points="1 20 1 14 7 14"></polyline>
-                                <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
-                            </svg>
+                        <button className="mod-panel-refresh-btn" onClick={onRefreshDocuments} disabled={isLoadingFiles} aria-label="Refresh documents" title="Refresh from database">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10" /><polyline points="1 20 1 14 7 14" /><path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36" /></svg>
                         </button>
-                        <button className="mod-panel-close-btn" onClick={onClose} aria-label="Close modifications panel">
-                            x
-                        </button>
+                        <button className="mod-panel-close-btn" onClick={onClose} aria-label="Close modifications panel">x</button>
                     </div>
                 </div>
             )}
-
             <div className="mod-panel-content" ref={contentRef} onScroll={handleContentScroll}>
                 {showAgentSection && (
                     <section className="mod-panel-agent-section">
                         <div className="preview-header">
-                            <h4>
-                                AI Proposals
-                                {agentIntention && (
-                                    <span className="agent-intention-badge">{agentIntention}</span>
-                                )}
-                            </h4>
-                            {agentProposals.length > 0 && (
-                                <button className="cancel-btn" type="button" onClick={onClearAgentProposals}>
-                                    Clear all
-                                </button>
-                            )}
+                            <h4>AI Proposals{agentIntention && <span className="agent-intention-badge">{agentIntention}</span>}</h4>
+                            {agentProposals.length > 0 && <button className="cancel-btn" type="button" onClick={onClearAgentProposals}>Clear all</button>}
                         </div>
-
-                        {isAgentGenerating && (
-                            <div className="mod-panel-loading">Agent is searching and generating proposals...</div>
-                        )}
-
-                        {agentError && (
-                            <div className="mod-panel-save-error">{agentError}</div>
-                        )}
-
+                        {isAgentGenerating && <div className="mod-panel-loading">Agent is searching and generating proposals...</div>}
+                        {agentError && <div className="mod-panel-save-error">{agentError}</div>}
                         {!isAgentGenerating && agentProposals.length === 0 && !agentError && (
-                            <div className="mod-panel-empty">
-                                Type an instruction in the chat to modify documents.
-                                <br />
-                                <em>
-                                    {selectedFileIds.size > 0
-                                        ? `Will search ${selectedFileIds.size} selected file(s).`
-                                        : "Will search all files - or check files in sidebar to narrow scope."}
-                                </em>
-                            </div>
+                            <div className="mod-panel-empty">Type an instruction in the chat to modify documents.<br /><em>{selectedFileIds.size > 0 ? `Will search ${selectedFileIds.size} selected file(s).` : "Will search all files - or check files in sidebar to narrow scope."}</em></div>
                         )}
-
-                        {agentProposals.map((proposal) => {
-                            const isAccepted = agentAcceptedMap.has(proposal.parentId);
-                            const isRejected = agentRejectedIds.has(proposal.parentId);
-                            const isPending = !isAccepted && !isRejected;
-
-                            return (
-                                <div
-                                    key={`${proposal.parentId}-${proposal.selectionStart ?? "full"}`}
-                                    className={`agent-proposal-card ${isAccepted ? "previewing" : ""} ${isRejected ? "rejected" : ""}`}
-                                >
-                                    <div className="agent-proposal-header">
-                                        <span className="agent-proposal-filename">{proposal.fileName}</span>
-                                        <div className="agent-proposal-meta">
-                                            {proposal.source === "selection" && (
-                                                <span className="agent-proposal-source">Selection</span>
-                                            )}
-                                            {isAccepted && <span className="agent-proposal-status previewing">Applied to draft</span>}
-                                            {isRejected && <span className="agent-proposal-status rejected">Rejected</span>}
-                                        </div>
-                                    </div>
-
-                                    {!isAccepted && !isRejected && (
-                                        <div className="agent-diff-blocks">
-                                            <div className="agent-diff-block del-block">
-                                                <div className="agent-diff-block-label">Before</div>
-                                                <pre className="agent-diff-text">{proposal.original}</pre>
-                                            </div>
-                                            <div className="agent-diff-block add-block">
-                                                <div className="agent-diff-block-label">After</div>
-                                                <pre className="agent-diff-text">{proposal.proposed}</pre>
-                                            </div>
-                                        </div>
-                                    )}
-
-                                    {isAccepted && (
-                                        <div className="agent-preview-hint">
-                                            Changes applied to the draft. Use the document Save button above to persist.
-                                        </div>
-                                    )}
-
-                                    {isPending && (
-                                        <div className="ai-preview-actions">
-                                            <button
-                                                className="save-btn"
-                                                type="button"
-                                                onClick={() => { void onAcceptAgentProposal(proposal); }}
-                                            >
-                                                Accept
-                                            </button>
-                                            <button
-                                                className="cancel-btn"
-                                                type="button"
-                                                onClick={() => onRejectAgentProposal(proposal.parentId)}
-                                            >
-                                                Reject
-                                            </button>
-                                        </div>
-                                    )}
-
-                                    {isAccepted && (
-                                        <div className="ai-preview-actions">
-                                            <button
-                                                className="cancel-btn"
-                                                type="button"
-                                                onClick={() => onRejectAgentProposal(proposal.parentId)}
-                                            >
-                                                Discard
-                                            </button>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                        {!isAgentGenerating && activeFileProposals.length > 0 && (
+                            <div className="inline-review-summary">{pendingCount > 0 && <span>{pendingCount} pending</span>}{acceptedCount > 0 && <span>{acceptedCount} accepted</span>}<span>Review changes inline below.</span></div>
+                        )}
                     </section>
                 )}
-
-                {!activeTab ? (
-                    !isEditMode && <div className="mod-panel-empty">No file tab selected.</div>
-                ) : activeTabAsync?.error ? (
+                {!activeTab ? (!isEditMode && <div className="mod-panel-empty">No file tab selected.</div>) : activeTabAsync?.error ? (
                     <div className="mod-panel-empty">{activeTabAsync.error}</div>
                 ) : activeTabData?.chunks.length ? (
                     <>
@@ -503,91 +418,33 @@ export default function ModificationPanel({
                                         <>
                                             <span className="mod-panel-editing-indicator">Editing mode</span>
                                             <div className="document-action-group">
-                                                <button
-                                                    className="save-btn"
-                                                    type="button"
-                                                    onClick={onSaveEditing}
-                                                    disabled={isSaving || !isDirty}
-                                                >
-                                                    {isSaving ? "Saving..." : "Save"}
-                                                </button>
-                                                <button
-                                                    className="cancel-btn"
-                                                    type="button"
-                                                    onClick={onCancelEditing}
-                                                    disabled={isSaving}
-                                                >
-                                                    Cancel
-                                                </button>
+                                                <button className="save-btn" type="button" onClick={onSaveEditing} disabled={isSaving || !isDirty}>{isSaving ? "Saving..." : "Save"}</button>
+                                                <button className="cancel-btn" type="button" onClick={onCancelEditing} disabled={isSaving}>Cancel</button>
                                             </div>
                                         </>
                                     ) : (
                                         <div className="document-action-group">
-                                            <button
-                                                className="edit-btn"
-                                                type="button"
-                                                onClick={onStartEditing}
-                                                disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
-                                            >
-                                                Edit
-                                            </button>
-                                            <button
-                                                className="delete-btn"
-                                                type="button"
-                                                onClick={onDeleteActiveFile}
-                                                disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
-                                            >
-                                                {isDeletingActiveFile ? "Deleting..." : "Delete"}
-                                            </button>
+                                            <button className="edit-btn" type="button" onClick={onStartEditing} disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading) || hasInlineReview}>Edit</button>
+                                            <button className="delete-btn" type="button" onClick={onDeleteActiveFile} disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}>{isDeletingActiveFile ? "Deleting..." : "Delete"}</button>
                                         </div>
                                     )}
                                 </div>
                             )}
-
-                            {isEditMode && !isEditing && (
-                                <div className="mod-panel-selection-hint">
-                                    Highlight text to edit directly.
-                                </div>
-                            )}
-
-                            {selectionError && (
-                                <div className="mod-panel-selection-error">{selectionError}</div>
-                            )}
-
-                            {isEditing ? (
-                                <>
-                                    <MarkdownEditor
-                                        markdown={editingContent}
-                                        editable={!isSaving}
-                                        onChange={onEditingContentChange}
-                                        className="mod-panel-active-editor"
-                                    />
-                                </>
+                            {isEditMode && !isEditing && !hasInlineReview && <div className="mod-panel-selection-hint">Highlight text to edit directly.</div>}
+                            {selectionError && <div className="mod-panel-selection-error">{selectionError}</div>}
+                            {hasInlineReview ? (
+                                <div className="mod-panel-document-flow inline-review-active"><div className="mod-panel-document-text mod-panel-inline-review">{inlineReviewNodes}</div></div>
+                            ) : isEditing ? (
+                                <MarkdownEditor markdown={editingContent} editable={!isSaving} onChange={onEditingContentChange} className="mod-panel-active-editor" />
                             ) : (
-                                <div
-                                    className={`mod-panel-document-flow ${highlightedSelection ? "selection-active" : ""}`}
-                                    onMouseUp={handleDocumentSelection}
-                                    onKeyUp={handleDocumentSelection}
-                                >
-                                    <div className="mod-panel-document-text">
-                                        <MarkdownEditor
-                                            markdown={activeDocumentView.fullText}
-                                            editable={false}
-                                            className="mod-panel-segment-editor"
-                                        />
-                                    </div>
+                                <div className={`mod-panel-document-flow ${highlightedSelection ? "selection-active" : ""}`} onMouseUp={handleDocumentSelection} onKeyUp={handleDocumentSelection}>
+                                    <div className="mod-panel-document-text"><MarkdownEditor markdown={activeDocumentView.fullText} editable={false} className="mod-panel-segment-editor" /></div>
                                 </div>
                             )}
-
                             {saveError && <div className="mod-panel-save-error">{saveError}</div>}
                         </section>
-
-                        {activeTabAsync?.isLoading && (
-                            <div className="mod-panel-loading">Loading more chunks...</div>
-                        )}
-                        {activeTabData && !activeTabData.hasMore && (
-                            <div className="mod-panel-end">End of document</div>
-                        )}
+                        {activeTabAsync?.isLoading && <div className="mod-panel-loading">Loading more chunks...</div>}
+                        {activeTabData && !activeTabData.hasMore && <div className="mod-panel-end">End of document</div>}
                     </>
                 ) : activeTabAsync?.isLoading ? (
                     <div className="mod-panel-loading">Loading full content...</div>

@@ -133,3 +133,31 @@ export type AgentProposal = {
      */
     patchBaselineOffset?: number;
 };
+
+export type ProposalStatus = "pending" | "accepted" | "rejected";
+
+export type InlineDiffToken = {
+    type: "equal" | "add" | "del";
+    text: string;
+};
+
+export type ResolvedProposalMarker = {
+    proposalKey: string;
+    parentId: string;
+    fileId: string;
+    fileName: string;
+    offset: number;
+    baselineOffset: number;
+    sourceLength: number;
+    replacementLength: number;
+    status: ProposalStatus;
+    proposal: AgentProposal;
+    tokens: InlineDiffToken[];
+};
+
+export type PendingModificationNavItem = {
+    fileId: string;
+    fileName: string;
+    pendingCount: number;
+    targetProposalKey: string;
+};

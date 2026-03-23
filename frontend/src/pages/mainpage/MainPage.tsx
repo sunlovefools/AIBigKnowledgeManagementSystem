@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
@@ -10,8 +10,12 @@ import { useChat } from "./hooks/useChat";
 import { useDocuments } from "./hooks/documents/useDocuments";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
-import type { HighlightedSelection } from "./types";
+import type { AgentProposal, HighlightedSelection, PendingModificationNavItem } from "./types";
 import type { ModificationProgressEvent } from "./hooks/documents/api/documentsApi";
+
+function getProposalKey(proposal: AgentProposal): string {
+    return `${proposal.parentId}-${proposal.selectionStart ?? "full"}`;
+}
 
 export default function MainPage() {
     const navigate = useNavigate();
@@ -21,6 +25,7 @@ export default function MainPage() {
     const [highlightedSelection, setHighlightedSelection] = useState<HighlightedSelection | null>(null);
     const [selectionError, setSelectionError] = useState<string | null>(null);
     const [pendingDeleteFile, setPendingDeleteFile] = useState<{ fileId: string; fileName: string } | null>(null);
+    const [focusedProposalKey, setFocusedProposalKey] = useState<string | null>(null);
 
     const bottomRef = useRef<HTMLDivElement | null>(null);
 
@@ -84,7 +89,9 @@ export default function MainPage() {
         requestSelectionEditPreview,
         acceptAgentProposal,
         rejectAgentProposal,
+        undoAgentProposal,
         clearAgentState,
+        ensureFileFullyLoaded,
     } = useDocuments(isModificationPanelOpen);
 
     const handleToggleFileSelection = useCallback((fileId: string) => {
@@ -210,6 +217,39 @@ export default function MainPage() {
         : "No file selected";
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
 
+    const pendingModificationItems = useMemo<PendingModificationNavItem[]>(() => {
+        const grouped = new Map<string, PendingModificationNavItem>();
+        for (const proposal of agentProposals) {
+            if (agentAcceptedMap.has(proposal.parentId) || agentRejectedIds.has(proposal.parentId)) {
+                continue;
+            }
+
+            const existing = grouped.get(proposal.fileId);
+            if (existing) {
+                existing.pendingCount += 1;
+                continue;
+            }
+
+            grouped.set(proposal.fileId, {
+                fileId: proposal.fileId,
+                fileName: proposal.fileName,
+                pendingCount: 1,
+                targetProposalKey: getProposalKey(proposal),
+            });
+        }
+        return Array.from(grouped.values());
+    }, [agentAcceptedMap, agentProposals, agentRejectedIds]);
+
+    const handleNavigateToModification = useCallback(async (fileId: string, proposalKey: string) => {
+        setIsModificationPanelOpen(true);
+        setIsEditMode(true);
+
+        if (activeTab !== fileId) {
+            await openDocumentTab(fileId);
+        }
+        setFocusedProposalKey(proposalKey);
+    }, [activeTab, openDocumentTab]);
+
     const renderChatWorkspace = (emptyStateMode: "welcome" | "no-document") => (
         <div className="chat-stage-shell">
             <ChatArea
@@ -217,6 +257,8 @@ export default function MainPage() {
                 isUploading={isUploading}
                 bottomRef={bottomRef}
                 emptyStateMode={emptyStateMode}
+                pendingModificationItems={pendingModificationItems}
+                onNavigateToModification={(fileId, proposalKey) => { void handleNavigateToModification(fileId, proposalKey); }}
             />
 
             <ChatInput
@@ -255,6 +297,24 @@ export default function MainPage() {
         setSelectionError(null);
     }, [activeChunkSignature]);
 
+    useEffect(() => {
+        if (!agentProposals.length) return;
+
+        let isCancelled = false;
+        const fileIds = Array.from(new Set(agentProposals.map((proposal) => proposal.fileId)));
+        const hydrateProposalFiles = async () => {
+            for (const fileId of fileIds) {
+                if (isCancelled) return;
+                await ensureFileFullyLoaded(fileId);
+            }
+        };
+
+        void hydrateProposalFiles();
+        return () => {
+            isCancelled = true;
+        };
+    }, [agentProposals, ensureFileFullyLoaded]);
+
     const handleSelectionChange = useCallback((selection: HighlightedSelection | null) => {
         setHighlightedSelection(selection);
         if (selection) {
@@ -289,6 +349,7 @@ export default function MainPage() {
             setIsEditMode(false);
             setSelectedFileIds(new Set());
             clearHighlightedSelection();
+            setFocusedProposalKey(null);
         }
     };
 
@@ -297,6 +358,7 @@ export default function MainPage() {
         setIsEditMode(false);
         setSelectedFileIds(new Set());
         clearHighlightedSelection();
+        setFocusedProposalKey(null);
     };
 
     const handleLogout = () => {
@@ -342,7 +404,10 @@ export default function MainPage() {
             agentIntention={agentIntention}
             onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
             onRejectAgentProposal={rejectAgentProposal}
+            onUndoAgentProposal={undoAgentProposal}
             onClearAgentProposals={clearAgentState}
+            focusedProposalKey={focusedProposalKey}
+            onFocusedProposalHandled={() => setFocusedProposalKey(null)}
         />
     );
 
@@ -387,7 +452,10 @@ export default function MainPage() {
             agentIntention={agentIntention}
             onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
             onRejectAgentProposal={rejectAgentProposal}
+            onUndoAgentProposal={undoAgentProposal}
             onClearAgentProposals={clearAgentState}
+            focusedProposalKey={focusedProposalKey}
+            onFocusedProposalHandled={() => setFocusedProposalKey(null)}
         />
     );
 

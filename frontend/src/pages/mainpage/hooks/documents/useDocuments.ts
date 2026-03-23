@@ -18,6 +18,7 @@ type DeleteFileResult = {
 // Deal with file and chunk state
 export function useDocuments(isModificationPanelOpen: boolean) {
     const fileDomain = useDocumentFiles({ isModificationPanelOpen });
+    const { getContentStateById, loadFileChunks } = fileDomain;
 
     // function to get the full content of a document by file ID
     const getFullDocumentContent = useCallback(
@@ -98,6 +99,25 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         if (!fileDomain.activeTab) return;
         await fileDomain.loadFileChunks(fileDomain.activeTab, false);
     }, [fileDomain]);
+
+    const ensureFileFullyLoaded = useCallback(
+        async (fileId: string) => {
+            if (!fileId) return;
+            const state = getContentStateById(fileId);
+            if (!state.chunks.length) {
+                await loadFileChunks(fileId, true);
+            }
+
+            let safetyCounter = 0;
+            let current = getContentStateById(fileId);
+            while (current.hasMore && safetyCounter < 200) {
+                await loadFileChunks(fileId, false);
+                current = getContentStateById(fileId);
+                safetyCounter += 1;
+            }
+        },
+        [getContentStateById, loadFileChunks]
+    );
 
     const handleRefreshDocuments = useCallback(async () => {
         if (!editingDomain.confirmDiscardUnsavedChanges()) return;
@@ -180,6 +200,8 @@ export function useDocuments(isModificationPanelOpen: boolean) {
         requestSelectionEditPreview: agentDomain.requestSelectionEditPreview,
         acceptAgentProposal: agentDomain.acceptAgentProposal,
         rejectAgentProposal: agentDomain.rejectAgentProposal,
+        undoAgentProposal: agentDomain.undoAgentProposal,
         clearAgentState: agentDomain.clearAgentState,
+        ensureFileFullyLoaded,
     };
 }

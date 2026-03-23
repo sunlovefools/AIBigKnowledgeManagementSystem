@@ -16,6 +16,8 @@ export type RequestAgentResult = {
     error?: string;
 };
 
+type RejectMode = "reject" | "undo";
+
 type UseDocumentAgentParams = {
     editingFileId: string | null;
     editingDraftByFileId: Record<string, string>;
@@ -367,7 +369,7 @@ export function useDocumentAgent({
     ]);
 
     // Reverts an accepted proposal or marks an unseen proposal as rejected.
-    const rejectAgentProposal = useCallback((parentId: string) => {
+    const rejectAgentProposal = useCallback((parentId: string, mode: RejectMode = "reject") => {
         const proposal = agentProposals.find((entry) => entry.parentId === parentId);
         if (!proposal) return;
         if (editingFileId && editingFileId !== proposal.fileId) {
@@ -377,7 +379,12 @@ export function useDocumentAgent({
 
         const acceptedEntry = agentAcceptedMap.get(parentId);
         if (!acceptedEntry || acceptedEntry.patchOffset === undefined) {
-            setAgentRejectedIds((prev) => new Set([...prev, parentId]));
+            setAgentRejectedIds((prev) => {
+                const next = new Set(prev);
+                if (mode === "reject") next.add(parentId);
+                else next.delete(parentId);
+                return next;
+            });
             return;
         }
 
@@ -411,7 +418,12 @@ export function useDocumentAgent({
                 proposal.original.length - proposal.proposed.length
             );
         });
-        setAgentRejectedIds((prev) => new Set([...prev, parentId]));
+        setAgentRejectedIds((prev) => {
+            const next = new Set(prev);
+            if (mode === "reject") next.add(parentId);
+            else next.delete(parentId);
+            return next;
+        });
         setSaveError(null);
     }, [
         agentAcceptedMap,
@@ -423,6 +435,10 @@ export function useDocumentAgent({
         setEditingFileId,
         setSaveError,
     ]);
+
+    const undoAgentProposal = useCallback((parentId: string) => {
+        rejectAgentProposal(parentId, "undo");
+    }, [rejectAgentProposal]);
 
     return {
         isAgentGenerating,
@@ -437,5 +453,6 @@ export function useDocumentAgent({
         requestSelectionEditPreview,
         acceptAgentProposal,
         rejectAgentProposal,
+        undoAgentProposal,
     };
 }

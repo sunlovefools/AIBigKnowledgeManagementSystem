@@ -2,7 +2,7 @@ import { useMemo, useState, type RefObject } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import type { ChatMessage, ChatProgressStep } from "../types";
+import type { ChatMessage, ChatProgressStep, PendingModificationNavItem } from "../types";
 
 // Type definitions for the ChatArea component props.
 type ChatAreaProps = {
@@ -10,6 +10,8 @@ type ChatAreaProps = {
     isUploading: boolean;
     bottomRef: RefObject<HTMLDivElement | null>;
     emptyStateMode?: "welcome" | "no-document";
+    pendingModificationItems?: PendingModificationNavItem[];
+    onNavigateToModification?: (fileId: string, proposalKey: string) => void;
 };
 
 function renderStepLabel(step: ChatProgressStep): string {
@@ -29,6 +31,8 @@ export default function ChatArea({
     isUploading,
     bottomRef,
     emptyStateMode = "welcome",
+    pendingModificationItems = [],
+    onNavigateToModification,
 }: ChatAreaProps) {
     const [expandedHistoryByMessageId, setExpandedHistoryByMessageId] = useState<Record<string, boolean>>({});
 
@@ -37,6 +41,7 @@ export default function ChatArea({
     };
 
     const hasMessages = messages.length > 0;
+    const hasPendingModifications = pendingModificationItems.length > 0;
 
     const progressHistoryCounts = useMemo(() => {
         const counts: Record<string, number> = {};
@@ -49,7 +54,7 @@ export default function ChatArea({
 
     return (
         <div className="chat-scroll-area">
-            {!hasMessages ? (
+            {!hasMessages && !hasPendingModifications ? (
                 <div className="welcome-screen">
                     {emptyStateMode === "no-document" ? (
                         <>
@@ -69,6 +74,25 @@ export default function ChatArea({
                 </div>
             ) : (
                 <div className="messages-container">
+                    {hasPendingModifications && (
+                        <section className="chat-mod-nav" aria-label="Pending modifications">
+                            <div className="chat-mod-nav-header">Pending changes</div>
+                            <div className="chat-mod-nav-list">
+                                {pendingModificationItems.map((item) => (
+                                    <button
+                                        key={item.fileId}
+                                        type="button"
+                                        className="chat-mod-nav-item"
+                                        onClick={() => onNavigateToModification?.(item.fileId, item.targetProposalKey)}
+                                    >
+                                        <span className="chat-mod-nav-file">{item.fileName}</span>
+                                        <span className="chat-mod-nav-count">{item.pendingCount}</span>
+                                    </button>
+                                ))}
+                            </div>
+                        </section>
+                    )}
+
                     {messages.map((msg) => {
                         if (msg.kind === "text") {
                             return (
