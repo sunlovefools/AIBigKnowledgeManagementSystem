@@ -1,5 +1,5 @@
-import { useCallback, useLayoutEffect, useRef, type KeyboardEvent } from "react";
-import type { HighlightedSelection } from "../types";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import type { HighlightedSelection, PendingModificationNavItem } from "../types";
 
 type ChatInputProps = {
     input: string;
@@ -7,10 +7,12 @@ type ChatInputProps = {
     isModificationPanelOpen: boolean;
     isEditMode: boolean;
     highlightedSelection: HighlightedSelection | null;
+    pendingModificationItems?: PendingModificationNavItem[];
     onInputChange: (value: string) => void;
     onInputKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
     onToggleModificationPanel: () => void;
     onClearHighlightedSelection: () => void;
+    onNavigateToModification?: (fileId: string, proposalKey: string) => void;
     onSend: () => void;
 };
 
@@ -20,13 +22,16 @@ export default function ChatInput({
     isModificationPanelOpen,
     isEditMode,
     highlightedSelection,
+    pendingModificationItems = [],
     onInputChange,
     onInputKeyDown,
     onToggleModificationPanel,
     onClearHighlightedSelection,
+    onNavigateToModification,
     onSend,
 }: ChatInputProps) {
     const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+    const [isPendingTrayOpen, setIsPendingTrayOpen] = useState(false);
 
     const adjustTextareaHeight = useCallback(() => {
         const textarea = textareaRef.current;
@@ -42,6 +47,12 @@ export default function ChatInput({
         adjustTextareaHeight();
     }, [input, adjustTextareaHeight]);
 
+    useEffect(() => {
+        if (!isEditMode || pendingModificationItems.length === 0) {
+            setIsPendingTrayOpen(false);
+        }
+    }, [isEditMode, pendingModificationItems.length]);
+
     const placeholder = isEditMode
         ? highlightedSelection
             ? "Describe how to modify the selected text..."
@@ -51,10 +62,51 @@ export default function ChatInput({
     const selectionPreview = highlightedSelection?.selectedText.replace(/\s+/g, " ").trim() ?? "";
     const compactSelectionPreview =
         selectionPreview.length > 56 ? `${selectionPreview.slice(0, 56)}...` : selectionPreview || "Selected text";
+    const totalPendingChanges = pendingModificationItems.reduce((sum, item) => sum + item.pendingCount, 0);
+    const showPendingTray = isEditMode && totalPendingChanges > 0;
 
     return (
         <div className="input-area-wrapper">
             <div className={`input-container ${isEditMode ? "edit-mode-active" : ""}`}>
+                {showPendingTray && (
+                    <div className="input-pending-tray">
+                        <button
+                            type="button"
+                            className={`input-pending-summary ${isPendingTrayOpen ? "open" : ""}`}
+                            onClick={() => setIsPendingTrayOpen((prev) => !prev)}
+                            aria-expanded={isPendingTrayOpen}
+                            aria-label={isPendingTrayOpen ? "Collapse pending changes" : "Expand pending changes"}
+                        >
+                            <span className="input-pending-summary-label">Pending changes</span>
+                            <span className="input-pending-summary-count">{totalPendingChanges}</span>
+                            <span className={`input-pending-summary-chevron ${isPendingTrayOpen ? "open" : ""}`} aria-hidden="true">
+                                {"\u203A"}
+                            </span>
+                        </button>
+
+                        {isPendingTrayOpen && (
+                            <div className="input-pending-list" role="list" aria-label="Pending changes by file">
+                                {pendingModificationItems.map((item) => (
+                                    <button
+                                        key={item.fileId}
+                                        type="button"
+                                        className="input-pending-item"
+                                        onClick={() => onNavigateToModification?.(item.fileId, item.targetProposalKey)}
+                                    >
+                                        <span className="input-pending-item-main">
+                                            <span className="input-pending-item-file">{item.fileName}</span>
+                                            <span className="input-pending-item-count">{item.pendingCount}</span>
+                                        </span>
+                                        <span className="input-pending-item-arrow" aria-hidden="true">
+                                            {"\u203A"}
+                                        </span>
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+
                 {highlightedSelection && (
                     <div className="input-selection-chip">
                         <span className="input-selection-chip-file" title={highlightedSelection.fileName}>

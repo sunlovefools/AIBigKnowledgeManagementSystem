@@ -257,8 +257,6 @@ export default function MainPage() {
                 isUploading={isUploading}
                 bottomRef={bottomRef}
                 emptyStateMode={emptyStateMode}
-                pendingModificationItems={pendingModificationItems}
-                onNavigateToModification={(fileId, proposalKey) => { void handleNavigateToModification(fileId, proposalKey); }}
             />
 
             <ChatInput
@@ -267,10 +265,12 @@ export default function MainPage() {
                 isModificationPanelOpen={isModificationPanelOpen}
                 isEditMode={isEditMode}
                 highlightedSelection={highlightedSelection}
+                pendingModificationItems={pendingModificationItems}
                 onInputChange={setInput}
                 onInputKeyDown={handleComposerKeyDown}
                 onToggleModificationPanel={handleToggleModificationPanel}
                 onClearHighlightedSelection={clearHighlightedSelection}
+                onNavigateToModification={(fileId, proposalKey) => { void handleNavigateToModification(fileId, proposalKey); }}
                 onSend={() => { void handleComposerSend(); }}
             />
         </div>

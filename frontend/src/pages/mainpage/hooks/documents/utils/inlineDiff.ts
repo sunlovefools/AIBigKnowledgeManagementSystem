@@ -74,10 +74,6 @@ export function buildInlineDiffTokens(original: string, proposed: string): Inlin
         j += 1;
     }
 
-    const normalized = rawTokens.map((token) =>
-        token.type !== "equal" && /^\s+$/.test(token.text)
-            ? { ...token, type: "equal" as const }
-            : token
-    );
-    return mergeAdjacent(normalized);
+    // Keep diff whitespace classification so inserted/deleted phrases stay visually continuous.
+    return mergeAdjacent(rawTokens);
 }

@@ -267,22 +267,31 @@ export default function ModificationPanel({
         for (const marker of resolvedInlineMarkers) {
             if (marker.offset < cursor) continue;
             if (marker.offset > cursor) nodes.push(<span key={`t-${cursor}-${marker.offset}`}>{reviewBaseText.slice(cursor, marker.offset)}</span>);
+            const isSelectionPending = marker.status === "pending" && marker.proposal.source === "selection";
             nodes.push(
                 <span key={marker.proposalKey} className={`inline-diff-marker ${marker.status}`} data-proposal-key={marker.proposalKey}>
-                    <span className="inline-diff-content">
-                        {marker.tokens.map((token, index) => (
-                            <span key={`${marker.proposalKey}-${token.type}-${index}`} className={`inline-diff-token ${token.type}`}>{token.text}</span>
-                        ))}
-                    </span>
-                    <span className="inline-diff-actions">
+                    {isSelectionPending ? (
+                        <span className="inline-selection-diff">
+                            <span className="inline-selection-before">{marker.proposal.original}</span>
+                            <span className="inline-selection-after">{marker.proposal.proposed}</span>
+                        </span>
+                    ) : (
+                        <span className="inline-diff-content">
+                            {marker.tokens.map((token, index) => (
+                                <span key={`${marker.proposalKey}-${token.type}-${index}`} className={`inline-diff-token ${token.type}`}>{token.text}</span>
+                            ))}
+                        </span>
+                    )}
+
+                    <span className="inline-diff-actions-row">
                         {marker.status === "pending" && (
                             <>
-                                <button className="save-btn inline-action" type="button" onClick={() => { void onAcceptAgentProposal(marker.proposal); }}>Accept</button>
-                                <button className="cancel-btn inline-action" type="button" onClick={() => onRejectAgentProposal(marker.parentId)}>Reject</button>
+                                <button className="inline-action inline-action-accept" type="button" onClick={() => { void onAcceptAgentProposal(marker.proposal); }}>Accept</button>
+                                <button className="inline-action inline-action-reject" type="button" onClick={() => onRejectAgentProposal(marker.parentId)}>Reject</button>
                             </>
                         )}
                         {marker.status === "accepted" && (
-                            <button className="cancel-btn inline-action" type="button" onClick={() => onUndoAgentProposal(marker.parentId)}>Undo</button>
+                            <button className="inline-action inline-action-undo" type="button" onClick={() => onUndoAgentProposal(marker.parentId)}>Undo</button>
                         )}
                     </span>
                 </span>
