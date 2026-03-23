@@ -63,6 +63,8 @@ export default function MainPage() {
     const {
         files,
         isLoadingFiles,
+        isLoadingMoreFiles,
+        hasMoreFiles,
         fileListError,
         deletingFileId,
         openTabs,
@@ -70,6 +72,7 @@ export default function MainPage() {
         activeTabData,
         activeTabAsync,
         handleRefreshDocuments,
+        loadMoreFiles,
         deleteFile,
         openDocumentTab,
         closeDocumentTab,
@@ -89,6 +92,7 @@ export default function MainPage() {
         cancelEditingActiveDocument,
         saveEditingActiveDocument,
         activeDocumentViewContent,
+        getFileNameById,
         isAgentGenerating,
         agentProposals,
         agentAcceptedMap,
@@ -199,9 +203,9 @@ export default function MainPage() {
     }, [appendMessage, deleteFile, pendingDeleteFile]);
 
     const handleRequestDeleteFile = useCallback((fileId: string) => {
-        const fileName = files.find((file) => file.fileId === fileId)?.fileName ?? fileId;
+        const fileName = getFileNameById(fileId);
         setPendingDeleteFile({ fileId, fileName });
-    }, [files]);
+    }, [getFileNameById]);
 
     const handleCancelDeleteFile = useCallback(() => {
         if (deletingFileId) return;
@@ -222,9 +226,7 @@ export default function MainPage() {
     const hasSelectedDocument = Boolean(activeTab);
     const isDesktopWorkspaceActive = !isMobile && isModificationPanelOpen && hasSelectedDocument;
     const chatEmptyStateMode = isEditMode && !hasSelectedDocument ? "no-document" : "welcome";
-    const activeFileName = activeTab
-        ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
-        : "No file selected";
+    const activeFileName = activeTab ? getFileNameById(activeTab) : "No file selected";
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
     const isActiveFileSaving = isFileSaving(activeTab);
 
@@ -487,6 +489,8 @@ export default function MainPage() {
                     isUploading={isUploading}
                     files={files}
                     isLoadingFiles={isLoadingFiles}
+                    isLoadingMoreFiles={isLoadingMoreFiles}
+                    hasMoreFiles={hasMoreFiles}
                     fileListError={fileListError}
                     activeTab={activeTab}
                     isEditMode={isEditMode}
@@ -500,6 +504,7 @@ export default function MainPage() {
                         setIsModificationPanelOpen(true);
                     }}
                     onRefreshFiles={() => { void handleRefreshDocuments(); }}
+                    onLoadMoreFiles={() => { void loadMoreFiles(); }}
                 />
             </div>
 
@@ -546,7 +551,7 @@ export default function MainPage() {
                                     <div className="mod-panel-tabs-empty">Open a file from the sidebar to view full content.</div>
                                 ) : (
                                     openTabs.map((fileId) => {
-                                        const fileName = files.find((file) => file.fileId === fileId)?.fileName ?? fileId;
+                                        const fileName = getFileNameById(fileId);
                                         return (
                                             <div key={fileId} className={`mod-panel-tab ${activeTab === fileId ? "active" : ""}`}>
                                                 <button

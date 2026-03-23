@@ -14,8 +14,7 @@ export function replaceFilesFromSidebarSummaries(
     prev: FilesState,
     incoming: SidebarFileSummary[]
 ): FilesState {
-    const validIds = new Set(incoming.map((f) => f.fileId));
-    const nextById: Record<string, FileEntry> = {};
+    const nextById: Record<string, FileEntry> = { ...prev.byId };
 
     incoming.forEach((summary) => {
         nextById[summary.fileId] = createFileEntry(
@@ -25,10 +24,38 @@ export function replaceFilesFromSidebarSummaries(
     });
 
     return {
+        ...prev,
         byId: nextById,
         sidebarFileIds: incoming.map((file) => file.fileId),
-        openTabIds: prev.openTabIds.filter((id) => validIds.has(id)),
-        activeFileId: prev.activeFileId && validIds.has(prev.activeFileId) ? prev.activeFileId : null,
+    };
+}
+
+// Appends one sidebar page while deduplicating by fileId and preserving loaded tab/content state.
+export function appendFilesFromSidebarSummaries(
+    prev: FilesState,
+    incoming: SidebarFileSummary[]
+): FilesState {
+    if (!incoming.length) return prev;
+
+    const nextById: Record<string, FileEntry> = { ...prev.byId };
+    const nextSidebarFileIds = [...prev.sidebarFileIds];
+    const knownFileIds = new Set(nextSidebarFileIds);
+
+    incoming.forEach((summary) => {
+        nextById[summary.fileId] = createFileEntry(
+            summary,
+            prev.byId[summary.fileId]?.contentState ?? createEmptyContentState()
+        );
+        if (!knownFileIds.has(summary.fileId)) {
+            knownFileIds.add(summary.fileId);
+            nextSidebarFileIds.push(summary.fileId);
+        }
+    });
+
+    return {
+        ...prev,
+        byId: nextById,
+        sidebarFileIds: nextSidebarFileIds,
     };
 }
 
@@ -37,7 +64,7 @@ export function syncChunkAsyncIndex(
     prev: Record<string, FileContentAsyncState>,
     incoming: SidebarFileSummary[]
 ): Record<string, FileContentAsyncState> {
-    const next: Record<string, FileContentAsyncState> = {};
+    const next: Record<string, FileContentAsyncState> = { ...prev };
     incoming.forEach((summary) => {
         next[summary.fileId] = prev[summary.fileId] ?? createEmptyContentAsyncState();
     });

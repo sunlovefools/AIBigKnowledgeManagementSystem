@@ -34,6 +34,8 @@ class FileSummary(BaseModel):
 class FileSummaryResponse(BaseModel):
     """Response containing merged filenames and their preview snippets."""
     files: List[FileSummary]
+    hasMore: bool
+    nextCursor: str | None
     total: int
 
 
@@ -54,19 +56,30 @@ class FileChunksResponse(BaseModel):
 
 
 @router.get("/all-preview-files", response_model=FileSummaryResponse)
-async def get_all_preview_files():
+async def get_all_preview_files(
+    limit: int = Query(default=20, ge=1, le=20),
+    cursor: str | None = Query(default=None),
+):
     """Return filename-merged summaries for the left sidebar."""
     try:
-        files = await ReconstructionService.get_all_preview_files()
+        result = await ReconstructionService.get_all_preview_files(
+            limit=limit,
+            cursor=cursor,
+        )
         response_files = [
             FileSummary(
                 fileId=file_item["fileId"],
                 fileName=file_item["fileName"],
                 previewTexts=file_item["preview"],
             )
-            for file_item in files
+            for file_item in result["files"]
         ]
-        return FileSummaryResponse(files=response_files, total=len(response_files))
+        return FileSummaryResponse(
+            files=response_files,
+            hasMore=result["hasMore"],
+            nextCursor=result["nextCursor"],
+            total=result["total"],
+        )
     except RuntimeError as e:
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,

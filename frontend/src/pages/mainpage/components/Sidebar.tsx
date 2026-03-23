@@ -1,4 +1,4 @@
-import { useRef, type ChangeEventHandler } from "react";
+import { useRef, type ChangeEventHandler, type UIEventHandler } from "react";
 import type { SidebarFileSummary } from "../types";
 
 type SidebarProps = {
@@ -6,6 +6,8 @@ type SidebarProps = {
     isUploading: boolean;
     files: SidebarFileSummary[];
     isLoadingFiles: boolean;
+    isLoadingMoreFiles: boolean;
+    hasMoreFiles: boolean;
     fileListError: string | null;
     activeTab: string | null;
     // Edit mode props
@@ -18,6 +20,7 @@ type SidebarProps = {
     onClearFile: () => void;
     onOpenFile: (fileId: string) => void;
     onRefreshFiles: () => void;
+    onLoadMoreFiles: () => void;
 };
 
 export default function Sidebar({
@@ -25,6 +28,8 @@ export default function Sidebar({
     isUploading,
     files,
     isLoadingFiles,
+    isLoadingMoreFiles,
+    hasMoreFiles,
     fileListError,
     activeTab,
     isEditMode,
@@ -35,6 +40,7 @@ export default function Sidebar({
     onClearFile,
     onOpenFile,
     onRefreshFiles,
+    onLoadMoreFiles,
 }: SidebarProps) {
     const fileRef = useRef<HTMLInputElement | null>(null);
 
@@ -46,6 +52,14 @@ export default function Sidebar({
         onClearFile();
         if (fileRef.current) {
             fileRef.current.value = "";
+        }
+    };
+
+    const handleDocumentListScroll: UIEventHandler<HTMLDivElement> = (event) => {
+        if (isLoadingFiles || isLoadingMoreFiles || !hasMoreFiles || fileListError) return;
+        const target = event.currentTarget;
+        if (target.scrollHeight - target.scrollTop - target.clientHeight < 120) {
+            onLoadMoreFiles();
         }
     };
 
@@ -132,7 +146,7 @@ export default function Sidebar({
                     </div>
                 )}
 
-                <div className="sidebar-documents-list">
+                <div className="sidebar-documents-list" onScroll={handleDocumentListScroll}>
                     {isLoadingFiles ? (
                         <div className="sidebar-documents-status">Loading files...</div>
                     ) : fileListError ? (
@@ -140,36 +154,41 @@ export default function Sidebar({
                     ) : files.length === 0 ? (
                         <div className="sidebar-documents-status">No files found in vector database.</div>
                     ) : (
-                        files.map((file) => (
-                            <div
-                                key={file.fileId}
-                                className={`sidebar-document-item-wrapper ${
-                                    isEditMode && selectedFileIds.has(file.fileId) ? "selected" : ""
-                                }`}
-                            >
-                                {/* Checkbox shown only in edit mode */}
-                                {isEditMode && (
-                                    <input
-                                        type="checkbox"
-                                        className="sidebar-file-checkbox"
-                                        checked={selectedFileIds.has(file.fileId)}
-                                        onChange={() => onToggleFileSelection(file.fileId)}
-                                        aria-label={`Select ${file.fileName} for editing`}
-                                        onClick={(e) => e.stopPropagation()}
-                                    />
-                                )}
-                                <button
-                                    className={`sidebar-document-item ${activeTab === file.fileId ? "active" : ""}`}
-                                    onClick={() => onOpenFile(file.fileId)}
-                                    type="button"
+                        <>
+                            {files.map((file) => (
+                                <div
+                                    key={file.fileId}
+                                    className={`sidebar-document-item-wrapper ${
+                                        isEditMode && selectedFileIds.has(file.fileId) ? "selected" : ""
+                                    }`}
                                 >
-                                    <div className="sidebar-document-title">{file.fileName}</div>
-                                    <div className="sidebar-document-preview">
-                                        {file.previewTexts || "..."}
-                                    </div>
-                                </button>
-                            </div>
-                        ))
+                                    {/* Checkbox shown only in edit mode */}
+                                    {isEditMode && (
+                                        <input
+                                            type="checkbox"
+                                            className="sidebar-file-checkbox"
+                                            checked={selectedFileIds.has(file.fileId)}
+                                            onChange={() => onToggleFileSelection(file.fileId)}
+                                            aria-label={`Select ${file.fileName} for editing`}
+                                            onClick={(e) => e.stopPropagation()}
+                                        />
+                                    )}
+                                    <button
+                                        className={`sidebar-document-item ${activeTab === file.fileId ? "active" : ""}`}
+                                        onClick={() => onOpenFile(file.fileId)}
+                                        type="button"
+                                    >
+                                        <div className="sidebar-document-title">{file.fileName}</div>
+                                        <div className="sidebar-document-preview">
+                                            {file.previewTexts || "..."}
+                                        </div>
+                                    </button>
+                                </div>
+                            ))}
+                            {isLoadingMoreFiles && (
+                                <div className="sidebar-documents-status">Loading more files...</div>
+                            )}
+                        </>
                     )}
                 </div>
             </div>
