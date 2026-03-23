@@ -6,7 +6,7 @@ const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 
 // Shared chunk pagination size used by the document panel.
 export const PAGE_SIZE = 7;
-export const PREVIEW_PAGE_SIZE = 10;
+export const PREVIEW_PAGE_SIZE = 20;
 
 export type UpdateParentChunkResponse = {
     parentId: string;
