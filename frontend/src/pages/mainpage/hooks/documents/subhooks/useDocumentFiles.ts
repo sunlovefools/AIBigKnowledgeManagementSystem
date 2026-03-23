@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
     FileContentAsyncState,
     FileEntry,
@@ -21,6 +21,8 @@ type UseDocumentFilesParams = {
     isModificationPanelOpen: boolean;
 };
 
+const PREVIEW_AUTO_DRAIN_SAFETY_LIMIT = 500;
+
 // Owns file list state, tab state, and per-file chunk loading/pagination.
 export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesParams) {
     const [filesState, setFilesState] = useState<FilesState>(createEmptyFilesState());
@@ -32,6 +34,10 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
     const [previewHasMore, setPreviewHasMore] = useState(true);
     const [previewNextCursor, setPreviewNextCursor] = useState<string | null>(null);
     const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
+    const previewNextCursorRef = useRef<string | null>(null);
+    const previewRequestInFlightRef = useRef(false);
+    const previewAutoDrainInProgressRef = useRef(false);
+    const previewPaginationSessionRef = useRef(0);
 
     const files = useMemo(
         () =>
@@ -62,36 +68,131 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
         [chunkAsyncByFileId]
     );
 
-    // Loads one sidebar page. reset=true fetches first page; false appends the next page.
-    const fetchFiles = useCallback(async (reset = true) => {
-        if (reset && (isLoadingFiles || isLoadingMoreFiles)) return;
+    const setPreviewPaginationState = useCallback((nextCursor: string | null) => {
+        previewNextCursorRef.current = nextCursor;
+        setPreviewNextCursor(nextCursor);
+        setPreviewHasMore(Boolean(nextCursor));
+    }, []);
 
-        if (!reset) {
-            if (isLoadingFiles || isLoadingMoreFiles || !previewHasMore) return;
-            setIsLoadingMoreFiles(true);
-        } else {
-            setIsLoadingFiles(true);
-            setFileListError(null);
-        }
+    const applyPreviewPage = useCallback((reset: boolean, response: Awaited<ReturnType<typeof getAllPreviewFiles>>) => {
+        setIsDocsCached(true);
+        const resolvedNextCursor = response.nextCursor ?? null;
+        setPreviewPaginationState(resolvedNextCursor);
+        setFilesState((prev) =>
+            reset
+                ? replaceFilesFromSidebarSummaries(prev, response.files)
+                : appendFilesFromSidebarSummaries(prev, response.files)
+        );
+        setChunkAsyncByFileId((prev) => syncChunkAsyncIndex(prev, response.files));
+    }, [setPreviewPaginationState]);
 
+    const requestPreviewPage = useCallback(async (
+        cursor: string | null,
+        reset: boolean,
+        sessionId: number
+    ) => {
+        if (previewRequestInFlightRef.current) return null;
+        previewRequestInFlightRef.current = true;
         try {
-            const response = await getAllPreviewFiles(reset ? null : previewNextCursor);
-            setIsDocsCached(true);
-            setPreviewHasMore(response.hasMore);
-            setPreviewNextCursor(response.nextCursor);
-            setFilesState((prev) =>
-                reset
-                    ? replaceFilesFromSidebarSummaries(prev, response.files)
-                    : appendFilesFromSidebarSummaries(prev, response.files)
-            );
-            setChunkAsyncByFileId((prev) => syncChunkAsyncIndex(prev, response.files));
+            const response = await getAllPreviewFiles(cursor);
+            if (sessionId !== previewPaginationSessionRef.current) return null;
+            applyPreviewPage(reset, response);
+            return response;
         } catch {
             if (reset) setFileListError("Failed to load files from vector database.");
+            return null;
         } finally {
-            if (reset) setIsLoadingFiles(false);
-            else setIsLoadingMoreFiles(false);
+            previewRequestInFlightRef.current = false;
         }
-    }, [isLoadingFiles, isLoadingMoreFiles, previewHasMore, previewNextCursor]);
+    }, [applyPreviewPage]);
+
+    const autoDrainPreviewPages = useCallback((sessionId: number) => {
+        if (previewAutoDrainInProgressRef.current) return;
+        previewAutoDrainInProgressRef.current = true;
+        setIsLoadingMoreFiles(true);
+
+        void (async () => {
+            const seenCursors = new Set<string>();
+            let cycles = 0;
+
+            try {
+                while (sessionId === previewPaginationSessionRef.current) {
+                    const cursor = previewNextCursorRef.current;
+                    if (!cursor) break;
+
+                    if (seenCursors.has(cursor)) {
+                        console.warn("[useDocumentFiles] Stopping preview auto-drain due to repeated cursor token.");
+                        setPreviewPaginationState(null);
+                        break;
+                    }
+                    if (cycles >= PREVIEW_AUTO_DRAIN_SAFETY_LIMIT) {
+                        console.warn(
+                            `[useDocumentFiles] Stopping preview auto-drain after reaching safety cap (${PREVIEW_AUTO_DRAIN_SAFETY_LIMIT}).`
+                        );
+                        break;
+                    }
+
+                    seenCursors.add(cursor);
+                    cycles += 1;
+                    const page = await requestPreviewPage(cursor, false, sessionId);
+                    if (!page) break;
+                }
+            } finally {
+                if (sessionId === previewPaginationSessionRef.current) {
+                    setIsLoadingMoreFiles(false);
+                }
+                previewAutoDrainInProgressRef.current = false;
+            }
+        })();
+    }, [requestPreviewPage, setPreviewPaginationState]);
+
+    // Loads one sidebar page. reset=true fetches first page and starts auto-drain; false fetches one fallback page.
+    const fetchFiles = useCallback(async (reset = true) => {
+        if (reset) {
+            if (isLoadingFiles || previewRequestInFlightRef.current) return;
+
+            previewPaginationSessionRef.current += 1;
+            const sessionId = previewPaginationSessionRef.current;
+            previewAutoDrainInProgressRef.current = false;
+
+            setIsLoadingFiles(true);
+            setIsLoadingMoreFiles(false);
+            setFileListError(null);
+            setPreviewPaginationState(null);
+
+            try {
+                const firstPage = await requestPreviewPage(null, true, sessionId);
+                if (firstPage?.nextCursor) {
+                    autoDrainPreviewPages(sessionId);
+                }
+            } finally {
+                setIsLoadingFiles(false);
+            }
+            return;
+        }
+
+        // Manual fallback pagination (e.g. scroll) while auto-drain is idle.
+        if (
+            isLoadingFiles
+            || isLoadingMoreFiles
+            || previewAutoDrainInProgressRef.current
+            || previewRequestInFlightRef.current
+        ) {
+            return;
+        }
+        const cursor = previewNextCursorRef.current;
+        if (!cursor) return;
+
+        const sessionId = previewPaginationSessionRef.current;
+        setIsLoadingMoreFiles(true);
+        try {
+            await requestPreviewPage(cursor, false, sessionId);
+        } finally {
+            if (!previewAutoDrainInProgressRef.current) {
+                setIsLoadingMoreFiles(false);
+            }
+        }
+    }, [autoDrainPreviewPages, isLoadingFiles, isLoadingMoreFiles, requestPreviewPage, setPreviewPaginationState]);
 
     useEffect(() => {
         // Delay initial fetch until the panel is actually opened.
@@ -169,9 +270,23 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
     );
 
     const invalidateDocumentCache = useCallback(() => {
+        previewPaginationSessionRef.current += 1;
+        previewAutoDrainInProgressRef.current = false;
+        previewRequestInFlightRef.current = false;
+        previewNextCursorRef.current = null;
         setIsDocsCached(false);
         setPreviewHasMore(true);
         setPreviewNextCursor(null);
+        setIsLoadingMoreFiles(false);
+    }, []);
+
+    useEffect(() => {
+        return () => {
+            previewPaginationSessionRef.current += 1;
+            previewAutoDrainInProgressRef.current = false;
+            previewRequestInFlightRef.current = false;
+            previewNextCursorRef.current = null;
+        };
     }, []);
 
     return {

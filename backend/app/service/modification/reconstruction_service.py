@@ -277,6 +277,104 @@ class ReconstructionService:
         return f"{str(file_name_lower)}|{str(file_id)}"
 
     @staticmethod
+    def _decode_preview_files_offset_cursor(cursor: str | None) -> int | None:
+        """
+        Decode fast-path cursor format for DB-level pagination.
+
+        Supported formats:
+        - "offset:<number>"
+        - "<number>" (legacy numeric offset)
+        """
+        if cursor is None:
+            return 0
+
+        raw = str(cursor).strip()
+        if not raw:
+            return 0
+
+        if raw.startswith("offset:"):
+            raw = raw.split(":", 1)[1].strip()
+
+        if not raw.isdigit():
+            return None
+
+        return max(int(raw), 0)
+
+    @staticmethod
+    def _encode_preview_files_offset_cursor(offset: int) -> str:
+        """Encode fast-path cursor as an offset token."""
+        return f"offset:{max(int(offset), 0)}"
+
+    @staticmethod
+    async def _get_preview_files_page_from_store(limit: int, page_state: str | None) -> dict | None:
+        """
+        Fetch one preview-file page directly from Astra using page-state pagination.
+
+        Returns None when the query cannot be executed with the current driver/server.
+        """
+        filter_doc: dict[str, Any] = {
+            "value.metadata.parent_chunk_metadata.parent_chunk_number": 0,
+        }
+
+        def _query_page() -> tuple[list[dict], str | None] | None:
+            """Inner helper function called by the async wrapper to perform the blocking DB call in a thread."""
+            collection = PARENT_STORE.collection
+            try:
+                cursor = collection.find(
+                    filter=filter_doc,
+                    **({"initial_page_state": page_state} if page_state else {}),
+                )
+                page = cursor.fetch_next_page()
+            except Exception:
+                return None
+
+            rows = [row for row in (page.results or []) if isinstance(row, dict)]
+            next_page_state = page.next_page_state
+            return rows, next_page_state
+
+        query_result = await asyncio.to_thread(_query_page)
+        if query_result is None:
+            return None
+
+        rows, next_page_state = query_result
+        if not rows:
+            return {
+                "files": [],
+                "hasMore": False,
+                "nextCursor": None,
+                "total": 0,
+            }
+
+        has_more = bool(next_page_state)
+        next_cursor = next_page_state if has_more else None
+
+        page_candidates: list[dict] = []
+        seen_file_ids: set[str] = set()
+        for row in rows:
+            fields = ReconstructionService._extract_parent_row_fields(row)
+            if not fields:
+                continue
+            file_id = fields["fileId"]
+            if not file_id or file_id in seen_file_ids:
+                continue
+            seen_file_ids.add(file_id)
+            page_candidates.append(
+                {
+                    "fileId": file_id,
+                    "fileName": fields["fileName"],
+                    "preview": ReconstructionService._safe_preview(fields["content"]),
+                }
+            )
+
+        return {
+            "files": page_candidates,
+            "hasMore": has_more,
+            "nextCursor": next_cursor,
+            # Keep response contract without running an expensive count query.
+            "total": len(page_candidates) + (1 if has_more else 0),
+        }
+
+    @staticmethod
     async def get_all_preview_files(limit: int = 20, cursor: str | None = None) -> dict:
         """
         Retrieve a filename-merged file list for the sidebar.
@@ -286,6 +384,29 @@ class ReconstructionService:
         print("🔄 Retrieving filename-merged summaries from Parent Store...")
 
         try:
+            # Fast path: rely on DB-level pagination to keep first load responsive.
+            normalized_page_state = str(cursor).strip() if cursor else None
+            print(limit)
+            fast_result = await ReconstructionService._get_preview_files_page_from_store(
+                limit=limit,
+                page_state=normalized_page_state,
+            )
+            if fast_result is not None:
+                log_vector_db_result(
+                    function_name="get_all_preview_files_fast_path",
+                    context={
+                        "limit": limit,
+                        "cursor": cursor,
+                        "pageState": normalized_page_state,
+                        "returnedFiles": len(fast_result["files"]),
+                        "hasMore": fast_result["hasMore"],
+                        "nextCursor": fast_result["nextCursor"],
+                        "total": fast_result["total"],
+                    },
+                    retrieved=fast_result,
+                )
+                return fast_result
+
             rows = await PARENT_STORE.get_all_files()
             if not rows:
                 return {
@@ -343,27 +464,47 @@ class ReconstructionService:
             ]
             summaries.sort(key=lambda item: (item["_fileNameLower"], item.get("fileId", "")))
 
-            current_file_name_lower, current_file_id = ReconstructionService._decode_preview_files_cursor(
-                cursor
-            )
-
-            filtered_summaries: list[dict] = []
-            for item in summaries:
-                item_file_name_lower = str(item.get("_fileNameLower", ""))
-                item_file_id = str(item.get("fileId", ""))
-                if (item_file_name_lower, item_file_id) > (current_file_name_lower, current_file_id):
-                    filtered_summaries.append(item)
-
-            page_rows = filtered_summaries[: max(limit, 1)]
-            has_more = len(filtered_summaries) > len(page_rows)
-            next_cursor = (
-                ReconstructionService._encode_preview_files_cursor(
-                    page_rows[-1]["_fileNameLower"],
-                    page_rows[-1]["fileId"],
+            raw_cursor = str(cursor).strip() if cursor is not None else ""
+            offset_cursor = ReconstructionService._decode_preview_files_offset_cursor(cursor)
+            use_offset_cursor = (
+                offset_cursor is not None
+                and (
+                    not raw_cursor
+                    or raw_cursor.startswith("offset:")
+                    or raw_cursor.isdigit()
                 )
-                if has_more and page_rows
-                else None
             )
+
+            if use_offset_cursor:
+                normalized_offset = offset_cursor if offset_cursor is not None else 0
+                filtered_summaries = summaries[normalized_offset:]
+            else:
+                current_file_name_lower, current_file_id = ReconstructionService._decode_preview_files_cursor(
+                    cursor
+                )
+
+                filtered_summaries = []
+                for item in summaries:
+                    item_file_name_lower = str(item.get("_fileNameLower", ""))
+                    item_file_id = str(item.get("fileId", ""))
+                    if (item_file_name_lower, item_file_id) > (current_file_name_lower, current_file_id):
+                        filtered_summaries.append(item)
+
+            page_limit = max(limit, 1)
+            page_rows = filtered_summaries[:page_limit]
+            has_more = len(filtered_summaries) > len(page_rows)
+            if has_more and page_rows:
+                if use_offset_cursor:
+                    next_cursor = ReconstructionService._encode_preview_files_offset_cursor(
+                        (offset_cursor if offset_cursor is not None else 0) + page_limit
+                    )
+                else:
+                    next_cursor = ReconstructionService._encode_preview_files_cursor(
+                        page_rows[-1]["_fileNameLower"],
+                        page_rows[-1]["fileId"],
+                    )
+            else:
+                next_cursor = None
 
             paged_files = [
                 {

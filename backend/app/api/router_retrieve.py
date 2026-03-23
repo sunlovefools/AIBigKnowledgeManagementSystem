@@ -62,6 +62,7 @@ async def get_all_preview_files(
 ):
     """Return filename-merged summaries for the left sidebar."""
     try:
+        print(f"Fetching preview files with limit={limit} and cursor={cursor}")
         result = await ReconstructionService.get_all_preview_files(
             limit=limit,
             cursor=cursor,
