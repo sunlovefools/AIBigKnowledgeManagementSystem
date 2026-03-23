@@ -161,3 +161,14 @@ export type PendingModificationNavItem = {
     pendingCount: number;
     targetProposalKey: string;
 };
+
+export type SaveNotificationStatus = "saving" | "saved" | "failed";
+
+export type SaveNotification = {
+    id: string;
+    fileId: string;
+    fileName: string;
+    status: SaveNotificationStatus;
+    message: string;
+    createdAt: number;
+};

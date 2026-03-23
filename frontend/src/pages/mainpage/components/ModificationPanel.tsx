@@ -20,6 +20,7 @@ type ModificationPanelProps = {
     isLoadingFiles: boolean;
     deletingFileId: string | null;
     editingContent: string;
+    documentViewContent: string;
     isEditing: boolean;
     isSaving: boolean;
     isDirty: boolean;
@@ -140,6 +141,7 @@ export default function ModificationPanel({
     isLoadingFiles,
     deletingFileId,
     editingContent,
+    documentViewContent,
     isEditing,
     isSaving,
     isDirty,
@@ -184,7 +186,8 @@ export default function ModificationPanel({
         () => (activeTab ? agentProposals.filter((proposal) => proposal.fileId === activeTab) : []),
         [activeTab, agentProposals]
     );
-    const reviewBaseText = isEditing ? editingContent : activeDocumentView.fullText;
+    const readOnlyDocumentContent = documentViewContent || activeDocumentView.fullText;
+    const reviewBaseText = isEditing ? editingContent : readOnlyDocumentContent;
     const resolvedInlineMarkers = useMemo<ResolvedProposalMarker[]>(() => {
         if (!activeTab || !activeTabData?.chunks.length || !activeFileProposals.length) return [];
         const baselineText = activeDocumentView.fullText;
@@ -309,7 +312,7 @@ export default function ModificationPanel({
     };
 
     const handleDocumentSelection = () => {
-        if (!isEditMode || isEditing || hasInlineReview || !activeTab || !activeTabData?.chunks.length) return;
+        if (!isEditMode || isEditing || isSaving || hasInlineReview || !activeTab || !activeTabData?.chunks.length) return;
         const selection = window.getSelection();
         if (!selection || selection.rangeCount === 0 || selection.isCollapsed || !selection.toString().trim()) {
             onHighlightedSelectionChange(null);
@@ -439,6 +442,9 @@ export default function ModificationPanel({
                                     )}
                                 </div>
                             )}
+                            {isSaving && (
+                                <div className="mod-panel-selection-hint">Saving in background... You can continue browsing other documents.</div>
+                            )}
                             {isEditMode && !isEditing && !hasInlineReview && <div className="mod-panel-selection-hint">Highlight text to edit directly.</div>}
                             {selectionError && <div className="mod-panel-selection-error">{selectionError}</div>}
                             {hasInlineReview ? (
@@ -447,7 +453,7 @@ export default function ModificationPanel({
                                 <MarkdownEditor markdown={editingContent} editable={!isSaving} onChange={onEditingContentChange} className="mod-panel-active-editor" />
                             ) : (
                                 <div className={`mod-panel-document-flow ${highlightedSelection ? "selection-active" : ""}`} onMouseUp={handleDocumentSelection} onKeyUp={handleDocumentSelection}>
-                                    <div className="mod-panel-document-text"><MarkdownEditor markdown={activeDocumentView.fullText} editable={false} className="mod-panel-segment-editor" /></div>
+                                    <div className="mod-panel-document-text"><MarkdownEditor markdown={readOnlyDocumentContent} editable={false} className="mod-panel-segment-editor" /></div>
                                 </div>
                             )}
                             {saveError && <div className="mod-panel-save-error">{saveError}</div>}

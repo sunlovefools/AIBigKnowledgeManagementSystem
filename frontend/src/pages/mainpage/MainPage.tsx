@@ -10,11 +10,17 @@ import { useChat } from "./hooks/useChat";
 import { useDocuments } from "./hooks/documents/useDocuments";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
-import type { AgentProposal, HighlightedSelection, PendingModificationNavItem } from "./types";
+import type { AgentProposal, HighlightedSelection, PendingModificationNavItem, SaveNotification } from "./types";
 import type { ModificationProgressEvent } from "./hooks/documents/api/documentsApi";
 
 function getProposalKey(proposal: AgentProposal): string {
     return `${proposal.parentId}-${proposal.selectionStart ?? "full"}`;
+}
+
+function getSaveNotificationTitle(status: SaveNotification["status"]): string {
+    if (status === "saving") return "Saving";
+    if (status === "saved") return "Saved";
+    return "Save failed";
 }
 
 export default function MainPage() {
@@ -73,12 +79,16 @@ export default function MainPage() {
         editingDocumentContent,
         isEditingActiveDocument,
         isSavingActiveDocument,
+        isFileSaving,
         isActiveDocumentDirty,
         saveError,
+        saveNotifications,
+        dismissSaveNotification,
         startEditingActiveDocument,
         setActiveEditingDocumentContent,
         cancelEditingActiveDocument,
         saveEditingActiveDocument,
+        activeDocumentViewContent,
         isAgentGenerating,
         agentProposals,
         agentAcceptedMap,
@@ -216,6 +226,7 @@ export default function MainPage() {
         ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
         : "No file selected";
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
+    const isActiveFileSaving = isFileSaving(activeTab);
 
     const pendingModificationItems = useMemo<PendingModificationNavItem[]>(() => {
         const grouped = new Map<string, PendingModificationNavItem>();
@@ -376,6 +387,7 @@ export default function MainPage() {
             isLoadingFiles={isLoadingFiles}
             deletingFileId={deletingFileId}
             editingContent={editingDocumentContent}
+            documentViewContent={activeDocumentViewContent}
             isEditing={isEditingActiveDocument}
             isSaving={isSavingActiveDocument}
             isDirty={isActiveDocumentDirty}
@@ -421,6 +433,7 @@ export default function MainPage() {
             isLoadingFiles={isLoadingFiles}
             deletingFileId={deletingFileId}
             editingContent={editingDocumentContent}
+            documentViewContent={activeDocumentViewContent}
             isEditing={isEditingActiveDocument}
             isSaving={isSavingActiveDocument}
             isDirty={isActiveDocumentDirty}
@@ -576,15 +589,15 @@ export default function MainPage() {
                                                     className="save-btn"
                                                     type="button"
                                                     onClick={() => { void saveEditingActiveDocument(); }}
-                                                    disabled={isSavingActiveDocument || !isActiveDocumentDirty}
+                                                    disabled={isActiveFileSaving || !isActiveDocumentDirty}
                                                 >
-                                                    {isSavingActiveDocument ? "Saving..." : "Save"}
+                                                    {isActiveFileSaving ? "Saving..." : "Save"}
                                                 </button>
                                                 <button
                                                     className="cancel-btn"
                                                     type="button"
                                                     onClick={cancelEditingActiveDocument}
-                                                    disabled={isSavingActiveDocument}
+                                                    disabled={isActiveFileSaving}
                                                 >
                                                     Cancel
                                                 </button>
@@ -596,7 +609,7 @@ export default function MainPage() {
                                                 className="edit-btn"
                                                 type="button"
                                                 onClick={startEditingActiveDocument}
-                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
+                                                disabled={isActiveFileSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
                                             >
                                                 Edit
                                             </button>
@@ -604,7 +617,7 @@ export default function MainPage() {
                                                 className="delete-btn"
                                                 type="button"
                                                 onClick={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
-                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
+                                                disabled={isActiveFileSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
                                             >
                                                 {isDeletingActiveFile ? "Deleting..." : "Delete"}
                                             </button>
@@ -661,6 +674,29 @@ export default function MainPage() {
             )}
             {isMobile && isSidebarOpen && (
                 <button className="panel-backdrop" onClick={closeSidebar} aria-label="Close sidebar" />
+            )}
+
+            {saveNotifications.length > 0 && (
+                <div className="save-toast-stack" aria-live="polite" aria-label="Save status notifications">
+                    {saveNotifications.map((notification) => (
+                        <div key={notification.id} className={`save-toast-card ${notification.status}`}>
+                            <div className="save-toast-body">
+                                <div className="save-toast-title">{getSaveNotificationTitle(notification.status)}</div>
+                                <div className="save-toast-message">{notification.message}</div>
+                            </div>
+                            {notification.status === "failed" && (
+                                <button
+                                    type="button"
+                                    className="save-toast-close"
+                                    onClick={() => dismissSaveNotification(notification.fileId)}
+                                    aria-label={`Dismiss save error for ${notification.fileName}`}
+                                >
+                                    x
+                                </button>
+                            )}
+                        </div>
+                    ))}
+                </div>
             )}
 
             {pendingDeleteFile && (
