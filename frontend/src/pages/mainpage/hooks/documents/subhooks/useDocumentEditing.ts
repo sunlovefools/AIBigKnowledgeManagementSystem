@@ -1,11 +1,5 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type Dispatch, type SetStateAction } from "react";
-import type {
-    FileContentAsyncState,
-    FileContentState,
-    FilesState,
-    ParentChunkContent,
-    SaveNotification,
-} from "../../../types";
+import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from "react";
+import type { FileContentAsyncState, FileContentState, FilesState, ParentChunkContent } from "../../../types";
 import {
     batchUpdateParentChunks,
     updateFileContent,
@@ -37,16 +31,6 @@ type UseDocumentEditingParams = {
     clearAgentStateForFile: (fileId: string) => void;
 };
 
-function getReadableErrorMessage(error: unknown, fallback: string): string {
-    if (error instanceof Error && error.message.trim()) return error.message.trim();
-    if (typeof error === "string" && error.trim()) return error.trim();
-    if (error && typeof error === "object") {
-        const detail = (error as { detail?: unknown }).detail;
-        if (typeof detail === "string" && detail.trim()) return detail.trim();
-    }
-    return fallback;
-}
-
 // Manages local edit sessions and persists changes using the most efficient backend path.
 export function useDocumentEditing({
     activeTab,
@@ -63,11 +47,8 @@ export function useDocumentEditing({
 }: UseDocumentEditingParams) {
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
     const [editingDraftByFileId, setEditingDraftByFileId] = useState<Record<string, string>>({}); // Store the draft content for each file being edited
-    const [savingFileIds, setSavingFileIds] = useState<Set<string>>(new Set());
-    const [optimisticViewByFileId, setOptimisticViewByFileId] = useState<Record<string, string>>({});
-    const [saveNotifications, setSaveNotifications] = useState<SaveNotification[]>([]);
+    const [savingFileId, setSavingFileId] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
-    const notificationTimersRef = useRef<Record<string, number>>({});
 
     // Applies backend full-file save response and remaps local IDs/chunk async metadata.
     const applyFullFileUpdate = useCallback((updated: UpdateFileResponse) => {
@@ -89,75 +70,13 @@ export function useDocumentEditing({
         });
     }, [getContentStateById, setChunkAsyncByFileId, setFilesState]);
 
-    const clearNotificationTimer = useCallback((fileId: string) => {
-        const timerId = notificationTimersRef.current[fileId];
-        if (timerId) {
-            window.clearTimeout(timerId);
-            delete notificationTimersRef.current[fileId];
-        }
-    }, []);
-
-    const dismissSaveNotification = useCallback((fileId: string) => {
-        clearNotificationTimer(fileId);
-        setSaveNotifications((prev) => prev.filter((entry) => entry.fileId !== fileId));
-    }, [clearNotificationTimer]);
-
-    const upsertSaveNotification = useCallback(
-        (params: {
-            fileId: string;
-            fileName: string;
-            status: SaveNotification["status"];
-            message: string;
-            autoHideMs?: number;
-        }) => {
-            const { fileId, fileName, status, message, autoHideMs } = params;
-            clearNotificationTimer(fileId);
-            setSaveNotifications((prev) => {
-                const next = prev.filter((entry) => entry.fileId !== fileId);
-                next.push({
-                    id: `save-${fileId}`,
-                    fileId,
-                    fileName,
-                    status,
-                    message,
-                    createdAt: Date.now(),
-                });
-                return next;
-            });
-            if (autoHideMs && autoHideMs > 0) {
-                notificationTimersRef.current[fileId] = window.setTimeout(() => {
-                    setSaveNotifications((prev) => prev.filter((entry) => entry.fileId !== fileId));
-                    delete notificationTimersRef.current[fileId];
-                }, autoHideMs);
-            }
-        },
-        [clearNotificationTimer]
-    );
-
-    useEffect(() => () => {
-        const timers = Object.values(notificationTimersRef.current);
-        timers.forEach((timerId) => window.clearTimeout(timerId));
-        notificationTimersRef.current = {};
-    }, []);
-
     const editingDocumentContent = useMemo(() => {
         if (!editingFileId) return "";
         return editingDraftByFileId[editingFileId] ?? getEditorBaselineContent(editingFileId);
     }, [editingDraftByFileId, editingFileId, getEditorBaselineContent]);
 
     const isEditingActiveDocument = Boolean(activeTab && editingFileId && activeTab === editingFileId);
-    const isSavingActiveDocument = Boolean(activeTab && savingFileIds.has(activeTab));
-    const isFileSaving = useCallback(
-        (fileId: string | null) => Boolean(fileId && savingFileIds.has(fileId)),
-        [savingFileIds]
-    );
-    const getDocumentViewContent = useCallback(
-        (fileId: string | null) => {
-            if (!fileId) return "";
-            return optimisticViewByFileId[fileId] ?? getEditorBaselineContent(fileId);
-        },
-        [getEditorBaselineContent, optimisticViewByFileId]
-    );
+    const isSavingActiveDocument = Boolean(activeTab && savingFileId && activeTab === savingFileId);
 
     const isActiveDocumentDirty = useMemo(() => {
         if (!activeTab || !isEditingActiveDocument) return false;
@@ -195,15 +114,11 @@ export function useDocumentEditing({
 
     const startEditingActiveDocument = useCallback(() => {
         if (!activeTab || !activeTabData?.chunks.length) return;
-        if (savingFileIds.has(activeTab)) {
-            setSaveError("This file is currently saving in the background. Wait until it finishes before editing again.");
-            return;
-        }
         const fullContent = getEditorBaselineContent(activeTab);
         setEditingFileId(activeTab);
         setEditingDraftByFileId((prev) => ({ ...prev, [activeTab]: prev[activeTab] ?? fullContent }));
         setSaveError(null);
-    }, [activeTab, activeTabData?.chunks.length, getEditorBaselineContent, savingFileIds]);
+    }, [activeTab, activeTabData?.chunks.length, getEditorBaselineContent]);
 
     const setActiveEditingDocumentContent = useCallback(
         (nextContent: string) => {
@@ -223,11 +138,7 @@ export function useDocumentEditing({
     }, [clearAgentStateForFile, clearDraftForFile, editingFileId]);
 
     const saveEditingActiveDocument = useCallback(async () => {
-        if (!activeTab || !editingFileId || activeTab !== editingFileId || savingGuard) return false;
-        if (savingFileIds.has(activeTab)) {
-            setSaveError("This file is already saving in the background.");
-            return false;
-        }
+        if (!activeTab || !editingFileId || activeTab !== editingFileId || savingFileId || savingGuard) return false;
         const fileName = getFileNameById(activeTab);
         if (!fileName) { setSaveError("Missing file name for this tab. Please refresh."); return false; }
 
@@ -239,34 +150,17 @@ export function useDocumentEditing({
         }));
         const { fullText: original, ranges } = buildChunkRanges(normalizedChunks);
 
-        const draftSnapshot = editingDraftByFileId[activeTab] ?? getEditorBaselineContent(activeTab);
-        const normalizedDraft = normalizeMarkdownForEditor(draftSnapshot);
+        const draft = editingDraftByFileId[activeTab] ?? getEditorBaselineContent(activeTab);
+        const normalizedDraft = normalizeMarkdownForEditor(draft);
         if (!normalizedDraft.trim()) { setSaveError("Content cannot be empty."); return false; }
         if (!hasMeaningfulEditorChange(original, normalizedDraft)) { return false; }
 
-        setSavingFileIds((prev) => {
-            const next = new Set(prev);
-            next.add(activeTab);
-            return next;
-        });
-        setOptimisticViewByFileId((prev) => ({ ...prev, [activeTab]: draftSnapshot }));
-        setEditingFileId((prev) => (prev === activeTab ? null : prev));
-        setEditingDraftByFileId((prev) => {
-            const next = { ...prev };
-            delete next[activeTab];
-            return next;
-        });
+        setSavingFileId(activeTab);
         setSaveError(null);
-        upsertSaveNotification({
-            fileId: activeTab,
-            fileName,
-            status: "saving",
-            message: `Saving "${fileName}"...`,
-        });
         try {
             const shouldForceFullFileUpdate =
                 containsRawHtmlMarkup(original) ||
-                containsRawHtmlMarkup(draftSnapshot);
+                containsRawHtmlMarkup(draft);
 
             // Raw HTML can invalidate chunk-boundary assumptions, so fall back to full save.
             if (!shouldForceFullFileUpdate) {
@@ -397,43 +291,14 @@ export function useDocumentEditing({
             }
 
             clearAgentStateForFile(activeTab);
+            setEditingFileId(null);
             clearDraftForFile(activeTab);
-            setOptimisticViewByFileId((prev) => {
-                const next = { ...prev };
-                delete next[activeTab];
-                return next;
-            });
-            upsertSaveNotification({
-                fileId: activeTab,
-                fileName,
-                status: "saved",
-                message: `Saved "${fileName}".`,
-                autoHideMs: 2500,
-            });
             return true;
-        } catch (error) {
-            const detail = getReadableErrorMessage(error, "Failed to save document changes.");
-            setOptimisticViewByFileId((prev) => {
-                const next = { ...prev };
-                delete next[activeTab];
-                return next;
-            });
-            setEditingDraftByFileId((prev) => ({ ...prev, [activeTab]: draftSnapshot }));
-            setEditingFileId((prev) => (prev === null || prev === activeTab ? activeTab : prev));
-            setSaveError(detail);
-            upsertSaveNotification({
-                fileId: activeTab,
-                fileName,
-                status: "failed",
-                message: `Failed to save "${fileName}": ${detail}`,
-            });
+        } catch {
+            setSaveError("Failed to save document changes. Please try again.");
             return false;
         } finally {
-            setSavingFileIds((prev) => {
-                const next = new Set(prev);
-                next.delete(activeTab);
-                return next;
-            });
+            setSavingFileId(null);
         }
     }, [
         activeTab,
@@ -447,10 +312,9 @@ export function useDocumentEditing({
         getEditorBaselineContent,
         getFileNameById,
         loadFileChunks,
-        savingFileIds,
+        savingFileId,
         savingGuard,
         setFilesState,
-        upsertSaveNotification,
     ]);
 
     return {
@@ -458,14 +322,10 @@ export function useDocumentEditing({
         setEditingFileId,
         editingDraftByFileId,
         setEditingDraftByFileId,
-        savingFileIds,
+        savingFileId,
         saveError,
         setSaveError,
-        saveNotifications,
-        dismissSaveNotification,
         editingDocumentContent,
-        getDocumentViewContent,
-        isFileSaving,
         isEditingActiveDocument,
         isSavingActiveDocument,
         isActiveDocumentDirty,
