@@ -6,7 +6,6 @@ const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 
 // Shared chunk pagination size used by the document panel.
 export const PAGE_SIZE = 7;
-export const PREVIEW_PAGE_SIZE = 20;
 
 export type UpdateParentChunkResponse = {
     parentId: string;
@@ -181,24 +180,10 @@ async function readJsonStreamResult<T>(
     return result;
 }
 
-export type PreviewFilesPageResponse = {
-    files: SidebarFileSummary[];
-    hasMore: boolean;
-    nextCursor: string | null;
-    total: number;
-};
-
-// Loads one paginated sidebar page from the knowledge base.
-export async function getAllPreviewFiles(cursor: string | null): Promise<PreviewFilesPageResponse> {
-    const response = await axios.get(`${API_BASE}/api/retrieve/all-preview-files`, {
-        params: { limit: PREVIEW_PAGE_SIZE, ...(cursor ? { cursor } : {}) },
-    });
-    return {
-        files: (response.data.files ?? []) as SidebarFileSummary[],
-        hasMore: Boolean(response.data.hasMore),
-        nextCursor: response.data.nextCursor ?? null,
-        total: typeof response.data.total === "number" ? response.data.total : 0,
-    };
+// Loads sidebar metadata for all files currently available in the knowledge base.
+export async function getAllPreviewFiles(): Promise<SidebarFileSummary[]> {
+    const response = await axios.get(`${API_BASE}/api/retrieve/all-preview-files`);
+    return (response.data.files ?? []) as SidebarFileSummary[];
 }
 
 // Fetches one page of parent chunks for a file.

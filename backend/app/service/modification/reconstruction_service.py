@@ -252,32 +252,7 @@ class ReconstructionService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    def _decode_preview_files_cursor(cursor: str | None) -> tuple[str, str]:
-        """
-        Decode sidebar file cursor format.
-
-        Supported format:
-        - "<fileNameLower>|<fileId>"
-        """
-        if not cursor:
-            return "", ""
-
-        raw = str(cursor).strip()
-        if not raw or "|" not in raw:
-            return "", ""
-
-        file_name_part, file_id_part = raw.split("|", 1)
-        file_name_lower = file_name_part.strip().lower()
-        file_id = file_id_part.strip()
-        return file_name_lower, file_id
-
-    @staticmethod
-    def _encode_preview_files_cursor(file_name_lower: str, file_id: str) -> str:
-        """Encode a stable cursor using lowercase filename and fileId tie-breaker."""
-        return f"{str(file_name_lower)}|{str(file_id)}"
-
-    @staticmethod
-    async def get_all_preview_files(limit: int = 20, cursor: str | None = None) -> dict:
+    async def get_all_preview_files() -> list[dict]:
         """
         Retrieve a filename-merged file list for the sidebar.
 
@@ -288,12 +263,7 @@ class ReconstructionService:
         try:
             rows = await PARENT_STORE.get_all_files()
             if not rows:
-                return {
-                    "files": [],
-                    "hasMore": False,
-                    "nextCursor": None,
-                    "total": 0,
-                }
+                return []
 
             # fileId -> best summary candidate (prefer smallest chunkNumber)
             by_file_id: dict[str, dict] = {}
@@ -337,64 +307,20 @@ class ReconstructionService:
                     "fileId": v["fileId"],
                     "fileName": v["fileName"],
                     "preview": v["preview"],
-                    "_fileNameLower": str(v["fileName"]).lower(),
                 }
                 for v in by_file_id.values()
             ]
-            summaries.sort(key=lambda item: (item["_fileNameLower"], item.get("fileId", "")))
-
-            current_file_name_lower, current_file_id = ReconstructionService._decode_preview_files_cursor(
-                cursor
-            )
-
-            filtered_summaries: list[dict] = []
-            for item in summaries:
-                item_file_name_lower = str(item.get("_fileNameLower", ""))
-                item_file_id = str(item.get("fileId", ""))
-                if (item_file_name_lower, item_file_id) > (current_file_name_lower, current_file_id):
-                    filtered_summaries.append(item)
-
-            page_rows = filtered_summaries[: max(limit, 1)]
-            has_more = len(filtered_summaries) > len(page_rows)
-            next_cursor = (
-                ReconstructionService._encode_preview_files_cursor(
-                    page_rows[-1]["_fileNameLower"],
-                    page_rows[-1]["fileId"],
-                )
-                if has_more and page_rows
-                else None
-            )
-
-            paged_files = [
-                {
-                    "fileId": row["fileId"],
-                    "fileName": row["fileName"],
-                    "preview": row["preview"],
-                }
-                for row in page_rows
-            ]
-
-            result = {
-                "files": paged_files,
-                "hasMore": has_more,
-                "nextCursor": next_cursor,
-                "total": len(summaries),
-            }
+            summaries.sort(key=lambda item: (str(item.get("fileName", "")).lower(), item.get("fileId", "")))
 
             log_vector_db_result(
                 function_name="get_all_preview_files",
                 context={
                     "totalRows": len(rows),
                     "uniqueFiles": len(summaries),
-                    "limit": limit,
-                    "cursor": cursor,
-                    "returnedFiles": len(paged_files),
-                    "hasMore": has_more,
-                    "nextCursor": next_cursor,
                 },
-                retrieved=result,
+                retrieved=summaries,
             )
-            return result
+            return summaries
 
         except RuntimeError:
             raise

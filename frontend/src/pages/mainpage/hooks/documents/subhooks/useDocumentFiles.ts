@@ -9,13 +9,7 @@ import type {
 } from "../../../types";
 import { getAllPreviewFiles, getFileChunks } from "../api/documentsApi";
 import { createEmptyContentAsyncState, createEmptyContentState, createEmptyFilesState, toSidebarFileSummary } from "../state/factories";
-import {
-    appendFilesFromSidebarSummaries,
-    markFileChunkLoading,
-    patchChunkContent,
-    replaceFilesFromSidebarSummaries,
-    syncChunkAsyncIndex,
-} from "../state/transitions";
+import { markFileChunkLoading, patchChunkContent, replaceFilesFromSidebarSummaries, syncChunkAsyncIndex } from "../state/transitions";
 
 type UseDocumentFilesParams = {
     isModificationPanelOpen: boolean;
@@ -26,11 +20,8 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
     const [filesState, setFilesState] = useState<FilesState>(createEmptyFilesState());
     const [chunkAsyncByFileId, setChunkAsyncByFileId] = useState<Record<string, FileContentAsyncState>>({});
     const [isLoadingFiles, setIsLoadingFiles] = useState(false);
-    const [isLoadingMoreFiles, setIsLoadingMoreFiles] = useState(false);
     const [fileListError, setFileListError] = useState<string | null>(null);
     const [isDocsCached, setIsDocsCached] = useState(false);
-    const [previewHasMore, setPreviewHasMore] = useState(true);
-    const [previewNextCursor, setPreviewNextCursor] = useState<string | null>(null);
     const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
 
     const files = useMemo(
@@ -62,45 +53,26 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
         [chunkAsyncByFileId]
     );
 
-    // Loads one sidebar page. reset=true fetches first page; false appends the next page.
-    const fetchFiles = useCallback(async (reset = true) => {
-        if (reset && (isLoadingFiles || isLoadingMoreFiles)) return;
-
-        if (!reset) {
-            if (isLoadingFiles || isLoadingMoreFiles || !previewHasMore) return;
-            setIsLoadingMoreFiles(true);
-        } else {
-            setIsLoadingFiles(true);
-            setFileListError(null);
-        }
-
+    // Loads sidebar metadata once per cache cycle.
+    const fetchFiles = useCallback(async () => {
+        setIsLoadingFiles(true);
+        setFileListError(null);
         try {
-            const response = await getAllPreviewFiles(reset ? null : previewNextCursor);
+            const incoming = await getAllPreviewFiles();
             setIsDocsCached(true);
-            setPreviewHasMore(response.hasMore);
-            setPreviewNextCursor(response.nextCursor);
-            setFilesState((prev) =>
-                reset
-                    ? replaceFilesFromSidebarSummaries(prev, response.files)
-                    : appendFilesFromSidebarSummaries(prev, response.files)
-            );
-            setChunkAsyncByFileId((prev) => syncChunkAsyncIndex(prev, response.files));
+            setFilesState((prev) => replaceFilesFromSidebarSummaries(prev, incoming));
+            setChunkAsyncByFileId((prev) => syncChunkAsyncIndex(prev, incoming));
         } catch {
-            if (reset) setFileListError("Failed to load files from vector database.");
+            setFileListError("Failed to load files from vector database.");
         } finally {
-            if (reset) setIsLoadingFiles(false);
-            else setIsLoadingMoreFiles(false);
+            setIsLoadingFiles(false);
         }
-    }, [isLoadingFiles, isLoadingMoreFiles, previewHasMore, previewNextCursor]);
+    }, []);
 
     useEffect(() => {
         // Delay initial fetch until the panel is actually opened.
-        if (isModificationPanelOpen && !isDocsCached) void fetchFiles(true);
+        if (isModificationPanelOpen && !isDocsCached) void fetchFiles();
     }, [fetchFiles, isDocsCached, isModificationPanelOpen]);
-
-    const loadMoreFiles = useCallback(async () => {
-        await fetchFiles(false);
-    }, [fetchFiles]);
 
     const loadFileChunks = useCallback(
         async (fileId: string, reset = false): Promise<ParentChunkContent[]> => {
@@ -168,11 +140,7 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
         [activeTab, getChunkAsyncById]
     );
 
-    const invalidateDocumentCache = useCallback(() => {
-        setIsDocsCached(false);
-        setPreviewHasMore(true);
-        setPreviewNextCursor(null);
-    }, []);
+    const invalidateDocumentCache = useCallback(() => setIsDocsCached(false), []);
 
     return {
         filesState,
@@ -180,8 +148,6 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
         chunkAsyncByFileId,
         setChunkAsyncByFileId,
         isLoadingFiles,
-        isLoadingMoreFiles,
-        hasMoreFiles: previewHasMore,
         fileListError,
         deletingFileId,
         setDeletingFileId,
@@ -191,7 +157,6 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
         activeTabData,
         activeTabAsync,
         fetchFiles,
-        loadMoreFiles,
         loadFileChunks,
         invalidateDocumentCache,
         getFileNameById,
