@@ -30,6 +30,22 @@ type UseDocumentAgentParams = {
     setFilesState: Dispatch<SetStateAction<FilesState>>;
 };
 
+function getReadableErrorMessage(error: unknown, fallback: string): string {
+    if (error instanceof Error && error.message.trim()) {
+        return error.message.trim();
+    }
+    if (typeof error === "string" && error.trim()) {
+        return error.trim();
+    }
+    if (error && typeof error === "object") {
+        const detail = (error as { detail?: unknown }).detail;
+        if (typeof detail === "string" && detail.trim()) {
+            return detail.trim();
+        }
+    }
+    return fallback;
+}
+
 // Converts backend proposal shape into the frontend's internal proposal model.
 function normalizeIncomingProposal(
     proposal: AgentModifyResponse["proposals"][number]
@@ -139,10 +155,10 @@ export function useDocumentAgent({
                     ? `Agent found ${mapped.length} change(s) across ${uniqueFiles} file(s).`
                     : "Agent found no changes to make.";
                 return { ok: true, summary };
-            } catch {
-                const error = "Agent failed to generate proposals. Please try again.";
-                setAgentError(error);
-                return { ok: false, error };
+            } catch (error) {
+                const detail = getReadableErrorMessage(error, "Agent failed to generate proposals.");
+                setAgentError(detail);
+                return { ok: false, error: detail };
             } finally {
                 setIsAgentGenerating(false);
             }
@@ -201,10 +217,10 @@ export function useDocumentAgent({
                     ? "The editor asked for clarification. Review the proposal in the edit panel."
                     : "Selection edit preview generated. Review the proposal in the edit panel.";
                 return { ok: true, summary };
-            } catch {
-                const requestError = "Selected-text edit failed. Please try again.";
-                setAgentError(requestError);
-                return { ok: false, error: requestError };
+            } catch (error) {
+                const detail = getReadableErrorMessage(error, "Selected-text edit failed.");
+                setAgentError(detail);
+                return { ok: false, error: detail };
             } finally {
                 setIsAgentGenerating(false);
             }

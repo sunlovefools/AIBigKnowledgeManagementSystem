@@ -11,7 +11,7 @@ from importlib import import_module
 node_1_retrieval_brief_extractor = import_module(".node_1_retrieval_brief_extractor", __name__)
 node_2_search_and_group = import_module(".node_2_search_and_group", __name__)
 node_2_5_iterative_search_filter_orchestrator = import_module(
-    ".node_2_5_iterative_search_filter_orchestrator",
+    ".orchestration_node_iterative_search_filter_orchestrator",
     __name__,
 )
 node_3_non_strong_signal_file_context_expansion = import_module(
