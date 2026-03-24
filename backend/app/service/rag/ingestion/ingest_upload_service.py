@@ -19,7 +19,7 @@ from app.service.rag.ingestion.docling.storage import local_artifacts_store
 from app.service.rag.ingestion.docling.chunker import (
     split_parent_child_chunks_from_docling_blocks,
 )
-from app.service.rag.ingestion.docling_pptexcel_extractor import (
+from app.service.rag.ingestion.docling.pptexcel_extractor import (
     is_pptexcel_document,
     parse_pptexcel_with_docling,
 )

@@ -36,7 +36,7 @@ This package contains the Docling-based PDF extraction flow used by preview and 
 - `clients/local_client.py`
   - Local Docling runtime setup, chunked conversion, and local layout normalization.
 
-- `docling_pptexcel_extractor.py` (under `ingestion/`)
+- `pptexcel_extractor.py`
   - Office (PPTX/XLSX) extraction path.
   - Reuses `layout_processing.process_docling_layout(...)` to keep layout logic consistent with PDF flow.
 
