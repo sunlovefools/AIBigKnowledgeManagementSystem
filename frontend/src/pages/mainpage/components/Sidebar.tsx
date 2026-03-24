@@ -1,5 +1,6 @@
 import { useRef, type ChangeEventHandler } from "react";
 import type { SidebarFileSummary } from "../types";
+import { FILE_INPUT_ACCEPT } from "../utils/uploadFormats";
 
 type SidebarProps = {
     selectedFile: File | null;
@@ -59,7 +60,7 @@ export default function Sidebar({
                 </div>
             </div>
             <p className="sidebar-hint">
-                PDF, DOCX or TXT - keep everything you need for the chat here.
+                PDF, DOCX, TXT, PPTX or XLSX - keep everything you need for the chat here.
             </p>
 
             <div className="sources-section">
@@ -71,7 +72,7 @@ export default function Sidebar({
                     className="hidden-file-input"
                     style={{ display: "none" }}
                     onChange={onFileSelect}
-                    accept=".pdf,.doc,.docx,.txt"
+                    accept={FILE_INPUT_ACCEPT}
                 />
 
                 {!selectedFile && (

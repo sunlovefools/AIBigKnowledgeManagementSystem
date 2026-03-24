@@ -1,5 +1,9 @@
 import { useCallback, useState, type ChangeEventHandler } from "react";
 import axios from "axios";
+import {
+    isSupportedUploadFile,
+    resolveUploadContentType,
+} from "../utils/uploadFormats";
 
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 
@@ -17,6 +21,17 @@ export function useFileUpload({ onUploadMessage, onUploadSuccess }: UseFileUploa
     // Handler for file selection, reads the file content as a base64 string and updates the state accordingly
     const handleFileSelect: ChangeEventHandler<HTMLInputElement> = useCallback((event) => {
         const file = event.target.files?.[0] || null;
+
+        if (file && !isSupportedUploadFile(file.name)) {
+            setSelectedFile(null);
+            setFileContent("");
+            onUploadMessage(
+                `Unsupported file type for "${file.name}". Please upload PDF, DOC, DOCX, TXT, PPTX, or XLSX.`
+            );
+            event.target.value = "";
+            return;
+        }
+
         setSelectedFile(file);
 
         if (file) {
@@ -47,7 +62,7 @@ export function useFileUpload({ onUploadMessage, onUploadSuccess }: UseFileUploa
         try {
             await axios.post(`${API_BASE}/ingest/upload`, {
                 fileName: selectedFile.name,
-                contentType: selectedFile.type || "application/octet-stream",
+                contentType: resolveUploadContentType(selectedFile),
                 data: fileContent,
             });
 
@@ -60,7 +75,14 @@ export function useFileUpload({ onUploadMessage, onUploadSuccess }: UseFileUploa
         } finally {
             setIsUploading(false);
         }
-    }, [clearFile, fileContent, isUploading, onUploadMessage, onUploadSuccess, selectedFile]);
+    }, [
+        clearFile,
+        fileContent,
+        isUploading,
+        onUploadMessage,
+        onUploadSuccess,
+        selectedFile,
+    ]);
 
     return {
         selectedFile,

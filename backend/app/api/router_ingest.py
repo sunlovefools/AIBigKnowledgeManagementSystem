@@ -101,9 +101,12 @@ def _run_legacy_pipeline(
         raise HTTPException(status_code=500, detail=str(exc))
 
 
-def _run_docling_pipeline(
+def _run_docling_pdf_pipeline(
     file: FileUpload, file_bytes: bytes
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str], str]:
+    """
+    Docling branch for PDF files.
+    """
     try:
         return ingest_upload_service.run_docling_pipeline(
             file_name=file.fileName,
@@ -236,7 +239,7 @@ async def ingest_upload(file: FileUpload):
                 child_chunks_dicts,
                 warnings,
                 run_id,
-            ) = _run_docling_pipeline(file, file_bytes)
+            ) = _run_docling_pdf_pipeline(file, file_bytes)
         
         elif _is_docling_pptexcel_document(file):
             # PowerPoint/Excel files using Docling strategy
