@@ -15,7 +15,6 @@ from app.service.rag.ingestion.docling_pptexcel_extractor import (
     is_pptexcel_document,
     parse_pptexcel_with_docling,
 )
-from app.service.rag.ingestion.docling_pdf_extractor import (
 from app.service.rag.ingestion.docling import (
     get_pdf_ingestion_strategy,
     parse_pdf_with_docling,
@@ -120,22 +119,6 @@ def _run_docling_pipeline(
     except ingest_upload_service.DoclingChunkingFailedError as exc:
         raise HTTPException(status_code=500, detail=f"docling chunking failed: {exc}")
 
-    parent_chunks_dicts = [chunk.model_dump() for chunk in parent_chunks_models]
-    # Intentionally skip legacy chunk polishing to avoid changing Docling visual metadata.
-    child_chunks_dicts = [chunk.model_dump() for chunk in child_chunks_models]
-    warnings = list(parse_result.warnings)
-    if parse_result.partial_failures:
-        warnings.append(
-            f"Docling reported {len(parse_result.partial_failures)} partial failure chunk(s)."
-        )
-
-    return (
-        parent_chunks_dicts,
-        child_chunks_dicts,
-        warnings,
-        parse_result.artifact_run_id,
-    )
-
 
 def _run_docling_pptexcel_pipeline(
     file: FileUpload, file_bytes: bytes
@@ -201,7 +184,7 @@ def _run_docling_pptexcel_pipeline(
         parent_chunks_dicts,
         child_chunks_dicts,
         warnings,
-        parse_result.file_id,
+        parse_result.artifact_run_id or parse_result.file_id,
     )
 
 
@@ -269,32 +252,41 @@ async def ingest_upload(file: FileUpload):
             # Everything else: legacy extraction pipeline
             parent_chunks_dicts, child_chunks_dicts = _run_legacy_pipeline(file, file_bytes)
 
-    # Canonicalise each of the chunks to ensure consistent format
-    parent_chunks_dicts, child_chunks_dicts = canonicalize_chunk_payloads_for_storage(
-        parent_chunks_dicts,
-        child_chunks_dicts,
-    )
-
-    # Insert the chunks into the vector database.
-    await _upsert_chunks(parent_chunks_dicts, child_chunks_dicts)
-
-    print(
-        "[ingest-upload] file=%s strategy=%s parent_chunks=%s child_chunks=%s run_id=%s"
-        % (
-            file.fileName,
-            strategy,
-            len(parent_chunks_dicts),
-            len(child_chunks_dicts),
-            run_id or "n/a",
+        # Canonicalise each of the chunks to ensure consistent format
+        parent_chunks_dicts, child_chunks_dicts = canonicalize_chunk_payloads_for_storage(
+            parent_chunks_dicts,
+            child_chunks_dicts,
         )
-    )
 
-    return IngestUploadResponse(
-        status="ok",
-        message="Upload completed successfully.",
-        file_name=file.fileName,
-        strategy=strategy,
-        parent_chunks=len(parent_chunks_dicts),
-        child_chunks=len(child_chunks_dicts),
-        warnings=warnings,
-    )
+        # Insert the chunks into the vector database.
+        await _upsert_chunks(parent_chunks_dicts, child_chunks_dicts)
+
+        print(
+            "[ingest-upload] file=%s strategy=%s parent_chunks=%s child_chunks=%s run_id=%s"
+            % (
+                file.fileName,
+                strategy,
+                len(parent_chunks_dicts),
+                len(child_chunks_dicts),
+                run_id or "n/a",
+            )
+        )
+
+        return IngestUploadResponse(
+            status="ok",
+            message="Upload completed successfully.",
+            file_name=file.fileName,
+            strategy=strategy,
+            parent_chunks=len(parent_chunks_dicts),
+            child_chunks=len(child_chunks_dicts),
+            warnings=warnings,
+        )
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"ingest upload failed: {exc}") from exc
+
+
+async def ingest_webhook(file: FileUpload):
+    """Backward-compatible alias for ingest_upload (deprecated)."""
+    return await ingest_upload(file)

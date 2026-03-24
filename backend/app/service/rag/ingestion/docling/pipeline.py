@@ -11,7 +11,6 @@ Flow:
 
 from __future__ import annotations
 
-import json
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
@@ -35,6 +34,9 @@ from app.service.rag.ingestion.docling.storage import (
     s3_upload,
 )
 from app.service.rag.ingestion.docling.utils import markdown_builder, pdf_utils
+from app.service.rag.ingestion.docling.utils.table_data_artifacts import (
+    persist_table_data_toon_artifacts,
+)
 from app.service.rag.ingestion.markdown_canonicalizer import canonicalize_docling_block_text
 
 
@@ -62,67 +64,6 @@ def _block_type_for_element(
     if hasattr(element, "text"):
         return "text"
     return "other"
-
-
-def _persist_table_data_toon_artifacts(
-    *,
-    artifact_dir: Path | None,
-    table_image_vlm_jobs: list[table_image_vlm.TableImageVlmJob],
-    resolved_file_id: str,
-    file_name: str,
-    warnings: list[str],
-) -> None:
-    """Build TOON-wrapped table-data JSON artifacts and upload them to S3 when enabled."""
-
-    if artifact_dir is None or not table_image_vlm_jobs:
-        return
-
-    for job in table_image_vlm_jobs:
-        if job.result is not None and job.result.json_path:
-            extracted_json_path = Path(job.result.json_path)
-        else:
-            extracted_json_path = job.output_dir / "output.json"
-
-        if not extracted_json_path.exists():
-            continue
-
-        try:
-            # Extract the raw table data from the JSON file saved
-            # TODO: In the future it should not read from the JSON file, it should directly passed to here as a return value from the VLM runtime execution
-            extracted_payload = json.loads(extracted_json_path.read_text(encoding="utf-8"))
-            # Convert the raw extracted table data into a TOON-wrapped payload
-            wrapped_payload = s3_upload.build_toon_wrapped_table_payload(
-                extracted_table_json=extracted_payload,
-                file_id=resolved_file_id,
-                page_no=job.page_no,
-            )
-            # Create a local artifact for the TOON-wrapped table data
-            table_data_path = local_artifacts_store.table_data_file_path_from_uuid(
-                artifact_dir,
-                job.image_artifact.image_uuid,
-            )
-            # Write the TOON-wrapped table data to a local file
-            serialized = json.dumps(wrapped_payload, indent=2, ensure_ascii=False)
-            table_data_path.write_text(serialized, encoding="utf-8")
-
-            try:
-                s3_upload.upload_table_data_json_to_s3(
-                    json_bytes=serialized.encode("utf-8"),
-                    file_id=resolved_file_id,
-                    table_image_uuid=job.image_artifact.image_uuid,
-                    source_file_name=file_name,
-                    page_no=job.page_no,
-                )
-            except Exception as exc:
-                warnings.append(
-                    "Failed to upload table-data JSON to S3 "
-                    f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
-                )
-        except Exception as exc:
-            warnings.append(
-                "Failed to convert table-image JSON to TOON "
-                f"for table_image_uuid={job.image_artifact.image_uuid}: {exc}"
-            )
 
 
 def parse_pdf_with_docling(
@@ -516,7 +457,7 @@ def parse_pdf_with_docling(
                 markdown_parts=markdown_parts,
                 warnings=warnings,
             )
-            _persist_table_data_toon_artifacts(
+            persist_table_data_toon_artifacts(
                 artifact_dir=artifact_dir,
                 table_image_vlm_jobs=table_image_vlm_jobs,
                 resolved_file_id=resolved_file_id,

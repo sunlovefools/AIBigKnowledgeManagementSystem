@@ -1,12 +1,23 @@
 import asyncio
 import base64
 import sys
+import types
 from pathlib import Path
 
 import pytest
 from fastapi import HTTPException
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+stub_vectordb = types.ModuleType("app.vectordb.vectordb")
+
+
+async def _unused_upsert_documents(**kwargs):
+    return None
+
+
+stub_vectordb.upsert_documents = _unused_upsert_documents
+sys.modules["app.vectordb.vectordb"] = stub_vectordb
 
 from app.api import router_ingest
 from app.service.rag.ingestion.docling import (
@@ -124,13 +135,33 @@ def test_upload_uses_docling_when_enabled(monkeypatch):
     )
     response = asyncio.run(router_ingest.ingest_upload(file_upload))
     assert response.status == "ok"
-    assert response.strategy == "docling"
+    assert response.strategy == "docling-pdf"
     assert response.warnings[0] == "warning-1"
     assert "partial failure" in response.warnings[1]
     assert captured["docling_blocks_called"] is True
     assert captured["block_count"] == 2
     assert captured["artifact_dir"].endswith("run-1")
     assert captured["upsert_called"] is True
+
+
+def test_ingest_webhook_alias_forwards_to_ingest_upload(monkeypatch):
+    captured = {}
+
+    async def _fake_ingest_upload(file):
+        captured["file_name"] = file.fileName
+        return {"status": "ok", "source": "ingest_upload"}
+
+    monkeypatch.setattr(router_ingest, "ingest_upload", _fake_ingest_upload)
+
+    file_upload = router_ingest.FileUpload(
+        fileName="sample.txt",
+        contentType="text/plain",
+        data=_b64(b"hello"),
+    )
+
+    response = asyncio.run(router_ingest.ingest_webhook(file_upload))
+    assert response == {"status": "ok", "source": "ingest_upload"}
+    assert captured["file_name"] == "sample.txt"
 
 
 def test_upload_non_pdf_stays_legacy_even_when_docling_enabled(monkeypatch):
