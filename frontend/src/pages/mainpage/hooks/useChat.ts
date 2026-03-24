@@ -1,34 +1,43 @@
 import { useCallback, useRef, useState, type KeyboardEvent } from "react";
 import axios from "axios";
-import type { ChatMessage, ChatProgressMessage, ChatProgressStep, ChatRole, ConversationSummary } from "../types";
+import type {
+    ChatMessage,
+    ChatProgressMessage,
+    ChatProgressStep,
+    ChatRole,
+    ChatTextMessage,
+    ConversationSummary,
+} from "../types";
 import type { ModificationProgressEvent } from "./documents/api/documentsApi";
 
 const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:8000").replace(/\/$/, "");
 const CHAT_TEST_USER_EMAIL_STORAGE_KEY = "chatTestUserEmail";
 
-function getResolvedUserEmail() {
-    const testUserEmail = localStorage.getItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY)?.trim();
-    if (testUserEmail) {
-        return testUserEmail;
-    }
-
-    const authUserEmail = localStorage.getItem("userEmail")?.trim();
-    if (authUserEmail) {
-        return authUserEmail;
-    }
-
-    const envUserEmail = import.meta.env.VITE_CHAT_TEST_USER_EMAIL?.trim();
-    if (envUserEmail) {
-        return envUserEmail;
-    }
-
-    return undefined;
-}
-
 type AppendTextMessagePayload = {
     role: ChatRole;
     text: string;
 };
+
+type ConversationApiMessage = {
+    messageId?: string;
+    role?: string;
+    text?: string;
+    timestamp?: string;
+    userEmail?: string;
+};
+
+function getResolvedUserEmail() {
+    const testUserEmail = localStorage.getItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY)?.trim();
+    if (testUserEmail) return testUserEmail;
+
+    const authUserEmail = localStorage.getItem("userEmail")?.trim();
+    if (authUserEmail) return authUserEmail;
+
+    const envUserEmail = import.meta.env.VITE_CHAT_TEST_USER_EMAIL?.trim();
+    if (envUserEmail) return envUserEmail;
+
+    return undefined;
+}
 
 function normalizeProgressStatus(raw: string | undefined): "running" | "completed" | "failed" {
     const normalized = String(raw || "").trim().toLowerCase();
@@ -54,7 +63,10 @@ function formatCurrentStageText(stage: string, message: string, batchId?: number
     return `${prefix}${stageLabel}: ${detail}`;
 }
 
-// Custom hook to manage chat state and interactions.
+function normalizeApiRole(raw: string | undefined): ChatRole {
+    return raw === "user" ? "user" : "ai";
+}
+
 export function useChat() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -75,19 +87,30 @@ export function useChat() {
         return `msg-${Date.now()}-${messageCounterRef.current}`;
     }, []);
 
-    const buildTextMessage = useCallback((payload: AppendTextMessagePayload) => ({
+    const buildTextMessage = useCallback((payload: AppendTextMessagePayload): ChatTextMessage => ({
         id: nextMessageId(),
-        kind: "text" as const,
+        kind: "text",
         role: payload.role,
         text: payload.text,
     }), [nextMessageId]);
 
-    // Appends a normal text message to the chat history.
+    const toConversationTextMessage = useCallback(
+        (message: ConversationApiMessage, fallbackIndex: number): ChatTextMessage => ({
+            id: message.messageId?.trim() || `hist-${Date.now()}-${fallbackIndex}-${nextMessageId()}`,
+            kind: "text",
+            role: normalizeApiRole(message.role),
+            text: String(message.text || ""),
+            messageId: message.messageId,
+            timestamp: message.timestamp,
+            userEmail: message.userEmail,
+        }),
+        [nextMessageId]
+    );
+
     const appendMessage = useCallback((payload: AppendTextMessagePayload) => {
         setMessages((previousMessages) => [...previousMessages, buildTextMessage(payload)]);
     }, [buildTextMessage]);
 
-    // Creates one progress card message and returns its id for future step updates.
     const startProgressMessage = useCallback(
         (scope: "agentic" | "selection", initialStageText: string): string => {
             const id = nextMessageId();
@@ -104,24 +127,26 @@ export function useChat() {
                 currentStageText: initialStageText,
                 steps: [initialStep],
             };
-            setMessages((previousMessages) => [...previousMessages, message]);// Append the new message to the existing list of messages in the state
-    }, []);
+            setMessages((previousMessages) => [...previousMessages, message]);
+            return id;
+        },
+        [nextMessageId]
+    );
 
-    const setTestUserEmail = useCallback((email: string) => {// Function to set a test user email in local storage, which can be used to simulate different users in the chat
+    const setTestUserEmail = useCallback((email: string) => {
         const normalizedEmail = email.trim();
         if (!normalizedEmail) {
             localStorage.removeItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY);
             return;
         }
-
-        localStorage.setItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY, normalizedEmail);// Store the normalized email in local storage under a specific key
+        localStorage.setItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY, normalizedEmail);
     }, []);
 
-    const clearTestUserEmail = useCallback(() => {// Function to clear the test user email from local storage, effectively resetting to the default user email resolution behavior
+    const clearTestUserEmail = useCallback(() => {
         localStorage.removeItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY);
     }, []);
 
-    const refreshConversations = useCallback(async () => {// Function to load the list of conversations for the current user from the backend API, and update the state with the retrieved conversations
+    const refreshConversations = useCallback(async () => {
         const userEmail = getResolvedUserEmail();
         if (!userEmail) {
             setConversations([]);
@@ -132,7 +157,7 @@ export function useChat() {
         setIsLoadingConversations(true);
         setConversationsError(null);
 
-        try {// Make a GET request to the backend API to retrieve the list of conversations for the user, passing the user email as a query parameter
+        try {
             const response = await axios.get(`${API_BASE}/api/conversations`, {
                 params: {
                     user_email: userEmail,
@@ -140,18 +165,17 @@ export function useChat() {
                 },
             });
 
-            const nextConversations = Array.isArray(response.data?.conversations)// Check if the response contains a conversations array, and if so, cast it to the expected type; otherwise, use an empty array
+            const nextConversations = Array.isArray(response.data?.conversations)
                 ? (response.data.conversations as ConversationSummary[])
                 : [];
             setConversations(nextConversations);
-        } catch (error) {
+        } catch {
             setConversationsError("Failed to load conversations.");
         } finally {
             setIsLoadingConversations(false);
         }
     }, []);
 
-    // Function to load messages for a specific conversation from the backend API, and update the state with the retrieved messages and conversation ID i.e. when conversation is selected from the list
     const loadConversationMessages = useCallback(async (targetConversationId: string) => {
         const userEmail = getResolvedUserEmail();
         if (!userEmail) {
@@ -171,18 +195,8 @@ export function useChat() {
                 },
             });
 
-            const nextMessages = Array.isArray(response.data?.messages)// Check if the response contains a messages array, and if so, map it to the expected ChatMessage type; otherwise, use an empty array
-                ? (response.data.messages as Array<
-                      ChatMessage & {
-                          messageId?: string;
-                      }
-                  >).map((message) => ({
-                      messageId: message.messageId,
-                      role: message.role,
-                      text: message.text,
-                      timestamp: message.timestamp,
-                      userEmail: message.userEmail,
-                  }))
+            const nextMessages = Array.isArray(response.data?.messages)
+                ? (response.data.messages as ConversationApiMessage[]).map(toConversationTextMessage)
                 : [];
 
             setMessages(nextMessages);
@@ -190,14 +204,14 @@ export function useChat() {
             const nextCursor = Number(response.data?.nextCursor);
             setConversationMessagesCursor(Number.isFinite(nextCursor) ? nextCursor : null);
             setHasMoreConversationMessages(Boolean(response.data?.hasMore));
-        } catch (error) {
+        } catch {
             setConversationMessagesError("Failed to load selected conversation.");
         } finally {
             setIsLoadingConversationMessages(false);
         }
-    }, []);
+    }, [toConversationTextMessage]);
 
-    const loadMoreConversationMessages = useCallback(async () => {//pagination function to load more messages for the current conversation when user clicks "Load older messages" button, using the conversationMessagesCursor to keep track of pagination state and appending the newly loaded messages to the existing list in the state
+    const loadMoreConversationMessages = useCallback(async () => {
         const userEmail = getResolvedUserEmail();
         if (!userEmail || !conversationId || conversationMessagesCursor === null || isLoadingMoreConversationMessages) {
             return;
@@ -216,43 +230,29 @@ export function useChat() {
             });
 
             const olderMessages = Array.isArray(response.data?.messages)
-                ? (response.data.messages as Array<
-                      ChatMessage & {
-                          messageId?: string;
-                      }
-                  >).map((message) => ({
-                      messageId: message.messageId,
-                      role: message.role,
-                      text: message.text,
-                      timestamp: message.timestamp,
-                      userEmail: message.userEmail,
-                  }))
+                ? (response.data.messages as ConversationApiMessage[]).map(toConversationTextMessage)
                 : [];
 
             setMessages((previousMessages) => [...olderMessages, ...previousMessages]);
             const nextCursor = Number(response.data?.nextCursor);
             setConversationMessagesCursor(Number.isFinite(nextCursor) ? nextCursor : null);
             setHasMoreConversationMessages(Boolean(response.data?.hasMore));
-        } catch (error) {
+        } catch {
             setConversationMessagesError("Failed to load more conversation messages.");
         } finally {
             setIsLoadingMoreConversationMessages(false);
         }
-    }, [conversationId, conversationMessagesCursor, isLoadingMoreConversationMessages]);
+    }, [conversationId, conversationMessagesCursor, isLoadingMoreConversationMessages, toConversationTextMessage]);
 
-    const startNewConversation = useCallback(() => {// Function to start a new conversation, which clears the current messages and conversation ID from the state, effectively resetting the chat interface for a new conversation
+    const startNewConversation = useCallback(() => {
         setConversationId(null);
         setMessages([]);
         setConversationMessagesError(null);
         setConversationMessagesCursor(null);
         setHasMoreConversationMessages(false);
         setIsLoadingMoreConversationMessages(false);
-            return id;
-        },
-        [nextMessageId]
-    );
+    }, []);
 
-    // Appends one backend progress event into a progress card timeline.
     const pushProgressStep = useCallback((messageId: string, event: ModificationProgressEvent) => {
         const stage = String(event.stage || "").trim() || "processing";
         const detail = String(event.message || "").trim() || "Working...";
@@ -277,7 +277,6 @@ export function useChat() {
 
                 return {
                     ...message,
-                    // Preserve failed status once entered; do not set "completed" from intermediate stage events.
                     status: message.status === "failed" || incomingStatus === "failed" ? "failed" : "running",
                     currentStageText: formatCurrentStageText(stage, detail, batchId),
                     steps: nextSteps,
@@ -299,21 +298,19 @@ export function useChat() {
         }
 
         try {
-            await axios.patch(`${API_BASE}/api/conversations/${targetConversationId}/title`, 
+            await axios.patch(
+                `${API_BASE}/api/conversations/${targetConversationId}/title`,
                 { title: newTitle.trim() },
                 { params: { user_email: userEmail } }
             );
-            
-            // Refresh conversations to reflect the renamed title
             void refreshConversations();
             return true;
-        } catch (error) {
+        } catch {
             setConversationsError("Failed to rename conversation.");
             return false;
         }
     }, [refreshConversations]);
 
-    // Finalizes one progress card when the related request ends.
     const finishProgressMessage = useCallback(
         (
             messageId: string,
@@ -349,7 +346,6 @@ export function useChat() {
         []
     );
 
-    // Function to handle sending a query to the backend and updating the chat history with the response.
     const handleQuery = useCallback(async () => {
         const textInput = input.trim();
         if (!textInput || isQuerying) {
@@ -374,15 +370,12 @@ export function useChat() {
                 setConversationId(response.data.conversation_id);
             }
 
-            // Replace the placeholder AI response with the actual response from the backend.
             setMessages((previousMessages) => [
                 ...previousMessages.slice(0, -1),
                 buildTextMessage({ role: "ai", text: response.data.answer || "(no response)" }),
-            void refreshConversations();// Refresh the conversation list to reflect any updates (like new conversations or updated timestamps)
-
             ]);
+            void refreshConversations();
         } catch {
-            // If there's an error, replace the placeholder with an error message.
             setMessages((previousMessages) => [
                 ...previousMessages.slice(0, -1),
                 buildTextMessage({ role: "ai", text: "Error: Failed to get response from server." }),
@@ -392,7 +385,6 @@ export function useChat() {
         }
     }, [buildTextMessage, conversationId, input, isQuerying, refreshConversations]);
 
-    // Handler for keydown events in the chat input, to allow sending the query with Enter key.
     const handleKeyDown = useCallback(
         (event: KeyboardEvent<HTMLTextAreaElement>) => {
             if (event.key === "Enter" && !event.shiftKey) {

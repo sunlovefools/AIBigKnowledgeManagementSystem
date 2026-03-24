@@ -9,11 +9,8 @@ export type ChatTextMessage = {
     id: string;
     kind: "text";
     role: ChatRole;
-// Enhanced type for a chat message with metadata for chat history feature.
-export type ChatMessage = {
     messageId?: string; // Unique ID from backend
     userEmail?: string; // Email of the user who initiated the conversation
-    role: "user" | "ai";
     text: string;
     timestamp?: string; // ISO timestamp when message was created
     sources?: string[]; // Array of source documents that informed the AI response
@@ -24,7 +21,7 @@ export type Conversation = {
     conversationId: string;
     userEmail: string; // Using User's email as the userID
     title: string; // Auto-generated or user-set title
-    messages: ChatMessage[];
+    messages: ChatTextMessage[];
     createdAt: string; // ISO timestamp
     updatedAt: string; // ISO timestamp
 };

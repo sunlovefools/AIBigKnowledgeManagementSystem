@@ -4,25 +4,14 @@ import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
 import type { ChatMessage, ChatProgressStep } from "../types";
 
-// Type definitions for the ChatArea component props.
 type ChatAreaProps = {
-    messages: ChatMessage[]; // An array of chat messages to be displayed in the chat area.
+    messages: ChatMessage[];
     isUploading: boolean;
     bottomRef: RefObject<HTMLDivElement | null>;
-    showLoadOlderMessages: boolean;
-    isLoadingOlderMessages: boolean;
-    onLoadOlderMessages: () => void;
-};
-
-export default function ChatArea({
-    messages,
-    isUploading,
-    bottomRef,
-    showLoadOlderMessages,
-    isLoadingOlderMessages,
-    onLoadOlderMessages,
-}: ChatAreaProps) {
     emptyStateMode?: "welcome" | "no-document";
+    showLoadOlderMessages?: boolean;
+    isLoadingOlderMessages?: boolean;
+    onLoadOlderMessages?: () => void;
 };
 
 function renderStepLabel(step: ChatProgressStep): string {
@@ -42,6 +31,9 @@ export default function ChatArea({
     isUploading,
     bottomRef,
     emptyStateMode = "welcome",
+    showLoadOlderMessages = false,
+    isLoadingOlderMessages = false,
+    onLoadOlderMessages,
 }: ChatAreaProps) {
     const [expandedHistoryByMessageId, setExpandedHistoryByMessageId] = useState<Record<string, boolean>>({});
 
@@ -82,7 +74,7 @@ export default function ChatArea({
                 </div>
             ) : (
                 <div className="messages-container">
-                    {showLoadOlderMessages && (
+                    {showLoadOlderMessages && onLoadOlderMessages && (
                         <div className="load-older-messages-row">
                             <button
                                 type="button"
@@ -94,6 +86,7 @@ export default function ChatArea({
                             </button>
                         </div>
                     )}
+
                     {messages.map((msg) => {
                         if (msg.kind === "text") {
                             return (
@@ -145,24 +138,20 @@ export default function ChatArea({
                                         )}
                                     </div>
 
-                                    {historyCount > 0 && (
-                                        <>
-                                            {isExpanded && (
-                                                <ul className="progress-step-list">
-                                                    {historicalSteps.map((step, index) => (
-                                                        <li key={`${msg.id}-step-${index}`} className="progress-step-item">
-                                                            {renderStepLabel(step)}
-                                                        </li>
-                                                    ))}
-                                                </ul>
-                                            )}
-                                        </>
+                                    {historyCount > 0 && isExpanded && (
+                                        <ul className="progress-step-list">
+                                            {historicalSteps.map((step, index) => (
+                                                <li key={`${msg.id}-step-${index}`} className="progress-step-item">
+                                                    {renderStepLabel(step)}
+                                                </li>
+                                            ))}
+                                        </ul>
                                     )}
                                 </div>
                             </div>
                         );
                     })}
-                    {/* If the user is uploading a file, show upload status in chat. */}
+
                     {isUploading && (
                         <div className="message ai">
                             <div className="message-avatar">AI</div>

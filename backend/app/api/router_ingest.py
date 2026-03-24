@@ -29,7 +29,6 @@ from app.vectordb.vectordb import upsert_documents
 # Setup the API router
 router = APIRouter()
 
-
 # --- Data Models ---
 class FileUpload(BaseModel):
     """

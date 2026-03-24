@@ -82,30 +82,17 @@ export default function MainPage() {
         conversationId,
         setInput,
         appendMessage,
+        startProgressMessage,
+        pushProgressStep,
+        finishProgressMessage,
         refreshConversations,
         loadConversationMessages,
         loadMoreConversationMessages,
         renameConversation,
         startNewConversation,
         handleQuery,
-        handleKeyDown,
     } =
         useChat(); // Run the useChat hook to get chat-related state and handlers
-    
-    // Document management state and handlers
-    } = useResizableLayout();
-
-    const {
-        messages,
-        input,
-        isQuerying,
-        setInput,
-        appendMessage,
-        startProgressMessage,
-        pushProgressStep,
-        finishProgressMessage,
-        handleQuery,
-    } = useChat();
 
     const {
         files,
@@ -132,7 +119,6 @@ export default function MainPage() {
         setActiveEditingDocumentContent,
         cancelEditingActiveDocument,
         saveEditingActiveDocument,
-        activeDocumentViewContent,
         isAgentGenerating,
         agentProposals,
         agentAcceptedMap,
@@ -311,6 +297,9 @@ export default function MainPage() {
                 isUploading={isUploading}
                 bottomRef={bottomRef}
                 emptyStateMode={emptyStateMode}
+                showLoadOlderMessages={hasMoreConversationMessages}
+                isLoadingOlderMessages={isLoadingMoreConversationMessages}
+                onLoadOlderMessages={loadMoreConversationMessages}
             />
 
             <ChatInput
@@ -864,65 +853,6 @@ export default function MainPage() {
                     {modificationPanel}
                 </div>
             )}
-                {/* Chat area of the app (Responsible for showing messages from AI and the user question) */}
-                <ChatArea
-                    messages={messages}
-                    isUploading={isUploading}
-                    bottomRef={bottomRef}
-                    showLoadOlderMessages={hasMoreConversationMessages}
-                    isLoadingOlderMessages={isLoadingMoreConversationMessages}
-                    onLoadOlderMessages={loadMoreConversationMessages}
-                />
-
-                {/* Chat input area of the app */}
-                <ChatInput
-                    input={input}
-                    isQuerying={isQuerying}
-                    isModificationPanelOpen={isModificationPanelOpen}
-                    onInputChange={setInput}
-                    onInputKeyDown={handleKeyDown}
-                    onToggleModificationPanel={handleToggleModificationPanel}
-                    onSend={handleQuery}
-                />
-            </main>
-
-            {/* Allow of resizing of the modification panel if the user is not in mobile view and the modification panel is open*/}
-            {!isMobile && isModificationPanelOpen && (
-                <div
-                    className="resize-handle resize-handle-mod-panel"
-                    onMouseDown={(event) => startModPanelResize(event.clientX)}
-                    role="separator"
-                    aria-orientation="vertical"
-                    aria-label="Resize modifications panel"
-                />
-            )}
-
-            <div className={`mod-panel-container ${isModificationPanelOpen ? "open" : "closed"}`}>
-                <ModificationPanel
-                    openTabs={openTabs}
-                    activeTab={activeTab}
-                    activeTabState={activeTabState}
-                    isLoadingFiles={isLoadingFiles}
-                    editingContent={editingDocumentContent}
-                    isEditing={isEditingActiveDocument}
-                    isSaving={isSavingActiveDocument}
-                    isDirty={isActiveDocumentDirty}
-                    saveError={saveError}
-                    onRefreshDocuments={handleRefreshDocuments}
-                    onClose={() => setIsModificationPanelOpen(false)}
-                    onTabSelect={(fileName) => {
-                        void setActiveDocumentTab(fileName);
-                    }}
-                    onTabClose={closeDocumentTab}
-                    onLoadMoreActiveTab={loadMoreActiveTab}
-                    onStartEditing={startEditingActiveDocument}
-                    onEditingContentChange={setActiveEditingDocumentContent}
-                    onCancelEditing={cancelEditingActiveDocument}
-                    onSaveEditing={() => {
-                        void saveEditingActiveDocument();
-                    }}
-                />
-            </div>
 
             {isMobile && isModificationPanelOpen && (
                 <button className="panel-backdrop" onClick={handleCloseModificationPanel} aria-label="Close modifications panel" />
