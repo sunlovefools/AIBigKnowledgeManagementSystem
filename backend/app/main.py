@@ -10,6 +10,7 @@ app = FastAPI()
 # Local imports
 import app.api.router_ingest as ingest_router
 import app.api.router_query as query_router
+import app.api.router_conversations as conversations_router
 import app.api.router_modifications as modifications_router
 import app.api.router_retrieve as retrieve_router
 import app.api.router_agent as agent_router
@@ -51,6 +52,13 @@ app.include_router(
     query_router.router, 
     prefix="/api", 
     tags=["Query"])
+
+# Conversations router
+app.include_router(
+    conversations_router.router,
+    prefix="/api",
+    tags=["Conversations"]
+)
 
 # Modifications router
 app.include_router(

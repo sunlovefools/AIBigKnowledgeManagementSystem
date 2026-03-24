@@ -754,6 +754,207 @@ html,
     background: #eef2ff;
 }
 
+.conversation-switcher {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 10px 24px 12px;
+    border-bottom: 1px solid var(--border-color);
+    background: rgba(255, 255, 255, 0.62);
+}
+
+.conversation-switcher-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.conversation-switcher-title {
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.conversation-switcher-status {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+}
+
+.conversation-switcher-status.error {
+    color: var(--danger-color);
+}
+
+.conversation-chip-list {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 2px;
+}
+
+.conversation-chip-wrapper {
+    display: flex;
+    align-items: stretch;
+    position: relative;
+}
+
+.conversation-chip {
+    min-width: 170px;
+    max-width: 240px;
+    text-align: left;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--panel);
+    padding: 8px 10px;
+    cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.conversation-rename-trigger {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    border: 1px solid var(--border-color);
+    border-radius: 999px;
+    background: #ffffff;
+    color: var(--text-secondary);
+    line-height: 0;
+    padding: 5px;
+    cursor: pointer;
+    opacity: 0.95;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.conversation-rename-trigger:hover:not(:disabled) {
+    border-color: var(--accent-color);
+    color: var(--accent-color);
+    background: #eef2ff;
+}
+
+.conversation-rename-trigger:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.conversation-chip:hover:not(:disabled) {
+    border-color: #cbd5e1;
+    background: #f8faff;
+}
+
+.conversation-chip.active {
+    border-color: var(--accent-color);
+    background: #f3f7ff;
+}
+
+.conversation-chip:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.conversation-chip-title {
+    font-size: 0.84rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.conversation-chip-meta {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 6px;
+}
+
+.conversation-chip-timestamp {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+
+.conversation-chip-rename {
+    min-width: 170px;
+    max-width: 240px;
+    border: 1px solid var(--accent-color);
+    border-radius: 10px;
+    background: var(--panel);
+    padding: 6px 8px;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+}
+
+.rename-input {
+    flex: 1;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    padding: 4px 6px;
+    font-size: 0.84rem;
+    font-family: inherit;
+    color: var(--text-primary);
+    outline: none;
+}
+
+.rename-input:focus {
+    border-color: var(--accent-color);
+    box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+}
+
+.rename-buttons {
+    display: flex;
+    gap: 4px;
+}
+
+.rename-btn {
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background: var(--panel);
+    color: var(--text-secondary);
+    padding: 4px 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    min-width: 24px;
+}
+
+.rename-btn:hover:not(:disabled) {
+    color: var(--text-primary);
+    background: #eef2ff;
+}
+
+.rename-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.rename-confirm {
+    color: #22c55e;
+}
+
+.rename-confirm:hover:not(:disabled) {
+    background: #f0fdf4;
+    border-color: #22c55e;
+}
+
+.rename-cancel {
+    color: #ef4444;
+}
+
+.rename-cancel:hover:not(:disabled) {
+    background: #fef2f2;
+    border-color: #ef4444;
+}
+
 /* Chat Scroll Area */
 .chat-scroll-area {
     flex: 1;
@@ -778,6 +979,33 @@ html,
     display: flex;
     flex-direction: column;
     gap: 18px;
+}
+
+.load-older-messages-row {/*Row container for the "Load older messages" button */
+    display: flex;
+    justify-content: center;
+}
+
+.load-older-messages-btn {/* "Load older messages" button that appears at the top of the chat when there are more messages to load*/
+    border: 1px solid var(--border-color);
+    background: #f8fafc;
+    color: var(--text-secondary);
+    font-size: 0.82rem;
+    font-weight: 600;
+    border-radius: 999px;
+    padding: 7px 14px;
+    cursor: pointer;
+}
+
+.load-older-messages-btn:hover:not(:disabled) {/*Hover state for the "Load older messages" button */
+    color: var(--text-primary);
+    border-color: #cbd5e1;
+    background: #eef2ff;
+}
+
+.load-older-messages-btn:disabled {/*Disabled state for the "Load older messages" button when there are no more messages to load or when a loading operation is in progress */
+    opacity: 0.65;
+    cursor: not-allowed;
 }
 
 .welcome-screen {
@@ -1447,6 +1675,10 @@ html,
 
     .top-nav {
         padding: 0 16px;
+    }
+
+    .conversation-switcher {/* The container for the list of conversations */
+        padding: 10px 16px;
     }
 
     .nav-actions {
