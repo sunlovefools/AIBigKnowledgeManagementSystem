@@ -17,11 +17,13 @@ from app.vectordb.vectordb import (
     delete_parent_document,
     upsert_documents,
 )
-from app.service.rag.ingestion.markdown_chunker import split_parent_child_chunks_from_markdown
+from app.service.modification.markdown_chunker import (
+    split_parent_child_chunks_from_markdown,
+)
 from app.service.rag.ingestion.markdown_canonicalizer import (
     normalize_markdown_for_modification,
 )
-from app.service.rag.ingestion.chunk_polisher import polish_chunks
+from app.service.rag.ingestion.legacy.chunk_polisher import polish_chunks
 from app.service.storage.s3_image_store import delete_docling_artifacts_by_file_id
 from debug.debug_logger import log_vector_db_result
 

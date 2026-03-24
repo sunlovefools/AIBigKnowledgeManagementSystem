@@ -15,7 +15,7 @@ from pathlib import Path
 from typing import Any
 
 from app.core.id_utils import generate_uuid_v6
-from app.service.rag.ingestion.chunker import ChildChunkModel, ParentChunkModel
+from app.service.rag.ingestion.chunk_models import ChildChunkModel, ParentChunkModel
 from app.service.rag.ingestion.docling.config import is_docling_artifacts_enabled
 from app.service.rag.ingestion.docling.models import DoclingStructuredBlock
 from app.service.rag.ingestion.markdown_canonicalizer import (
@@ -732,6 +732,7 @@ def _prefix_children_with_preamble(
     return prefixed
 
 
+# -- Artifact internal helpers --
 def _write_parent_chunks_artifact(
     artifact_dir: Path,
     file_name: str,
@@ -788,7 +789,6 @@ def _write_parent_chunks_artifact(
 
     (artifact_dir / "parent_chunk.md").write_text("\n".join(lines), encoding="utf-8")
 
-
 def _write_child_chunks_artifact(
     artifact_dir: Path,
     file_name: str,
@@ -823,7 +823,6 @@ def _write_child_chunks_artifact(
 
     (artifact_dir / "child_chunk.md").write_text("\n".join(lines), encoding="utf-8")
 
-
 def _write_trace_artifacts(
     artifact_dir: str | Path | None,
     file_name: str,
@@ -844,6 +843,7 @@ def _write_trace_artifacts(
     _write_child_chunks_artifact(path, file_name, child_chunks)
 
 
+# -- Main export function -- 
 def split_parent_child_chunks_from_docling_blocks(
     blocks: list[DoclingStructuredBlock] | list[dict[str, Any]],
     file_name: str,
@@ -867,12 +867,13 @@ def split_parent_child_chunks_from_docling_blocks(
     - split parts still receive preamble at child-generation level.
     """
 
+    # Docling-block-split 1: Coerce/validate incoming blocks and drop empty ones, so downstream logic can assume well-formed blocks with content.
     normalized_blocks = _coerce_blocks(blocks)
     if not normalized_blocks:
         _write_trace_artifacts(artifact_dir, file_name, [], [])
         return [], []
 
-    # Split the entire docling blocks into sections
+    # Docling-block-split 2: Split the entire docling blocks into sections
     sections = _build_sections(normalized_blocks)
     
     # This parent_parts will store a list of dict with keys "parent_blocks", "child_blocks" and "child_preamble". 
@@ -882,7 +883,7 @@ def split_parent_child_chunks_from_docling_blocks(
     # (which is basically the same as the parent preamble but will be included in all child parts instead of just the first parent part).
     parent_parts: list[dict[str, Any]] = []
 
-    # For each section, split into parent chunks
+    # Docling-block-split 3: For each section, split into parent chunks
     for section in sections:
         parent_parts.extend(
             _split_section_into_parent_parts(
@@ -901,12 +902,14 @@ def split_parent_child_chunks_from_docling_blocks(
     child_global_index = 0
     resolved_file_id = file_id or generate_uuid_v6()
 
-    # Loop through all the parent parts to form parent chunks and child chunks
+    # Docling-block-split 4: Loop through all the parent parts to form parent chunks and child chunks
     for parent_chunk_number, part in enumerate(parent_parts):
         parent_blocks = part["parent_blocks"]
         child_source_blocks = part["child_blocks"]
         child_preamble_blocks = part.get("child_preamble", [])
         is_first_part = bool(part.get("is_first_part"))
+
+        # Docling-block-split 4a: Generate ids for linking parent chunk to child chunks, and gather parent-level metadata like page numbers and visual artifact refs.
         parent_id = generate_uuid_v6()
         parent_content = "\n\n".join(
             block.content.strip() for block in parent_blocks if block.content.strip()
@@ -920,6 +923,7 @@ def split_parent_child_chunks_from_docling_blocks(
         parent_has_image = False
         parent_has_table_image = False
 
+        # Docling-block-split 4b: For each parent part, loop through its body blocks to generate child chunk candidates with special handling for pictures, tables, and long text blocks.
         child_candidates: list[dict[str, Any]] = []
         for index in range(len(child_source_blocks)):
             child_candidates.extend(
@@ -931,8 +935,7 @@ def split_parent_child_chunks_from_docling_blocks(
                 )
             )
 
-        # Merge body-derived child chunks before preamble injection so tiny-chunk
-        # detection does not include preamble words.
+        # Docling-block-split 4c: Merge body-derived child chunks before preamble injection so tiny-chunk detection does not include preamble words.
         merged_children = _merge_small_children(child_candidates, min_child_words)
         if not merged_children and parent_content:
             merged_children = [
@@ -945,12 +948,15 @@ def split_parent_child_chunks_from_docling_blocks(
                     "artifact_refs": _empty_child_artifact_refs(),
                 }
             ]
+        
+        # Docling-block-split 4d: Prefix child chunk content with section preamble when generating child chunks
         merged_children = _prefix_children_with_preamble(
             merged_children,
             child_preamble_blocks,
             first_child_has_preamble=not is_first_part,
         )
 
+        # Docling-block-split 4e: Create child chunk models and finalize parent chunk metadata based on the merged child candidates.
         for child_payload in merged_children:
             child_text = str(child_payload.get("content", "")).strip()
             if not child_text:
@@ -962,6 +968,7 @@ def split_parent_child_chunks_from_docling_blocks(
             content_flags = child_payload.get("content_flags") or _empty_content_flags()
             artifact_refs = child_payload.get("artifact_refs") or _empty_child_artifact_refs()
 
+            # Docling-block-split 4e-1: Generate child chunk id and gather parent-level metadata like visual artifact refs from child chunks.
             child_id = generate_uuid_v6()
             parent_child_ids.append(child_id)
 
@@ -978,7 +985,7 @@ def split_parent_child_chunks_from_docling_blocks(
             if isinstance(table_image_uuid, str) and table_image_uuid.strip():
                 parent_table_image_uuids.add(table_image_uuid.strip())
 
-            # Create the child chunk model which are the metadata used for each child chunk
+            # Docling-block-split 4e-2: Generate child chunk id and gather parent-level metadata like visual artifact refs from child chunks
             child_chunks.append(
                 ChildChunkModel(
                     child_chunk_id=child_id,
@@ -1008,6 +1015,7 @@ def split_parent_child_chunks_from_docling_blocks(
             )
             child_global_index += 1
 
+        # Docling-block-split 4f: After processing all child candidates for this parent part, create the parent chunk model with links to child chunk ids and aggregated metadata.
         parent_chunks.append(
             ParentChunkModel(
                 parent_chunk_id=parent_id,

@@ -185,14 +185,17 @@ def _convert_office_bytes_to_layout(
     The returned layout mirrors the contract used by the shared PDF pipeline core.
     """
 
+    # Process-office-layout 1: Load the Docling runtime and converter needed for conversion and layout building.
     runtime = _load_office_docling_runtime()
-    converter_cls = runtime["DocumentConverter"]
+    converter_cls = runtime["DocumentConverter"] 
+    # TODO: It seems like that the converter dont have acceleration like PDF docling, may need to change it
 
     extension = Path(file_name).suffix
     with tempfile.NamedTemporaryFile(suffix=extension, delete=False) as temp_file:
         temp_file.write(file_bytes)
         temp_file_path = temp_file.name
 
+    # Process-office-layout 2: Convert the Office document to a Docling document
     try:
         converter = converter_cls()
         result = converter.convert(temp_file_path)
@@ -204,6 +207,7 @@ def _convert_office_bytes_to_layout(
                 f"Could not delete temporary Office file {temp_file_path}: {exc}"
             )
 
+    # Process-office-layout 3: Check conversion status and collect errors if conversion did not complete successfully.
     status_value = _normalize_status(getattr(result, "status", None))
     if status_value in {"failure", "skipped"}:
         errors = _collect_result_errors(result) or [
@@ -226,6 +230,7 @@ def _convert_office_bytes_to_layout(
             }
         )
 
+    # Process-office-layout 4: Build a normalized layout from the converted Docling document for downstream processing with the shared layout processor.
     document = result.document
     serializer = runtime["MarkdownDocSerializer"](doc=document)
     group_ref_to_sheet_name: dict[str, str] = {}
@@ -237,6 +242,7 @@ def _convert_office_bytes_to_layout(
         ) = _build_excel_sheet_lookup(document)
 
     items: list[dict[str, Any]] = []
+    # Process-office-layout 5: Iterate over all items in the Docling document and extract relevant metadata for layout processing and downstream chunking, with special handling for Excel sheet/table associations.
     for element, _level in document.iterate_items():
         table_data = getattr(element, "data", None)
         num_rows = getattr(table_data, "num_rows", None)
@@ -320,7 +326,7 @@ def parse_pptexcel_with_docling(
 
     file_type = "PowerPoint" if "presentation" in content_type else "Excel"
     print(
-        f"[docling-pptexcel] Processing {file_type} file: {file_name} ({len(file_bytes)} bytes)"
+        f"[docling-pptexcel] Processing {file_type} file: {file_name})"
     )
 
     resolved_file_id = (file_id or generate_uuid_v6()).strip()
@@ -328,6 +334,7 @@ def parse_pptexcel_with_docling(
     warnings: list[str] = []
     partial_failures: list[Any] = []
 
+    # Docling-pptexcel 1: Convert Office bytes to a normalized Docling layout with extracted metadata for downstream processing and artifact persistence.
     try:
         layout = _convert_office_bytes_to_layout(
             file_bytes=file_bytes,

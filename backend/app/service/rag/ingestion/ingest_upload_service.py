@@ -8,15 +8,15 @@ from typing import Any
 
 # Internal Imports
 from app.core.id_utils import generate_uuid_v6
-from app.service.rag.ingestion.chunk_polisher import polish_chunks
-from app.service.rag.ingestion.chunker import split_parent_child_chunks
+from app.service.rag.ingestion.legacy.chunk_polisher import polish_chunks
+from app.service.rag.ingestion.legacy.chunker import split_parent_child_chunks
 from app.service.rag.ingestion.docling import (
     get_pdf_ingestion_strategy,
     parse_pdf_with_docling,
 )
 from app.service.rag.ingestion.docling.models import DoclingParseResult
 from app.service.rag.ingestion.docling.storage import local_artifacts_store
-from app.service.rag.ingestion.docling_chunker import (
+from app.service.rag.ingestion.docling.chunker import (
     split_parent_child_chunks_from_docling_blocks,
 )
 from app.service.rag.ingestion.docling_pptexcel_extractor import (
@@ -27,7 +27,7 @@ from app.service.rag.ingestion.markdown_canonicalizer import (
     canonicalize_chunk_payloads_for_storage,
     canonicalize_markdown_text,
 )
-from app.service.rag.ingestion.text_extractor import extract_text
+from app.service.rag.ingestion.legacy.text_extractor import extract_text
 from app.vectordb.vectordb import upsert_documents
 
 
@@ -186,16 +186,18 @@ def run_docling_pptexcel_pipeline(
     """
     Docling branch for PowerPoint (PPTX) and Excel (XLSX) files.
     """
+
+    # Docling-pptexcel 1: Generate a file-scoped id used for artifact/chunk linkage.
     file_id = generate_uuid_v6()
 
-    # docling-pptexcel 1: Prepare artifact directory and run_id for this ingestion to be used and returned by the Docling pipeline for logging and artifact storage.
+    # docling-pptexcel 2: Prepare artifact directory and run_id for this ingestion to be used and returned by the Docling pipeline for logging and artifact storage.
     run_id, artifact_dir, markdown_path = local_artifacts_store.prepare_docling_artifact_dir(
         file_name=file_name,
         artifact_root=None,
     )
 
     try:
-        # docling-pptexcel 2: Parse PPTX/XLSX file with Docling to get structured blocks
+        # docling-pptexcel 3: Parse PPTX/XLSX file with Docling to get structured blocks
         parse_result = parse_pptexcel_with_docling(
             file_bytes=file_bytes,
             file_name=file_name,
@@ -216,7 +218,7 @@ def run_docling_pptexcel_pipeline(
         )
 
     try:
-        # docling-pptexcel 3: Apply structure-aware parent/child chunking (same strategy as PDFs)
+        # docling-pptexcel 4: Apply structure-aware parent/child chunking (same strategy as PDFs)
         parent_chunks_models, child_chunks_models = (
             split_parent_child_chunks_from_docling_blocks(
                 blocks=parse_result.structured_blocks,
@@ -230,7 +232,7 @@ def run_docling_pptexcel_pipeline(
             f"Docling PPTX/XLSX chunking failed: {exc}"
         ) from exc
 
-    # docling-pptexcel 4: Convert models to dicts for vector DB
+    # docling-pptexcel 5: Convert models to dicts for vector DB
     parent_chunks_dicts = [chunk.model_dump() for chunk in parent_chunks_models]
     child_chunks_dicts = [chunk.model_dump() for chunk in child_chunks_models]
     warnings = list(parse_result.warnings)

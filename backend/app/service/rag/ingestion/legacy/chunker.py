@@ -1,32 +1,21 @@
+"""Legacy parent/child chunking pipeline for non-Docling ingestion routes.
+
+This module owns the original text-first chunking strategy:
+- recursive text splitting into child chunks
+- merge pass for tiny child chunks
+- grouping child chunks into larger parent context windows
+"""
+
 from typing import List, Tuple
 from datetime import datetime, timezone
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
-from pydantic import BaseModel
 
 from app.core.id_utils import generate_uuid_v6
+from app.service.rag.ingestion.chunk_models import ChildChunkModel, ParentChunkModel
 from app.service.rag.ingestion.markdown_canonicalizer import (
     canonicalize_markdown_text,
 )
-
-# Define Schema for Parent and Child chunks
-class ParentChunkModel(BaseModel):
-    """Schema for the large, context-rich Parent Documents (Document Store)."""
-    parent_chunk_id: str
-    content: str
-    file_metadata: dict
-    parent_chunk_metadata: dict
-    content_flags: dict
-    artifact_refs: dict
-        
-class ChildChunkModel(BaseModel):
-    """Schema for the small, embedded Child Chunks (Vector Store)."""
-    child_chunk_id: str
-    content: str
-    file_metadata: dict
-    child_chunk_metadata: dict
-    content_flags: dict
-    artifact_refs: dict
 
 # --- Helper function ---
 def _create_initial_child_chunks(text: str, file_name: str, chunk_size: int) -> List[Document]:

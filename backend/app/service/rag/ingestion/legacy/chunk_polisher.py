@@ -1,6 +1,13 @@
-import re
+"""Legacy text-polishing helpers for child chunks before embedding.
 
-def polish_chunks(chunks):
+This normalizes chunk text shape without changing chunk boundaries.
+"""
+
+import re
+from typing import Any
+
+
+def polish_chunks(chunks: list[dict[str, Any]]) -> list[dict[str, Any]]:
     """
     Clean and normalize text chunks before sending them for embedding.
 
@@ -9,11 +16,11 @@ def polish_chunks(chunks):
     to improve embedding quality and ensure consistent text structure.
 
     Args:
-        chunks (List[Dict[str, any]]): 
+        chunks (List[Dict[str, Any]]):
             A list of dictionaries containing "content" keys.
 
     Returns:
-        List[Dict[str, any]]: 
+        List[Dict[str, Any]]:
             The same list of dictionaries with polished "content" values.
             We are only modifying the "content" field in each dictionary.
     """
@@ -30,7 +37,7 @@ def polish_chunks(chunks):
         text = re.sub(r"^[.,;:]\s*", "", text)
 
         # --- Step 3: Fix spacing before punctuation ---
-        # Example: "Hello , world !" → "Hello, world!"
+        # Example: "Hello , world !" -> "Hello, world!"
         text = re.sub(r"\s+([.,!?;:])", r"\1", text)
 
         # --- Step 4: Ensure first character is capitalized ---
@@ -39,10 +46,10 @@ def polish_chunks(chunks):
             text = text[0].upper() + text[1:]
 
         # --- Step 5: Replace bullet symbols or stray artifacts ---
-        # Converts common bullet characters (•) to a plain dash ("-") for uniformity.
-        text = re.sub(r"•\s*", "- ", text)
+        # Handle real bullet symbols and common mojibake variants from extractor output.
+        text = re.sub(r"(?:\u2022|\u00e2\u20ac\u00a2)\s*", "- ", text)
 
-        # Amend the chunk text
+        # Amend the chunk text.
         chunk["content"] = text
 
     return chunks

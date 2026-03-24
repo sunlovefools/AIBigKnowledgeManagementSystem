@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from datetime import datetime, timezone
 
 from app.core.id_utils import generate_uuid_v6
-from app.service.rag.ingestion.chunker import ChildChunkModel, ParentChunkModel
+from app.service.rag.ingestion.chunk_models import ChildChunkModel, ParentChunkModel
 from app.service.rag.ingestion.markdown_canonicalizer import (
     normalize_markdown_for_modification,
 )
