@@ -1,0 +1,18 @@
+{
+  "tables": [
+    {
+      "image_uuid": "1f11ca20-03ee-6286-9e2b-7a66dc6643f6",
+      "table_index": 1,
+      "page_no": 9,
+      "image_file_name": "1f11ca20-03ee-6286-9e2b-7a66dc6643f6.png",
+      "image_file_path": "C:\\Users\\c9798\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11ca20-03dd-6490-8ee3-3f78b273db2a\\images\\1f11ca20-03ee-6286-9e2b-7a66dc6643f6.png",
+      "json_rel_path": "table_image_vlm/table-1-1f11ca20-03ee-6286-9e2b-7a66dc6643f6/output.json",
+      "json_path": "C:\\Users\\c9798\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11ca20-03dd-6490-8ee3-3f78b273db2a\\table_image_vlm\\table-1-1f11ca20-03ee-6286-9e2b-7a66dc6643f6\\output.json",
+      "summary_path": "C:\\Users\\c9798\\team44_project\\backend\\_local_uploads\\docling_previews\\1f11ca20-03dd-6490-8ee3-3f78b273db2a\\table_image_vlm\\table-1-1f11ca20-03ee-6286-9e2b-7a66dc6643f6\\semantic_summary.txt",
+      "json_ok": true,
+      "summary_ok": true,
+      "summary_text": "The table represents university and partner hall accommodation contract terms, detailing 39-week catered options (Ancaster Hall £234, Cavenish Hall £277) versus self-catered (Southwell Hall £132, Raleigh Park £125) and mixed (Newpark Hall £134) contracts. It compares weekly pricing across hall types and campuses, with University Park housing most catered halls at £132–£277 weekly, while Raleigh Park (Partner Hall) offers a 44-week self-catered option at £125. This data enables students to assess",
+      "errors": []
+    }
+  ]
+}

@@ -11,6 +11,11 @@ from app.service.rag.ingestion.chunker import split_parent_child_chunks
 from app.service.rag.ingestion.docling_chunker import (
     split_parent_child_chunks_from_docling_blocks,
 )
+from app.service.rag.ingestion.docling_pptexcel_extractor import (
+    is_pptexcel_document,
+    parse_pptexcel_with_docling,
+)
+from app.service.rag.ingestion.docling_pdf_extractor import (
 from app.service.rag.ingestion.docling import (
     get_pdf_ingestion_strategy,
     parse_pdf_with_docling,
@@ -70,6 +75,14 @@ def _is_docling_pdf_strategy(file: FileUpload) -> bool:
     )
 
 
+def _is_docling_pptexcel_document(file: FileUpload) -> bool:
+    """
+    Determine if the file is a PowerPoint or Excel document that should use Docling extraction.
+    
+    """
+    return is_pptexcel_document(file.contentType)
+
+
 def _run_legacy_pipeline(
     file: FileUpload, file_bytes: bytes
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
@@ -107,6 +120,90 @@ def _run_docling_pipeline(
     except ingest_upload_service.DoclingChunkingFailedError as exc:
         raise HTTPException(status_code=500, detail=f"docling chunking failed: {exc}")
 
+    parent_chunks_dicts = [chunk.model_dump() for chunk in parent_chunks_models]
+    # Intentionally skip legacy chunk polishing to avoid changing Docling visual metadata.
+    child_chunks_dicts = [chunk.model_dump() for chunk in child_chunks_models]
+    warnings = list(parse_result.warnings)
+    if parse_result.partial_failures:
+        warnings.append(
+            f"Docling reported {len(parse_result.partial_failures)} partial failure chunk(s)."
+        )
+
+    return (
+        parent_chunks_dicts,
+        child_chunks_dicts,
+        warnings,
+        parse_result.artifact_run_id,
+    )
+
+
+def _run_docling_pptexcel_pipeline(
+    file: FileUpload, file_bytes: bytes
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str], str]:
+    """
+    Docling branch for PowerPoint (PPTX) and Excel (XLSX) files.
+    
+    1. Parse PPTX/XLSX file with Docling -> get structured blocks
+    2. Apply same parent/child chunking strategy as PDFs (docling_chunker.py)
+    3. Return chunks ready for vectorization
+    
+    """
+    file_id = generate_uuid_v6()
+    
+    try:
+        # Step 1: Parse PPTX/XLSX file with Docling to get structured blocks
+        parse_result = parse_pptexcel_with_docling(
+            file_bytes=file_bytes,
+            file_name=file.fileName,
+            content_type=file.contentType,
+            file_id=file_id,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Docling PPTX/XLSX parsing failed: {exc}"
+        )
+    
+    if not parse_result.structured_blocks:
+        raise HTTPException(
+            status_code=422,
+            detail="Docling produced no structured blocks for this PPTX/XLSX document",
+        )
+    
+    try:
+        # Step 2: Apply structure-aware parent/child chunking (same strategy as PDFs)
+        parent_chunks_models, child_chunks_models = (
+            split_parent_child_chunks_from_docling_blocks(
+                blocks=parse_result.structured_blocks,
+                file_name=file.fileName,
+                artifact_dir=parse_result.artifact_dir,
+                file_id=file_id,
+            )
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Docling PPTX/XLSX chunking failed: {exc}"
+        )
+    
+    # Step 3: Convert models to dicts for vector DB
+    parent_chunks_dicts = [chunk.model_dump() for chunk in parent_chunks_models]
+    child_chunks_dicts = [chunk.model_dump() for chunk in child_chunks_models]
+    warnings = list(parse_result.warnings)
+    
+    file_type = "PowerPoint" if "presentation" in file.contentType else "Excel"
+    print(
+        f"[docling-office] {file_type} chunking complete: "
+        f"{len(parent_chunks_dicts)} parents, {len(child_chunks_dicts)} children"
+    )
+    
+    return (
+        parent_chunks_dicts,
+        child_chunks_dicts,
+        warnings,
+        parse_result.file_id,
+    )
+
 
 async def _upsert_chunks(
     parent_chunks: list[dict[str, Any]], child_chunks: list[dict[str, Any]]
@@ -134,28 +231,43 @@ def ingest_health():
 @router.post("/upload", response_model=IngestUploadResponse)
 async def ingest_upload(file: FileUpload):
     """
-    Unified ingestion endpoint.
-    Strategy:
-    - Docling branch only for PDFs when INGEST_PDF_EXTRACTOR=docling.
-    - Legacy branch for everything else.
+    Unified ingestion endpoint for all document types.
+    
+    Strategy routing:
+    - PDF: Docling branch when INGEST_PDF_EXTRACTOR=docling
+    - PowerPoint/Excel: Docling branch
+    - Other formats: Legacy branch (PyMuPDF, python-docx, plain text)
     """
+    try:
+        file_bytes = _decode_base64(file.data)
+        strategy = "legacy"
+        warnings: list[str] = []
+        run_id: str | None = None
 
-    file_bytes = _decode_base64(file.data)
-    strategy = "legacy"
-    warnings: list[str] = []
-    run_id: str | None = None
-
-    # Run the appropriate ingestion pipeline based on file type and environment configuration.
-    if _is_docling_pdf_strategy(file):
-        strategy = "docling"
-        (
-            parent_chunks_dicts,
-            child_chunks_dicts,
-            warnings,
-            run_id,
-        ) = _run_docling_pipeline(file, file_bytes)
-    else:
-        parent_chunks_dicts, child_chunks_dicts = _run_legacy_pipeline(file, file_bytes)
+        # Route to appropriate ingestion pipeline based on file type
+        if _is_docling_pdf_strategy(file):
+            # PDF files using Docling strategy
+            strategy = "docling-pdf"
+            (
+                parent_chunks_dicts,
+                child_chunks_dicts,
+                warnings,
+                run_id,
+            ) = _run_docling_pipeline(file, file_bytes)
+        
+        elif _is_docling_pptexcel_document(file):
+            # PowerPoint/Excel files using Docling strategy
+            strategy = "docling-pptexcel"
+            (
+                parent_chunks_dicts,
+                child_chunks_dicts,
+                warnings,
+                run_id,
+            ) = _run_docling_pptexcel_pipeline(file, file_bytes)
+        
+        else:
+            # Everything else: legacy extraction pipeline
+            parent_chunks_dicts, child_chunks_dicts = _run_legacy_pipeline(file, file_bytes)
 
     # Canonicalise each of the chunks to ensure consistent format
     parent_chunks_dicts, child_chunks_dicts = canonicalize_chunk_payloads_for_storage(

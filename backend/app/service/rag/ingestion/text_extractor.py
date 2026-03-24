@@ -1,6 +1,10 @@
 import io
 import fitz  # PyMuPDF
 import docx
+from docx.oxml.text.paragraph import CT_P
+from docx.oxml.table import CT_Tbl
+from docx.table import Table
+from docx.text.paragraph import Paragraph
 
 # Supported content types (Currently includes PDF, Word, and plain text)
 SUPPORTED_MIME_TYPES = {
