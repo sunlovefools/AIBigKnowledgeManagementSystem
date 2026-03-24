@@ -14,7 +14,6 @@ from app.service.rag.ingestion.docling.utils import markdown_builder
 from app.service.rag.ingestion.docling.utils.table_data_artifacts import (
     persist_table_data_toon_artifacts,
 )
-from app.service.rag.ingestion.markdown_canonicalizer import canonicalize_docling_block_text
 
 
 def finalize_table_image_jobs(
@@ -65,26 +64,6 @@ def finalize_table_image_jobs(
     table_image_vlm_executor.shutdown(wait=True)
 
 
-def canonicalize_markdown_blocks(
-    *,
-    markdown_parts: list[str],
-    structured_block_metadata: list[dict[str, Any]],
-) -> list[str]:
-    """Canonicalize markdown block text by block type before final assembly."""
-
-    canonicalized_markdown_parts = list(markdown_parts)
-    for metadata in structured_block_metadata:
-        block_index = int(metadata.get("block_index", -1))
-        if block_index < 0 or block_index >= len(canonicalized_markdown_parts):
-            continue
-        block_type = str(metadata.get("block_type") or "text")
-        canonicalized_markdown_parts[block_index] = canonicalize_docling_block_text(
-            block_type=block_type,
-            text=canonicalized_markdown_parts[block_index],
-        )
-    return canonicalized_markdown_parts
-
-
 def build_layout_outputs(
     *,
     layout: dict[str, Any],
@@ -127,4 +106,3 @@ def build_layout_outputs(
         "s3_upload_uploaded_count": s3_upload_uploaded_count,
         "s3_upload_skipped_count": s3_upload_skipped_count,
     }
-

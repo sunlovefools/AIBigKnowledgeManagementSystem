@@ -29,7 +29,6 @@ from app.service.rag.ingestion.docling.layout_processing.image_export import (
 )
 from app.service.rag.ingestion.docling.layout_processing.lifecycle import (
     build_layout_outputs,
-    canonicalize_markdown_blocks,
     finalize_table_image_jobs,
 )
 
@@ -360,11 +359,6 @@ def process_docling_layout(
 
     if not markdown_parts:
         raise RuntimeError(empty_markdown_error)
-
-    markdown_parts = canonicalize_markdown_blocks(
-        markdown_parts=markdown_parts,
-        structured_block_metadata=structured_block_metadata,
-    )
 
     if artifacts_enabled and markdown_path is not None:
         markdown_path.write_text("\n\n".join(markdown_parts), encoding="utf-8")
