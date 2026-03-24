@@ -123,6 +123,16 @@ def _run_docling_pdf_pipeline(
         raise HTTPException(status_code=500, detail=f"docling chunking failed: {exc}")
 
 
+def _run_docling_pipeline(
+    file: FileUpload, file_bytes: bytes
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str], str]:
+    """
+    Backward-compatible alias for the historical PDF Docling helper name.
+    """
+
+    return _run_docling_pdf_pipeline(file, file_bytes)
+
+
 def _run_docling_pptexcel_pipeline(
     file: FileUpload, file_bytes: bytes
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[str], str]:
@@ -239,7 +249,7 @@ async def ingest_upload(file: FileUpload):
                 child_chunks_dicts,
                 warnings,
                 run_id,
-            ) = _run_docling_pdf_pipeline(file, file_bytes)
+            ) = _run_docling_pipeline(file, file_bytes)
         
         elif _is_docling_pptexcel_document(file):
             # PowerPoint/Excel files using Docling strategy

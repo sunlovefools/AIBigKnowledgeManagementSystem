@@ -109,6 +109,7 @@ def _process_docling_layout(
     structured_block_metadata: list[dict[str, Any]] = []
     images: list[ExtractedImageArtifact] = []
     table_image_vlm_jobs: list[table_image_vlm.TableImageVlmJob] = []
+    emitted_sheet_headers: set[str] = set()
 
     s3_upload_failed_count = 0
     s3_upload_uploaded_count = 0
@@ -151,6 +152,22 @@ def _process_docling_layout(
             element = item["element"]
             serializer = item["serializer"]
             page_no = item.get("page_no")
+            sheet_name = str(item.get("sheet_name") or "").strip()
+            sheet_ref = str(item.get("sheet_ref") or "").strip()
+            sheet_key = sheet_ref or f"sheet-name::{sheet_name}"
+
+            # Excel sheet-aware preamble: emit one header block per sheet at first appearance.
+            if sheet_name and sheet_key not in emitted_sheet_headers:
+                markdown_builder.append_markdown_block(
+                    markdown_parts=markdown_parts,
+                    structured_block_metadata=structured_block_metadata,
+                    text=f"# Sheet: {sheet_name}",
+                    block_type="header",
+                    page_no=page_no,
+                    is_table_image=False,
+                )
+                emitted_sheet_headers.add(sheet_key)
+
             is_picture_item = isinstance(element, picture_item_cls)
             is_table_item = isinstance(element, table_item_cls)
             picture_markdown_placeholder: str | None = None

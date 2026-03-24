@@ -108,6 +108,70 @@ def _collect_result_errors(result: Any) -> list[str]:
     return errors
 
 
+def _extract_ref_value(raw_ref: Any) -> str | None:
+    """
+    Extract a normalized `#/...` reference string from Docling ref-like payloads.
+
+    Handles strings, dicts with `$ref`, and ref objects exposing `cref`/`ref`.
+    """
+
+    if raw_ref is None:
+        return None
+    if isinstance(raw_ref, str):
+        value = raw_ref.strip()
+        return value or None
+    if isinstance(raw_ref, dict):
+        value = str(raw_ref.get("$ref") or "").strip()
+        return value or None
+
+    for attr in ("cref", "ref"):
+        value = str(getattr(raw_ref, attr, "") or "").strip()
+        if value:
+            return value
+    return None
+
+
+def _normalize_sheet_name(raw_name: str) -> str:
+    """
+    Normalize Docling group sheet names from `sheet: <name>` to `<name>`.
+    """
+
+    name = (raw_name or "").strip()
+    if not name:
+        return ""
+    if ":" in name:
+        prefix, suffix = name.split(":", 1)
+        if prefix.strip().lower() == "sheet":
+            return suffix.strip()
+    return name
+
+
+def _build_excel_sheet_lookup(document: Any) -> tuple[dict[str, str], dict[str, str]]:
+    """
+    Build lookup maps for Excel sheets:
+    - group_ref -> sheet_name
+    - table_ref -> sheet_name (via group children refs)
+    """
+
+    group_ref_to_sheet_name: dict[str, str] = {}
+    table_ref_to_sheet_name: dict[str, str] = {}
+
+    groups = list(getattr(document, "groups", []) or [])
+    for group in groups:
+        group_ref = _extract_ref_value(getattr(group, "self_ref", None))
+        sheet_name = _normalize_sheet_name(str(getattr(group, "name", "") or ""))
+        if not group_ref or not sheet_name:
+            continue
+
+        group_ref_to_sheet_name[group_ref] = sheet_name
+        for child in list(getattr(group, "children", []) or []):
+            child_ref = _extract_ref_value(child)
+            if child_ref:
+                table_ref_to_sheet_name[child_ref] = sheet_name
+
+    return group_ref_to_sheet_name, table_ref_to_sheet_name
+
+
 def _convert_office_bytes_to_layout(
     *,
     file_bytes: bytes,
@@ -164,12 +228,28 @@ def _convert_office_bytes_to_layout(
 
     document = result.document
     serializer = runtime["MarkdownDocSerializer"](doc=document)
+    group_ref_to_sheet_name: dict[str, str] = {}
+    table_ref_to_sheet_name: dict[str, str] = {}
+    if Path(file_name).suffix.lower() == ".xlsx":
+        (
+            group_ref_to_sheet_name,
+            table_ref_to_sheet_name,
+        ) = _build_excel_sheet_lookup(document)
 
     items: list[dict[str, Any]] = []
     for element, _level in document.iterate_items():
         table_data = getattr(element, "data", None)
         num_rows = getattr(table_data, "num_rows", None)
         num_cols = getattr(table_data, "num_cols", None)
+
+        self_ref = _extract_ref_value(getattr(element, "self_ref", None))
+        parent_ref = _extract_ref_value(getattr(element, "parent", None))
+        sheet_name = ""
+        if self_ref:
+            sheet_name = table_ref_to_sheet_name.get(self_ref, "")
+        if not sheet_name and parent_ref:
+            sheet_name = group_ref_to_sheet_name.get(parent_ref, "")
+
         items.append(
             {
                 "element": element,
@@ -178,6 +258,8 @@ def _convert_office_bytes_to_layout(
                 "document": document,
                 "num_rows": num_rows if isinstance(num_rows, int) else None,
                 "num_cols": num_cols if isinstance(num_cols, int) else None,
+                "sheet_name": sheet_name,
+                "sheet_ref": parent_ref,
             }
         )
 

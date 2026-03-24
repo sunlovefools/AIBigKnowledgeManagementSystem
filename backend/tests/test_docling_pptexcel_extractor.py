@@ -13,6 +13,7 @@ from app.service.rag.ingestion.docling_chunker import (
 
 
 PPTX_MIME = "application/vnd.openxmlformats-officedocument.presentationml.presentation"
+XLSX_MIME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
 
 
 class _Prov:
@@ -55,9 +56,31 @@ class _TableData:
 
 
 class _TableItem:
-    def __init__(self, page_no: int, num_rows: int | None, num_cols: int | None):
+    def __init__(
+        self,
+        page_no: int,
+        num_rows: int | None,
+        num_cols: int | None,
+        *,
+        self_ref: str | None = None,
+        parent_ref: str | None = None,
+    ):
         self.prov = [_Prov(page_no)]
         self.data = _TableData(num_rows=num_rows, num_cols=num_cols)
+        self.self_ref = self_ref
+        self.parent = _RefItem(parent_ref) if parent_ref else None
+
+
+class _RefItem:
+    def __init__(self, cref: str | None):
+        self.cref = cref
+
+
+class _Group:
+    def __init__(self, *, self_ref: str, name: str, children: list[str]):
+        self.self_ref = self_ref
+        self.name = name
+        self.children = [{"$ref": child_ref} for child_ref in children]
 
 
 class _FakeSerializer:
@@ -79,8 +102,9 @@ class _FakeSerializer:
 
 
 class _FakeDocument:
-    def __init__(self, items):
+    def __init__(self, items, groups=None):
         self._items = list(items)
+        self.groups = list(groups or [])
 
     def iterate_items(self):
         return [(item, None) for item in self._items]
@@ -93,13 +117,13 @@ class _FakeConvertResult:
         self.errors = errors or []
 
 
-def _install_fake_docling(monkeypatch, *, items) -> None:
+def _install_fake_docling(monkeypatch, *, items, groups=None) -> None:
     fake_docling_pkg = types.ModuleType("docling")
     fake_converter_module = types.ModuleType("docling.document_converter")
 
     class DocumentConverter:
         def convert(self, _temp_file_path):
-            return _FakeConvertResult(document=_FakeDocument(items))
+            return _FakeConvertResult(document=_FakeDocument(items, groups=groups))
 
     fake_converter_module.DocumentConverter = DocumentConverter
 
@@ -353,3 +377,78 @@ def test_pptexcel_structured_blocks_feed_docling_chunker_with_artifact_flags(
         and payload.get("artifact_refs", {}).get("image_uuid") == picture_uuid
         for payload in child_payloads
     )
+
+
+def test_excel_groups_inject_sheet_headers_as_chunk_preamble(monkeypatch, tmp_path):
+    groups = [
+        _Group(
+            self_ref="#/groups/0",
+            name="sheet: Titanic",
+            children=["#/tables/0", "#/tables/1"],
+        ),
+        _Group(
+            self_ref="#/groups/1",
+            name="sheet: Notes",
+            children=["#/tables/2"],
+        ),
+    ]
+    items = [
+        _TableItem(
+            page_no=1,
+            num_rows=2,
+            num_cols=2,
+            self_ref="#/tables/0",
+            parent_ref="#/groups/0",
+        ),
+        _TableItem(
+            page_no=1,
+            num_rows=2,
+            num_cols=2,
+            self_ref="#/tables/1",
+            parent_ref="#/groups/0",
+        ),
+        _TableItem(
+            page_no=2,
+            num_rows=2,
+            num_cols=2,
+            self_ref="#/tables/2",
+            parent_ref="#/groups/1",
+        ),
+    ]
+    _install_fake_docling(monkeypatch, items=items, groups=groups)
+    _patch_common_pipeline_hooks(monkeypatch)
+
+    run_id, artifact_dir, markdown_path = _prepare_artifact_dir(tmp_path)
+    monkeypatch.setattr(
+        extractor.local_artifacts_store,
+        "prepare_docling_artifact_dir",
+        lambda **_: (run_id, artifact_dir, markdown_path),
+    )
+    monkeypatch.setattr(
+        shared_pipeline.table_image_vlm,
+        "build_table_image_vlm_runtime",
+        lambda **_: None,
+    )
+
+    result = extractor.parse_pptexcel_with_docling(
+        file_bytes=b"dummy-xlsx-bytes",
+        file_name="sample.xlsx",
+        content_type=XLSX_MIME,
+        file_id="file-xlsx-001",
+    )
+
+    header_blocks = [block for block in result.structured_blocks if block.block_type == "header"]
+    assert any(block.content.strip() == "# Sheet: Titanic" for block in header_blocks)
+    assert any(block.content.strip() == "# Sheet: Notes" for block in header_blocks)
+
+    parent_chunks, child_chunks = split_parent_child_chunks_from_docling_blocks(
+        blocks=result.structured_blocks,
+        file_name="sample.xlsx",
+        artifact_dir=result.artifact_dir,
+        file_id=result.file_id,
+    )
+
+    assert any("# Sheet: Titanic" in chunk.content for chunk in parent_chunks)
+    assert any("# Sheet: Notes" in chunk.content for chunk in parent_chunks)
+    assert any("# Sheet: Titanic" in chunk.content for chunk in child_chunks)
+    assert any("# Sheet: Notes" in chunk.content for chunk in child_chunks)
