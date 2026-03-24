@@ -16,21 +16,29 @@ This package contains the Docling-based PDF extraction flow used by preview and 
   - Shared Pydantic models returned by Docling parsing.
 
 - `pipeline.py`
-  - Single orchestrator for Docling extraction.
+  - High-level PDF orchestrator for Docling extraction.
   - Flow:
     1. Load raw layout from selected backend client.
-    2. Iterate layout items once.
-    3. Export picture/table images to local artifacts.
-    4. Upload images to S3 when enabled.
-    5. Queue table image VLM jobs and inject markdown placeholders.
-    6. Finalize markdown + manifest and return parse result.
+    2. Delegate shared layout processing to `layout_processing/`.
+    3. Persist manifest + return parse result.
   - Includes stage-level `print` logging.
+
+- `layout_processing/`
+  - Shared layout-processing package used by both PDF and Office extraction paths.
+  - `orchestrator.py`: `process_docling_layout(...)` main loop and control flow.
+  - `classification.py`: element-to-block-type classification helpers.
+  - `image_export.py`: image extraction/crop + S3 upload accounting helpers.
+  - `lifecycle.py`: VLM finalization order, markdown canonicalization, output payload assembly.
 
 - `clients/beam_client.py`
   - Beam endpoint call logic and Beam layout normalization.
 
 - `clients/local_client.py`
   - Local Docling runtime setup, chunked conversion, and local layout normalization.
+
+- `docling_pptexcel_extractor.py` (under `ingestion/`)
+  - Office (PPTX/XLSX) extraction path.
+  - Reuses `layout_processing.process_docling_layout(...)` to keep layout logic consistent with PDF flow.
 
 - `storage/local_artifacts_store.py`
   - Local artifact directory management and file path builders.

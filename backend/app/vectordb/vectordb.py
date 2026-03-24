@@ -132,9 +132,11 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
     ensuring that the Parent-Child relationship (`parent_id`) is maintained.
     """
 
-    # 1. Prepare Parent Documents (for key-value storage)
+    # Upsert 1. Prepare Parent Documents (for key-value storage)
     parent_doc_map: List[Tuple[str, Dict[str, Any]]] = []
 
+    # Upsert 2: For each parent chunk, create a LangChain Document and maintain a mapping of parent_id to document dict for upsert.
+    print(f"[Upsert Documents] Preparing {len(parent_chunks)} parent documents for upsert...")
     for parent_dict in parent_chunks:
         if "parent_chunk_id" not in parent_dict or "content" not in parent_dict:
             raise ValueError("Each parent chunk must have 'parent_chunk_id' and 'content' fields.")
@@ -145,7 +147,6 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
             if metadata_key not in ["content", "parent_chunk_id"]
         }
 
-
         parent_doc = Document(
             page_content=parent_dict["content"],
             metadata=parent_metadata,
@@ -153,9 +154,13 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         json_serializable_doc = parent_doc.dict()
         parent_doc_map.append((parent_dict["parent_chunk_id"], json_serializable_doc))
 
-    # 2. Prepare Child Documents (for vector storage)
+    # Upsert 3. Prepare Child Documents (for vector storage)
     child_docs: List[Document] = []
     child_doc_ids: List[str] = []
+
+    # Upsert 4: For each child chunk, create a LangChain Document and maintain a list of child documents and their IDs for upsert. 
+    # Ensure parent-child relationship is preserved via metadata.
+    print(f"[Upsert Documents] Preparing {len(child_chunks)} child documents for upsert...")
     for child_chunk_dict in child_chunks:
         child_id = child_chunk_dict.get("child_chunk_id")
         if not child_id:
@@ -183,14 +188,17 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         child_doc_ids.append(child_id)
 
     print(
-        f"Starting concurrent upsert: parents={len(parent_doc_map)} children={len(child_docs)}."
+        f"[Upsert Documents] Starting concurrent upsert: parents={len(parent_doc_map)} children={len(child_docs)}."
     )
+
+    # Upsert 5: Perform concurrent upsert operations for parents and children, then handle potential failures with rollbacks and retries.
     concurrent_results = await asyncio.gather(
         PARENT_STORE.amset(parent_doc_map),
         VECTOR_STORE.aadd_documents(child_docs, ids=child_doc_ids),
         return_exceptions=True,
     )
 
+    # Upsert 6: Check for exceptions in concurrent upsert results and perform rollbacks if necessary, followed by a sequential retry.
     parent_error = (
         concurrent_results[0]
         if isinstance(concurrent_results[0], Exception)
@@ -203,14 +211,14 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
     )
 
     if parent_error is None and child_error is None:
-        print(f"Stored {len(parent_doc_map)} Parent Documents in Document Store.")
-        print(f"Stored {len(child_docs)} Child Documents in Vector Store.")
+        print(f"[Upsert Documents] Stored {len(parent_doc_map)} Parent Documents in Document Store.")
+        print(f"[Upsert Documents] Stored {len(child_docs)} Child Documents in Vector Store.")
         return
 
     if parent_error is not None:
-        print(f"Concurrent parent upsert failed: {parent_error}")
+        print(f"[Upsert Documents] Concurrent parent upsert failed: {parent_error}")
     if child_error is not None:
-        print(f"Concurrent child upsert failed: {child_error}")
+        print(f"[Upsert Documents] Concurrent child upsert failed: {child_error}")
 
     rollback_errors: List[str] = []
 
@@ -219,8 +227,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         try:
             deleted_parent_count = await _rollback_parent_documents_by_ids(parent_ids)
             print(
-                "Rolled back concurrently written parent documents: "
-                f"deleted={deleted_parent_count}."
+                f"[Upsert Documents] Rolled back concurrently written parent documents: deleted={deleted_parent_count}."
             )
         except Exception as rollback_error:
             rollback_errors.append(f"parent rollback failed: {rollback_error}")
@@ -230,8 +237,7 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
         try:
             deleted_child_count = await _rollback_child_documents_by_ids(child_doc_ids)
             print(
-                "Rolled back concurrently written child documents: "
-                f"deleted={deleted_child_count}."
+                f"[Upsert Documents] Rolled back concurrently written child documents: deleted={deleted_child_count}."
             )
         except Exception as rollback_error:
             rollback_errors.append(f"child rollback failed: {rollback_error}")
@@ -240,10 +246,10 @@ async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: Li
     print("Retrying upsert sequentially after concurrent failure...")
     try:
         await PARENT_STORE.amset(parent_doc_map)
-        print(f"Stored {len(parent_doc_map)} Parent Documents in Document Store (sequential retry).")
+        print(f"[Upsert Documents] Stored {len(parent_doc_map)} Parent Documents in Document Store (sequential retry).")
 
         await VECTOR_STORE.aadd_documents(child_docs, ids=child_doc_ids)
-        print(f"Stored {len(child_docs)} Child Documents in Vector Store (sequential retry).")
+        print(f"[Upsert Documents] Stored {len(child_docs)} Child Documents in Vector Store (sequential retry).")
     except Exception as retry_error:
         rollback_context = (
             f" Rollback issues: {'; '.join(rollback_errors)}."

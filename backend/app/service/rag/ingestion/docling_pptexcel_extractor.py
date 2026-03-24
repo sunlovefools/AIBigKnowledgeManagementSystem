@@ -20,9 +20,9 @@ from app.service.rag.ingestion.docling.models import (
     DoclingStructuredBlock,
     ExtractedImageArtifact,
 )
+from app.service.rag.ingestion.docling.layout_processing import process_docling_layout
 from app.service.rag.ingestion.docling.storage import local_artifacts_store
 from app.service.rag.ingestion.docling.utils import pdf_utils
-from app.service.rag.ingestion.docling import pipeline as docling_pipeline
 
 # MIME types for PowerPoint/Excel documents
 SUPPORTED_PPTEXCEL_MIME_TYPES = {
@@ -338,8 +338,8 @@ def parse_pptexcel_with_docling(
 
         artifacts_enabled = artifact_dir is not None and markdown_path is not None
 
-        # Docling-pdf-pipeline 3: Process the normalized layout with the shared Docling pipeline core to emit structured blocks and markdown.
-        outputs = docling_pipeline._process_docling_layout(
+        # Docling-pdf-pipeline 3: Process the normalized layout with the shared Docling layout processor to emit structured blocks and markdown.
+        outputs = process_docling_layout(
             layout=layout,
             file_name=file_name,
             resolved_file_id=resolved_file_id,

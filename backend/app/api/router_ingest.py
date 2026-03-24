@@ -97,10 +97,10 @@ async def ingest_upload(file: FileUpload):
     parent_chunks = service_result["parent_chunks"]
     child_chunks = service_result["child_chunks"]
 
-    # Ingestion 4: Insert the chunks into the vector database.
+    # Ingestion 2: Insert the chunks into the vector database.
     await _upsert_chunks(parent_chunks, child_chunks)
 
-    # Ingestion 5: Return a unified response back to the frontend
+    # Ingestion 3: Return a unified response back to the frontend
     return IngestUploadResponse(
         status="ok",
         message="Upload completed successfully.",
