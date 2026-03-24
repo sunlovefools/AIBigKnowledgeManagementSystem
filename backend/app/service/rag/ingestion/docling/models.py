@@ -68,14 +68,7 @@ class DoclingParseResult(BaseModel):
     Represents the result of parsing a PDF with Docling.
     """
 
-    source_file_name: str
-    artifact_run_id: str
-    artifact_dir: str
-    markdown_path: str
-    markdown_text: str
-    images: list[ExtractedImageArtifact]
     warnings: list[str]
     partial_failures: list[DoclingChunkFailure]
-    stats: DoclingParseStats
     structured_blocks: list[DoclingStructuredBlock] = Field(default_factory=list)
 

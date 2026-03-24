@@ -101,6 +101,7 @@ def _process_docling_layout(
     Process a normalized Docling layout into markdown, structured blocks, images, and stats.
 
     This is the shared processing core used by both PDF and Office extraction paths.
+    TODO: This must be refactor, I think it should have its own module and not be coupled with the pipeline.py
     """
 
     artifacts_enabled = artifact_dir is not None and markdown_path is not None
@@ -492,9 +493,11 @@ def _process_docling_layout(
 def parse_pdf_with_docling(
     pdf_bytes: bytes,
     file_name: str,
-    artifact_root: Path | None = None,
     page_chunk_size: int = DEFAULT_DOCLING_PAGE_CHUNK_SIZE,
     file_id: str | None = None,
+    run_id: str | None = None,
+    artifact_dir: Path | None = None,
+    markdown_path: Path | None = None,
     backend: str | None = None,
 ) -> DoclingParseResult:
     """
@@ -505,20 +508,19 @@ def parse_pdf_with_docling(
         raise ValueError("empty pdf payload")
 
     selected_backend = (backend or "beam").strip().lower()
-    print(f"[docling-pipeline] start file={file_name}")
-    print(f"[docling-pipeline] backend selected: {selected_backend}")
+    print(f"[docling-pipeline] start file={file_name} with backend={selected_backend}")
 
+    # Docling-pdf pipeline 1: Resolve file id for downstream processing and artifact persistence.
+    # Artifact here is to store all the output from this pipeline for debugging and traceability, it is not a required component for the pipeline to run successfully.
     resolved_file_id = (file_id or "").strip()
-    run_id, artifact_dir, markdown_path = local_artifacts_store.prepare_docling_artifact_dir(
-        file_name=file_name,
-        artifact_root=artifact_root,
-    )
+    resolved_run_id = (run_id or "").strip()
     artifacts_enabled = artifact_dir is not None and markdown_path is not None
 
     warnings: list[str] = []
     partial_failures = []
 
     print("[docling-pipeline] loading raw layout...")
+    # Docling-pdf pipeline 2: Load raw Docling layout from selected backend client.
     if selected_backend == "local":
         layout = local_client.build_local_layout(
             pdf_bytes=pdf_bytes,
@@ -543,6 +545,7 @@ def parse_pdf_with_docling(
         )
     print(f"[docling-pipeline] layout loaded: items={len(layout['items'])}")
 
+    # Docling-pdf pipeline 3: Process the normalized layout with the shared Docling pipeline core to emit structured blocks and markdown.
     outputs = _process_docling_layout(
         layout=layout,
         file_name=file_name,
@@ -556,21 +559,37 @@ def parse_pdf_with_docling(
         empty_markdown_error=empty_markdown_error,
     )
 
+    # Docling-pdf pipeline 4: Build the final parse result model and persist manifest artifact for debugging and traceability.
     result_model = DoclingParseResult(
-        source_file_name=file_name,
-        artifact_run_id=run_id,
-        artifact_dir=str(artifact_dir) if artifacts_enabled and artifact_dir is not None else "",
-        markdown_path=str(markdown_path) if artifacts_enabled and markdown_path is not None else "",
-        markdown_text=outputs["markdown_text"],
-        images=outputs["images"],
         warnings=outputs["warnings"],
         partial_failures=outputs["partial_failures"],
-        stats=outputs["stats"],
         structured_blocks=outputs["structured_blocks"],
     )
 
+    # Docling-pdf-pipeline 5: If artifacts are enabled, persist a manifest JSON file containing the parse outputs for debugging and traceability.
     if artifacts_enabled and artifact_dir is not None:
-        local_artifacts_store.write_manifest(artifact_dir, result_model.model_dump())
+        local_artifacts_store.write_manifest(
+            artifact_dir,
+            {
+                "source_file_name": file_name,
+                "artifact_run_id": resolved_run_id,
+                "artifact_dir": str(artifact_dir),
+                "markdown_path": str(markdown_path),
+                "markdown_text": outputs["markdown_text"],
+                "images": [image.model_dump() for image in outputs["images"]],
+                "warnings": outputs["warnings"],
+                "partial_failures": [
+                    failure.model_dump()
+                    if hasattr(failure, "model_dump")
+                    else str(failure)
+                    for failure in outputs["partial_failures"]
+                ],
+                "stats": outputs["stats"].model_dump(),
+                "structured_blocks": [
+                    block.model_dump() for block in outputs["structured_blocks"]
+                ],
+            },
+        )
 
     print(
         "[docling-pipeline] file=%s backend=%s run_id=%s chunks=%s pictures=%s "
@@ -578,11 +597,11 @@ def parse_pdf_with_docling(
         % (
             file_name,
             selected_backend,
-            run_id,
-            result_model.stats.converted_chunks,
-            result_model.stats.pictures_extracted,
-            result_model.stats.table_fallback_images_extracted,
-            result_model.stats.partial_failure_chunks,
+            resolved_run_id,
+            outputs["stats"].converted_chunks,
+            outputs["stats"].pictures_extracted,
+            outputs["stats"].table_fallback_images_extracted,
+            outputs["stats"].partial_failure_chunks,
             outputs["s3_upload_uploaded_count"],
             outputs["s3_upload_failed_count"],
             outputs["s3_upload_skipped_count"],

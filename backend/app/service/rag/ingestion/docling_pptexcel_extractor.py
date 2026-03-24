@@ -301,6 +301,9 @@ def parse_pptexcel_with_docling(
     file_name: str,
     content_type: str,
     file_id: str | None = None,
+    run_id: str | None = None,
+    artifact_dir: Path | None = None,
+    markdown_path: Path | None = None,
 ) -> DoclingPptExcelParseResult:
     """
     Parse PowerPoint/Excel file with Docling and emit chunker-compatible structured blocks.
@@ -321,6 +324,7 @@ def parse_pptexcel_with_docling(
     )
 
     resolved_file_id = (file_id or generate_uuid_v6()).strip()
+    resolved_run_id = (run_id or "").strip()
     warnings: list[str] = []
     partial_failures: list[Any] = []
 
@@ -332,12 +336,9 @@ def parse_pptexcel_with_docling(
             partial_failures=partial_failures,
         )
 
-        run_id, artifact_dir, markdown_path = local_artifacts_store.prepare_docling_artifact_dir(
-            file_name=file_name,
-            artifact_root=None,
-        )
         artifacts_enabled = artifact_dir is not None and markdown_path is not None
 
+        # Docling-pdf-pipeline 3: Process the normalized layout with the shared Docling pipeline core to emit structured blocks and markdown.
         outputs = docling_pipeline._process_docling_layout(
             layout=layout,
             file_name=file_name,
@@ -361,7 +362,7 @@ def parse_pptexcel_with_docling(
             images=outputs["images"],
         )
         parse_result.artifact_dir = artifact_dir
-        parse_result.artifact_run_id = run_id or ""
+        parse_result.artifact_run_id = resolved_run_id
         parse_result.partial_failures = outputs["partial_failures"]
 
         if artifacts_enabled and artifact_dir is not None and markdown_path is not None:
@@ -369,7 +370,7 @@ def parse_pptexcel_with_docling(
                 artifact_dir,
                 {
                     "source_file_name": file_name,
-                    "artifact_run_id": run_id or "",
+                    "artifact_run_id": resolved_run_id,
                     "artifact_dir": str(artifact_dir),
                     "markdown_path": str(markdown_path),
                     "markdown_text": outputs["markdown_text"],
@@ -390,7 +391,7 @@ def parse_pptexcel_with_docling(
             "table_fallbacks=%s partial_failures=%s s3_uploaded=%s s3_failed=%s s3_skipped=%s"
             % (
                 file_name,
-                run_id,
+                resolved_run_id,
                 outputs["stats"].converted_chunks,
                 outputs["stats"].pictures_extracted,
                 outputs["stats"].table_fallback_images_extracted,

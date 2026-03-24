@@ -7,13 +7,11 @@ from __future__ import annotations
 import base64
 import json
 import os
-from pathlib import Path
 from typing import Any
 
 import requests
 
 from app.service.rag.ingestion.docling.config import (
-    DEFAULT_DOCLING_PAGE_CHUNK_SIZE,
     BEAM_DOCLING_CLIENT_MAX_FILE_SIZE_MB,
     BEAM_DOCLING_TIMEOUT_SECONDS,
 )
@@ -296,25 +294,3 @@ def build_beam_layout(
         "converted_chunks": 1,
     }
 
-
-def parse_pdf_with_docling(
-    pdf_bytes: bytes,
-    file_name: str,
-    artifact_root: Path | None = None,
-    page_chunk_size: int = DEFAULT_DOCLING_PAGE_CHUNK_SIZE,
-    file_id: str | None = None,
-) -> Any:
-    """
-    Beam-backend convenience entrypoint routed through the unified pipeline.
-    """
-
-    from app.service.rag.ingestion.docling.pipeline import parse_pdf_with_docling
-
-    return parse_pdf_with_docling(
-        pdf_bytes=pdf_bytes,
-        file_name=file_name,
-        artifact_root=artifact_root,
-        page_chunk_size=page_chunk_size,
-        file_id=file_id,
-        backend="beam",
-    )

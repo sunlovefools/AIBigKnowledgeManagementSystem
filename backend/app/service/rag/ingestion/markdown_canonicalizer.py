@@ -15,10 +15,16 @@ _CODE_FENCE_RE = re.compile(r"^\s*```")
 
 
 def _normalize_newlines(text: str) -> str:
+    """
+    Normalize all newlines in the text to \n for consistent downstream processing.
+    """
     return (text or "").replace("\r\n", "\n").replace("\r", "\n")
 
 
 def _rstrip_lines(text: str) -> str:
+    """
+    Strip trailing whitespace from each line while preserving hardbreaks (two or more spaces at end of line).
+    """
     return "\n".join(line.rstrip() for line in _normalize_newlines(text).split("\n"))
 
 
@@ -36,6 +42,9 @@ def _preserve_hardbreak_trailing_spaces(line: str) -> str:
 
 
 def _canonicalize_non_fence_line(line: str, block_type: str | None = None) -> str:
+    """
+    Canonicalize a single line of markdown text for headers and lists while preserving hardbreaks.
+    """
     line = html.unescape(line).replace("\u00a0", " ")
 
     match = _HEADER_LINE_RE.match(line)
@@ -61,23 +70,28 @@ def canonicalize_markdown_text(text: str) -> str:
     - Normalizing header lines to have a single space after the # marks
     - Normalizing unordered list bullets to use '-' and ensuring a single space after the bullet
     - Normalizing ordered list numbering to ensure a single space after the number and dot/parenthesis
-    - Collapsing multiple consecutive blank lines into a maximum of two"""
+    - Collapsing multiple consecutive blank lines into a maximum of two
+    """
 
+    # Canonicalize 1: Normalize newlines and strip trailing whitespace while preserving hardbreaks.
     cleaned = _rstrip_lines(text)
     lines = cleaned.split("\n")
     in_fence = False
     normalized: list[str] = []
 
+    # Canonicalize 2: Process line by line to normalize headers and lists while respecting code fences.
     for line in lines:
         if _CODE_FENCE_RE.match(line):
             in_fence = not in_fence
             normalized.append(line)
             continue
-
+        
+        # Canonicalize 2a: If inside a code fence, skip other canonicalization and preserve original line.
         if in_fence:
             normalized.append(line)
             continue
 
+        # Canonicalize 3: For non-fence lines, apply header and list normalization while preserving hardbreaks.
         normalized.append(_canonicalize_non_fence_line(line))
 
     canonical = "\n".join(normalized).strip("\n")
@@ -140,7 +154,7 @@ def canonicalize_chunk_payloads_for_storage(
     child_chunks: list[dict[str, Any]],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     """
-    Canonicalize chunk payload content before storage.
+    Canonicalize chunk payload content before storing in the database to ensure consistent formatting
 
     The ingestion upload flow operates on one logical file at a time, so this
     helper assumes the input parent/child chunk lists belong to the same file.
