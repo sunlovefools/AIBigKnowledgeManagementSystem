@@ -23,8 +23,8 @@ except ImportError:
     sys.exit(1)
 
 # --- Configuration ---
-PDF_DIR = r"C:\Users\uruma\Desktop\CGI\PDFs2"
-QUESTIONS_FILE = r"C:\Users\uruma\Desktop\CGI\questions_all_30.txt"
+PDF_DIR = r"C:\Users\uruma\Desktop\CGI\PDFs3"
+QUESTIONS_FILE = r"C:\Users\uruma\Desktop\NewDATASET\NEWquestions_all_30.txt"
 OUTPUT_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "golden_dataset.json")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen2.5:14b")
 
@@ -68,8 +68,8 @@ def parse_questions_file(filepath: str) -> list[dict]:
         if not line:
             continue
 
-        file_match = re.match(r"^File:\s*(.+\.pdf)", line, re.IGNORECASE)
-        topic_match = re.match(r"^Topic:\s*(.+)", line, re.IGNORECASE)
+        file_match = re.match(r"^FILE:\s*(.+\.pdf)", line, re.IGNORECASE)
+        topic_match = re.match(r"^TOPIC:\s*(.+)", line, re.IGNORECASE)
         question_match = re.match(r"^Q\d+\s*\([^)]*\)\s*:\s*(.+)", line)
 
         if file_match:
