@@ -13,8 +13,12 @@ import aiohttp
 
 try:
     from backend.debug.debug_logger import log_token_usage
-except ImportError:
-    from debug.debug_logger import log_token_usage
+except Exception:
+    try:
+        from debug.debug_logger import log_token_usage
+    except Exception:
+        def log_token_usage(**_kwargs):
+            return None
 
 _OPENROUTER_DEFAULT_URL = "https://openrouter.ai/api/v1/chat/completions"
 _DEFAULT_TIMEOUT_S = 500.0

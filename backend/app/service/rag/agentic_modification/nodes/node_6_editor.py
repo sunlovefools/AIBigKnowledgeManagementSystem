@@ -215,6 +215,9 @@ async def run_editor_batch(
     batch_id: int | None = None,
 ) -> tuple[dict[str, Any], dict[str, int], int, list[dict[str, Any]]]:
     goal = _normalize_goal(state.get("goal"), state.get("user_instructions", ""))
+    user_id = str(state.get("user_id") or "").strip()
+    if not user_id:
+        raise ValueError("user_id is required in agentic retrieval state.")
     resolved_batch_id = int(batch_id or 1)
     retrieval_cache = vector_search._ensure_retrieval_cache(state.get("_retrieval_cache"))
     state["_retrieval_cache"] = retrieval_cache
@@ -271,6 +274,7 @@ async def run_editor_batch(
             vector_search._fetch_parent_chunks_for_file_chunk_numbers(
                 file_id=file_id,
                 chunk_numbers=file_entry["chunk_numbers"],
+                user_id=user_id,
                 cache=retrieval_cache,
             )
             for file_id, file_entry in requested_by_file.items()

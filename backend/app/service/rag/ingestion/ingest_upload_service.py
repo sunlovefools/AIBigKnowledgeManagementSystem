@@ -255,10 +255,15 @@ async def upsert_chunks(
     *,
     parent_chunks: list[dict[str, Any]],
     child_chunks: list[dict[str, Any]],
+    user_id: str,
 ) -> None:
     """Upsert parent/child chunks into vector storage and normalize upsert failures."""
     try:
-        await upsert_documents(parent_chunks=parent_chunks, child_chunks=child_chunks)
+        await upsert_documents(
+            parent_chunks=parent_chunks,
+            child_chunks=child_chunks,
+            user_id=user_id,
+        )
     except Exception as exc:
         raise UpsertChunksFailedError("upsert to vector store failed") from exc
 

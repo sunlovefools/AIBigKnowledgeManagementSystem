@@ -25,7 +25,14 @@ from app.service.rag.ingestion.markdown_canonicalizer import (
 )
 from app.service.rag.ingestion.legacy.chunk_polisher import polish_chunks
 from app.service.storage.s3_image_store import delete_docling_artifacts_by_file_id
-from debug.debug_logger import log_vector_db_result
+try:
+    from backend.debug.debug_logger import log_vector_db_result
+except Exception:
+    try:
+        from debug.debug_logger import log_vector_db_result
+    except Exception:
+        def log_vector_db_result(**_kwargs):
+            return None
 
 
 class ReconstructionService:
@@ -101,7 +108,7 @@ class ReconstructionService:
         }
 
     @staticmethod
-    async def _find_first_parent_row_for_file_id(file_id: str) -> dict | None:
+    async def _find_first_parent_row_for_file_id(file_id: str, user_id: str) -> dict | None:
         """
         Fetch a single parent row for a file ID.
 
@@ -111,7 +118,12 @@ class ReconstructionService:
 
         def _find_one() -> dict | None:
             collection = PARENT_STORE.collection
-            cursor = collection.find({"value.metadata.file_metadata.file_id": file_id})
+            cursor = collection.find(
+                {
+                    "value.metadata.file_metadata.file_id": file_id,
+                    "value.metadata.user_id": user_id,
+                }
+            )
             for row in cursor:
                 if isinstance(row, dict):
                     return row
@@ -148,6 +160,10 @@ class ReconstructionService:
             parent_id = parent_part.strip() or None
             return chunk_number, parent_id
 
+        normalized_user_id = str(user_id or "").strip()
+        if not normalized_user_id:
+            raise ValueError("user_id must be a non-empty string.")
+
         try:
             return int(raw), None
         except ValueError:
@@ -164,6 +180,7 @@ class ReconstructionService:
         current_chunk_number: int,
         current_parent_id: str | None,
         limit: int,
+        user_id: str,
     ) -> tuple[list[dict], bool, str | None]:
         """
         Find parent chunks for a fileId with deterministic ordering and cursor.
@@ -174,6 +191,7 @@ class ReconstructionService:
             collection = PARENT_STORE.collection
             filter_doc: dict[str, Any] = {
                 "value.metadata.file_metadata.file_id": file_id,
+                "value.metadata.user_id": user_id,
             }
 
             # Astra rejects sort-by-_id unless _id is explicitly indexed.
@@ -254,7 +272,7 @@ class ReconstructionService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    async def get_all_preview_files() -> list[dict]:
+    async def get_all_preview_files(user_id: str) -> list[dict]:
         """
         Retrieve a filename-merged file list for the sidebar.
 
@@ -273,6 +291,14 @@ class ReconstructionService:
             for row in rows:
                 fields = ReconstructionService._extract_parent_row_fields(row)
                 if not fields:
+                    continue
+                parent_doc = row.get("value") if isinstance(row, dict) else None
+                metadata = (
+                    parent_doc.get("metadata")
+                    if isinstance(parent_doc, dict) and isinstance(parent_doc.get("metadata"), dict)
+                    else {}
+                )
+                if str(metadata.get("user_id") or "").strip() != normalized_user_id:
                     continue
 
                 file_id = fields["fileId"]
@@ -313,28 +339,6 @@ class ReconstructionService:
                 for v in by_file_id.values()
             ]
             summaries.sort(key=lambda item: (str(item.get("fileName", "")).lower(), item.get("fileId", "")))
-
-                metadata = parent_doc.get("metadata", {}) or {}
-
-                # ADDED: skip rows that don't belong to this user
-                if metadata.get("user_id") != user_id:
-                    continue
-
-                file_metadata = metadata.get("file_metadata", {}) or {}
-                file_name = file_metadata.get("file_name") or metadata.get("source") or "Unknown"
-                file_id = file_metadata.get("file_id") or ""
-                preview_text = str(parent_doc.get("page_content", ""))
-
-                # Append a preview of the first parent chunk for each file.
-                summaries.append(
-                    {
-                        "fileId": file_id,
-                        "fileName": file_name,
-                        "preview": preview_text,
-                    }
-                )
-
-            sorted_summaries = sorted(summaries, key=lambda item: str(item.get("fileName", "")).lower())
             log_vector_db_result(
                 function_name="get_all_preview_files",
                 context={
@@ -414,7 +418,7 @@ class ReconstructionService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    async def get_file_names_by_ids(file_ids: list[str]) -> dict[str, str]:
+    async def get_file_names_by_ids(file_ids: list[str], user_id: str) -> dict[str, str]:
         """
         Return a fileId -> fileName mapping for a specific list of fileIds.
         Fetches only ONE parent chunk per fileId — avoids full-collection scans
@@ -425,7 +429,7 @@ class ReconstructionService:
             if not file_id:
                 continue
             try:
-                row = await ReconstructionService._find_first_parent_row_for_file_id(file_id)
+                row = await ReconstructionService._find_first_parent_row_for_file_id(file_id, user_id)
                 if row:
                     fields = ReconstructionService._extract_parent_row_fields(row)
                     if fields:
@@ -436,7 +440,7 @@ class ReconstructionService:
         return result
 
     @staticmethod
-    async def delete_file(file_id: str) -> dict:
+    async def delete_file(file_id: str, user_id: str) -> dict:
         """
         Delete one logical file from Astra and then attempt S3 cleanup.
 
@@ -446,15 +450,15 @@ class ReconstructionService:
         print(f"Deleting file, file_id={file_id}...")
 
         try:
-            row = await ReconstructionService._find_first_parent_row_for_file_id(file_id)
+            row = await ReconstructionService._find_first_parent_row_for_file_id(file_id, user_id)
             if row is None:
                 raise FileNotFoundError(f"No parent chunks found for file_id={file_id}")
 
             fields = ReconstructionService._extract_parent_row_fields(row) or {}
             file_name = str(fields.get("fileName") or "Unknown")
 
-            deleted_child_chunks = await delete_children_by_file_id(file_id)
-            deleted_parent_chunks = await delete_parent_documents_by_file_id(file_id)
+            deleted_child_chunks = await delete_children_by_file_id(file_id, user_id)
+            deleted_parent_chunks = await delete_parent_documents_by_file_id(file_id, user_id)
 
             if deleted_parent_chunks <= 0:
                 raise RuntimeError(
@@ -504,7 +508,12 @@ class ReconstructionService:
                 Inner helper function called by the async wrapper to perform the blocking DB call in a thread.
                 """
                 collection = PARENT_STORE.collection
-                cursor = collection.find({"_id": parent_id})
+                cursor = collection.find(
+                    {
+                        "_id": parent_id,
+                        "value.metadata.user_id": user_id,
+                    }
+                )
                 for row in cursor:
                     if isinstance(row, dict):
                         return row
@@ -522,34 +531,14 @@ class ReconstructionService:
             raise RuntimeError(f"Document lookup failed: {str(error)}")
 
     @staticmethod
-    async def get_file_merged_content(file_id: str, file_name: str) -> str:
+    async def get_file_merged_content(file_id: str, file_name: str, user_id: str) -> str:
         """
         Build merged file content in deterministic parent-chunk order.
         Used by selection preview validation so selection offsets are file-level.
         """
-        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name)
+        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name, user_id)
         return "\n\n".join(str(item.get("content") or "") for item in sortable_rows)
 
-            metadata = parent_doc.get("metadata", {}) or {}
-
-            # ADDED: ownership check — return None if doc belongs to a different user.
-            # Callers treat None as 404, so this prevents cross-user reads without leaking existence.
-            if metadata.get("user_id") != user_id:
-                return None
-
-            file_metadata = metadata.get("file_metadata", {}) or {}
-            file_name = file_metadata.get("file_name") or metadata.get("source") or "Unknown"
-
-            return {
-                "id": parent_id,
-                "fileName": file_name,
-                "content": parent_doc["page_content"],
-                "size": len(parent_doc["page_content"]),
-            }
-
-        except Exception as e:
-            print(f"❌ Failed to retrieve document {parent_id}: {e}")
-            return None
 
     @staticmethod
     async def get_file_chunk_window_content(
@@ -557,6 +546,7 @@ class ReconstructionService:
         file_name: str,
         start_chunk_number: int,
         end_chunk_number: int,
+        user_id: str,
     ) -> tuple[str, int]:
         """
         Build merged content for a chunk-number window plus its absolute file offset.
@@ -571,7 +561,7 @@ class ReconstructionService:
 
         start_chunk_number_zero = start_chunk_number - 1
         end_chunk_number_zero = end_chunk_number - 1
-        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name)
+        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name, user_id)
         available_chunk_numbers = {
             int(item["chunkNumber"])
             for item in sortable_rows
@@ -611,7 +601,8 @@ class ReconstructionService:
         )
         return window_content, window_absolute_start
 
-    async def update_document(parent_id: str, new_content: str, file_name: str) -> dict:
+    @staticmethod
+    async def update_document(parent_id: str, new_content: str, file_name: str, user_id: str) -> dict:
         """
         Update a single parent chunk and its children, preserving the original file_id.
         (kept as you had it; unchanged except style)
@@ -624,8 +615,11 @@ class ReconstructionService:
             try:
                 old_doc = await PARENT_STORE.aget(parent_id)
                 if isinstance(old_doc, dict):
+                    metadata = old_doc.get("metadata") if isinstance(old_doc.get("metadata"), dict) else {}
+                    if str(metadata.get("user_id") or "").strip() != str(user_id or "").strip():
+                        raise FileNotFoundError(f"Document with parent_id={parent_id} not found")
                     existing_file_id = (
-                        (old_doc.get("metadata") or {})
+                        metadata
                         .get("file_metadata", {})
                         .get("file_id")
                     )
@@ -666,7 +660,11 @@ class ReconstructionService:
             parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
 
             print("  → Step 5: Storing new chunks in database...")
-            await upsert_documents(parent_chunks=parent_chunks_dicts, child_chunks=polished_child_chunks)
+            await upsert_documents(
+                parent_chunks=parent_chunks_dicts,
+                child_chunks=polished_child_chunks,
+                user_id=user_id,
+            )
 
             new_parent_id = parent_chunks_dicts[0]["parent_chunk_id"]
             print(f"✅ Document {file_name} updated successfully!")
@@ -705,7 +703,12 @@ class ReconstructionService:
             parent_collection = PARENT_STORE.collection
 
             def _load_existing_file_state() -> tuple[list[str], str]:
-                cursor = parent_collection.find({"value.metadata.file_metadata.file_id": file_id})
+                cursor = parent_collection.find(
+                    {
+                        "value.metadata.file_metadata.file_id": file_id,
+                        "value.metadata.user_id": user_id,
+                    }
+                )
                 sortable_rows: list[dict[str, Any]] = []
                 for row in cursor:
                     if not isinstance(row, dict):
@@ -787,7 +790,11 @@ class ReconstructionService:
             # 4) Persist parent + child chunks
             print("  → Storing new chunks in database...")
             parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
-            await upsert_documents(parent_chunks=parent_chunks_dicts, child_chunks=polished_child_chunks)
+            await upsert_documents(
+                parent_chunks=parent_chunks_dicts,
+                child_chunks=polished_child_chunks,
+                user_id=user_id,
+            )
 
             print(f"✅ File {file_name} updated successfully!")
             return {
@@ -806,12 +813,17 @@ class ReconstructionService:
             raise RuntimeError(f"File update failed: {str(e)}")
 
     @staticmethod
-    async def _load_sortable_rows_for_file(file_id: str, file_name: str) -> list[dict[str, Any]]:
+    async def _load_sortable_rows_for_file(file_id: str, file_name: str, user_id: str) -> list[dict[str, Any]]:
         """Load parent rows for a file and normalize into a deterministic sortable list."""
 
         def _load_file_rows() -> list[dict]:
             collection = PARENT_STORE.collection
-            rows = collection.find({"value.metadata.file_metadata.file_id": file_id})
+            rows = collection.find(
+                {
+                    "value.metadata.file_metadata.file_id": file_id,
+                    "value.metadata.user_id": user_id,
+                }
+            )
             result: list[dict] = []
             for row in rows:
                 if isinstance(row, dict):
@@ -882,6 +894,7 @@ class ReconstructionService:
         file_id: str,
         file_name: str,
         updates: list[dict[str, str]],
+        user_id: str,
     ) -> dict[str, Any]:
         if not updates:
             return {
@@ -904,7 +917,7 @@ class ReconstructionService:
             deduped_updates[parent_id] = content
 
         # 2) Load current state and validate parent IDs.
-        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name)
+        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name, user_id)
         parent_index = {item["parentId"]: index for index, item in enumerate(sortable_rows)}
         unknown_parent_ids = [
             parent_id for parent_id in deduped_updates.keys() if parent_id not in parent_index
@@ -997,9 +1010,9 @@ class ReconstructionService:
         # 6) Replace only changed parent rows.
         deleted_child_chunks_count = 0
         for parent_id in changed_parent_ids:
-            deleted_children = await delete_children_by_parent_id(parent_id)
+            deleted_children = await delete_children_by_parent_id(parent_id, user_id)
             deleted_child_chunks_count += ReconstructionService._to_int(deleted_children) or 0
-            await delete_parent_document(parent_id)
+            await delete_parent_document(parent_id, user_id)
 
         child_chunks_dicts: list[dict[str, Any]] = []
         for parent_id in changed_parent_ids:
@@ -1017,6 +1030,7 @@ class ReconstructionService:
             await upsert_documents(
                 parent_chunks=replacement_parent_chunks_dicts,
                 child_chunks=polished_child_chunks,
+                user_id=user_id,
             )
 
         existing_parent_pairs: list[tuple[str, dict]] = []
@@ -1074,12 +1088,13 @@ class ReconstructionService:
         file_name: str,
         full_content: str,
         touched_parent_ids: list[str],
+        user_id: str,
     ) -> dict[str, Any]:
         normalized_full_content = normalize_markdown_for_modification(full_content)
         if not normalized_full_content.strip():
             raise ValueError("fullContent must not be empty")
 
-        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name)
+        sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name, user_id)
         existing_parent_ids = {str(item["parentId"]) for item in sortable_rows}
         cleaned_touched_parent_ids = [str(parent_id).strip() for parent_id in touched_parent_ids if str(parent_id).strip()]
         if not cleaned_touched_parent_ids:
@@ -1162,9 +1177,9 @@ class ReconstructionService:
         deleted_child_chunks_count = 0
         for old_index in sorted(old_changed_indices):
             old_parent_id = str(sortable_rows[old_index]["parentId"])
-            deleted_children = await delete_children_by_parent_id(old_parent_id)
+            deleted_children = await delete_children_by_parent_id(old_parent_id, user_id)
             deleted_child_chunks_count += ReconstructionService._to_int(deleted_children) or 0
-            await delete_parent_document(old_parent_id)
+            await delete_parent_document(old_parent_id, user_id)
             deleted_parent_ids.append(old_parent_id)
 
         # 3) Prepare upserts for inserted/replaced new parents only.
@@ -1188,7 +1203,11 @@ class ReconstructionService:
 
         polished_children = polish_chunks(child_dicts_to_upsert) if child_dicts_to_upsert else []
         if parent_dicts_to_upsert or polished_children:
-            await upsert_documents(parent_chunks=parent_dicts_to_upsert, child_chunks=polished_children)
+            await upsert_documents(
+                parent_chunks=parent_dicts_to_upsert,
+                child_chunks=polished_children,
+                user_id=user_id,
+            )
 
         # 4) Re-number preserved parents to match the new sequence.
         parent_chunk_number_only_updates = 0
@@ -1255,6 +1274,7 @@ class ReconstructionService:
         file_id: str,
         file_name: str,
         updates: list[dict[str, str]],
+        user_id: str,
         *,
         mode: Literal["fast_updates", "boundary_rechunk"] = "fast_updates",
         full_content: str | None = None,
@@ -1272,6 +1292,7 @@ class ReconstructionService:
                     file_id=file_id,
                     file_name=file_name,
                     updates=updates,
+                    user_id=user_id,
                 )
 
             if mode == "boundary_rechunk":
@@ -1280,6 +1301,7 @@ class ReconstructionService:
                     file_name=file_name,
                     full_content=str(full_content or ""),
                     touched_parent_ids=list(touched_parent_ids or []),
+                    user_id=user_id,
                 )
 
             raise ValueError(f"Unsupported mode='{mode}'")

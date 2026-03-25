@@ -17,6 +17,7 @@ from app.service.rag.agentic_modification.services import llm_client, vector_sea
 def _base_state() -> dict:
     return {
         "user_instructions": "update policy",
+        "user_id": "user-1",
         "run_id": "run-node34",
         "file_ids": None,
         "intention": "edit",
@@ -52,7 +53,7 @@ def test_node3_expands_all_candidate_files_and_builds_parent_payload(monkeypatch
 
     calls: list[tuple[str, str, int]] = []
 
-    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int):
+    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int, **kwargs):
         calls.append((query, file_id, top_k))
         doc = Document(
             page_content="child",
@@ -115,7 +116,7 @@ def test_node3_processes_strong_only_candidates(monkeypatch):
         ]
     }
 
-    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int):
+    async def _fake_run_semantic_search_for_file(query: str, file_id: str, top_k: int, **kwargs):
         doc = Document(
             page_content="child",
             metadata={

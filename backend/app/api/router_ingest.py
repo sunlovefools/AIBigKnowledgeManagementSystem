@@ -4,19 +4,7 @@ from fastapi import APIRouter, HTTPException, Depends  # ADDED: Depends
 from pydantic import BaseModel
 
 # Local imports
-from app.core.id_utils import generate_uuid_v6
 from app.core.dependencies import get_current_user  # ADDED: auth dependency
-from app.service.rag.ingestion.chunk_polisher import polish_chunks
-from app.service.rag.ingestion.chunker import split_parent_child_chunks
-from app.service.rag.ingestion.docling_chunker import (
-    split_parent_child_chunks_from_docling_blocks,
-)
-from app.service.rag.ingestion.docling_pdf_extractor import (
-    get_pdf_ingestion_strategy,
-    parse_pdf_with_docling_preview,
-)
-from app.service.rag.ingestion.text_extractor import extract_text
-from app.vectordb.vectordb import upsert_documents
 from app.service.rag.ingestion import ingest_upload_service
 
 # Setup the API router
@@ -57,7 +45,7 @@ async def _upsert_chunks(
         await ingest_upload_service.upsert_chunks(
             parent_chunks=parent_chunks,
             child_chunks=child_chunks,
-            # TODO: Need to add a user_id field to the upsert
+            user_id=user_id,
         )
     except ingest_upload_service.UpsertChunksFailedError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
@@ -88,6 +76,10 @@ async def ingest_upload(
     - Other formats: Legacy branch (PyMuPDF, python-docx, plain text)
     """
 
+    user_id = str(current_user.get("sub") or "").strip() if isinstance(current_user, dict) else ""
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
     # Ingestion 1: Decode the file bytes from base64
     try:
         service_result = await ingest_upload_service.run_ingest_upload(
@@ -114,10 +106,8 @@ async def ingest_upload(
 
     parent_chunks = service_result["parent_chunks"]
     child_chunks = service_result["child_chunks"]
-    # TODO: Need to add a user_id field
-
     # Ingestion 2: Insert the chunks into the vector database.
-    await _upsert_chunks(parent_chunks, child_chunks)
+    await _upsert_chunks(parent_chunks, child_chunks, user_id)
 
     # Ingestion 3: Return a unified response back to the frontend
     return IngestUploadResponse(

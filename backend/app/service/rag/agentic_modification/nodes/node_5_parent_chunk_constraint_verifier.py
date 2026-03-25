@@ -123,6 +123,9 @@ async def _run_one_parent_chunk_constraint_verification(
     }
     llm_calls_made = 0
     run_id = state.get("run_id")
+    user_id = str(state.get("user_id") or "").strip()
+    if not user_id:
+        raise ValueError("user_id is required in agentic retrieval state.")
     session = state.get("_session")
 
     known_parent_chunks_by_number: dict[int, dict[str, Any]] = {}
@@ -133,6 +136,7 @@ async def _run_one_parent_chunk_constraint_verification(
         file_id=file_id,
         start_chunk_number=candidate_parent_chunk_number,
         end_chunk_number=candidate_parent_chunk_number,
+        user_id=user_id,
         cache=retrieval_cache,
     )
     if isinstance(origin_parent_chunks, list):
@@ -244,12 +248,14 @@ async def _run_one_parent_chunk_constraint_verification(
                 file_id=file_id,
                 start_chunk_number=arguments["start_chunk_number"],
                 end_chunk_number=arguments["end_chunk_number"],
+                user_id=user_id,
                 cache=retrieval_cache,
             )
         elif tool_name == "get_surrounding_parent_chunks":
             tool_result = await vector_search._get_surrounding_parent_chunks_for_file(
                 file_id=file_id,
                 chunk_number=arguments["chunk_number"],
+                user_id=user_id,
                 cache=retrieval_cache,
             )
         else:

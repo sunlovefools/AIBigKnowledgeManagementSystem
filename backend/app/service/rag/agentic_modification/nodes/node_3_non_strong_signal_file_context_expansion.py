@@ -53,6 +53,9 @@ async def run_non_strong_signal_file_context_expansion_batch(
     ]
     resolved_batch_id = int(batch_id)
     retrieval_cache = vector_search._ensure_retrieval_cache(state.get("_retrieval_cache"))
+    user_id = str(state.get("user_id") or "").strip()
+    if not user_id:
+        raise ValueError("user_id is required in agentic retrieval state.")
     state["_retrieval_cache"] = retrieval_cache
 
     if not candidate_files or not semantic_anchors:
@@ -96,6 +99,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
                     query=anchor,
                     file_id=file_id,
                     top_k=NON_STRONG_SIGNAL_FILE_TOP_K,
+                    user_id=user_id,
                     excluded_child_chunk_ids=set(),
                     cache=retrieval_cache,
                 )
@@ -104,6 +108,7 @@ async def run_non_strong_signal_file_context_expansion_batch(
                     query=anchor,
                     file_id=file_id,
                     top_k=NON_STRONG_SIGNAL_FILE_TOP_K,
+                    user_id=user_id,
                 )
             return anchor, items, search_mode
 
@@ -196,10 +201,11 @@ async def run_non_strong_signal_file_context_expansion_batch(
             try:
                 parent_rows = await vector_search._fetch_parent_chunks(
                     parent_ids,
+                    user_id=user_id,
                     cache=retrieval_cache,
                 )
             except TypeError:
-                parent_rows = await vector_search._fetch_parent_chunks(parent_ids)
+                parent_rows = await vector_search._fetch_parent_chunks(parent_ids, user_id=user_id)
             for parent_id, raw_doc in zip(parent_ids, parent_rows):
                 if not isinstance(raw_doc, dict):
                     continue

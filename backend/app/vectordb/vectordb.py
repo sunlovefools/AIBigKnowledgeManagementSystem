@@ -123,7 +123,6 @@ async def _rollback_child_documents_by_ids(child_ids: List[str]) -> int:
     return await asyncio.to_thread(_delete_rows)
 
 
-async def upsert_documents(parent_chunks: List[Dict[str, Any]], child_chunks: List[Dict[str, Any]]) -> None:
 async def upsert_documents(
     parent_chunks: List[Dict[str, Any]],
     child_chunks: List[Dict[str, Any]],
@@ -136,6 +135,10 @@ async def upsert_documents(
     the input dictionaries (which originated from Pydantic models) into LangChain Document objects,
     ensuring that the Parent-Child relationship (`parent_id`) is maintained.
     """
+
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
 
     # Upsert 1. Prepare Parent Documents (for key-value storage)
     parent_doc_map: List[Tuple[str, Dict[str, Any]]] = []
@@ -152,7 +155,7 @@ async def upsert_documents(
             if metadata_key not in ["content", "parent_chunk_id"]
         }
 
-        parent_metadata["user_id"] = user_id  # ADDED: tag parent doc with owner
+        parent_metadata["user_id"] = normalized_user_id  # ADDED: tag parent doc with owner
 
         parent_doc = Document(
             page_content=parent_dict["content"],
@@ -185,7 +188,7 @@ async def upsert_documents(
         child_doc = Document(
             page_content=child_chunk_dict["content"],
             metadata={
-                "user_id": user_id,  # ADDED: tag child chunk with owner — this is what the search filter matches against
+                "user_id": normalized_user_id,  # ADDED: tag child chunk with owner â€” this is what the search filter matches against
                 "file_metadata": child_chunk_dict["file_metadata"],
                 "child_chunk_metadata": child_chunk_dict["child_chunk_metadata"],
                 "content_flags": content_flags,
@@ -277,38 +280,47 @@ async def delete_children_by_parent_id(parent_id: str, user_id: str) -> int:  # 
 
     Args:
         parent_id: The parent document ID whose children should be removed.
-        user_id: The owner of the document — ensures users can only delete their own chunks.
+        user_id: The owner of the document - ensures users can only delete their own chunks.
 
     Returns:
         int: Number of child chunks deleted.
     """
-    print(f"🗑️ Deleting child chunks for parent_id={parent_id}...")
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
+
+    print(f"Deleting child chunks for parent_id={parent_id}...")
     try:
         deleted = await VECTOR_STORE.adelete_by_metadata_filter(
             {
                 "child_chunk_metadata.parent_id": parent_id,
-                "user_id": user_id,  # ADDED: safety filter — can only delete own chunks
+                "user_id": normalized_user_id,  # ADDED: safety filter - can only delete own chunks
             }
         )
-        print(f"  ✅ Deleted child chunks for parent_id={parent_id}")
+        print(f"  Deleted child chunks for parent_id={parent_id}")
         return deleted
     except Exception as e:
-        print(f"  ❌ Failed to delete child chunks: {e}")
+        print(f"  Failed to delete child chunks: {e}")
         raise RuntimeError(f"Child chunk deletion failed: {e}")
 
 
-async def delete_children_by_file_id(file_id: str) -> int:
+async def delete_children_by_file_id(file_id: str, user_id: str) -> int:
     """
     Delete all child chunks that belong to the same logical file.
 
     This uses `file_metadata.file_id` directly so file deletion does not need to
     iterate over every parent chunk just to clear vector rows.
     """
-    print(f"Deleting child chunks for file_id={file_id}...")
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
+
+    print(f"Deleting child chunks for file_id={file_id} user_id={normalized_user_id}...")
     try:
         deleted = await VECTOR_STORE.adelete_by_metadata_filter(
             {
                 "file_metadata.file_id": file_id,
+                "user_id": normalized_user_id,
             }
         )
         if isinstance(deleted, (int, float)):
@@ -335,23 +347,27 @@ async def delete_parent_document(parent_id: str, user_id: str) -> None:  # ADDED
 
     Args:
         parent_id: The parent document ID to delete.
-        user_id: The owner of the document — ensures users can only delete their own documents.
+        user_id: The owner of the document - ensures users can only delete their own documents.
     """
-    print(f"🗑️ Deleting parent document {parent_id}...")
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
+
+    print(f"Deleting parent document {parent_id}...")
     try:
         collection = PARENT_STORE.collection
-        # ADDED: user_id added to delete filter — prevents a user from deleting another user's parent doc
+        # Parent rows are stored as {"_id": ..., "value": {"metadata": ...}}, so scope via value.metadata.user_id.
         await asyncio.to_thread(
             collection.delete_one,
-            {"_id": parent_id, "metadata.user_id": user_id}
+            {"_id": parent_id, "value.metadata.user_id": normalized_user_id}
         )
-        print(f"  ✅ Deleted parent document {parent_id}")
+        print(f"  Deleted parent document {parent_id}")
     except Exception as e:
-        print(f"  ❌ Failed to delete parent document: {e}")
+        print(f"  Failed to delete parent document: {e}")
         raise RuntimeError(f"Parent document deletion failed: {e}")
 
 
-async def delete_parent_documents_by_file_id(file_id: str) -> int:
+async def delete_parent_documents_by_file_id(file_id: str, user_id: str) -> int:
     """
     Delete every parent document row for a logical file ID.
 
@@ -359,9 +375,16 @@ async def delete_parent_documents_by_file_id(file_id: str) -> int:
     if Astra's raw `delete_many` response format varies.
     """
 
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
+
     def _delete_rows() -> int:
         collection = PARENT_STORE.collection
-        filter_doc = {"value.metadata.file_metadata.file_id": file_id}
+        filter_doc = {
+            "value.metadata.file_metadata.file_id": file_id,
+            "value.metadata.user_id": normalized_user_id,
+        }
         rows = [row for row in collection.find(filter_doc) if isinstance(row, dict)]
         if not rows:
             return 0
@@ -374,7 +397,7 @@ async def delete_parent_documents_by_file_id(file_id: str) -> int:
                     collection.delete_one({"_id": parent_id})
         return len(rows)
 
-    print(f"Deleting parent documents for file_id={file_id}...")
+    print(f"Deleting parent documents for file_id={file_id} user_id={normalized_user_id}...")
     try:
         deleted_count = await asyncio.to_thread(_delete_rows)
         print(f"  Deleted {deleted_count} parent documents for file_id={file_id}")
@@ -556,6 +579,7 @@ def _extract_row_file_id(raw_row: Dict[str, Any]) -> str:
 
 async def lexical_search_child_chunks(
     query: str,
+    user_id: str,
     top_k: int = 20,
     excluded_file_ids: List[str] | set[str] | tuple[str, ...] | None = None,
     included_file_ids: List[str] | set[str] | tuple[str, ...] | None = None,
@@ -566,6 +590,9 @@ async def lexical_search_child_chunks(
     normalized_query = str(query).strip() if query is not None else ""
     if not normalized_query:
         raise ValueError("query must be a non-empty string.")
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
 
     try:
         top_k = int(top_k)
@@ -585,12 +612,16 @@ async def lexical_search_child_chunks(
         """
         if normalized_included_file_ids:
             filter_doc: Dict[str, Any] = {
+                "metadata.user_id": normalized_user_id,
                 "metadata.file_metadata.file_id": {"$in": normalized_included_file_ids}
             }
         elif normalized_excluded_file_ids:
-            filter_doc = {"metadata.file_metadata.file_id": {"$nin": normalized_excluded_file_ids}}
+            filter_doc = {
+                "metadata.user_id": normalized_user_id,
+                "metadata.file_metadata.file_id": {"$nin": normalized_excluded_file_ids},
+            }
         else:
-            filter_doc = {}
+            filter_doc = {"metadata.user_id": normalized_user_id}
         try:
             cursor = collection.find(
                 filter=filter_doc,
@@ -626,7 +657,6 @@ async def lexical_search_child_chunks(
 
     return await asyncio.to_thread(_find_rows)
 
-async def search_and_retrieve_context(query: str, top_k: int) -> List[Dict[str, Any]]:
 async def search_and_retrieve_context(
     query: str,
     top_k: int,
@@ -638,7 +668,7 @@ async def search_and_retrieve_context(
     Args:
         query: The search query string.
         top_k: The number of top results to retrieve.
-        user_id: The authenticated user's ID — filters results to their documents only.
+        user_id: The authenticated user's ID â€” filters results to their documents only.
 
     Returns:
         List[Dict[str, Any]]: JSON-serializable parent documents with keys:
@@ -651,6 +681,9 @@ async def search_and_retrieve_context(
 
     if top_k <= 0:
         raise ValueError("top_k must be greater than 0.")
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
 
     print(f"Searching Vector Store (Child Chunks) for {query!r} (top_k={top_k})...")
 
@@ -659,7 +692,7 @@ async def search_and_retrieve_context(
         child_documents_with_scores = await VECTOR_STORE.asimilarity_search_with_score(
             query,
             k=top_k,
-            filter={"metadata.user_id": user_id}  # ADDED: only retrieve this user's chunks
+            filter={"metadata.user_id": normalized_user_id}  # ADDED: only retrieve this user's chunks
         )
         print(f"Found {len(child_documents_with_scores)} relevant child chunks.")
     except Exception as error:
@@ -714,7 +747,10 @@ async def search_and_retrieve_context(
             parent_doc_with_id["id"] = parent_id
 
             normalized = _normalize_parent_document(parent_doc_with_id)
-            if normalized is not None:
+            if (
+                normalized is not None
+                and str((normalized.get("metadata") or {}).get("user_id") or "").strip() == normalized_user_id
+            ):
                 parent_documents.append(normalized)
 
         print(f"Retrieved {len(parent_documents)} parent documents as RAG context.")
@@ -723,3 +759,5 @@ async def search_and_retrieve_context(
     except Exception as error:
         print(f"Parent Document retrieval failed: {error}")
         raise RuntimeError(f"Parent Document retrieval failed: {error}")
+
+

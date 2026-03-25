@@ -13,6 +13,7 @@ class RetrievalBriefState(TypedDict):
 
     # --- Input ---
     user_instructions: str
+    user_id: str
     run_id: str
     file_ids: list[str] | None
 

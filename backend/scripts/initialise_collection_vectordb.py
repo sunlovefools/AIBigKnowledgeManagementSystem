@@ -5,15 +5,17 @@ Initialize two Astra DB collections:
 1) Default_Child_Collection
    - Vector-enabled (dimension=768, metric=cosine)
    - Selective indexing on:
-       - file_metadata.file_id
-       - child_chunk_metadata.child_chunk_number
-       - child_chunk_metadata.parent_id (to maintain Parent-Child relationship)
+      - metadata.user_id
+      - file_metadata.file_id
+      - child_chunk_metadata.child_chunk_number
+      - child_chunk_metadata.parent_id (to maintain Parent-Child relationship)
 
 2) Default_Parent_Collection
    - Non-vector collection
    - Selective indexing on:
-       - file_metadata.file_id
-       - parent_chunk_metadata.parent_chunk_number
+      - value.metadata.user_id
+      - file_metadata.file_id
+      - parent_chunk_metadata.parent_chunk_number
 
 Env vars required:
   ASTRA_DB_URL
@@ -27,6 +29,9 @@ Optional:
 Notes:
 - For embeddings, Astra stores vectors in the reserved "$vector" field in documents.
 - Indexing "allow" means only those paths are indexed for filtering/sorting.
+- Existing collections may need one-time recreation/reindex for new allow-list
+  fields to become queryable. This script is non-destructive and will not drop
+  existing collections automatically.
 """
 
 from __future__ import annotations
@@ -96,6 +101,7 @@ def main() -> int:
         ),
         indexing={
             "allow": [
+                "metadata.user_id",
                 "metadata.file_metadata.file_name",
                 "metadata.file_metadata.file_id",
                 "metadata.child_chunk_metadata.parent_id",
@@ -109,6 +115,7 @@ def main() -> int:
     parent_definition = CollectionDefinition(
         indexing={
             "allow": [
+                "value.metadata.user_id",
                 "value.metadata.file_metadata.file_name",
                 "value.metadata.file_metadata.file_id",
                 "value.metadata.parent_chunk_metadata.parent_chunk_number",

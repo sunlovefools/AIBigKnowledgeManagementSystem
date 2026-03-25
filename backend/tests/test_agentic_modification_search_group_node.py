@@ -15,6 +15,7 @@ from app.service.rag.agentic_modification.services import vector_search
 def _base_state(*, lexical_anchors=None, semantic_anchors=None):
     return {
         "user_instructions": "",
+        "user_id": "user-1",
         "run_id": "run-node2",
         "file_ids": None,
         "intention": "edit",

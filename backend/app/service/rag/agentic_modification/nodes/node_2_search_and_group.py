@@ -101,6 +101,9 @@ async def run_search_and_group_batch(
         if allowed_file_ids_override is not None
         else _normalize_allowed_file_ids(state.get("file_ids"))
     )
+    user_id = str(state.get("user_id") or "").strip()
+    if not user_id:
+        raise ValueError("user_id is required in agentic retrieval state.")
     excluded_child_ids_by_file = _normalize_excluded_child_chunk_ids_by_file(excluded_child_chunk_ids_by_file)
     resolved_batch_id = int(batch_id or 1)
 
@@ -121,6 +124,7 @@ async def run_search_and_group_batch(
             lexical_search_kwargs: dict[str, Any] = {
                 "query": anchor,
                 "top_k": request_k,
+                "user_id": user_id,
                 "excluded_file_ids": excluded_ids,
             }
             if allowed_file_ids:
@@ -174,6 +178,7 @@ async def run_search_and_group_batch(
             semantic_search_kwargs: dict[str, Any] = {
                 "query": anchor,
                 "top_k": request_k,
+                "user_id": user_id,
                 "excluded_file_ids": excluded_ids,
             }
             if allowed_file_ids:

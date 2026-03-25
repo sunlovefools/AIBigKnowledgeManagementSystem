@@ -371,6 +371,7 @@ def _filter_semantic_items_for_file(
 async def _run_lexical_search(
     query: str,
     top_k: int,
+    user_id: str,
     *,
     excluded_file_ids: set[str] | list[str] | tuple[str, ...] | None = None,
     included_file_ids: set[str] | list[str] | tuple[str, ...] | None = None,
@@ -387,6 +388,7 @@ async def _run_lexical_search(
     normalized_included_file_ids = _normalize_included_file_ids(included_file_ids)
     rows = await lexical_search_child_chunks(
         query=query,
+        user_id=user_id,
         top_k=top_k,
         excluded_file_ids=normalized_excluded_file_ids,
         included_file_ids=normalized_included_file_ids,
@@ -410,6 +412,7 @@ async def _run_lexical_search(
 async def _run_semantic_search(
     query: str,
     top_k: int,
+    user_id: str,
     *,
     excluded_file_ids: set[str] | list[str] | tuple[str, ...] | None = None,
     included_file_ids: set[str] | list[str] | tuple[str, ...] | None = None,
@@ -423,6 +426,9 @@ async def _run_semantic_search(
     normalized_excluded_file_ids = _normalize_excluded_file_ids(excluded_file_ids)
     normalized_included_file_ids = _normalize_included_file_ids(included_file_ids)
     included_set = set(normalized_included_file_ids)
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
     vector_store = vectordb_module.VECTOR_STORE
 
     if not normalized_excluded_file_ids:
@@ -430,7 +436,7 @@ async def _run_semantic_search(
             vector_store,
             query=query,
             top_k=top_k,
-            filter_doc=None,
+            filter_doc={"user_id": normalized_user_id},
         )
         if not normalized_included_file_ids:
             return items
@@ -449,7 +455,10 @@ async def _run_semantic_search(
         return filtered[:top_k]
 
     filter_candidates = [
-        {"file_metadata.file_id": {"$nin": normalized_excluded_file_ids}},
+        {
+            "user_id": normalized_user_id,
+            "file_metadata.file_id": {"$nin": normalized_excluded_file_ids},
+        },
     ]
 
     for filter_doc in filter_candidates:
@@ -489,7 +498,7 @@ async def _run_semantic_search(
         vector_store,
         query=query,
         top_k=top_k,
-        filter_doc=None,
+        filter_doc={"user_id": normalized_user_id},
     )
 
     filtered_items: list[tuple[Document, float | None]] = []
@@ -513,6 +522,7 @@ async def _run_semantic_search_for_file(
     query: str,
     file_id: str,
     top_k: int,
+    user_id: str,
     *,
     excluded_child_chunk_ids: set[str] | list[str] | tuple[str, ...] | None = None,
     cache: dict[str, Any] | None = None,
@@ -522,6 +532,10 @@ async def _run_semantic_search_for_file(
     normalized_file_id = str(file_id or "").strip()
     if not normalized_file_id:
         return [], "missing_file_id"
+
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
 
     normalized_top_k = max(int(top_k or 0), 1)
     normalized_excluded_child_chunk_ids = _normalize_excluded_child_chunk_ids(excluded_child_chunk_ids)
@@ -553,7 +567,7 @@ async def _run_semantic_search_for_file(
 
     vector_store = vectordb_module.VECTOR_STORE
     filter_candidates = [
-        {"file_metadata.file_id": normalized_file_id},
+        {"user_id": normalized_user_id, "file_metadata.file_id": normalized_file_id},
     ]
 
     for filter_doc in filter_candidates:
@@ -583,7 +597,11 @@ async def _run_semantic_search_for_file(
     seen_child_ids: set[str] = set(normalized_excluded_child_chunk_ids)
     for fallback_k in SEMANTIC_FILE_FILTER_FALLBACK_K_STEPS:
         try:
-            items = await _run_semantic_search(query=query, top_k=max(fallback_k, normalized_top_k))
+            items = await _run_semantic_search(
+                query=query,
+                top_k=max(fallback_k, normalized_top_k),
+                user_id=normalized_user_id,
+            )
         except Exception:
             continue
 
@@ -618,6 +636,7 @@ async def _run_semantic_search_for_file(
 
 async def _fetch_parent_chunks(
     parent_ids: list[str],
+    user_id: str,
     *,
     cache: dict[str, Any] | None = None,
 ) -> list[dict[str, Any] | None]:
@@ -630,6 +649,9 @@ async def _fetch_parent_chunks(
             normalized_parent_ids.append(value)
     if not normalized_parent_ids:
         return []
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
 
     cache_obj = _ensure_retrieval_cache(cache)
     parent_cache = cache_obj.get("parent_chunks")
@@ -653,10 +675,16 @@ async def _fetch_parent_chunks(
         rows = await vectordb_module.PARENT_STORE.amget(missing_parent_ids)
         rows_list = rows if isinstance(rows, list) else []
         for parent_id, raw_doc in zip(missing_parent_ids, rows_list):
+            if (
+                not isinstance(raw_doc, dict)
+                or str(((raw_doc.get("metadata") or {}).get("user_id") or "")).strip() != normalized_user_id
+            ):
+                parent_cache[parent_id] = None
+                continue
             _cache_parent_chunk_row(
                 cache_obj,
                 parent_id=parent_id,
-                raw_doc=raw_doc if isinstance(raw_doc, dict) else None,
+                raw_doc=raw_doc,
             )
         if len(rows_list) < len(missing_parent_ids):
             for parent_id in missing_parent_ids[len(rows_list):]:
@@ -677,12 +705,16 @@ async def _fetch_parent_chunks(
 async def _fetch_parent_chunks_for_file_chunk_numbers(
     file_id: str,
     chunk_numbers: list[int] | tuple[int, ...] | set[int],
+    user_id: str,
     *,
     cache: dict[str, Any] | None = None,
 ) -> dict[int, dict[str, Any]]:
     normalized_file_id = str(file_id or "").strip()
     if not normalized_file_id:
         return {}
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
 
     normalized_chunk_numbers: list[int] = []
     seen: set[int] = set()
@@ -735,6 +767,7 @@ async def _fetch_parent_chunks_for_file_chunk_numbers(
         collection = vectordb_module.PARENT_STORE.collection
         filter_doc = {
             "value.metadata.file_metadata.file_id": normalized_file_id,
+            "value.metadata.user_id": normalized_user_id,
             "value.metadata.parent_chunk_metadata.parent_chunk_number": {"$in": unresolved_chunk_numbers},
         }
         projection_doc = {"_id": True, "value": True}
@@ -779,6 +812,7 @@ async def _get_parent_chunks_for_file_range(
     file_id: str,
     start_chunk_number: int,
     end_chunk_number: int,
+    user_id: str,
     *,
     cache: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]] | None:
@@ -802,6 +836,7 @@ async def _get_parent_chunks_for_file_range(
     resolved_map = await _fetch_parent_chunks_for_file_chunk_numbers(
         file_id=file_id,
         chunk_numbers=requested_numbers,
+        user_id=user_id,
         cache=cache,
     )
     if not resolved_map:
@@ -819,6 +854,7 @@ async def _get_parent_chunks_for_file_range(
 async def _get_surrounding_parent_chunks_for_file(
     file_id: str,
     chunk_number: int,
+    user_id: str,
     *,
     cache: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]] | None:
@@ -846,6 +882,7 @@ async def _get_surrounding_parent_chunks_for_file(
     resolved_map = await _fetch_parent_chunks_for_file_chunk_numbers(
         file_id=file_id,
         chunk_numbers=requested_numbers,
+        user_id=user_id,
         cache=cache,
     )
     if not resolved_map:

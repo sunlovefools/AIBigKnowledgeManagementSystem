@@ -11,6 +11,7 @@ from app.service.rag.agentic_modification.services import llm_client, vector_sea
 def _base_state() -> dict:
     return {
         "user_instructions": "Change refund period from 14 to 30 days.",
+        "user_id": "user-1",
         "run_id": "run-node6",
         "file_ids": None,
         "intention": "edit",

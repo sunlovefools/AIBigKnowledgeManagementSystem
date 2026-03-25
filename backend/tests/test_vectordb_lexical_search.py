@@ -19,6 +19,9 @@ stub_vectordb_init.init_vector_db = lambda: {
     "vector_store": types.SimpleNamespace(collection=None),
     "parent_store": types.SimpleNamespace(collection=None),
 }
+stub_vectordb_init.ASTRA_DB_URL = "https://example-astra"
+stub_vectordb_init.ASTRA_DB_TOKEN = "test-token"
+stub_vectordb_init.CHILD_COLLECTION_NAME = "child_collection"
 sys.modules["app.vectordb.vectordb_init"] = stub_vectordb_init
 
 stub_reranker = types.ModuleType("app.service.rag.retrieval.reranker")
@@ -71,9 +74,9 @@ def test_lexical_search_child_chunks_returns_normalized_rows_in_order(monkeypatc
             },
         ]
     )
-    monkeypatch.setattr(vectordb, "VECTOR_STORE", types.SimpleNamespace(collection=collection))
+    monkeypatch.setattr(vectordb, "_get_raw_child_collection", lambda: collection)
 
-    result = asyncio.run(vectordb.lexical_search_child_chunks("tree", top_k=2))
+    result = asyncio.run(vectordb.lexical_search_child_chunks("tree", user_id="user-1", top_k=2))
 
     assert result == [
         {
@@ -93,6 +96,7 @@ def test_lexical_search_child_chunks_returns_normalized_rows_in_order(monkeypatc
         {
             "args": (),
             "kwargs": {
+                "filter": {"metadata.user_id": "user-1"},
                 "sort": {"$lexical": "tree"},
                 "limit": 2,
             },
@@ -111,9 +115,9 @@ def test_lexical_search_child_chunks_accepts_single_and_multiword_queries(monkey
             }
         ]
     )
-    monkeypatch.setattr(vectordb, "VECTOR_STORE", types.SimpleNamespace(collection=collection))
+    monkeypatch.setattr(vectordb, "_get_raw_child_collection", lambda: collection)
 
-    result = asyncio.run(vectordb.lexical_search_child_chunks(query, top_k=3))
+    result = asyncio.run(vectordb.lexical_search_child_chunks(query, user_id="user-1", top_k=3))
 
     assert len(result) == 1
     assert collection.calls[0]["kwargs"]["sort"] == {"$lexical": query}
@@ -122,21 +126,26 @@ def test_lexical_search_child_chunks_accepts_single_and_multiword_queries(monkey
 
 def test_lexical_search_child_chunks_rejects_empty_query():
     with pytest.raises(ValueError, match="query must be a non-empty string"):
-        asyncio.run(vectordb.lexical_search_child_chunks("   "))
+        asyncio.run(vectordb.lexical_search_child_chunks("   ", user_id="user-1"))
+
+
+def test_lexical_search_child_chunks_rejects_empty_user_id():
+    with pytest.raises(ValueError, match="user_id must be a non-empty string"):
+        asyncio.run(vectordb.lexical_search_child_chunks("tree", user_id="   "))
 
 
 @pytest.mark.parametrize("top_k", [0, -1])
 def test_lexical_search_child_chunks_rejects_non_positive_top_k(top_k):
     with pytest.raises(ValueError, match="top_k must be greater than 0"):
-        asyncio.run(vectordb.lexical_search_child_chunks("tree", top_k=top_k))
+        asyncio.run(vectordb.lexical_search_child_chunks("tree", user_id="user-1", top_k=top_k))
 
 
 def test_lexical_search_child_chunks_surfaces_lexical_unsupported_error(monkeypatch):
     collection = FakeCollection(error=Exception("unsupported lexical sort"))
-    monkeypatch.setattr(vectordb, "VECTOR_STORE", types.SimpleNamespace(collection=collection))
+    monkeypatch.setattr(vectordb, "_get_raw_child_collection", lambda: collection)
 
     with pytest.raises(RuntimeError, match="supports lexical search"):
-        asyncio.run(vectordb.lexical_search_child_chunks("tree"))
+        asyncio.run(vectordb.lexical_search_child_chunks("tree", user_id="user-1"))
 
 
 def test_lexical_search_child_chunks_defaults_missing_lexical_score_to_none(monkeypatch):
@@ -149,9 +158,9 @@ def test_lexical_search_child_chunks_defaults_missing_lexical_score_to_none(monk
             }
         ]
     )
-    monkeypatch.setattr(vectordb, "VECTOR_STORE", types.SimpleNamespace(collection=collection))
+    monkeypatch.setattr(vectordb, "_get_raw_child_collection", lambda: collection)
 
-    result = asyncio.run(vectordb.lexical_search_child_chunks("plain"))
+    result = asyncio.run(vectordb.lexical_search_child_chunks("plain", user_id="user-1"))
 
     assert result == [
         {
@@ -161,3 +170,57 @@ def test_lexical_search_child_chunks_defaults_missing_lexical_score_to_none(monk
             "lexical_score": None,
         }
     ]
+
+
+def test_delete_children_by_parent_id_scopes_with_user_id(monkeypatch):
+    class _FakeVectorStore:
+        def __init__(self):
+            self.filters = []
+
+        async def adelete_by_metadata_filter(self, metadata_filter):
+            self.filters.append(metadata_filter)
+            return 2
+
+    fake_store = _FakeVectorStore()
+    monkeypatch.setattr(vectordb, "VECTOR_STORE", fake_store)
+
+    deleted = asyncio.run(vectordb.delete_children_by_parent_id("parent-1", "user-1"))
+
+    assert deleted == 2
+    assert fake_store.filters == [
+        {
+            "child_chunk_metadata.parent_id": "parent-1",
+            "user_id": "user-1",
+        }
+    ]
+
+
+def test_delete_children_by_parent_id_rejects_empty_user_id():
+    with pytest.raises(ValueError, match="user_id must be a non-empty string"):
+        asyncio.run(vectordb.delete_children_by_parent_id("parent-1", " "))
+
+
+def test_delete_parent_document_scopes_with_user_id(monkeypatch):
+    class _FakeCollection:
+        def __init__(self):
+            self.filters = []
+
+        def delete_one(self, filter_doc):
+            self.filters.append(filter_doc)
+
+    collection = _FakeCollection()
+    monkeypatch.setattr(vectordb, "PARENT_STORE", types.SimpleNamespace(collection=collection))
+
+    asyncio.run(vectordb.delete_parent_document("parent-1", "user-1"))
+
+    assert collection.filters == [
+        {
+            "_id": "parent-1",
+            "value.metadata.user_id": "user-1",
+        }
+    ]
+
+
+def test_delete_parent_document_rejects_empty_user_id():
+    with pytest.raises(ValueError, match="user_id must be a non-empty string"):
+        asyncio.run(vectordb.delete_parent_document("parent-1", ""))

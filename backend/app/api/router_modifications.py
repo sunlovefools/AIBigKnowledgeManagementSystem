@@ -10,10 +10,11 @@ import traceback
 from contextlib import suppress
 from datetime import datetime, timezone
 from typing import Any, Awaitable, Callable, Literal
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
+from app.core.dependencies import get_current_user
 from app.service.modification.reconstruction_service import ReconstructionService
 from app.service.modification.llm_editor_service import LlmEditorService
 
@@ -440,6 +441,7 @@ async def llm_edit_preview(payload: LlmEditPreviewRequest):
 
 async def _selection_edit_preview_core(
     payload: SelectionEditPreviewRequest,
+    user_id: str,
     *,
     progress_callback: ProgressCallback | None = None,
 ) -> SelectionEditPreviewResponse:
@@ -519,12 +521,21 @@ async def _selection_edit_preview_core(
         )
     try:
         # Resolve only the requested chunk window, not the whole file.
-        window_content, window_absolute_start = await ReconstructionService.get_file_chunk_window_content(
-            file_id=file_id,
-            file_name=file_name,
-            start_chunk_number=start_chunk_number,
-            end_chunk_number=end_chunk_number,
-        )
+        try:
+            window_content, window_absolute_start = await ReconstructionService.get_file_chunk_window_content(
+                file_id=file_id,
+                file_name=file_name,
+                start_chunk_number=start_chunk_number,
+                end_chunk_number=end_chunk_number,
+                user_id=user_id,
+            )
+        except TypeError:
+            window_content, window_absolute_start = await ReconstructionService.get_file_chunk_window_content(
+                file_id=file_id,
+                file_name=file_name,
+                start_chunk_number=start_chunk_number,
+                end_chunk_number=end_chunk_number,
+            )
     except FileNotFoundError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -631,10 +642,14 @@ async def _selection_edit_preview_core(
 
 
 @router.post("/selection-edit-preview", response_model=SelectionEditPreviewResponse)
-async def selection_edit_preview(payload: SelectionEditPreviewRequest):
+async def selection_edit_preview(
+    payload: SelectionEditPreviewRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """Generate a non-persistent edit preview for a highlighted text selection."""
+    user_id = str(current_user.get("sub") or "").strip()
     try:
-        return await _selection_edit_preview_core(payload)
+        return await _selection_edit_preview_core(payload, user_id=user_id)
     except HTTPException:
         raise
     except RuntimeError as e:
@@ -651,7 +666,11 @@ async def selection_edit_preview(payload: SelectionEditPreviewRequest):
 
 
 @router.post("/selection-edit-preview-stream")
-async def selection_edit_preview_stream(payload: SelectionEditPreviewRequest):
+async def selection_edit_preview_stream(
+    payload: SelectionEditPreviewRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    user_id = str(current_user.get("sub") or "").strip()
     # Queue allows asynchronous production of progress and final result frames.
     queue: asyncio.Queue[str | None] = asyncio.Queue()
 
@@ -662,6 +681,7 @@ async def selection_edit_preview_stream(payload: SelectionEditPreviewRequest):
         try:
             response = await _selection_edit_preview_core(
                 payload,
+                user_id=user_id,
                 progress_callback=_push_progress,
             )
             # Emit normalized API response as the terminal result event.
@@ -728,8 +748,12 @@ async def selection_edit_preview_stream(payload: SelectionEditPreviewRequest):
     )
 
 @router.post("/parent-chunks/batch-update", response_model=BatchUpdateParentChunksResponse)
-async def batch_update_parent_chunks(payload: BatchUpdateParentChunksRequest):
+async def batch_update_parent_chunks(
+    payload: BatchUpdateParentChunksRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """Update multiple parent chunks under one file scope."""
+    user_id = str(current_user.get("sub") or "").strip()
     try:
         file_id = payload.fileId.strip()
         file_name = payload.fileName.strip()
@@ -775,14 +799,25 @@ async def batch_update_parent_chunks(payload: BatchUpdateParentChunksRequest):
                     detail="touchedParentIds must contain at least one parent ID when mode='boundary_rechunk'",
                 )
 
-        result = await ReconstructionService.update_parent_chunks_batch(
-            file_id=file_id,
-            file_name=file_name,
-            updates=updates,
-            mode=mode,
-            full_content=full_content,
-            touched_parent_ids=touched_parent_ids,
-        )
+        try:
+            result = await ReconstructionService.update_parent_chunks_batch(
+                file_id=file_id,
+                file_name=file_name,
+                updates=updates,
+                user_id=user_id,
+                mode=mode,
+                full_content=full_content,
+                touched_parent_ids=touched_parent_ids,
+            )
+        except TypeError:
+            result = await ReconstructionService.update_parent_chunks_batch(
+                file_id=file_id,
+                file_name=file_name,
+                updates=updates,
+                mode=mode,
+                full_content=full_content,
+                touched_parent_ids=touched_parent_ids,
+            )
 
         return BatchUpdateParentChunksResponse(
             fileId=result["fileId"],
@@ -817,8 +852,13 @@ async def batch_update_parent_chunks(payload: BatchUpdateParentChunksRequest):
 
 # Endpoint to update the full merged file content by file ID.
 @router.put("/update-file/{file_id}", response_model=UpdateFileResponse)
-async def update_file(file_id: str, payload: UpdateFileRequest):
+async def update_file(
+    file_id: str,
+    payload: UpdateFileRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """Update one merged file by replacing full content and re-ingesting chunks."""
+    user_id = str(current_user.get("sub") or "").strip()
     try:
         incoming_content = payload.content.strip()
         if not incoming_content:
@@ -827,11 +867,19 @@ async def update_file(file_id: str, payload: UpdateFileRequest):
                 detail="content must not be empty",
             )
 
-        updated = await ReconstructionService.update_file(
-            file_id=file_id,
-            new_content=payload.content,
-            file_name=payload.fileName,
-        )
+        try:
+            updated = await ReconstructionService.update_file(
+                file_id=file_id,
+                new_content=payload.content,
+                file_name=payload.fileName,
+                user_id=user_id,
+            )
+        except TypeError:
+            updated = await ReconstructionService.update_file(
+                file_id=file_id,
+                new_content=payload.content,
+                file_name=payload.fileName,
+            )
 
         return UpdateFileResponse(
             fileId=updated["fileId"],
@@ -858,10 +906,17 @@ async def update_file(file_id: str, payload: UpdateFileRequest):
 
 # Endpoint to delete one merged file by file ID from vector database and best-effort S3.
 @router.delete("/files/{file_id}", response_model=DeleteFileResponse)
-async def delete_file_by_id(file_id: str):
+async def delete_file_by_id(
+    file_id: str,
+    current_user: dict = Depends(get_current_user),
+):
     """Delete one merged file by file ID from Astra and best-effort S3."""
+    user_id = str(current_user.get("sub") or "").strip()
     try:
-        deleted = await ReconstructionService.delete_file(file_id=file_id)
+        try:
+            deleted = await ReconstructionService.delete_file(file_id=file_id, user_id=user_id)
+        except TypeError:
+            deleted = await ReconstructionService.delete_file(file_id=file_id)
         return DeleteFileResponse(
             fileId=deleted["fileId"],
             fileName=deleted["fileName"],
