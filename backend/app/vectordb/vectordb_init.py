@@ -61,8 +61,8 @@ ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
 ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
 
 # Collection names
-CHILD_COLLECTION_NAME = "Default_Child_Collection" # Child Chunks that have embeddings
-PARENT_COLLECTION_NAME = "Default_Parent_Collection" # Parent Documents 
+CHILD_COLLECTION_NAME = os.getenv("CHILD_COLLECTION_NAME") or "Default_Child_Collection"
+PARENT_COLLECTION_NAME = os.getenv("PARENT_COLLECTION_NAME") or "Default_Parent_Collection"
 
 class AstraParentDocumentStore:
     """A custom wrapper around an Astra DB collection for storing Parent Documents in a key-value format."""

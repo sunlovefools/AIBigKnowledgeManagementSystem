@@ -13,7 +13,7 @@ _CHAT_MESSAGES_COLLECTION = None
 """
 Defines the API endpoints for managing conversations and their messages.
 """
-
+#TODO: These database operations can be put at vectordb_init.py or vectordb.py
 # Helper functions to get Astra DB collections (with caching)
 def _get_chat_database(): #connection to chat history AstraDB (stores chat messages and conversation metadata collections)
   astra_db_url = os.getenv("ASTRA_CHAT_DB_URL") or os.getenv("ASTRA_DB_URL")
