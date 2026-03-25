@@ -1,9 +1,14 @@
-from fastapi import APIRouter, HTTPException, status
+import logging
+from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 # Import the service and its custom error
 from app.service.auth.auth_service import AuthService, AuthenticationError
+
+# ADDED: module-level logger replacing print() calls
+logger = logging.getLogger(__name__)
 
 # --- Pydantic Models (Data Schemas) ---
 # These models define the exact shape of the data you expect.
@@ -32,27 +37,47 @@ class UserDisplayResponse(BaseModel):
     'password_hash' is NEVER sent back.
     """
     # These are the fields that will be returned in the response.
-    id: str # UUID will be given from the database
+    id: str                         # UUID will be given from the database
     email: str
+    user_role: str                  # FIXED: was missing — needed for frontend role-based UI
     created_at: datetime
     is_active: bool
+    access_token: str               # ADDED: JWT issued by auth_service — must be returned to client
+    token_type: str                 # ADDED: always "bearer" — tells client how to use the token
 
     class Config:
-        from_attributes = True  # Allows FastAPI to convert your database/dict object to this model
+        from_attributes = True      # Allows FastAPI to convert your database/dict object to this model
 
-# Setup the API router and service instance
+
+# ADDED: request model used when logging in with Auth0 JWT token
+class Auth0LoginRequest(BaseModel):
+    token: str
+
+
+# --- Dependency Injection ---
+
+# FIXED: was a module-level singleton — now uses FastAPI Depends() for proper
+# lifecycle management and testability (tests can override this dependency).
+def get_auth_service() -> AuthService:
+    """
+    FastAPI dependency that provides an AuthService instance.
+    Raises 503 if the service fails to initialize (e.g. missing env vars).
+    """
+    try:
+        return AuthService()
+    except ValueError as e:
+        logger.critical(f"Failed to initialize AuthService: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="Authentication service is not available."
+        )
+
+
+# Setup the API router
 
 # Create a router for authentication endpoints
 router = APIRouter()
 
-# Initialize your authentication service
-# This one instance will be used by all requests.
-try:
-    auth_service = AuthService()
-except ValueError as e:
-    # This catches the ASTRA_DB_URL missing error
-    print(f"❌ CRITICAL ERROR: Failed to initialize AuthService. {e}")
-    auth_service = None
 
 # --- API Endpoints ---
 
@@ -61,99 +86,63 @@ except ValueError as e:
 def auth_health():
     return {"authentication": "ok"}
 
+
 # Endpoint to register a new user
-# Explain what are all these parameters mean
-# - "/register": The URL path for this endpoint
-# - response_model=UserDisplayResponse: The Pydantic model that defines the shape of the response, 
-# All of these is to send back to the client after successful registration
-# - status_code=status.HTTP_201_CREATED: The HTTP status code to return on success
 @router.post(
     "/register",
     response_model=UserDisplayResponse,
     status_code=status.HTTP_201_CREATED,
     tags=["Authentication"]
 )
-# When a POST request is made to /register, this function is called
-# The first thing it does is to parse the incoming JSON body into a UserCreateRequest object as defined above
-# The incoming JSON body is:
-# {
-#     "email": "user@example.com",
-#     "password": "securepassword",
-#     "role": "user"
-# }
-# FastAPI automatically does this parsing and validation for you
-# If the JSON body does not match the UserCreateRequest model, FastAPI will return a 422 Unprocessable Entity error automatically
-async def register_user(user_data: UserCreateRequest):
+async def register_user(
+    user_data: UserCreateRequest,
+    auth_service: AuthService = Depends(get_auth_service)  # FIXED: injected via Depends
+):
     """
     Handle new user registration.
     Receives email, password, and role from the frontend.
+    Returns user info and a signed JWT access token.
     """
-    # Check if the auth service failed to start
-    print("Register user called")
-    if not auth_service:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Authentication service is not available."
-        )
+    logger.info("Register user called")  # FIXED: was print()
 
     try:
-        # 3. Call your service logic
-        # Note: Your current service only uses email and password.
-        # The 'role' from user_data is available but not passed to the service.
-        # You would need to update your AuthService to handle 'role' if needed.
         new_user = auth_service.register_user(
             email=user_data.email,
             password=user_data.password,
             role=user_data.role
         )
-        # FastAPI will automatically format 'new_user' using the UserDisplayResponse model
-        # The body of new_user is like:
-        #{
-        #     "id": 1,
-        #     "email": "user@example.com",
-        #     "created_at": "2023-01-01T00:00:00Z",
-        #     "is_active": true
-        # }
+
         return new_user
 
     except AuthenticationError as e:
-        # 4. Handle errors from your service
         if "already exists" in str(e):
             raise HTTPException(
-                # Pass the error back to the client
                 status_code=status.HTTP_409_CONFLICT,
-                # The detail message will be shown to the client
-                # The structure is:# {
-                #     "detail": "Account with email 'user@example.com' already exists"
-                # }
                 detail=str(e)
             )
         else:
-            # For "Invalid email" or "Weak password"
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e)
             )
+
 
 @router.post(
     "/login",
     response_model=UserDisplayResponse,
     tags=["Authentication"]
 )
-async def login_user(user_data: UserLoginRequest):
+async def login_user(
+    user_data: UserLoginRequest,
+    auth_service: AuthService = Depends(get_auth_service)  # FIXED: injected via Depends
+):
     """
     Handle user login.
     Receives email and password.
+    Returns user info and a signed JWT access token.
     """
-    if not auth_service:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Authentication service is not available."
-        )
-
     try:
-        # Your service's login_user returns the user dictionary,
-        # so we return that here.
+        # Call existing login logic
         user = auth_service.login_user(
             email=user_data.email,
             password=user_data.password
@@ -161,9 +150,39 @@ async def login_user(user_data: UserLoginRequest):
         return user
 
     except AuthenticationError as e:
-        # For "Invalid email or password" or "Account is deactivated"
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=str(e),
-            headers={"WWW-Authenticate": "Bearer"}, # Standard for login errors
+            headers={"WWW-Authenticate": "Bearer"},  # Standard for login errors
+        )
+
+
+# Added: endpoint that allows login using an Auth0 JWT token
+@router.post(
+    "/auth0-login",
+    response_model=UserDisplayResponse,
+    tags=["Authentication"]
+)
+async def auth0_login(
+    auth_data: Auth0LoginRequest,
+    auth_service: AuthService = Depends(get_auth_service)  # FIXED: injected via Depends
+):
+    """
+    Login using Auth0 JWT token.
+    Frontend sends the token received from Auth0.
+    Returns user info and a signed JWT access token.
+    """
+    try:
+        # Calls the AuthService method that verifies the Auth0 token
+        user = auth_service.auth0_login(
+            token=auth_data.token
+        )
+
+        return user
+
+    except AuthenticationError as e:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=str(e),
+            headers={"WWW-Authenticate": "Bearer"},
         )

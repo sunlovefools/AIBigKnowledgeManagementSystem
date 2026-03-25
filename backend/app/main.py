@@ -14,7 +14,7 @@ import app.api.router_conversations as conversations_router
 import app.api.router_modifications as modifications_router
 import app.api.router_retrieve as retrieve_router
 import app.api.router_agent as agent_router
-# import app.api.router_auth as auth_router # Uncomment when auth is implemented
+import app.api.router_auth as auth_router  # ADDED: uncommented now that auth is implemented
 
 
 # Allow requests from your React dev server (localhost:5173)
@@ -33,12 +33,12 @@ app.add_middleware(
 
 # --- Router Registration ---
 
-# Authentication router (commented out until implemented)
-# app.include_router(
-#    auth_router.router,     # The router object from router_auth.py
-#    prefix="/auth",          # All routes from this file will start with /auth
-#    tags=["Authentication"]  # Groups them nicely in the API docs
-# )
+# Authentication router  # ADDED: uncommented now that auth is implemented
+app.include_router(
+   auth_router.router,      # The router object from router_auth.py
+   prefix="/auth",           # All routes from this file will start with /auth
+   tags=["Authentication"]   # Groups them nicely in the API docs
+)
 
 # Ingestion router
 app.include_router(

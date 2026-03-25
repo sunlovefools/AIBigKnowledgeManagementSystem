@@ -314,6 +314,27 @@ class ReconstructionService:
             ]
             summaries.sort(key=lambda item: (str(item.get("fileName", "")).lower(), item.get("fileId", "")))
 
+                metadata = parent_doc.get("metadata", {}) or {}
+
+                # ADDED: skip rows that don't belong to this user
+                if metadata.get("user_id") != user_id:
+                    continue
+
+                file_metadata = metadata.get("file_metadata", {}) or {}
+                file_name = file_metadata.get("file_name") or metadata.get("source") or "Unknown"
+                file_id = file_metadata.get("file_id") or ""
+                preview_text = str(parent_doc.get("page_content", ""))
+
+                # Append a preview of the first parent chunk for each file.
+                summaries.append(
+                    {
+                        "fileId": file_id,
+                        "fileName": file_name,
+                        "preview": preview_text,
+                    }
+                )
+
+            sorted_summaries = sorted(summaries, key=lambda item: str(item.get("fileName", "")).lower())
             log_vector_db_result(
                 function_name="get_all_preview_files",
                 context={
@@ -336,7 +357,12 @@ class ReconstructionService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    async def get_file_parent_chunks(file_id: str, limit: int, cursor: str | None) -> dict:
+    async def get_file_parent_chunks(
+        file_id: str,
+        limit: int,
+        cursor: str | None,
+        user_id: str,  # ADDED: scopes pagination to current user's chunks only
+    ) -> dict:
         """Retrieve paginated parent chunks for a merged file ID item."""
         print(f"🔄 Retrieving paginated parent chunks for file_id: {file_id}")
 
@@ -350,6 +376,7 @@ class ReconstructionService:
                 current_chunk_number=current_chunk_number,
                 current_parent_id=current_parent_id,
                 limit=limit,
+                user_id=user_id,  # ADDED: forwarded to DB query filter
             )
 
             result = {
@@ -462,7 +489,10 @@ class ReconstructionService:
             raise RuntimeError(f"File deletion failed: {str(error)}")
 
     @staticmethod
-    async def get_document_by_id(parent_id: str) -> dict | None:
+    async def get_document_by_id(
+        parent_id: str,
+        user_id: str,  # ADDED: used to verify ownership after fetch
+    ) -> dict | None:
         """
         Look up a single parent chunk by its ID.
         Returns extracted fields (including 'fileName') or None if not found.
@@ -499,6 +529,27 @@ class ReconstructionService:
         """
         sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name)
         return "\n\n".join(str(item.get("content") or "") for item in sortable_rows)
+
+            metadata = parent_doc.get("metadata", {}) or {}
+
+            # ADDED: ownership check — return None if doc belongs to a different user.
+            # Callers treat None as 404, so this prevents cross-user reads without leaking existence.
+            if metadata.get("user_id") != user_id:
+                return None
+
+            file_metadata = metadata.get("file_metadata", {}) or {}
+            file_name = file_metadata.get("file_name") or metadata.get("source") or "Unknown"
+
+            return {
+                "id": parent_id,
+                "fileName": file_name,
+                "content": parent_doc["page_content"],
+                "size": len(parent_doc["page_content"]),
+            }
+
+        except Exception as e:
+            print(f"❌ Failed to retrieve document {parent_id}: {e}")
+            return None
 
     @staticmethod
     async def get_file_chunk_window_content(
@@ -582,10 +633,10 @@ class ReconstructionService:
                 pass
 
             print("  → Step 1: Deleting old child chunks...")
-            await delete_children_by_parent_id(parent_id)
+            await delete_children_by_parent_id(parent_id, user_id)  # ADDED: user_id
 
             print("  → Step 2: Deleting old parent document...")
-            await delete_parent_document(parent_id)
+            await delete_parent_document(parent_id, user_id)  # ADDED: user_id
 
             print("  → Step 3: Re-chunking new content...")
             parent_chunks_models, child_chunks_models = split_parent_child_chunks_from_markdown(
@@ -635,7 +686,12 @@ class ReconstructionService:
             raise RuntimeError(f"Document update failed: {str(e)}")
 
     @staticmethod
-    async def update_file(file_id: str, new_content: str, file_name: str) -> dict:
+    async def update_file(
+        file_id: str,
+        new_content: str,
+        file_name: str,
+        user_id: str,  # ADDED: scopes the file lookup, deletes, and re-upsert to this user
+    ) -> dict:
         """
         Update all parent chunks for a fileId, then re-chunk and re-ingest.
 
@@ -698,8 +754,8 @@ class ReconstructionService:
 
             # 1) Delete all old children + parents for this fileId
             for parent_id in parent_ids:
-                await delete_children_by_parent_id(parent_id)
-                await delete_parent_document(parent_id)
+                await delete_children_by_parent_id(parent_id, user_id)  # ADDED: user_id
+                await delete_parent_document(parent_id, user_id)         # ADDED: user_id
 
             # 2) Re-chunk full edited content
             print("  → Chunking new content...")

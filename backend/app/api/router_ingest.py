@@ -1,9 +1,22 @@
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends  # ADDED: Depends
 from pydantic import BaseModel
 
 # Local imports
+from app.core.id_utils import generate_uuid_v6
+from app.core.dependencies import get_current_user  # ADDED: auth dependency
+from app.service.rag.ingestion.chunk_polisher import polish_chunks
+from app.service.rag.ingestion.chunker import split_parent_child_chunks
+from app.service.rag.ingestion.docling_chunker import (
+    split_parent_child_chunks_from_docling_blocks,
+)
+from app.service.rag.ingestion.docling_pdf_extractor import (
+    get_pdf_ingestion_strategy,
+    parse_pdf_with_docling_preview,
+)
+from app.service.rag.ingestion.text_extractor import extract_text
+from app.vectordb.vectordb import upsert_documents
 from app.service.rag.ingestion import ingest_upload_service
 
 # Setup the API router
@@ -35,6 +48,7 @@ class IngestUploadResponse(BaseModel):
 async def _upsert_chunks(
     parent_chunks: list[dict[str, Any]],
     child_chunks: list[dict[str, Any]],
+    user_id: str,  # ADDED: passed down to upsert_documents so every chunk is tagged with its owner
 ) -> None:
     """
     Upsert parent/child chunks into vector storage.
@@ -43,6 +57,7 @@ async def _upsert_chunks(
         await ingest_upload_service.upsert_chunks(
             parent_chunks=parent_chunks,
             child_chunks=child_chunks,
+            # TODO: Need to add a user_id field to the upsert
         )
     except ingest_upload_service.UpsertChunksFailedError as exc:
         raise HTTPException(status_code=500, detail=str(exc))
@@ -59,7 +74,10 @@ def ingest_health():
 
 
 @router.post("/upload", response_model=IngestUploadResponse)
-async def ingest_upload(file: FileUpload):
+async def ingest_upload(
+    file: FileUpload,
+    current_user: dict = Depends(get_current_user),  # ADDED: locks route + provides user_id
+):
     """
     Unified ingestion endpoint for all document types.
     This endpoint routes doesn't include modification, it purely focuses on new ingestions.
@@ -96,6 +114,7 @@ async def ingest_upload(file: FileUpload):
 
     parent_chunks = service_result["parent_chunks"]
     child_chunks = service_result["child_chunks"]
+    # TODO: Need to add a user_id field
 
     # Ingestion 2: Insert the chunks into the vector database.
     await _upsert_chunks(parent_chunks, child_chunks)

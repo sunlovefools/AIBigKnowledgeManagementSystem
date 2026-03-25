@@ -6,10 +6,11 @@ Handles fetch operations from the backend database.
 import traceback
 from typing import List
 
-from fastapi import APIRouter, HTTPException, Query, status
+from fastapi import APIRouter, HTTPException, Query, status, Depends  # ADDED: Depends
 from pydantic import BaseModel
 
 from app.service.modification.reconstruction_service import ReconstructionService
+from app.core.dependencies import get_current_user  # ADDED: auth dependency
 
 
 router = APIRouter()
@@ -54,10 +55,16 @@ class FileChunksResponse(BaseModel):
 
 
 @router.get("/all-preview-files", response_model=FileSummaryResponse)
-async def get_all_preview_files():
+async def get_all_preview_files(
+    current_user: dict = Depends(get_current_user),  # ADDED: locks route + provides user_id
+):
     """Return filename-merged summaries for the left sidebar."""
+    user_id = current_user["sub"]  # ADDED: scope results to current user only
+
     try:
-        files = await ReconstructionService.get_all_preview_files()
+        files = await ReconstructionService.get_all_preview_files(
+            user_id=user_id  # ADDED: ReconstructionService must filter by user_id
+        )
         response_files = [
             FileSummary(
                 fileId=file_item["fileId"],
@@ -85,13 +92,17 @@ async def get_file_chunks(
     file_id: str = Query(..., alias="fileId", min_length=1),
     limit: int = Query(default=7, ge=1, le=20),
     cursor: str | None = Query(default=None),
+    current_user: dict = Depends(get_current_user),  # ADDED: locks route + provides user_id
 ):
     """Return paginated parent chunks for one merged file ID."""
+    user_id = current_user["sub"]  # ADDED: scope results to current user only
+
     try:
         result = await ReconstructionService.get_file_parent_chunks(
             file_id=file_id,
             limit=limit,
             cursor=cursor,
+            user_id=user_id,  # ADDED: ReconstructionService must filter by user_id
         )
 
         return FileChunksResponse(
@@ -123,10 +134,18 @@ async def get_file_chunks(
 
 # This endpoint is currently not used by the frontend
 @router.get("/document/{document_id}", response_model=DocumentInfo)
-async def get_document_content(document_id: str):
+async def get_document_content(
+    document_id: str,
+    current_user: dict = Depends(get_current_user),  # ADDED: locks route + provides user_id
+):
     """Retrieve the full content of a specific document by parent ID."""
+    user_id = current_user["sub"]  # ADDED: scope lookup to current user only
+
     try:
-        doc = await ReconstructionService.get_document_by_id(document_id)
+        doc = await ReconstructionService.get_document_by_id(
+            document_id,
+            user_id=user_id,  # ADDED: ReconstructionService must filter by user_id
+        )
 
         if not doc:
             raise HTTPException(

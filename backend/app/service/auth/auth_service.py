@@ -3,10 +3,16 @@ User authentication service
 Handles user registration, login, and account management
 """
 import os
-from datetime import datetime, timezone
+import logging
+from datetime import datetime, timezone, timedelta
 from typing import Optional, Dict, Any
+from functools import lru_cache
 from dotenv import load_dotenv
 from astrapy import DataAPIClient
+
+# ADDED: Auth0 libraries
+import requests
+from jose import jwt
 
 # from auth_schema import get_users_table_definition
 from app.core.password_utils import hash_password, verify_password
@@ -16,9 +22,22 @@ from app.core.validation import validate_email_format, validate_password_strengt
 # Load environment variables from .env file
 load_dotenv()
 
+# Set up module-level logger (replaces print statements)
+logger = logging.getLogger(__name__)
+
 # Database connection by using URL and private token in .env file
 ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
 ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
+
+# ADDED: Auth0 environment variables
+AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
+AUTH0_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
+AUTH0_ALGORITHMS = ["RS256"]
+
+# ADDED: JWT issuance config
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+JWT_ALGORITHM = "HS256"
+ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # If either variable is missing, raise an error
 if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
@@ -34,238 +53,267 @@ client = DataAPIClient()
 # Connect to the database
 database = client.get_database(ASTRA_DB_URL, token=ASTRA_DB_TOKEN)
 
-print(f"Connected to database {database.info().name}\n")
+logger.info(f"Connected to database {database.info().name}")
 
 ### It ends here ###
+
+
+# ADDED: JWKS cached at module level with lru_cache — avoids a live HTTP call on every token verify
+@lru_cache(maxsize=1)
+def _get_jwks() -> dict:
+    """
+    Fetch and cache Auth0 JWKS (JSON Web Key Set).
+    Cached after first call — avoids network call on every token verification.
+    Call _get_jwks.cache_clear() to force a refresh if keys rotate.
+    """
+    jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
+    response = requests.get(jwks_url, timeout=5)
+    response.raise_for_status()
+    return response.json()
+
+
+# ADDED: JWT issuance helper — called after successful login/oauth to issue a session token
+def create_access_token(user_id: str, email: str, role: str) -> str:
+    """
+    Issue a signed JWT for the authenticated user.
+    Token includes user_id (sub), email, role, and expiry.
+    """
+    payload = {
+        "sub": str(user_id),
+        "email": email,
+        "role": role,
+        "exp": datetime.now(timezone.utc) + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+    }
+    return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
+
+
+# ADDED: Auth0 token verification helper
+def verify_auth0_token(token: str) -> Dict[str, Any]:
+    """
+    Verify Auth0 JWT token and return decoded payload.
+    Uses cached JWKS — no network call after first verification.
+    """
+    try:
+        # Use cached JWKS instead of fetching on every call
+        jwks = _get_jwks()
+
+        unverified_header = jwt.get_unverified_header(token)
+
+        rsa_key = {}
+
+        for key in jwks["keys"]:
+            if key["kid"] == unverified_header["kid"]:
+                rsa_key = {
+                    "kty": key["kty"],
+                    "kid": key["kid"],
+                    "use": key["use"],
+                    "n": key["n"],
+                    "e": key["e"]
+                }
+
+        if rsa_key:
+            payload = jwt.decode(
+                token,
+                rsa_key,
+                algorithms=AUTH0_ALGORITHMS,
+                audience=AUTH0_AUDIENCE,
+                issuer=f"https://{AUTH0_DOMAIN}/"
+            )
+
+            return payload
+
+        raise Exception("Unable to find appropriate key")
+
+    except Exception as e:
+        raise Exception(f"Invalid Auth0 token: {e}")
+
 
 class AuthenticationError(Exception):
     # Custom exception for authentication errors
     # Can 'pass' pass the exception to the caller?
     # Yes, 'pass' allows the exception to be raised and handled by the caller.
-    pass 
+    pass
+
 
 # AuthService class
 class AuthService:
     """Service for handling user authentication"""
-    
+
     # Initialize the AuthService
     def __init__(self, table_name: str = "users"):
         # Set up the users table with the "users" table schema
         self.table_name = table_name
         self.table = self.get_table()
-        print(f"✅ AuthService initialized with table '{self.table_name}'\n")
-        
+        logger.info(f"AuthService initialized with table '{self.table_name}'")
+
     def _drop_table(self):
-        """Drop the users table (for testing purposes)"""
+        """Drop the users table (for testing purposes only — do not call in production)"""
         try:
             database.drop_table(self.table_name)
-            print(f"✅ Table '{self.table_name}' dropped successfully")
+            logger.info(f"Table '{self.table_name}' dropped successfully")
         except Exception as e:
-            print(f"❌ Failed to drop table: {e}")
+            logger.error(f"Failed to drop table: {e}")
             raise
-
 
     def get_table(self):
         """Get or create the users table"""
         table = database.get_collection(self.table_name)
         return table
-    
+
     def _get_next_user_id(self) -> int:
-        """Get the next available user ID"""
+        """
+        Get the next available user ID.
+        NOTE: Kept for reference but not used — AstraDB auto-generates _id.
+        Calling this on a large collection is expensive (full scan).
+        """
         try:
-            # Find the maximum ID in the table
-            # Note: This is a simple implementation. For production, consider using UUID or database sequences
             result = self.table.find({})
-            # .find() will return a cursor object that is iterable (Imagine it's a pointer point to the dataset over at the database [cloud])
-            print(f"\n\n{result}\n\n")
-            # Get a max_id to keep track of the latest id from the table
+            logger.debug(f"_get_next_user_id result: {result}")
+
             max_id = 0
 
-            # Loop through each row in the result to find the maximum id
             for row in result:
                 if row.get('id', 0) > max_id:
                     max_id = row['id']
             return max_id + 1
         except Exception:
             return 1
-    
+
     def email_exists(self, email: str) -> bool:
         """
-        Check if an email already exists in the database
-        
-        Args:
-            email: Email to check
-            
-        Returns:
-            True if email exists, False otherwise
+        Check if an email already exists in the database.
+        Uses find_one instead of find for efficiency.
         """
-        # Sanitize email
         email = sanitize_email(email)
         try:
-            # Check for existing email
-            result = self.table.find({"email": email})
-            return len(list(result)) > 0
+            # FIXED: find_one is more efficient than find + list conversion
+            result = self.table.find_one({"email": email})
+            return result is not None
         except Exception:
             return False
-    
+
     def register_user(self, email: str, password: str, role: str) -> Dict[str, Any]:
         """
-        Register a new user
-        
-        Args:
-            email: User's email
-            password: User's plain text password
-            
-        Returns:
-            Dictionary with user information (without password)
-            {
-                "id": int,
-                "email": str,
-                "user_role": str,
-                "created_at": datetime,
-                "is_active": bool
-            }
-
-        Raises:
-            AuthenticationError: If validation fails or email already exists
+        Register a new user.
+        Returns user data + a signed JWT access token.
         """
-        # Sanitize email into lowercase and remove trailing spaces or leading spaces
-        # email = sanitize_email(email)
-        
-        # Validate email format and return 
-        # is_valid_email: Boolean indicating if email is valid
-        # email_error: Error message if invalid
-        # email: Normalized email (Normalised email is in lowercase and trimmed [Same as sanitize_email function, that is why I commented out the sanitize_email line above])
+
         is_valid_email, email_error, email = validate_email_format(email)
-        # If email is invalid, raise error
         if not is_valid_email:
             raise AuthenticationError(f"Invalid email format: {email_error}")
-        
-        # Validate password strength, if the password is weak, raise error
+
         is_valid_password, password_error = validate_password_strength(password)
         if not is_valid_password:
             raise AuthenticationError(f"Weak password: {password_error}")
-        
-        # Check for duplicate email, if exists, raise error
+
         if self.email_exists(email):
             raise AuthenticationError(f"Account with email '{email}' already exists")
 
-        # Validate user role
         if role not in ["user", "admin"]:
             raise AuthenticationError(f"Invalid user role: {role}")
 
-        # Hash password using bcrypt
         password_hash = hash_password(password)
 
-        # Prepare user data dictionary
         user_data = {
             "email": email,
             "user_role": role,
             "password_hash": password_hash,
+
+            # OAuth fields added
+            "auth_provider": "local",
+            "oauth_sub": None,
+
             "created_at": datetime.now(timezone.utc),
             "is_active": True
         }
-        
-        # Insert into database
+
         try:
-            # Inset the data into the table
             inserted_result = self.table.insert_one(user_data)
-            
-            # Get the new user ID (_id) assigned by the database
-            new_user_id = inserted_result.inserted_id
-            # Return user data without password
+
+            # FIXED: AstraDB returns _id, not id
+            new_user_id = str(inserted_result.inserted_id)
+
+            # ADDED: Issue JWT on registration so the user is immediately authenticated
+            access_token = create_access_token(
+                user_id=new_user_id,
+                email=email,
+                role=role
+            )
+
             return {
                 "id": new_user_id,
                 "email": email,
                 "user_role": role,
                 "created_at": user_data["created_at"],
-                "is_active": True
+                "is_active": True,
+                "access_token": access_token,   # ADDED
+                "token_type": "bearer"           # ADDED
             }
         except Exception as e:
             raise AuthenticationError(f"Failed to register user: {e}")
-    
+
     def login_user(self, email: str, password: str) -> Dict[str, Any]:
         """
-        Authenticate a user login
-        
-        Args:
-            email: User's email
-            password: User's plain text password
-            
-        Returns:
-            Dictionary with user information if login successful
-            
-        Raises:
-            AuthenticationError: If credentials are invalid
+        Authenticate a user login.
+        Returns user data + a signed JWT access token.
         """
-        # Sanitize email
+
         email = sanitize_email(email)
-        
-        # Find user by email
+
         try:
-            # Try to find the user in the database
-            # find() method will return a cursor object that is iterable, can you list() it to get all the results
-            result = self.table.find({"email": email})
-            users = list(result)
+            # FIXED: find_one instead of find + list conversion
+            user = self.table.find_one({"email": email})
 
-            # Example of output: 
-            # [{'id': 1, 
-            # 'created_at': DataAPITimestamp(timestamp_ms=1762275590557 [2025-11-04T16:59:50.557Z]),
-            #  'email': 'test@example.com',
-            #  'is_active': True,
-            #  'password_hash': '$2b$12$zpycz1q9DASaDwt9IGULYehixv6JiFrdJ/O7pGndmvrH2ZhwGNCXC'}]
-
-            # Example of accessing the data of email: 
-            # users[0]['email'] => 'test@example.com'
-            
-            # If no user found with that email, raise error
-            if not users:
+            if not user:
                 raise AuthenticationError("Invalid email or password")
-            
-            # Get the first user (there should only be one due to unique email constraint)
-            user = users[0]
-            
-            # Check if account is active
-            # If account is deactivated, raise error
+
             if not user.get('is_active', False):
                 raise AuthenticationError("Account is deactivated")
-            
-            # Verify password using hashed password
+
             if not verify_password(password, user['password_hash']):
                 raise AuthenticationError("Invalid email or password")
-            
-            print(f"✅ User logged in successfully: {email}")
-            
-            # Return user data without password
+
+            logger.info(f"User logged in successfully: {email}")
+
+            # FIXED: AstraDB uses _id not id
+            user_id = str(user.get('_id'))
+
+            # ADDED: user_role was missing from this return — needed for JWT claims
+            role = user.get('user_role', 'user')
+
+            # ADDED: Issue JWT so caller has a session token
+            access_token = create_access_token(
+                user_id=user_id,
+                email=user['email'],
+                role=role
+            )
+
             return {
-                "id": user['id'],
+                "id": user_id,
                 "email": user['email'],
+                "user_role": role,                  # FIXED: was missing
                 "created_at": user['created_at'],
-                "is_active": user['is_active']
+                "is_active": user['is_active'],
+                "access_token": access_token,       # ADDED
+                "token_type": "bearer"              # ADDED
             }
         except AuthenticationError:
             raise
         except Exception as e:
             raise AuthenticationError(f"Login failed: {e}")
-    
+
     def get_user_by_email(self, email: str) -> Optional[Dict[str, Any]]:
         """
-        Get user information by email
-        
-        Args:
-            email: User's email
-            
-        Returns:
-            User information dictionary or None if not found
+        Get user information by email.
         """
         email = sanitize_email(email)
         try:
-            result = self.table.find({"email": email})
-            users = list(result)
-            if users:
-                user = users[0]
+            # FIXED: find_one instead of find + list conversion
+            user = self.table.find_one({"email": email})
+            if user:
                 return {
-                    "id": user['id'],
+                    # FIXED: AstraDB uses _id not id
+                    "id": str(user.get('_id')),
                     "email": user['email'],
                     "created_at": user.get('created_at'),
                     "is_active": user.get('is_active', True)
@@ -273,3 +321,112 @@ class AuthService:
             return None
         except Exception:
             return None
+
+    def oauth_login(self, email: str, oauth_sub: str) -> Dict[str, Any]:
+        """
+        OAuth login or automatic registration.
+
+        If the OAuth user already exists (matched by oauth_sub), log them in.
+        If a local account exists with the same email, raise an error to prevent duplicate accounts.
+        If they do not exist at all, create a new account automatically.
+        Returns user data + a signed JWT access token.
+        """
+
+        email = sanitize_email(email)
+
+        try:
+            # FIXED: find_one instead of find + list conversion
+            user = self.table.find_one({"oauth_sub": oauth_sub})
+
+            if user:
+                if not user.get('is_active', True):
+                    raise AuthenticationError("Account is deactivated")
+
+                # FIXED: AstraDB uses _id
+                user_id = str(user.get('_id'))
+                role = user.get('user_role', 'user')
+
+                # ADDED: Issue JWT for existing OAuth user
+                access_token = create_access_token(
+                    user_id=user_id,
+                    email=user.get('email'),
+                    role=role
+                )
+
+                return {
+                    "id": user_id,
+                    "email": user.get('email'),
+                    "user_role": role,
+                    "created_at": user.get('created_at'),
+                    "is_active": user.get('is_active', True),
+                    "access_token": access_token,   # ADDED
+                    "token_type": "bearer"          # ADDED
+                }
+
+            # ADDED: Check for existing local account with same email to prevent duplicate accounts
+            existing_local = self.table.find_one({"email": email, "auth_provider": "local"})
+            if existing_local:
+                raise AuthenticationError(
+                    "An account with this email already exists. Please log in with your password."
+                )
+
+            user_data = {
+                "email": email,
+                "user_role": "user",
+                "auth_provider": "oauth",
+                "oauth_sub": oauth_sub,
+                "created_at": datetime.now(timezone.utc),
+                "is_active": True
+            }
+
+            inserted_result = self.table.insert_one(user_data)
+
+            # FIXED: AstraDB uses _id
+            new_user_id = str(inserted_result.inserted_id)
+
+            # ADDED: Issue JWT for newly created OAuth user
+            access_token = create_access_token(
+                user_id=new_user_id,
+                email=email,
+                role="user"
+            )
+
+            return {
+                "id": new_user_id,
+                "email": email,
+                "user_role": "user",
+                "created_at": user_data["created_at"],
+                "is_active": True,
+                "access_token": access_token,   # ADDED
+                "token_type": "bearer"          # ADDED
+            }
+
+        except AuthenticationError:
+            raise
+        except Exception as e:
+            raise AuthenticationError(f"OAuth login failed: {e}")
+
+    # ADDED: Auth0 login method
+    def auth0_login(self, token: str) -> Dict[str, Any]:
+        """
+        Login using Auth0 JWT token.
+        Verifies the token, extracts identity, and delegates to oauth_login.
+        Returns user data + a signed JWT access token.
+        """
+
+        try:
+            payload = verify_auth0_token(token)
+
+            email = payload.get("email")
+            oauth_sub = payload.get("sub")
+
+            if not email or not oauth_sub:
+                raise AuthenticationError("Invalid Auth0 payload")
+
+            # Reuse existing OAuth login logic
+            return self.oauth_login(email, oauth_sub)
+
+        except AuthenticationError:
+            raise
+        except Exception as e:
+            raise AuthenticationError(f"Auth0 login failed: {e}")
