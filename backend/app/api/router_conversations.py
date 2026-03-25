@@ -101,6 +101,7 @@ class RenameConversationResponse(BaseModel):#response model for rename conversat
 
 
 @router.get("/conversations", response_model=ConversationsListResponse)#endpoint to list conversations for a user, with pagination support
+# TODO: We can make the query to be in a model
 def list_conversations(#query parameter for user email, required and must be at least 3 characters long; query parameter for limit of conversations to return, default 50, must be between 1 and 200
   user_email: str = Query(..., min_length=3),
   limit: int = Query(50, ge=1, le=200),

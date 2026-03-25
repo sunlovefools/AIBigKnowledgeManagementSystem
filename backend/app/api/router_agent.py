@@ -1,7 +1,6 @@
 """
 API router for the Agentic Modification pipeline.
 Canonical endpoint: POST /api/agent/modify
-Compatibility alias: POST /api/agent/v2/modify
 """
 from __future__ import annotations
 
@@ -331,15 +330,8 @@ async def _run_agentic_pipeline(
         )
     return response
 
-
-@router.post("/modify", response_model=AgenticModificationResponse)
-@router.post("/v2/modify", response_model=AgenticModificationResponse)
-async def agentic_modify(request: AgenticModificationRequest):
-    return await _run_agentic_pipeline(request)
-
-
+# -- Main entry point for the agentic modification pipeline, with SSE streaming of progress updates and final result --
 @router.post("/modify-stream")
-@router.post("/v2/modify-stream")
 async def agentic_modify_stream(request: AgenticModificationRequest):
     # Queue decouples producer task (pipeline) from StreamingResponse consumer.
     queue: asyncio.Queue[str | None] = asyncio.Queue()

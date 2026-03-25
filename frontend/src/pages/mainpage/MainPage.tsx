@@ -1,28 +1,6 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+﻿import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 
-// Helper function to format timestamps as relative time (e.g., "2h ago", "Today", "Yesterday")
-function formatRelativeTime(isoTimestamp: string): string {
-    try {
-        const date = new Date(isoTimestamp);
-        const now = new Date();
-        const diffMs = now.getTime() - date.getTime();
-        const diffMins = Math.floor(diffMs / 60000);
-        const diffHours = Math.floor(diffMs / 3600000);
-        const diffDays = Math.floor(diffMs / 86400000);
-
-        if (diffMins < 1) return "just now";
-        if (diffMins < 60) return `${diffMins}m ago`;
-        if (diffHours < 24) return `${diffHours}h ago`;
-        if (diffDays === 1) return "yesterday";
-        if (diffDays < 7) return `${diffDays}d ago`;
-
-        // For older dates, show date in short format
-        return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
-    } catch {
-        return "";
-    }
-}
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
 import Sidebar from "./components/Sidebar";
@@ -43,6 +21,8 @@ function getProposalKey(proposal: AgentProposal): string {
 export default function MainPage() {
     const navigate = useNavigate();
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
+    // Controls the collapsible "current chat title" menu shown inside chat-stage-shell.
+    const [isConversationMenuOpen, setIsConversationMenuOpen] = useState(false);
     const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
     const [renameTitle, setRenameTitle] = useState("");
     const [isRenamingConversation, setIsRenamingConversation] = useState(false);
@@ -54,6 +34,7 @@ export default function MainPage() {
     const [focusedProposalKey, setFocusedProposalKey] = useState<string | null>(null);
 
     const bottomRef = useRef<HTMLDivElement | null>(null);
+    const conversationMenuRef = useRef<HTMLDivElement | null>(null);
 
     const {
         sidebarWidth,
@@ -252,6 +233,16 @@ export default function MainPage() {
     const hasSelectedDocument = Boolean(activeTab);
     const isDesktopWorkspaceActive = !isMobile && isModificationPanelOpen && hasSelectedDocument;
     const chatEmptyStateMode = isEditMode && !hasSelectedDocument ? "no-document" : "welcome";
+    // The active chat title is driven by selected conversation metadata; fallback is a new-chat label.
+    const activeConversationSummary = useMemo(
+        () => conversations.find((conversation) => conversation.conversationId === conversationId) ?? null,
+        [conversations, conversationId]
+    );
+    const currentChatTitle = activeConversationSummary?.title?.trim() || "New AI chat";
+    const previousConversations = useMemo(
+        () => conversations.filter((conversation) => conversation.conversationId !== conversationId),
+        [conversations, conversationId]
+    );
     const activeFileName = activeTab
         ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
         : "No file selected";
@@ -290,8 +281,184 @@ export default function MainPage() {
         setFocusedProposalKey(proposalKey);
     }, [activeTab, openDocumentTab]);
 
+    // Creates a fresh chat and resets menu/rename UI state.
+    const handleStartNewConversationFromHeader = useCallback(() => {
+        startNewConversation();
+        setRenamingConversationId(null);
+        setRenameTitle("");
+        setIsConversationMenuOpen(false);
+    }, [startNewConversation]);
+
+    const handleSelectConversationFromMenu = useCallback((targetConversationId: string) => {
+        setIsConversationMenuOpen(false);
+        setRenamingConversationId(null);
+        setRenameTitle("");
+        void loadConversationMessages(targetConversationId);
+    }, [loadConversationMessages]);
+
     const renderChatWorkspace = (emptyStateMode: "welcome" | "no-document") => (
         <div className="chat-stage-shell">
+            {/* Minimal Notion-style chat title bar:
+                - Left: collapsible current chat title
+                - Right: icon-only new chat action */}
+            <section
+                className="chat-stage-conversation-switcher"
+                aria-label="Conversation history switcher"
+                ref={conversationMenuRef}
+            >
+                <div className="chat-stage-conversation-bar">
+                    <button
+                        className={`chat-stage-current-chat-btn ${isConversationMenuOpen ? "open" : ""}`}
+                        type="button"
+                        onClick={() => {
+                            setIsConversationMenuOpen((previous) => !previous);
+                            if (renamingConversationId) {
+                                setRenamingConversationId(null);
+                                setRenameTitle("");
+                            }
+                        }}
+                        aria-expanded={isConversationMenuOpen}
+                        aria-label="Toggle conversation history menu"
+                    >
+                        <span className="chat-stage-current-chat-label">{currentChatTitle}</span>
+                        <span className="chat-stage-current-chat-chevron" aria-hidden="true">
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round">
+                                <polyline points="6 9 12 15 18 9" />
+                            </svg>
+                        </span>
+                    </button>
+
+                    <button
+                        className="chat-stage-new-chat-btn"
+                        type="button"
+                        onClick={handleStartNewConversationFromHeader}
+                        disabled={isQuerying || isLoadingConversationMessages}
+                        aria-label="Start a new chat"
+                        title="New AI chat"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <path d="M12 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                            <path d="M18.375 2.625a2.121 2.121 0 1 1 3 3L12 15l-4 1 1-4Z" />
+                        </svg>
+                    </button>
+                </div>
+
+                {isConversationMenuOpen && (
+                    <div className="chat-stage-conversation-dropdown" role="menu" aria-label="Conversation history list">
+                        <div className="chat-stage-conversation-dropdown-label">Older</div>
+
+                        {isLoadingConversations ? (
+                            <div className="conversation-switcher-status">Loading conversations...</div>
+                        ) : conversationsError ? (
+                            <div className="conversation-switcher-status error">{conversationsError}</div>
+                        ) : previousConversations.length === 0 ? (
+                            <div className="conversation-switcher-status">No conversation history yet.</div>
+                        ) : (
+                            <div className="chat-stage-conversation-dropdown-list">
+                                {previousConversations.map((conversation) => (
+                                    <div
+                                        key={conversation.conversationId}
+                                        className={`chat-stage-conversation-row-wrapper ${renamingConversationId === conversation.conversationId ? "renaming" : ""}`}
+                                    >
+                                        {renamingConversationId === conversation.conversationId ? (
+                                            <div className="chat-stage-conversation-row-rename">
+                                                <input
+                                                    type="text"
+                                                    value={renameTitle}
+                                                    onChange={(e) => setRenameTitle(e.target.value)}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") {
+                                                            void handleSubmitRename();
+                                                        } else if (e.key === "Escape") {
+                                                            handleCancelRename();
+                                                        }
+                                                    }}
+                                                    autoFocus
+                                                    disabled={isRenamingConversation}
+                                                    className="rename-input"
+                                                />
+                                                <div className="rename-buttons">
+                                                    <button
+                                                        onClick={() => void handleSubmitRename()}
+                                                        disabled={isRenamingConversation || !renameTitle.trim()}
+                                                        className="rename-btn rename-confirm"
+                                                        type="button"
+                                                        title="Save (Enter)"
+                                                    >
+                                                        {"\u2713"}
+                                                    </button>
+                                                    <button
+                                                        onClick={handleCancelRename}
+                                                        disabled={isRenamingConversation}
+                                                        className="rename-btn rename-cancel"
+                                                        type="button"
+                                                        title="Cancel (Esc)"
+                                                    >
+                                                        {"\u2715"}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            <>
+                                                <button
+                                                    className="chat-stage-conversation-row"
+                                                    onClick={() => {
+                                                        handleSelectConversationFromMenu(conversation.conversationId);
+                                                    }}
+                                                    disabled={isLoadingConversationMessages}
+                                                    type="button"
+                                                    role="menuitem"
+                                                >
+                                                    {conversation.title?.trim() || "New AI chat"}
+                                                </button>
+                                                <button
+                                                    className="chat-stage-conversation-row-rename-trigger"
+                                                    type="button"
+                                                    onClick={(event) => {
+                                                        event.preventDefault();
+                                                        event.stopPropagation();
+                                                        handleStartRename(
+                                                            conversation.conversationId,
+                                                            conversation.title?.trim() || "New AI chat"
+                                                        );
+                                                    }}
+                                                    disabled={isLoadingConversationMessages}
+                                                    title="Rename conversation"
+                                                    aria-label="Rename conversation"
+                                                >
+                                                    <svg
+                                                        width="13"
+                                                        height="13"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        aria-hidden
+                                                    >
+                                                        <path d="M12 20h9" />
+                                                        <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
+                                                    </svg>
+                                                </button>
+                                            </>
+                                        )}
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        {conversationMessagesError && (
+                            <div className="conversation-switcher-status error">{conversationMessagesError}</div>
+                        )}
+                    </div>
+                )}
+
+                {!isConversationMenuOpen && conversationMessagesError && (
+                    <div className="conversation-switcher-status error">{conversationMessagesError}</div>
+                )}
+            </section>
+
             <ChatArea
                 messages={messages}
                 isUploading={isUploading}
@@ -326,6 +493,34 @@ export default function MainPage() {
     useEffect(() => {
         void refreshConversations();
     }, [refreshConversations]);
+
+    useEffect(() => {
+        if (!isConversationMenuOpen) return;
+
+        const handleDocumentPointerDown = (event: MouseEvent) => {
+            const targetNode = event.target as Node | null;
+            if (!targetNode || !conversationMenuRef.current) return;
+            if (!conversationMenuRef.current.contains(targetNode)) {
+                setIsConversationMenuOpen(false);
+                setRenamingConversationId(null);
+                setRenameTitle("");
+            }
+        };
+
+        const handleDocumentEscape = (event: globalThis.KeyboardEvent) => {
+            if (event.key !== "Escape") return;
+            setIsConversationMenuOpen(false);
+            setRenamingConversationId(null);
+            setRenameTitle("");
+        };
+
+        document.addEventListener("mousedown", handleDocumentPointerDown);
+        document.addEventListener("keydown", handleDocumentEscape);
+        return () => {
+            document.removeEventListener("mousedown", handleDocumentPointerDown);
+            document.removeEventListener("keydown", handleDocumentEscape);
+        };
+    }, [isConversationMenuOpen]);
 
     useEffect(() => {
         if (!isEditMode || isEditingActiveDocument) {
@@ -383,9 +578,9 @@ export default function MainPage() {
     }, []);
 
     // Pencil button:
-    // - Panel closed           → open panel in edit mode
-    // - Panel open, view mode  → switch to edit mode (don't close panel)
-    // - Panel open, edit mode  → exit edit mode back to view mode
+    // - Panel closed           â†’ open panel in edit mode
+    // - Panel open, view mode  â†’ switch to edit mode (don't close panel)
+    // - Panel open, edit mode  â†’ exit edit mode back to view mode
     const handleToggleModificationPanel = () => {
         if (!isModificationPanelOpen) {
             setIsModificationPanelOpen(true);
@@ -595,132 +790,6 @@ export default function MainPage() {
                     </div>
                 </header>
 
-                <section className="conversation-switcher" aria-label="Conversation history switcher">
-                    <div className="conversation-switcher-header">
-                        <div className="conversation-switcher-title">Conversations</div>
-                        <button
-                            className="nav-btn"
-                            onClick={startNewConversation}
-                            disabled={isQuerying || isLoadingConversationMessages}
-                            type="button"
-                        >
-                            New chat
-                        </button>
-                    </div>
-
-                    {isLoadingConversations ? (
-                        <div className="conversation-switcher-status">Loading conversations...</div>
-                    ) : conversationsError ? (
-                        <div className="conversation-switcher-status error">{conversationsError}</div>
-                    ) : conversations.length === 0 ? (
-                        <div className="conversation-switcher-status">No conversation history yet.</div>
-                    ) : (
-                        <div className="conversation-chip-list">
-                            {conversations.map((conversation) => (
-                                <div
-                                    key={conversation.conversationId}
-                                    className={`conversation-chip-wrapper ${renamingConversationId === conversation.conversationId ? "renaming" : ""}`}
-                                >
-                                    {renamingConversationId === conversation.conversationId ? (
-                                        <div className="conversation-chip-rename">
-                                            <input
-                                                type="text"
-                                                value={renameTitle}
-                                                onChange={(e) => setRenameTitle(e.target.value)}
-                                                onKeyDown={(e) => {
-                                                    if (e.key === "Enter") {
-                                                        void handleSubmitRename();
-                                                    } else if (e.key === "Escape") {
-                                                        handleCancelRename();
-                                                    }
-                                                }}
-                                                autoFocus
-                                                disabled={isRenamingConversation}
-                                                className="rename-input"
-                                            />
-                                            <div className="rename-buttons">
-                                                <button
-                                                    onClick={() => void handleSubmitRename()}
-                                                    disabled={isRenamingConversation || !renameTitle.trim()}
-                                                    className="rename-btn rename-confirm"
-                                                    type="button"
-                                                    title="Save (Enter)"
-                                                >
-                                                    ✓
-                                                </button>
-                                                <button
-                                                    onClick={handleCancelRename}
-                                                    disabled={isRenamingConversation}
-                                                    className="rename-btn rename-cancel"
-                                                    type="button"
-                                                    title="Cancel (Esc)"
-                                                >
-                                                    ✕
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <>
-                                            <button
-                                                className={`conversation-chip ${conversationId === conversation.conversationId ? "active" : ""}`}
-                                                onClick={() => {
-                                                    void loadConversationMessages(conversation.conversationId);
-                                                }}
-                                                disabled={isLoadingConversationMessages}
-                                                type="button"
-                                            >
-                                                <div className="conversation-chip-title">{conversation.title || "New conversation"}</div>
-                                                <div className="conversation-chip-meta">
-                                                    <span>{conversation.messageCount ?? 0} msgs</span>
-                                                    {conversation.lastMessage?.timestamp && (
-                                                        <span className="conversation-chip-timestamp">
-                                                            {formatRelativeTime(conversation.lastMessage.timestamp)}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            </button>
-                                            <button
-                                                className="conversation-rename-trigger"
-                                                type="button"
-                                                onClick={(event) => {
-                                                    event.preventDefault();
-                                                    event.stopPropagation();
-                                                    handleStartRename(
-                                                        conversation.conversationId,
-                                                        conversation.title || "New conversation"
-                                                    );
-                                                }}
-                                                disabled={isLoadingConversationMessages}
-                                                title="Rename conversation"
-                                                aria-label="Rename conversation"
-                                            >
-                                                <svg
-                                                    width="14"
-                                                    height="14"
-                                                    viewBox="0 0 24 24"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    strokeWidth="2"
-                                                    strokeLinecap="round"
-                                                    strokeLinejoin="round"
-                                                    aria-hidden
-                                                >
-                                                    <path d="M12 20h9" />
-                                                    <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
-                                                </svg>
-                                            </button>
-                                        </>
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    )}
-
-                    {conversationMessagesError && (
-                        <div className="conversation-switcher-status error">{conversationMessagesError}</div>
-                    )}
-                </section>
-
                 {isMobile ? (
                     renderChatWorkspace(chatEmptyStateMode)
                 ) : isDesktopWorkspaceActive ? (
@@ -905,3 +974,4 @@ export default function MainPage() {
         </div>
     );
 }
+
