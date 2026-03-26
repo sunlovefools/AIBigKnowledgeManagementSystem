@@ -143,15 +143,14 @@ docker run --env-file .env -p 8000:8000 team44-backend
 |-------|--------|-------------|---------|
 | `/hello` | GET | Simple backend ping | `main.py` |
 | `/auth/health` | GET | Auth subsystem status | `router_auth` |
-| `/auth/register` | POST | Creates user in Astra (`AuthService.register_user`) | `router_auth` |
-| `/auth/login` | POST | Validates credentials (bcrypt) | `router_auth` |
+| `/auth/auth0-login` | POST | Exchanges Auth0 access token for internal JWT and user session | `router_auth` |
 | `/ingest/health` | GET | Ingestion subsystem status | `router_ingest` |
 | `/ingest/upload` | POST | Accepts `{fileName, contentType, data(base64)}`; runs ingestion pipeline | `router_ingest` |
 | `/query/health` | GET | Query subsystem status | `router_query` |
 | `/query` | POST | Full RAG pipeline (refine -> embed -> vector search -> answer) | `router_query` |
 | `/query/direct` | POST | Vector search without refinement (debug) | `router_query` |
 
-Authentication & authorization are still lightweight (no JWT); responses omit password hashes and include simple status messages.
+Authentication is Auth0-only for sign-in; backend issues internal JWT tokens after `/auth/auth0-login`.
 
 ---
 
@@ -201,19 +200,28 @@ Intermediate debug dumps (`vectors_debug.txt`, `polished_chunks_debug.txt`) are 
 
 `AuthService` encapsulates Astra Data API calls:
 
-- `register_user(email, password, role)`  
-  - Sanitizes + validates email/password.  
-  - Enforces role âˆˆ {user, admin}.  
-  - Hashes password with bcrypt (`password_utils`).  
-  - Inserts into `users` collection and returns metadata.
+- `auth0_login(token)`  
+  - Verifies Auth0 token using tenant JWKS, audience, and issuer checks.  
+  - Resolves `sub` and `email` claims (falls back to Auth0 `/userinfo` when email is absent).  
+  - Delegates to `oauth_login(email, oauth_sub)` for account lookup and auto-provisioning.
 
-- `login_user(email, password)`  
-  - Fetches by sanitized email.  
-  - Confirms `is_active`.  
-  - Verifies bcrypt hash.  
-  - Returns limited profile (no hash).  
+- `oauth_login(email, oauth_sub)`  
+  - Logs in existing OAuth user by `oauth_sub`.  
+  - Creates a new user with `auth_provider="oauth"` and default role `user` when not found.  
+  - Issues internal JWT used by protected backend routes.
 
-Error handling uses custom `AuthenticationError` which `router_auth` translates into appropriate HTTP status codes (400/401/409/503).
+Error handling uses custom `AuthenticationError` which `router_auth` translates into appropriate HTTP status codes (401/503).
+
+### One-Time Cutover Migration
+
+To remove legacy local-password users during Auth0 cutover:
+
+```bash
+python backend/scripts/migrate_auth0_only_remove_local_users.py --dry-run
+python backend/scripts/migrate_auth0_only_remove_local_users.py
+```
+
+This script deletes users where `auth_provider == "local"` and is safe to run multiple times.
 
 ---
 
@@ -258,7 +266,7 @@ curl -X POST http://127.0.0.1:8000/ingest/upload ^
 
 ## Future Enhancements
 
-- **JWT & RBAC** â€“ Add `/auth/login` token issuance + role-based guards on ingestion/query routes.
+- **RBAC hardening** - Keep extending role-based guards on ingestion/query/modification routes.
 - **MinIO Webhook** â€“ Replace mock upload payload for `/ingest/upload` with actual S3-compatible object storage events.
 - **Observability** â€“ Plug in structured logging + metrics (Prometheus, OpenTelemetry).
 - **Retries** â€“ Wrap Beam/Astra calls with exponential backoff to handle transient failures.
@@ -266,3 +274,5 @@ curl -X POST http://127.0.0.1:8000/ingest/upload ^
 - **Testing** â€“ Flesh out `tests/` with unit + integration coverage, especially for chunking and auth.
 
 Use this reference to onboard new backend contributors or to understand how the RAG stack is wired into AstraDB and Beam services.
+
+

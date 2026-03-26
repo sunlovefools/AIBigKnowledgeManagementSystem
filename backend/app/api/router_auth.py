@@ -1,177 +1,69 @@
 import logging
+from datetime import datetime
+
 from fastapi import APIRouter, HTTPException, status, Depends
 from pydantic import BaseModel
-from datetime import datetime
-from typing import Optional
 
-# Import the service and its custom error
 from app.service.auth.auth_service import AuthService, AuthenticationError
 
-# TODO: Change the logger to the centralise logger
 logger = logging.getLogger(__name__)
 
-class UserCreateRequest(BaseModel):
-    """
-    Data required to register a new user.
-    This matches the { email, password, role } object from your frontend.
-    """
-    email: str
-    password: str
-    role: str
-
-# TODO: This can be deleted, we do not support password login
-class UserLoginRequest(BaseModel):
-    """Data required to log in a user."""
-    email: str
-    password: str
 
 class UserDisplayResponse(BaseModel):
-    """
-    Data sent back to the client after a successful
-    registration or login. This model ensures the
-    'password_hash' is NEVER sent back.
-    """
-    id: str                         # UUID will be given from the database
+    """Auth session payload returned after successful Auth0 login exchange."""
+
+    id: str
     email: str
     user_role: str #TODO: Why is this needed?
     created_at: datetime
     is_active: bool
-    access_token: str               # Access_token: JWT issued by auth_service (Used by frontend for authenticated requests)
-    token_type: str                 # Token_type: always "bearer" — tells client how to use the token
+    access_token: str # Access_token: JWT issued by auth_service (Used by frontend for authenticated requests)
+    token_type: str # Token_type: always "bearer" — tells client how to use the token
 
     class Config:
-        from_attributes = True      # Allows FastAPI to convert your database/dict object to this model
+        from_attributes = True
 
 
-# ADDED: request model used when logging in with Auth0 JWT token
 class Auth0LoginRequest(BaseModel):
     token: str
 
-
-# --- Dependency Injection ---
-
-# FIXED: was a module-level singleton — now uses FastAPI Depends() for proper
-# lifecycle management and testability (tests can override this dependency).
+# Dependency injection function to provide AuthService instance to all the endpoints in this router
 def get_auth_service() -> AuthService:
-    """
-    FastAPI dependency that provides an AuthService instance.
-    Raises 503 if the service fails to initialize (e.g. missing env vars).
-    """
+    """FastAPI dependency that provides AuthService."""
     try:
         return AuthService()
     except ValueError as e:
         logger.critical(f"Failed to initialize AuthService: {e}")
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail="Authentication service is not available."
+            detail="Authentication service is not available.",
         )
 
 
-# Setup the API router
-# Create a router for authentication endpoints
 router = APIRouter()
 
-# --- API Endpoints ---
-
-# Simple health check endpoint for this module
+# Simple health check endpoint for authentication service
 @router.get("/health")
 def auth_health():
     return {"authentication": "ok"}
 
-
-# Endpoint to register a new user
-@router.post(
-    "/register",
-    response_model=UserDisplayResponse,
-    status_code=status.HTTP_201_CREATED,
-    tags=["Authentication"]
-)
-async def register_user(
-    user_data: UserCreateRequest,
-    auth_service: AuthService = Depends(get_auth_service)  # FIXED: injected via Depends
-):
-    """
-    Handle new user registration.
-    Receives email, password, and role from the frontend.
-    Returns user info and a signed JWT access token.
-    """
-    logger.info("Register user called")  # FIXED: was print()
-
-    try:
-        new_user = auth_service.register_user(
-            email=user_data.email,
-            password=user_data.password,
-            role=user_data.role
-        )
-
-        return new_user
-
-    except AuthenticationError as e:
-        if "already exists" in str(e):
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=str(e)
-            )
-        else:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=str(e)
-            )
-
-
-@router.post(
-    "/login",
-    response_model=UserDisplayResponse,
-    tags=["Authentication"]
-)
-async def login_user(
-    user_data: UserLoginRequest,
-    auth_service: AuthService = Depends(get_auth_service)  # FIXED: injected via Depends
-):
-    """
-    Handle user login.
-    Receives email and password.
-    Returns user info and a signed JWT access token.
-    """
-    try:
-        # Call existing login logic
-        user = auth_service.login_user(
-            email=user_data.email,
-            password=user_data.password
-        )
-        return user
-
-    except AuthenticationError as e:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=str(e),
-            headers={"WWW-Authenticate": "Bearer"},  # Standard for login errors
-        )
-
-
-# Added: endpoint that allows login using an Auth0 JWT token
+# Endpoint for Auth0 login exchange. 
+# Frontend sends Auth0 access token, backend verifies it and returns internal access token + user info.
 @router.post(
     "/auth0-login",
     response_model=UserDisplayResponse,
-    tags=["Authentication"]
+    tags=["Authentication"],
 )
 async def auth0_login(
     auth_data: Auth0LoginRequest,
-    auth_service: AuthService = Depends(get_auth_service)  # FIXED: injected via Depends
+    auth_service: AuthService = Depends(get_auth_service),
 ):
     """
-    Login using Auth0 JWT token.
-    Frontend sends the token received from Auth0.
-    Returns user info and a signed JWT access token.
+    Login using Auth0 access token sent by frontend.
+    Returns user info and a signed internal access token.
     """
     try:
-        # Calls the AuthService method that verifies the Auth0 token
-        user = auth_service.auth0_login(
-            token=auth_data.token
-        )
-
-        return user
-
+        return auth_service.auth0_login(token=auth_data.token)
     except AuthenticationError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
