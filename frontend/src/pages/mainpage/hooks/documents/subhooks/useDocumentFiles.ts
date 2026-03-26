@@ -11,12 +11,8 @@ import { getAllPreviewFiles, getFileChunks } from "../api/documentsApi";
 import { createEmptyContentAsyncState, createEmptyContentState, createEmptyFilesState, toSidebarFileSummary } from "../state/factories";
 import { markFileChunkLoading, patchChunkContent, replaceFilesFromSidebarSummaries, syncChunkAsyncIndex } from "../state/transitions";
 
-type UseDocumentFilesParams = {
-    isModificationPanelOpen: boolean;
-};
-
 // Owns file list state, tab state, and per-file chunk loading/pagination.
-export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesParams) {
+export function useDocumentFiles() {
     const [filesState, setFilesState] = useState<FilesState>(createEmptyFilesState());
     const [chunkAsyncByFileId, setChunkAsyncByFileId] = useState<Record<string, FileContentAsyncState>>({});
     const [isLoadingFiles, setIsLoadingFiles] = useState(false);
@@ -70,9 +66,9 @@ export function useDocumentFiles({ isModificationPanelOpen }: UseDocumentFilesPa
     }, []);
 
     useEffect(() => {
-        // Delay initial fetch until the panel is actually opened.
-        if (isModificationPanelOpen && !isDocsCached) void fetchFiles();
-    }, [fetchFiles, isDocsCached, isModificationPanelOpen]);
+        // Auto-load file previews after authentication and page load.
+        if (!isDocsCached) void fetchFiles();
+    }, [fetchFiles, isDocsCached]);
 
     const loadFileChunks = useCallback(
         async (fileId: string, reset = false): Promise<ParentChunkContent[]> => {

@@ -16,8 +16,8 @@ type DeleteFileResult = {
 };
 
 // Deal with file and chunk state
-export function useDocuments(isModificationPanelOpen: boolean) {
-    const fileDomain = useDocumentFiles({ isModificationPanelOpen });
+export function useDocuments() {
+    const fileDomain = useDocumentFiles();
     const { getContentStateById, loadFileChunks } = fileDomain;
 
     // function to get the full content of a document by file ID

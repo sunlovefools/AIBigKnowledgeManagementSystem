@@ -7,12 +7,8 @@ from typing import Optional
 # Import the service and its custom error
 from app.service.auth.auth_service import AuthService, AuthenticationError
 
-# ADDED: module-level logger replacing print() calls
+# TOOD: Change the logger to the centralise logger
 logger = logging.getLogger(__name__)
-
-# --- Pydantic Models (Data Schemas) ---
-# These models define the exact shape of the data you expect.
-# FastAPI will use these to validate the incoming request JSON.
 
 class UserCreateRequest(BaseModel):
     """

@@ -116,7 +116,7 @@ export default function MainPage() {
         undoAgentProposal,
         clearAgentState,
         ensureFileFullyLoaded,
-    } = useDocuments(isModificationPanelOpen);
+    } = useDocuments();
 
     const handleToggleFileSelection = useCallback((fileId: string) => {
         setSelectedFileIds((prev) => {
