@@ -87,10 +87,14 @@ export default function MainPage() {
         handleRefreshDocuments,
         deleteFile,
         openDocumentTab,
+        openDocumentTabAndEdit,
         closeDocumentTab,
         setActiveDocumentTab,
         loadMoreActiveTab,
         invalidateDocumentCache,
+        createNewBlankFile,
+        renameFile,
+        pendingCreationFileIds,
         editingDocumentContent,
         isEditingActiveDocument,
         isSavingActiveDocument,
@@ -769,6 +773,25 @@ export default function MainPage() {
                         setIsModificationPanelOpen(true);
                     }}
                     onRefreshFiles={() => { void handleRefreshDocuments(); }}
+                    onCreateBlankFile={async (fileName) => {
+                        // createNewBlankFile returns immediately (optimistic) with a tempId.
+                        // The DB write happens in the background — no await needed here.
+                        const result = await createNewBlankFile(fileName);
+                        if (result.ok && result.fileId) {
+                            setIsModificationPanelOpen(true);
+                            // initialContent is the placeholder; skip the DB load entirely.
+                            await openDocumentTabAndEdit(result.fileId, result.initialContent);
+                        }
+                        return result;
+                    }}
+                    onRenameFile={async (fileId, newName) => {
+                        const result = await renameFile(fileId, newName);
+                        if (!result.ok) {
+                            appendMessage({ role: "ai", text: result.error ?? `Failed to rename file.` });
+                        }
+                        return result;
+                    }}
+                    pendingCreationFileIds={pendingCreationFileIds}
                 />
             </div>
 

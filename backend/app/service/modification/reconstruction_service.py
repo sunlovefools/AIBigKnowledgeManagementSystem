@@ -42,6 +42,67 @@ class ReconstructionService:
     # Helpers
     # ------------------------------------------------------------------
 
+    # Characters that are illegal in file names across common OS / storage layers.
+    _ILLEGAL_CHARS: frozenset[str] = frozenset('/\\:*?"<>|\x00')
+    # Windows reserved base names (case-insensitive) — avoid surprises if files
+    # are ever exported or synced to a local filesystem.
+    _RESERVED_NAMES: frozenset[str] = frozenset({
+        "CON", "PRN", "AUX", "NUL",
+        "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+        "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+    })
+    _MAX_FILE_NAME_LENGTH: int = 200
+
+    @staticmethod
+    def _validate_file_name(name: str) -> str | None:
+        """
+        Validate a candidate file name.  Returns an error message string when
+        validation fails, or None when the name is acceptable.
+        """
+        if not name or not name.strip():
+            return "File name must not be empty."
+
+        if len(name) > ReconstructionService._MAX_FILE_NAME_LENGTH:
+            return f"File name must not exceed {ReconstructionService._MAX_FILE_NAME_LENGTH} characters."
+
+        bad = [ch for ch in ReconstructionService._ILLEGAL_CHARS if ch in name]
+        if bad:
+            readable = " ".join(repr(c) for c in bad)
+            return f"File name contains illegal character(s): {readable}"
+
+        # Control characters (except printable space)
+        if any(ord(ch) < 32 for ch in name):
+            return "File name must not contain control characters."
+
+        # Pure dots (. or ..) are not useful names
+        if set(name.strip()) == {"."}:
+            return "File name must not consist solely of dots."
+
+        # Trailing dots / spaces cause issues on Windows filesystems
+        if name != name.rstrip(". "):
+            return "File name must not end with a dot or space."
+
+        # Windows reserved base names
+        base = name.split(".")[0].upper()
+        if base in ReconstructionService._RESERVED_NAMES:
+            return f"'{base}' is a reserved system name and cannot be used as a file name."
+
+        return None
+
+    @staticmethod
+    async def _get_file_names_map() -> dict[str, str]:
+        """
+        Return a mapping of {normalised_lower_name: file_id} for all files
+        currently stored in the knowledge base.  Used for duplicate-name checks.
+        """
+        try:
+            summaries = await ReconstructionService.get_all_preview_files()
+            return {s["fileName"].strip().lower(): s["fileId"] for s in summaries}
+        except Exception:
+            # Non-fatal: if we can't fetch the list we skip the duplicate check
+            # rather than blocking the operation entirely.
+            return {}
+
     @staticmethod
     def _safe_preview(text: str, max_chars: int = 240) -> str:
         """Build a compact single-line preview snippet."""
@@ -811,6 +872,193 @@ class ReconstructionService:
             print(f"❌ Failed to update file {file_id}: {e}")
             traceback.print_exc()
             raise RuntimeError(f"File update failed: {str(e)}")
+
+    @staticmethod
+    async def rename_file(file_id: str, new_file_name: str) -> dict:
+        """
+        Rename a file by updating the file_name metadata across all its parent and child chunks,
+        without modifying any content. Deletes the old chunks and re-ingests them with the new name.
+        The file_id is preserved throughout.
+        """
+        new_file_name = new_file_name.strip()
+
+        # ── 1. Validate the new name format ────────────────────────────────
+        name_error = ReconstructionService._validate_file_name(new_file_name)
+        if name_error:
+            raise ValueError(name_error)
+
+        # ── 2. Check for duplicate names (case-insensitive, ignoring self) ─
+        existing_names = await ReconstructionService._get_file_names_map()
+        conflict_id = existing_names.get(new_file_name.lower())
+        if conflict_id and conflict_id != file_id:
+            raise ValueError(f"A file named '{new_file_name}' already exists. Please choose a different name.")
+
+        print(f"✏️ Renaming file_id={file_id} to '{new_file_name}'...")
+
+        try:
+            parent_collection = PARENT_STORE.collection
+
+            def _load_existing_chunks() -> tuple[list[str], list[str], str]:
+                """Returns (parent_ids, chunk_contents_ordered, old_file_name)."""
+                cursor = parent_collection.find({"value.metadata.file_metadata.file_id": file_id})
+                sortable_rows: list[dict[str, Any]] = []
+                old_name = ""
+                for row in cursor:
+                    if not isinstance(row, dict):
+                        continue
+                    fields = ReconstructionService._extract_parent_row_fields(row)
+                    if not fields:
+                        continue
+                    parent_id = str(fields.get("parentId") or "").strip()
+                    if not parent_id:
+                        continue
+                    if not old_name:
+                        old_name = str(fields.get("fileName") or "")
+                    chunk_number = fields.get("chunkNumber")
+                    sortable_rows.append({
+                        "parentId": parent_id,
+                        "chunkNumber": int(chunk_number) if isinstance(chunk_number, int) else 10**9,
+                        "content": str(fields.get("content") or ""),
+                    })
+                sortable_rows.sort(key=lambda item: (item["chunkNumber"], item["parentId"]))
+                parent_ids = [r["parentId"] for r in sortable_rows]
+                contents = [r["content"] for r in sortable_rows]
+                return parent_ids, contents, old_name
+
+            parent_ids, contents, old_file_name = await asyncio.to_thread(_load_existing_chunks)
+
+            if not parent_ids:
+                raise RuntimeError(f"No parent chunks found for file_id={file_id}")
+
+            if old_file_name == new_file_name:
+                print(f"ℹ️ Name unchanged for file_id={file_id}; skipping rename.")
+                return {
+                    "fileId": file_id,
+                    "oldFileName": old_file_name,
+                    "fileName": new_file_name,
+                    "parentChunks": len(parent_ids),
+                }
+
+            # 1) Delete all old children + parents for this fileId
+            print(f"  → Deleting {len(parent_ids)} old parent chunks...")
+            for parent_id in parent_ids:
+                await delete_children_by_parent_id(parent_id)
+                await delete_parent_document(parent_id)
+
+            # 2) Re-chunk the merged content under the new file name
+            merged_content = normalize_markdown_for_modification("\n\n".join(contents))
+            print("  → Re-chunking under new name...")
+            parent_chunks_models, child_chunks_models = split_parent_child_chunks_from_markdown(
+                merged_content,
+                file_name=new_file_name,
+                file_id=file_id,
+                parent_max_words=500,
+                child_max_words=80,
+                min_child_words=20,
+            )
+
+            if not parent_chunks_models:
+                raise ValueError("Re-chunking produced no chunks — content appears empty.")
+
+            # 3) Force file_id to stay the same on every new chunk
+            for chunk in parent_chunks_models:
+                if isinstance(chunk.file_metadata, dict):
+                    chunk.file_metadata["file_id"] = file_id
+            for chunk in child_chunks_models:
+                if isinstance(chunk.file_metadata, dict):
+                    chunk.file_metadata["file_id"] = file_id
+
+            # 4) Polish and persist
+            print("  → Polishing child chunks...")
+            child_chunks_dicts = [chunk.model_dump(by_alias=False) for chunk in child_chunks_models]
+            polished_child_chunks = polish_chunks(child_chunks_dicts)
+            parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
+
+            print("  → Storing renamed chunks...")
+            await upsert_documents(parent_chunks=parent_chunks_dicts, child_chunks=polished_child_chunks)
+
+            print(f"✅ Renamed '{old_file_name}' → '{new_file_name}' (file_id={file_id})")
+            return {
+                "fileId": file_id,
+                "oldFileName": old_file_name,
+                "fileName": new_file_name,
+                "parentChunks": len(parent_chunks_dicts),
+            }
+
+        except Exception as e:
+            print(f"❌ Failed to rename file {file_id}: {e}")
+            traceback.print_exc()
+            raise RuntimeError(f"File rename failed: {str(e)}")
+
+    @staticmethod
+    async def create_blank_file(file_name: str, placeholder_content: str) -> dict:
+        """
+        Create a new blank file in the knowledge base.
+        Ingests a short placeholder chunk so the file is immediately discoverable
+        and openable.  The file_id is freshly generated.
+
+        Duplicate-name checking is intentionally left to the frontend (which already
+        holds the full file list) to avoid an extra full-collection scan here.
+        The format validation below is fast (CPU only) and kept as a safety net.
+        """
+        from app.core.id_utils import generate_uuid_v6
+
+        file_name = file_name.strip()
+
+        # Format validation only — no DB round-trip needed here.
+        name_error = ReconstructionService._validate_file_name(file_name)
+        if name_error:
+            raise ValueError(name_error)
+
+        new_file_id = generate_uuid_v6()
+        print(f"📄 Creating blank file '{file_name}' (file_id={new_file_id})...")
+
+        try:
+            normalized_content = normalize_markdown_for_modification(placeholder_content)
+
+            parent_chunks_models, child_chunks_models = split_parent_child_chunks_from_markdown(
+                normalized_content,
+                file_name=file_name,
+                file_id=new_file_id,
+                parent_max_words=500,
+                child_max_words=80,
+                min_child_words=20,
+            )
+
+            if not parent_chunks_models:
+                raise ValueError("Placeholder content produced no chunks.")
+
+            # Stamp the generated file_id onto every chunk so it never drifts.
+            for chunk in parent_chunks_models:
+                if isinstance(chunk.file_metadata, dict):
+                    chunk.file_metadata["file_id"] = new_file_id
+            for chunk in child_chunks_models:
+                if isinstance(chunk.file_metadata, dict):
+                    chunk.file_metadata["file_id"] = new_file_id
+
+            child_chunks_dicts = [chunk.model_dump(by_alias=False) for chunk in child_chunks_models]
+            polished_child_chunks = polish_chunks(child_chunks_dicts)
+            parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
+
+            await upsert_documents(parent_chunks=parent_chunks_dicts, child_chunks=polished_child_chunks)
+
+            print(f"✅ Blank file '{file_name}' created (file_id={new_file_id})")
+            # Return the normalised content AND the real parentId so the frontend
+            # can build a fully accurate synthetic chunk — no second DB read needed.
+            first_parent_id = str(parent_chunks_dicts[0].get("parent_chunk_id", ""))
+            return {
+                "fileId": new_file_id,
+                "fileName": file_name,
+                "content": normalized_content,
+                "parentId": first_parent_id,
+                "parentChunks": len(parent_chunks_dicts),
+                "chunks": len(child_chunks_dicts),
+            }
+
+        except Exception as e:
+            print(f"❌ Failed to create blank file '{file_name}': {e}")
+            traceback.print_exc()
+            raise RuntimeError(f"Blank file creation failed: {str(e)}")
 
     @staticmethod
     async def _load_sortable_rows_for_file(file_id: str, file_name: str, user_id: str) -> list[dict[str, Any]]:

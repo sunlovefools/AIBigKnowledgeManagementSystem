@@ -45,6 +45,22 @@ export type DeleteFileResponse = {
     warnings: string[];
 };
 
+export type RenameFileResponse = {
+    fileId: string;
+    oldFileName: string;
+    fileName: string;
+    parentChunks: number;
+};
+
+export type CreateBlankFileResponse = {
+    fileId: string;
+    fileName: string;
+    content: string;
+    parentId: string;
+    parentChunks: number;
+    chunks: number;
+};
+
 export type AgentModifyResponse = {
     intention: string;
     proposals: Array<{
@@ -279,6 +295,24 @@ export async function requestSelectionPreview(
         }),
     });
     return await readJsonStreamResult<SelectionEditPreviewResponse>(response, onProgress);
+}
+
+// Renames a file in the knowledge base without touching its content.
+export async function renameKnowledgeFile(fileId: string, newFileName: string): Promise<RenameFileResponse> {
+    const response = await axios.patch<RenameFileResponse>(
+        `${API_BASE}/api/modifications/rename-file/${fileId}`,
+        { newFileName }
+    );
+    return response.data;
+}
+
+// Creates a new blank file in the knowledge base with a given name.
+export async function createBlankFile(fileName: string): Promise<CreateBlankFileResponse> {
+    const response = await axios.post<CreateBlankFileResponse>(
+        `${API_BASE}/api/modifications/create-blank-file`,
+        { fileName }
+    );
+    return response.data;
 }
 
 // Extracts backend detail text from Axios errors for UI messages.

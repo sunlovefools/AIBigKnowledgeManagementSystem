@@ -86,6 +86,34 @@ class DeleteFileResponse(BaseModel):
     warnings: list[str] = []
 
 
+class RenameFileRequest(BaseModel):
+    """Payload for renaming a file without changing its content."""
+    newFileName: str
+
+
+class RenameFileResponse(BaseModel):
+    """Response for a file rename operation."""
+    fileId: str
+    oldFileName: str
+    fileName: str
+    parentChunks: int
+
+
+class CreateBlankFileRequest(BaseModel):
+    """Payload for creating a new blank file in the knowledge base."""
+    fileName: str
+
+
+class CreateBlankFileResponse(BaseModel):
+    """Response for creating a blank file."""
+    fileId: str
+    fileName: str
+    content: str
+    parentId: str
+    parentChunks: int
+    chunks: int
+
+
 class LlmEditPreviewRequest(BaseModel):
     """Payload for requesting an LLM-driven edit preview."""
     fileName: str
@@ -903,6 +931,88 @@ async def update_file(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Failed to update file: {str(e)}",
         )
+
+# Endpoint to rename a file without modifying its content.
+@router.patch("/rename-file/{file_id}", response_model=RenameFileResponse)
+async def rename_file(file_id: str, payload: RenameFileRequest):
+    """Rename a file in the knowledge base by updating chunk metadata. Content is preserved."""
+    try:
+        result = await ReconstructionService.rename_file(
+            file_id=file_id,
+            new_file_name=payload.newFileName,
+        )
+
+        return RenameFileResponse(
+            fileId=result["fileId"],
+            oldFileName=result["oldFileName"],
+            fileName=result["fileName"],
+            parentChunks=result["parentChunks"],
+        )
+    except HTTPException:
+        raise
+    except ValueError as e:
+        # Validation errors from the service layer (bad name, duplicate, etc.)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database service error: {str(e)}",
+        )
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to rename file: {str(e)}",
+        )
+
+
+# Endpoint to create a new blank (placeholder) file in the knowledge base.
+@router.post("/create-blank-file", response_model=CreateBlankFileResponse)
+async def create_blank_file(payload: CreateBlankFileRequest):
+    """Create a new empty file in the knowledge base with a given name."""
+    try:
+        file_name = payload.fileName.strip()
+
+        # A blank file needs at least some content so the chunker does not reject it.
+        # The user can edit it freely afterwards.
+        placeholder_content = f"# {file_name}\n\n(blank file — start writing here)"
+
+        result = await ReconstructionService.create_blank_file(
+            file_name=file_name,
+            placeholder_content=placeholder_content,
+        )
+
+        return CreateBlankFileResponse(
+            fileId=result["fileId"],
+            fileName=result["fileName"],
+            content=result["content"],
+            parentId=result["parentId"],
+            parentChunks=result["parentChunks"],
+            chunks=result["chunks"],
+        )
+    except HTTPException:
+        raise
+    except ValueError as e:
+        # Validation errors from the service layer (bad name, duplicate, etc.)
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail=str(e),
+        )
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Database service error: {str(e)}",
+        )
+    except Exception as e:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create blank file: {str(e)}",
+        )
+
 
 # Endpoint to delete one merged file by file ID from vector database and best-effort S3.
 @router.delete("/files/{file_id}", response_model=DeleteFileResponse)
