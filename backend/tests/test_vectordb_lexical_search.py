@@ -224,3 +224,33 @@ def test_delete_parent_document_scopes_with_user_id(monkeypatch):
 def test_delete_parent_document_rejects_empty_user_id():
     with pytest.raises(ValueError, match="user_id must be a non-empty string"):
         asyncio.run(vectordb.delete_parent_document("parent-1", ""))
+
+
+def test_search_and_retrieve_context_uses_user_id_metadata_key(monkeypatch):
+    class _FakeVectorStore:
+        def __init__(self):
+            self.calls = []
+
+        async def asimilarity_search_with_score(self, query, **kwargs):
+            self.calls.append({"query": query, **kwargs})
+            return []
+
+    fake_store = _FakeVectorStore()
+    monkeypatch.setattr(vectordb, "VECTOR_STORE", fake_store)
+
+    result = asyncio.run(
+        vectordb.search_and_retrieve_context(
+            query="test query",
+            top_k=3,
+            user_id="user-1",
+        )
+    )
+
+    assert result == []
+    assert fake_store.calls == [
+        {
+            "query": "test query",
+            "k": 3,
+            "filter": {"user_id": "user-1"},
+        }
+    ]

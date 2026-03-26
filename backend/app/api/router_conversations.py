@@ -10,6 +10,7 @@ from app.core.dependencies import get_current_user
 
 router = APIRouter()
 
+# TODO: We should not use global variables for database state
 _CONVERSATIONS_COLLECTION = None
 _CHAT_MESSAGES_COLLECTION = None
 
@@ -65,6 +66,8 @@ def _normalized_email(value: str | None) -> str:
 
 def _owner_filter(user_id: str, user_email: str | None) -> dict[str, Any]:
     """Returns a MongoDB filter dict to find documents owned by the user, matching either userId or userEmail."""
+
+    #TODO: Don't pass the email at all since it is not used
     _ = user_email
     return {"userId": user_id}
 

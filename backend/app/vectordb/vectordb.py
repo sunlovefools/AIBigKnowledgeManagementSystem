@@ -692,7 +692,7 @@ async def search_and_retrieve_context(
         child_documents_with_scores = await VECTOR_STORE.asimilarity_search_with_score(
             query,
             k=top_k,
-            filter={"metadata.user_id": normalized_user_id}  # ADDED: only retrieve this user's chunks
+            filter={"user_id": normalized_user_id}  # ADDED: filter on metadata key; Astra wrapper prefixes metadata path internally
         )
         print(f"Found {len(child_documents_with_scores)} relevant child chunks.")
     except Exception as error:
