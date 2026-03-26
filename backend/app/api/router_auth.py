@@ -74,10 +74,8 @@ def get_auth_service() -> AuthService:
 
 
 # Setup the API router
-
 # Create a router for authentication endpoints
 router = APIRouter()
-
 
 # --- API Endpoints ---
 

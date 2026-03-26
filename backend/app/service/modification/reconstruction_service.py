@@ -160,10 +160,6 @@ class ReconstructionService:
             parent_id = parent_part.strip() or None
             return chunk_number, parent_id
 
-        normalized_user_id = str(user_id or "").strip()
-        if not normalized_user_id:
-            raise ValueError("user_id must be a non-empty string.")
-
         try:
             return int(raw), None
         except ValueError:
@@ -281,6 +277,10 @@ class ReconstructionService:
         print("🔄 Retrieving filename-merged summaries from Parent Store...")
 
         try:
+            normalized_user_id = str(user_id or "").strip()
+            if not normalized_user_id:
+                raise ValueError("user_id must be a non-empty string.")
+
             rows = await PARENT_STORE.get_all_files()
             if not rows:
                 return []

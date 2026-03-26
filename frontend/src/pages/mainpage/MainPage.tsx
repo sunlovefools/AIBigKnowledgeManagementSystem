@@ -1,5 +1,6 @@
-﻿import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
@@ -13,6 +14,7 @@ import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
 import type { AgentProposal, HighlightedSelection, PendingModificationNavItem } from "./types";
 import type { ModificationProgressEvent } from "./hooks/documents/api/documentsApi";
+import { clearAuthSession, getAuthProvider } from "../../auth/session";
 
 function getProposalKey(proposal: AgentProposal): string {
     return `${proposal.parentId}-${proposal.selectionStart ?? "full"}`;
@@ -20,6 +22,7 @@ function getProposalKey(proposal: AgentProposal): string {
 
 export default function MainPage() {
     const navigate = useNavigate();
+    const { logout } = useAuth0();
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
     // Controls the collapsible "current chat title" menu shown inside chat-stage-shell.
     const [isConversationMenuOpen, setIsConversationMenuOpen] = useState(false);
@@ -578,9 +581,9 @@ export default function MainPage() {
     }, []);
 
     // Pencil button:
-    // - Panel closed           â†’ open panel in edit mode
-    // - Panel open, view mode  â†’ switch to edit mode (don't close panel)
-    // - Panel open, edit mode  â†’ exit edit mode back to view mode
+    // - Panel closed           → open panel in edit mode
+    // - Panel open, view mode  → switch to edit mode (don't close panel)
+    // - Panel open, edit mode  → exit edit mode back to view mode
     const handleToggleModificationPanel = () => {
         if (!isModificationPanelOpen) {
             setIsModificationPanelOpen(true);
@@ -629,8 +632,19 @@ export default function MainPage() {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem("token");
-        navigate("/register");
+        const provider = getAuthProvider();
+        clearAuthSession();
+
+        if (provider === "auth0") {
+            logout({
+                logoutParams: {
+                    returnTo: `${window.location.origin}/login`,
+                },
+            });
+            return;
+        }
+
+        navigate("/login");
     };
 
     const modificationPanel = (
@@ -974,4 +988,6 @@ export default function MainPage() {
         </div>
     );
 }
+
+
 

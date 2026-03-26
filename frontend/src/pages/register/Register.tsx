@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { saveAuthSession } from "../../auth/session";
 import "./Register.css";
 
 export default function Register() {
@@ -43,6 +44,7 @@ export default function Register() {
                 role,
             });
             console.log(res.data);
+            saveAuthSession(res.data, "local");
             setMessage("Registered successfully!");
             //send users to mainpage
             navigate("/mainpage");

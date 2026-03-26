@@ -1,5 +1,5 @@
 import { useCallback, useState, type ChangeEventHandler } from "react";
-import axios from "axios";
+import { apiClient } from "../../../auth/apiClient";
 import {
     isSupportedUploadFile,
     resolveUploadContentType,
@@ -60,7 +60,7 @@ export function useFileUpload({ onUploadMessage, onUploadSuccess }: UseFileUploa
 
         setIsUploading(true);
         try {
-            await axios.post(`${API_BASE}/ingest/upload`, {
+            await apiClient.post(`${API_BASE}/ingest/upload`, {
                 fileName: selectedFile.name,
                 contentType: resolveUploadContentType(selectedFile),
                 data: fileContent,

@@ -1,5 +1,6 @@
 import axios from "axios";
 import type { HighlightedSelection, ParentChunkContent, SidebarFileSummary } from "../../../types";
+import { apiClient, authenticatedFetch } from "../../../../../auth/apiClient";
 
 // Normalize trailing slash so endpoint concatenation is predictable.
 const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
@@ -182,7 +183,7 @@ async function readJsonStreamResult<T>(
 
 // Loads sidebar metadata for all files currently available in the knowledge base.
 export async function getAllPreviewFiles(): Promise<SidebarFileSummary[]> {
-    const response = await axios.get(`${API_BASE}/api/retrieve/all-preview-files`);
+    const response = await apiClient.get(`${API_BASE}/api/retrieve/all-preview-files`);
     return (response.data.files ?? []) as SidebarFileSummary[];
 }
 
@@ -191,7 +192,7 @@ export async function getFileChunks(
     fileId: string,
     cursor: string | null
 ): Promise<{ chunks: ParentChunkContent[]; hasMore: boolean; nextCursor: string | null }> {
-    const response = await axios.get(`${API_BASE}/api/retrieve/file-chunks`, {
+    const response = await apiClient.get(`${API_BASE}/api/retrieve/file-chunks`, {
         params: { fileId, limit: PAGE_SIZE, ...(cursor ? { cursor } : {}) },
     });
     return {
@@ -203,13 +204,13 @@ export async function getFileChunks(
 
 // Deletes a file and its indexed data in the backend.
 export async function deleteKnowledgeFile(fileId: string): Promise<DeleteFileResponse> {
-    const response = await axios.delete<DeleteFileResponse>(`${API_BASE}/api/modifications/files/${fileId}`);
+    const response = await apiClient.delete<DeleteFileResponse>(`${API_BASE}/api/modifications/files/${fileId}`);
     return response.data;
 }
 
 // Replaces an entire file body in one operation.
 export async function updateFileContent(fileId: string, fileName: string, content: string): Promise<UpdateFileResponse> {
-    const response = await axios.put<UpdateFileResponse>(
+    const response = await apiClient.put<UpdateFileResponse>(
         `${API_BASE}/api/modifications/update-file/${fileId}`,
         { fileName, content }
     );
@@ -225,7 +226,7 @@ export async function batchUpdateParentChunks(payload: {
     touchedParentIds?: string[];
     updates?: Array<{ parentId: string; content: string }>;
 }): Promise<BatchUpdateParentChunksResponse> {
-    const response = await axios.post<BatchUpdateParentChunksResponse>(
+    const response = await apiClient.post<BatchUpdateParentChunksResponse>(
         `${API_BASE}/api/modifications/parent-chunks/batch-update`,
         payload
     );
@@ -239,7 +240,7 @@ export async function requestAgentModify(
     onProgress?: (progress: ModificationProgressEvent) => void
 ): Promise<AgentModifyResponse> {
     // Use fetch instead of axios here because we need direct stream-reader access.
-    const response = await fetch(`${API_BASE}/api/agent/modify-stream`, {
+    const response = await authenticatedFetch(`${API_BASE}/api/agent/modify-stream`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -260,7 +261,7 @@ export async function requestSelectionPreview(
     onProgress?: (progress: ModificationProgressEvent) => void
 ): Promise<SelectionEditPreviewResponse> {
     // Stream variant exposes real backend stages for highlighted edits.
-    const response = await fetch(`${API_BASE}/api/modifications/selection-edit-preview-stream`, {
+    const response = await authenticatedFetch(`${API_BASE}/api/modifications/selection-edit-preview-stream`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

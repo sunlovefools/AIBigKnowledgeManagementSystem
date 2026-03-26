@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState, type KeyboardEvent } from "react";
-import axios from "axios";
+import { apiClient } from "../../../auth/apiClient";
 import type {
     ChatMessage,
     ChatProgressMessage,
@@ -158,7 +158,7 @@ export function useChat() {
         setConversationsError(null);
 
         try {
-            const response = await axios.get(`${API_BASE}/api/conversations`, {
+            const response = await apiClient.get(`${API_BASE}/api/conversations`, {
                 params: {
                     user_email: userEmail,
                     limit: 100,
@@ -187,7 +187,7 @@ export function useChat() {
         setConversationMessagesError(null);
 
         try {
-            const response = await axios.get(`${API_BASE}/api/conversations/${targetConversationId}/messages`, {
+            const response = await apiClient.get(`${API_BASE}/api/conversations/${targetConversationId}/messages`, {
                 params: {
                     user_email: userEmail,
                     limit: 50,
@@ -221,7 +221,7 @@ export function useChat() {
         setConversationMessagesError(null);
 
         try {
-            const response = await axios.get(`${API_BASE}/api/conversations/${conversationId}/messages`, {
+            const response = await apiClient.get(`${API_BASE}/api/conversations/${conversationId}/messages`, {
                 params: {
                     user_email: userEmail,
                     limit: 50,
@@ -298,7 +298,7 @@ export function useChat() {
         }
 
         try {
-            await axios.patch(
+            await apiClient.patch(
                 `${API_BASE}/api/conversations/${targetConversationId}/title`,
                 { title: newTitle.trim() },
                 { params: { user_email: userEmail } }
@@ -360,7 +360,7 @@ export function useChat() {
 
         try {
             const userEmail = getResolvedUserEmail();
-            const response = await axios.post(`${API_BASE}/api/query`, {
+            const response = await apiClient.post(`${API_BASE}/api/query`, {
                 query: textInput,
                 conversation_id: conversationId,
                 user_email: userEmail,

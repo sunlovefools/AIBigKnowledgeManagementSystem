@@ -128,6 +128,47 @@ def verify_auth0_token(token: str) -> Dict[str, Any]:
         raise Exception(f"Invalid Auth0 token: {e}")
 
 
+def get_auth0_userinfo(token: str) -> Dict[str, Any]:
+    """
+    Fetch user profile from Auth0 /userinfo endpoint.
+    Useful when access token omits email claim.
+    """
+    if not AUTH0_DOMAIN:
+        raise Exception("AUTH0_DOMAIN is not configured")
+
+    userinfo_url = f"https://{AUTH0_DOMAIN}/userinfo"
+    response = requests.get(
+        userinfo_url,
+        headers={"Authorization": f"Bearer {token}"},
+        timeout=5
+    )
+    response.raise_for_status()
+    return response.json()
+
+
+def normalize_created_at(value: Any) -> datetime:
+    """
+    Normalize stored created_at values into a timezone-aware datetime.
+    Handles Astra DataAPITimestamp and plain datetime/string values.
+    """
+    if isinstance(value, datetime):
+        return value if value.tzinfo else value.replace(tzinfo=timezone.utc)
+
+    timestamp_ms = getattr(value, "timestamp_ms", None)
+    if isinstance(timestamp_ms, (int, float)):
+        return datetime.fromtimestamp(float(timestamp_ms) / 1000.0, tz=timezone.utc)
+
+    if isinstance(value, str) and value.strip():
+        try:
+            parsed = datetime.fromisoformat(value.replace("Z", "+00:00"))
+            return parsed if parsed.tzinfo else parsed.replace(tzinfo=timezone.utc)
+        except ValueError:
+            pass
+
+    # Last-resort fallback prevents response-model validation errors.
+    return datetime.now(timezone.utc)
+
+
 class AuthenticationError(Exception):
     # Custom exception for authentication errors
     # Can 'pass' pass the exception to the caller?
@@ -156,9 +197,19 @@ class AuthService:
             raise
 
     def get_table(self):
-        """Get or create the users table"""
-        table = database.get_collection(self.table_name)
-        return table
+        """Get or create the users collection."""
+        try:
+            existing_names = set(database.list_collection_names())
+            if self.table_name not in existing_names:
+                logger.warning(
+                    f"Collection '{self.table_name}' does not exist. Creating it now."
+                )
+                database.create_collection(self.table_name)
+
+            return database.get_collection(self.table_name)
+        except Exception as e:
+            logger.error(f"Failed to initialize collection '{self.table_name}': {e}")
+            raise
 
     def _get_next_user_id(self) -> int:
         """
@@ -244,7 +295,7 @@ class AuthService:
                 "id": new_user_id,
                 "email": email,
                 "user_role": role,
-                "created_at": user_data["created_at"],
+                "created_at": normalize_created_at(user_data.get("created_at")),
                 "is_active": True,
                 "access_token": access_token,   # ADDED
                 "token_type": "bearer"           # ADDED
@@ -292,7 +343,7 @@ class AuthService:
                 "id": user_id,
                 "email": user['email'],
                 "user_role": role,                  # FIXED: was missing
-                "created_at": user['created_at'],
+                "created_at": normalize_created_at(user.get("created_at")),
                 "is_active": user['is_active'],
                 "access_token": access_token,       # ADDED
                 "token_type": "bearer"              # ADDED
@@ -315,7 +366,7 @@ class AuthService:
                     # FIXED: AstraDB uses _id not id
                     "id": str(user.get('_id')),
                     "email": user['email'],
-                    "created_at": user.get('created_at'),
+                    "created_at": normalize_created_at(user.get("created_at")),
                     "is_active": user.get('is_active', True)
                 }
             return None
@@ -357,7 +408,7 @@ class AuthService:
                     "id": user_id,
                     "email": user.get('email'),
                     "user_role": role,
-                    "created_at": user.get('created_at'),
+                    "created_at": normalize_created_at(user.get("created_at")),
                     "is_active": user.get('is_active', True),
                     "access_token": access_token,   # ADDED
                     "token_type": "bearer"          # ADDED
@@ -395,7 +446,7 @@ class AuthService:
                 "id": new_user_id,
                 "email": email,
                 "user_role": "user",
-                "created_at": user_data["created_at"],
+                "created_at": normalize_created_at(user_data.get("created_at")),
                 "is_active": True,
                 "access_token": access_token,   # ADDED
                 "token_type": "bearer"          # ADDED
@@ -417,11 +468,34 @@ class AuthService:
         try:
             payload = verify_auth0_token(token)
 
-            email = payload.get("email")
             oauth_sub = payload.get("sub")
+            email = payload.get("email")
 
-            if not email or not oauth_sub:
+            if not oauth_sub:
                 raise AuthenticationError("Invalid Auth0 payload")
+
+            # Access tokens for custom APIs may not include email by default.
+            # Fallback to /userinfo so we can still map/create the local user.
+            if not email:
+                try:
+                    userinfo = get_auth0_userinfo(token)
+                    userinfo_sub = userinfo.get("sub")
+                    userinfo_email = userinfo.get("email")
+
+                    if userinfo_sub and userinfo_sub != oauth_sub:
+                        raise AuthenticationError("Invalid Auth0 payload: subject mismatch")
+
+                    email = userinfo_email
+                except AuthenticationError:
+                    raise
+                except Exception as e:
+                    raise AuthenticationError(f"Invalid Auth0 payload: {e}")
+
+            if not email:
+                raise AuthenticationError(
+                    "Invalid Auth0 payload: missing email claim. "
+                    "Request 'email' scope or add email claim in Auth0."
+                )
 
             # Reuse existing OAuth login logic
             return self.oauth_login(email, oauth_sub)
