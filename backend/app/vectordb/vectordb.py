@@ -1,5 +1,6 @@
 import asyncio
 import inspect
+from functools import lru_cache
 from typing import List, Dict, Any, Tuple
 from collections import defaultdict, deque
 
@@ -25,7 +26,6 @@ RAG_STORES = init_vector_db()  # A dictionary with 'vector_store' and 'parent_st
 VECTOR_STORE = RAG_STORES['vector_store']  # LangChain AstraDBVectorStore for Child Chunks
 PARENT_STORE = RAG_STORES['parent_store']  # LangChain AstraDBStore for Parent Documents
 _RERANKER_SERVICE = ZeRankerService()
-_RAW_CHILD_COLLECTION = None
 
 # --- Ingestion / Upsertion Operations ---
 def _to_deleted_count(delete_result: Any) -> int:
@@ -512,17 +512,21 @@ def _normalize_lexical_child_row(raw_row: Any) -> Dict[str, Any] | None:
     }
 
 
+@lru_cache(maxsize=1)
 def _get_raw_child_collection() -> Any:
-    """Return a lazy-initialized raw Astra child collection handle."""
-    global _RAW_CHILD_COLLECTION
-    if _RAW_CHILD_COLLECTION is None:
-        if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
-            raise RuntimeError("Astra DB credentials are missing for lexical child-chunk search.")
-        client = DataAPIClient()
-        _RAW_CHILD_COLLECTION = client.get_database(
-            ASTRA_DB_URL, token=ASTRA_DB_TOKEN
-        ).get_collection(CHILD_COLLECTION_NAME)
-    return _RAW_CHILD_COLLECTION
+    """
+    Return a cached Astra child collection handle for lexical search.
+
+    Why cached:
+    - avoids rebuilding the DB client/collection on every request
+    - removes module-level mutable global state
+    """
+    if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
+        raise RuntimeError("Astra DB credentials are missing for lexical child-chunk search.")
+
+    client = DataAPIClient()
+    database = client.get_database(ASTRA_DB_URL, token=ASTRA_DB_TOKEN)
+    return database.get_collection(CHILD_COLLECTION_NAME)
 
 
 def _normalize_excluded_file_ids(raw_excluded_file_ids: Any) -> List[str]:

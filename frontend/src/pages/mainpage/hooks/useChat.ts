@@ -26,6 +26,13 @@ type ConversationApiMessage = {
     userEmail?: string;
 };
 
+function getApiErrorDetail(error: unknown): string | null {
+    if (!error || typeof error !== "object") return null;
+    const maybeResponse = (error as { response?: { data?: { detail?: unknown } } }).response;
+    const detail = maybeResponse?.data?.detail;
+    return typeof detail === "string" && detail.trim() ? detail.trim() : null;
+}
+
 function getResolvedUserEmail() {
     const testUserEmail = localStorage.getItem(CHAT_TEST_USER_EMAIL_STORAGE_KEY)?.trim();
     if (testUserEmail) return testUserEmail;
@@ -77,9 +84,6 @@ export function useChat() {
     const [conversationsError, setConversationsError] = useState<string | null>(null);
     const [conversationMessagesError, setConversationMessagesError] = useState<string | null>(null);
     const [conversationId, setConversationId] = useState<string | null>(null);
-    const [conversationMessagesCursor, setConversationMessagesCursor] = useState<number | null>(null);
-    const [hasMoreConversationMessages, setHasMoreConversationMessages] = useState(false);
-    const [isLoadingMoreConversationMessages, setIsLoadingMoreConversationMessages] = useState(false);
     const messageCounterRef = useRef(0);
 
     const nextMessageId = useCallback(() => {
@@ -161,7 +165,6 @@ export function useChat() {
             const response = await apiClient.get(`${API_BASE}/api/conversations`, {
                 params: {
                     user_email: userEmail,
-                    limit: 100,
                 },
             });
 
@@ -190,8 +193,6 @@ export function useChat() {
             const response = await apiClient.get(`${API_BASE}/api/conversations/${targetConversationId}/messages`, {
                 params: {
                     user_email: userEmail,
-                    limit: 50,
-                    cursor: 0,
                 },
             });
 
@@ -201,9 +202,6 @@ export function useChat() {
 
             setMessages(nextMessages);
             setConversationId(targetConversationId);
-            const nextCursor = Number(response.data?.nextCursor);
-            setConversationMessagesCursor(Number.isFinite(nextCursor) ? nextCursor : null);
-            setHasMoreConversationMessages(Boolean(response.data?.hasMore));
         } catch {
             setConversationMessagesError("Failed to load selected conversation.");
         } finally {
@@ -211,46 +209,10 @@ export function useChat() {
         }
     }, [toConversationTextMessage]);
 
-    const loadMoreConversationMessages = useCallback(async () => {
-        const userEmail = getResolvedUserEmail();
-        if (!userEmail || !conversationId || conversationMessagesCursor === null || isLoadingMoreConversationMessages) {
-            return;
-        }
-
-        setIsLoadingMoreConversationMessages(true);
-        setConversationMessagesError(null);
-
-        try {
-            const response = await apiClient.get(`${API_BASE}/api/conversations/${conversationId}/messages`, {
-                params: {
-                    user_email: userEmail,
-                    limit: 50,
-                    cursor: conversationMessagesCursor,
-                },
-            });
-
-            const olderMessages = Array.isArray(response.data?.messages)
-                ? (response.data.messages as ConversationApiMessage[]).map(toConversationTextMessage)
-                : [];
-
-            setMessages((previousMessages) => [...olderMessages, ...previousMessages]);
-            const nextCursor = Number(response.data?.nextCursor);
-            setConversationMessagesCursor(Number.isFinite(nextCursor) ? nextCursor : null);
-            setHasMoreConversationMessages(Boolean(response.data?.hasMore));
-        } catch {
-            setConversationMessagesError("Failed to load more conversation messages.");
-        } finally {
-            setIsLoadingMoreConversationMessages(false);
-        }
-    }, [conversationId, conversationMessagesCursor, isLoadingMoreConversationMessages, toConversationTextMessage]);
-
     const startNewConversation = useCallback(() => {
         setConversationId(null);
         setMessages([]);
         setConversationMessagesError(null);
-        setConversationMessagesCursor(null);
-        setHasMoreConversationMessages(false);
-        setIsLoadingMoreConversationMessages(false);
     }, []);
 
     const pushProgressStep = useCallback((messageId: string, event: ModificationProgressEvent) => {
@@ -375,10 +337,13 @@ export function useChat() {
                 buildTextMessage({ role: "ai", text: response.data.answer || "(no response)" }),
             ]);
             void refreshConversations();
-        } catch {
+        } catch (error) {
             setMessages((previousMessages) => [
                 ...previousMessages.slice(0, -1),
-                buildTextMessage({ role: "ai", text: "Error: Failed to get response from server." }),
+                buildTextMessage({
+                    role: "ai",
+                    text: getApiErrorDetail(error) || "Error: Failed to get response from server.",
+                }),
             ]);
         } finally {
             setIsQuerying(false);
@@ -405,8 +370,6 @@ export function useChat() {
         conversationsError,
         conversationMessagesError,
         conversationId,
-        hasMoreConversationMessages,
-        isLoadingMoreConversationMessages,
         userEmail: getResolvedUserEmail(),
         setInput,
         setTestUserEmail,
@@ -417,7 +380,6 @@ export function useChat() {
         finishProgressMessage,
         refreshConversations,
         loadConversationMessages,
-        loadMoreConversationMessages,
         renameConversation,
         startNewConversation,
         handleQuery,

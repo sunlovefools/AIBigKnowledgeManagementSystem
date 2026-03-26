@@ -9,9 +9,6 @@ type ChatAreaProps = {
     isUploading: boolean;
     bottomRef: RefObject<HTMLDivElement | null>;
     emptyStateMode?: "welcome" | "no-document";
-    showLoadOlderMessages?: boolean;
-    isLoadingOlderMessages?: boolean;
-    onLoadOlderMessages?: () => void;
 };
 
 function renderStepLabel(step: ChatProgressStep): string {
@@ -31,9 +28,6 @@ export default function ChatArea({
     isUploading,
     bottomRef,
     emptyStateMode = "welcome",
-    showLoadOlderMessages = false,
-    isLoadingOlderMessages = false,
-    onLoadOlderMessages,
 }: ChatAreaProps) {
     const [expandedHistoryByMessageId, setExpandedHistoryByMessageId] = useState<Record<string, boolean>>({});
 
@@ -74,19 +68,6 @@ export default function ChatArea({
                 </div>
             ) : (
                 <div className="messages-container">
-                    {showLoadOlderMessages && onLoadOlderMessages && (
-                        <div className="load-older-messages-row">
-                            <button
-                                type="button"
-                                className="load-older-messages-btn"
-                                onClick={onLoadOlderMessages}
-                                disabled={isLoadingOlderMessages}
-                            >
-                                {isLoadingOlderMessages ? "Loading older messages..." : "Load older messages"}
-                            </button>
-                        </div>
-                    )}
-
                     {messages.map((msg) => {
                         if (msg.kind === "text") {
                             return (

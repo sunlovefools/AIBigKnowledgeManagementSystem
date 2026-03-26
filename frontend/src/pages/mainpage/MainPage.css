@@ -863,6 +863,35 @@ html,
     padding: 0 4px 8px;
 }
 
+.chat-stage-conversation-dropdown-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.chat-stage-conversation-count {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: #334155;
+    background: #f1f5f9;
+    border: 1px solid #dbe5f0;
+    border-radius: 999px;
+    padding: 2px 8px;
+    line-height: 1.5;
+}
+
+.chat-stage-conversation-limit-tip {
+    margin: 0 4px 8px;
+    padding: 8px 10px;
+    border: 1px solid #dbe5f0;
+    border-radius: 10px;
+    background: #f8fbff;
+    color: #475569;
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
+
 .chat-stage-conversation-dropdown-list {
     max-height: 220px;
     overflow-y: auto;

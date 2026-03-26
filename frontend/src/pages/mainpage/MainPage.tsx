@@ -59,8 +59,6 @@ export default function MainPage() {
         isQuerying,
         isLoadingConversations,
         isLoadingConversationMessages,
-        hasMoreConversationMessages,
-        isLoadingMoreConversationMessages,
         conversationsError,
         conversationMessagesError,
         conversationId,
@@ -71,7 +69,6 @@ export default function MainPage() {
         finishProgressMessage,
         refreshConversations,
         loadConversationMessages,
-        loadMoreConversationMessages,
         renameConversation,
         startNewConversation,
         handleQuery,
@@ -246,6 +243,7 @@ export default function MainPage() {
         () => conversations.filter((conversation) => conversation.conversationId !== conversationId),
         [conversations, conversationId]
     );
+    const conversationHistoryCount = conversations.length;
     const activeFileName = activeTab
         ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
         : "No file selected";
@@ -348,7 +346,13 @@ export default function MainPage() {
 
                 {isConversationMenuOpen && (
                     <div className="chat-stage-conversation-dropdown" role="menu" aria-label="Conversation history list">
-                        <div className="chat-stage-conversation-dropdown-label">Older</div>
+                        <div className="chat-stage-conversation-dropdown-header">
+                            <div className="chat-stage-conversation-dropdown-label">Older</div>
+                            <div className="chat-stage-conversation-count">{conversationHistoryCount}/20</div>
+                        </div>
+                        <div className="chat-stage-conversation-limit-tip">
+                            Max 20 conversation histories per user. Oldest conversation is deleted once limit is exceeded.
+                        </div>
 
                         {isLoadingConversations ? (
                             <div className="conversation-switcher-status">Loading conversations...</div>
@@ -467,9 +471,6 @@ export default function MainPage() {
                 isUploading={isUploading}
                 bottomRef={bottomRef}
                 emptyStateMode={emptyStateMode}
-                showLoadOlderMessages={hasMoreConversationMessages}
-                isLoadingOlderMessages={isLoadingMoreConversationMessages}
-                onLoadOlderMessages={loadMoreConversationMessages}
             />
 
             <ChatInput

@@ -1,12 +1,14 @@
-import os
 from datetime import datetime, timezone
 from typing import Any
 from uuid import uuid4
 
-from astrapy import DataAPIClient
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 
+from app.core.db_dependencies import (
+    get_chat_messages_collection,
+    get_conversations_collection,
+)
 from app.core.dependencies import get_current_user
 from app.service.rag.retrieval.answer_generator import generate_answer
 from app.service.rag.retrieval.query_refiner import refine_query
@@ -14,8 +16,13 @@ from app.vectordb.vectordb import search_and_retrieve_context
 
 router = APIRouter()
 
-_CHAT_COLLECTION = None
-_CONVERSATIONS_COLLECTION = None
+MAX_MESSAGES_PER_CONVERSATION = 20
+MAX_CONVERSATIONS_PER_USER = 20
+COUNT_DOCUMENTS_UPPER_BOUND = 100_000
+
+
+class MessageLimitExceededError(Exception):
+    pass
 
 
 def _normalized_email(value: str | None) -> str:
@@ -45,6 +52,24 @@ def _conversation_owner_filter(
     }
 
 
+def _count_documents(
+    collection: Any,
+    filter_doc: dict[str, Any],
+    *,
+    upper_bound: int = COUNT_DOCUMENTS_UPPER_BOUND,
+) -> int:
+    """
+    Compatibility wrapper for Astra Data API and Mongo-style collections.
+    """
+    try:
+        return int(collection.count_documents(filter_doc, upper_bound=upper_bound))
+    except TypeError as exc:
+        # PyMongo/mocks may not support Astra's required `upper_bound` keyword.
+        if "upper_bound" not in str(exc):
+            raise
+        return int(collection.count_documents(filter_doc))
+
+
 def _is_owned_conversation(doc: dict[str, Any] | None, user_id: str, user_email: str | None) -> bool:
     _ = user_email
     if not isinstance(doc, dict):
@@ -54,128 +79,66 @@ def _is_owned_conversation(doc: dict[str, Any] | None, user_id: str, user_email:
     return bool(doc_user_id and doc_user_id == user_id)
 
 
-def _assert_conversation_ownership(conversation_id: str, user_id: str, user_email: str | None) -> None:
-    collection = _get_conversations_collection()
-    if collection is None:
+def _assert_conversation_ownership(
+    conversation_id: str,
+    user_id: str,
+    user_email: str | None,
+    conversations_collection: Any,
+) -> None:
+    if conversations_collection is None:
         return
 
-    existing_any = collection.find_one({"conversationId": conversation_id})
+    existing_any = conversations_collection.find_one({"conversationId": conversation_id})
     if existing_any and not _is_owned_conversation(existing_any, user_id, user_email):
         raise PermissionError("Forbidden for this conversation")
-
-
-def _get_chat_database():
-    astra_db_url = os.getenv("ASTRA_CHAT_DB_URL") or os.getenv("ASTRA_DB_URL")
-    astra_db_token = os.getenv("ASTRA_CHAT_DB_TOKEN") or os.getenv("ASTRA_DB_TOKEN")
-    astra_db_keyspace = os.getenv("ASTRA_CHAT_KEYSPACE") or os.getenv("ASTRA_DB_KEYSPACE")
-
-    if not astra_db_url or not astra_db_token:
-        return None
-
-    client = DataAPIClient()
-    return client.get_database(astra_db_url, token=astra_db_token, keyspace=astra_db_keyspace)
-
-
-def _get_chat_collection():
-    global _CHAT_COLLECTION
-    if _CHAT_COLLECTION is not None:
-        return _CHAT_COLLECTION
-
-    chat_collection_name = os.getenv("ASTRA_CHAT_COLLECTION", "chat_messages")
-
-    try:
-        database = _get_chat_database()
-        if database is None:
-            print("Chat collection disabled: Missing ASTRA DB credentials")
-            return None
-
-        _CHAT_COLLECTION = database.get_collection(chat_collection_name)
-        print(f"Chat collection '{chat_collection_name}' connected")
-        return _CHAT_COLLECTION
-    except Exception as e:
-        print(f"Chat collection init failed: {e}")
-        return None
-
-
-def _get_conversations_collection():
-    global _CONVERSATIONS_COLLECTION
-    if _CONVERSATIONS_COLLECTION is not None:
-        return _CONVERSATIONS_COLLECTION
-
-    conversations_collection_name = os.getenv("ASTRA_CONVERSATIONS_COLLECTION", "conversations")
-
-    try:
-        database = _get_chat_database()
-        if database is None:
-            print("Conversations collection disabled: Missing ASTRA DB credentials")
-            return None
-
-        _CONVERSATIONS_COLLECTION = database.get_collection(conversations_collection_name)
-        print(f"Conversations collection '{conversations_collection_name}' connected")
-        return _CONVERSATIONS_COLLECTION
-    except Exception as e:
-        print(f"Conversations collection init failed: {e}")
-        return None
 
 
 def _enforce_message_limit(
     conversation_id: str,
     user_id: str,
+    chat_collection: Any,
+    conversations_collection: Any,
     user_email: str | None = None,
-    max_messages: int = 100,
+    max_messages: int = 20,
+    reserve_slots: int = 0,
 ):
-    chat_collection = _get_chat_collection()
-    conversations_collection = _get_conversations_collection()
-
     if chat_collection is None or conversations_collection is None:
         return
 
-    try:
-        message_filter = _conversation_owner_filter(conversation_id, user_id, user_email)
-        count = chat_collection.count_documents(message_filter)
+    message_filter = _conversation_owner_filter(conversation_id, user_id, user_email)
+    count = _count_documents(chat_collection, message_filter)
 
-        if count > max_messages:
-            oldest_messages = list(
-                chat_collection.find(
-                    message_filter,
-                    sort={"timestamp": 1},
-                    limit=count - max_messages,
-                )
-            )
-
-            for msg in oldest_messages:
-                chat_collection.delete_one({"_id": msg.get("_id")})
-
-            conversations_collection.update_one(
-                _conversation_owner_filter(conversation_id, user_id, user_email),
-                {"$inc": {"messageCount": -(count - max_messages)}},
-            )
-            print(f"Replaced {count - max_messages} oldest messages from conversation {conversation_id}")
-    except Exception as e:
-        print(f"Failed to enforce message limit: {e}")
+    effective_limit = max(0, max_messages - max(0, reserve_slots))
+    if count > effective_limit:
+        raise MessageLimitExceededError(
+            "This conversation has reached the 20-message limit. Please start a new conversation."
+        )
 
 
 def _enforce_conversation_limit(
     user_id: str,
+    chat_collection: Any,
+    conversations_collection: Any,
     user_email: str | None = None,
     max_conversations: int = 20,
+    reserve_slots: int = 0,
 ):
-    chat_collection = _get_chat_collection()
-    conversations_collection = _get_conversations_collection()
-
+    """
+    """
     if conversations_collection is None:
         return
 
     try:
         owner_filter = _owner_filter(user_id, user_email)
-        count = conversations_collection.count_documents(owner_filter)
+        count = _count_documents(conversations_collection, owner_filter)
 
-        if count > max_conversations:
+        effective_limit = max(0, max_conversations - max(0, reserve_slots))
+        if count > effective_limit:
             oldest_conversations = list(
                 conversations_collection.find(
                     owner_filter,
                     sort={"createdAt": 1},
-                    limit=count - max_conversations,
+                    limit=count - effective_limit,
                 )
             )
 
@@ -208,14 +171,14 @@ def _upsert_conversation_metadata(
     user_email: str | None,
     role: str,
     text: str,
+    conversations_collection: Any,
 ):
-    collection = _get_conversations_collection()
-    if collection is None:
+    if conversations_collection is None:
         return None
 
     timestamp = datetime.now(timezone.utc).isoformat()
     normalized_email = _normalized_email(user_email)
-    existing = collection.find_one({"conversationId": conversation_id})
+    existing = conversations_collection.find_one({"conversationId": conversation_id})
     if existing and not _is_owned_conversation(existing, user_id, user_email):
         raise PermissionError("Forbidden for this conversation")
 
@@ -227,7 +190,7 @@ def _upsert_conversation_metadata(
         )
         next_title = _generate_conversation_title(text) if should_replace_title else existing_title
 
-        update_result = collection.update_one(
+        update_result = conversations_collection.update_one(
             _conversation_owner_filter(conversation_id, user_id, user_email),
             {
                 "$set": {
@@ -268,7 +231,7 @@ def _upsert_conversation_metadata(
             "timestamp": timestamp,
         },
     }
-    collection.insert_one(conversation_document)
+    conversations_collection.insert_one(conversation_document)
     return {
         "conversationId": conversation_id,
         "createdAt": timestamp,
@@ -285,15 +248,49 @@ def _save_chat_message(
     user_email: str | None,
     role: str,
     text: str,
+    chat_collection: Any,
+    conversations_collection: Any,
 ):
-    collection = _get_chat_collection()
-    if collection is None:
+    if chat_collection is None:
         return None
 
-    _assert_conversation_ownership(conversation_id, user_id, user_email)
+    _assert_conversation_ownership(
+        conversation_id,
+        user_id,
+        user_email,
+        conversations_collection,
+    )
 
     timestamp = datetime.now(timezone.utc).isoformat()
     normalized_email = _normalized_email(user_email)
+
+    existing_conversation = None
+    if conversations_collection is not None:
+        existing_conversation = conversations_collection.find_one(
+            _conversation_owner_filter(conversation_id, user_id, normalized_email)
+        )
+
+    # Strict caps: make room before writing new records.
+    if existing_conversation is None:
+        _enforce_conversation_limit(
+            user_id,
+            chat_collection,
+            conversations_collection,
+            normalized_email,
+            max_conversations=MAX_CONVERSATIONS_PER_USER,
+            reserve_slots=1,
+        )
+    else:
+        _enforce_message_limit(
+            conversation_id,
+            user_id,
+            chat_collection,
+            conversations_collection,
+            normalized_email,
+            max_messages=MAX_MESSAGES_PER_CONVERSATION,
+            reserve_slots=1,
+        )
+
     chat_document = {
         "conversationId": conversation_id,
         "userId": user_id,
@@ -303,33 +300,21 @@ def _save_chat_message(
         "timestamp": timestamp,
     }
 
-    result = collection.insert_one(chat_document)
+    result = chat_collection.insert_one(chat_document)
 
-    is_new_conversation = False
     try:
-        metadata_result = _upsert_conversation_metadata(
+        _upsert_conversation_metadata(
             conversation_id=conversation_id,
             user_id=user_id,
             user_email=normalized_email,
             role=role,
             text=text,
+            conversations_collection=conversations_collection,
         )
-        is_new_conversation = metadata_result and metadata_result.get("created", False)
     except PermissionError:
         raise
     except Exception as e:
         print(f"Failed to update conversation metadata: {e}")
-
-    try:
-        _enforce_message_limit(conversation_id, user_id, normalized_email)
-    except Exception as e:
-        print(f"Failed to enforce message limit: {e}")
-
-    if is_new_conversation:
-        try:
-            _enforce_conversation_limit(user_id, normalized_email)
-        except Exception as e:
-            print(f"Failed to enforce conversation limit: {e}")
 
     return {
         "messageId": str(result.inserted_id),
@@ -363,6 +348,8 @@ def query_health():
 async def query_documents(
     request: QueryRequest,
     current_user: dict = Depends(get_current_user),
+    chat_collection: Any = Depends(get_chat_messages_collection),
+    conversations_collection: Any = Depends(get_conversations_collection),
 ):
     user_id = str(current_user.get("sub") or "").strip()
     if not user_id:
@@ -370,6 +357,22 @@ async def query_documents(
 
     user_email = _normalized_email(str(current_user.get("email") or ""))
     conversation_id = request.conversation_id or str(uuid4())
+
+    # A full query turn usually persists both a user message and an AI message.
+    # Reject early when there is not enough capacity left in an existing thread.
+    if request.conversation_id and chat_collection is not None:
+        existing_count = _count_documents(
+            chat_collection,
+            _conversation_owner_filter(conversation_id, user_id, user_email)
+        )
+        if existing_count >= MAX_MESSAGES_PER_CONVERSATION - 1:
+            raise HTTPException(
+                status_code=409,
+                detail=(
+                    "This conversation has reached the 20-message limit. "
+                    "Please start a new conversation."
+                ),
+            )
 
     saved_messages: list[dict] = []
 
@@ -380,13 +383,18 @@ async def query_documents(
             user_email=user_email,
             role="user",
             text=request.query,
+            chat_collection=chat_collection,
+            conversations_collection=conversations_collection,
         )
         if saved_user_message is not None:
             saved_messages.append(saved_user_message)
     except PermissionError as e:
         raise HTTPException(status_code=403, detail=str(e))
+    except MessageLimitExceededError as e:
+        raise HTTPException(status_code=409, detail=str(e))
     except Exception as e:
         print(f"Failed to persist user chat message: {e}")
+        raise HTTPException(status_code=500, detail="Failed to persist user chat message.")
 
     try:
         rag_docs = await search_and_retrieve_context(
@@ -404,6 +412,8 @@ async def query_documents(
                     user_email=user_email,
                     role="ai",
                     text=no_docs_answer,
+                    chat_collection=chat_collection,
+                    conversations_collection=conversations_collection,
                 )
                 if saved_ai_message is not None:
                     saved_messages.append(saved_ai_message)
@@ -442,6 +452,8 @@ async def query_documents(
             user_email=user_email,
             role="ai",
             text=answer,
+            chat_collection=chat_collection,
+            conversations_collection=conversations_collection,
         )
         if saved_ai_message is not None:
             saved_messages.append(saved_ai_message)
