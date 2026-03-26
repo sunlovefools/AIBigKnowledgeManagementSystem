@@ -7,7 +7,7 @@ from typing import Optional
 # Import the service and its custom error
 from app.service.auth.auth_service import AuthService, AuthenticationError
 
-# TOOD: Change the logger to the centralise logger
+# TODO: Change the logger to the centralise logger
 logger = logging.getLogger(__name__)
 
 class UserCreateRequest(BaseModel):
@@ -15,14 +15,13 @@ class UserCreateRequest(BaseModel):
     Data required to register a new user.
     This matches the { email, password, role } object from your frontend.
     """
-    # These are the fields expected in the request body when registering a user.
     email: str
     password: str
     role: str
 
+# TODO: This can be deleted, we do not support password login
 class UserLoginRequest(BaseModel):
     """Data required to log in a user."""
-    # These are the fields expected in the request body when logging in.
     email: str
     password: str
 
@@ -32,14 +31,13 @@ class UserDisplayResponse(BaseModel):
     registration or login. This model ensures the
     'password_hash' is NEVER sent back.
     """
-    # These are the fields that will be returned in the response.
     id: str                         # UUID will be given from the database
     email: str
-    user_role: str                  # FIXED: was missing — needed for frontend role-based UI
+    user_role: str #TODO: Why is this needed?
     created_at: datetime
     is_active: bool
-    access_token: str               # ADDED: JWT issued by auth_service — must be returned to client
-    token_type: str                 # ADDED: always "bearer" — tells client how to use the token
+    access_token: str               # Access_token: JWT issued by auth_service (Used by frontend for authenticated requests)
+    token_type: str                 # Token_type: always "bearer" — tells client how to use the token
 
     class Config:
         from_attributes = True      # Allows FastAPI to convert your database/dict object to this model

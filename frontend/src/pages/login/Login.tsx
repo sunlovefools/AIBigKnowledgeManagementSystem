@@ -1,7 +1,7 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
 import { useEffect, useRef, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { saveAuthSession } from "../../auth/session";
 import "./Login.css";
 
@@ -114,8 +114,12 @@ export default function Login() {
     return (
         <div className="login-container">
             <div className="login-card">
-                <h1>Login</h1>
-                <p>Sign in with OAuth to access your vector database workspace.</p>
+                <p className="login-kicker">Team44 Workspace</p>
+                <h1>Sign in</h1>
+                <p className="login-description">
+                    Minimal, secure access to your document and chat workspace.
+                </p>
+                <p className="login-auth0-note">Only login with Auth0 is supported.</p>
 
                 {!hasAuth0Config && (
                     <p className="login-message error">
@@ -124,7 +128,7 @@ export default function Login() {
                     </p>
                 )}
 
-                {error && <p className="login-message error">OAuth error: {error.message}</p>}
+                {error && <p className="login-message error">Auth0 error: {error.message}</p>}
                 {exchangeError && <p className="login-message error">{exchangeError}</p>}
 
                 <button
@@ -133,12 +137,8 @@ export default function Login() {
                     onClick={() => void handleOAuthLogin()}
                     disabled={isLoading || isExchanging || !hasAuth0Config}
                 >
-                    {isLoading || isExchanging ? "Signing in..." : "Continue with OAuth"}
+                    {isLoading || isExchanging ? "Signing in..." : "Continue with Auth0"}
                 </button>
-
-                <p className="login-alt">
-                    Need a local account? <Link to="/register">Register</Link>
-                </p>
             </div>
         </div>
     );
