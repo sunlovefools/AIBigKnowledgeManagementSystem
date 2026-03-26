@@ -62,24 +62,31 @@ def create_access_token(user_id: str, email: str, role: str) -> str:
     return jwt.encode(payload, JWT_SECRET_KEY, algorithm=JWT_ALGORITHM)
 
 
+def _get_signing_rsa_key(jwks: Dict[str, Any], kid: str | None) -> Dict[str, Any]:
+    """
+    Resolve a signing key from Auth0 JWKS using token header `kid`.
+    """
+    if not kid:
+        return {}
+
+    for key in jwks.get("keys", []):
+        if key.get("kid") == kid:
+            return {
+                "kty": key.get("kty"),
+                "kid": key.get("kid"),
+                "use": key.get("use"),
+                "n": key.get("n"),
+                "e": key.get("e"),
+            }
+    return {}
+
+
 def verify_auth0_token(token: str) -> Dict[str, Any]:
     """Verify an Auth0 access token and return decoded claims."""
     try:
         jwks = _get_jwks()
         unverified_header = jwt.get_unverified_header(token)
-
-        rsa_key = {}
-        for key in jwks.get("keys", []):
-            #TODO: Make it into a standardised tokens for getting
-            if key.get("kid") == unverified_header.get("kid"):
-                rsa_key = {
-                    "kty": key.get("kty"),
-                    "kid": key.get("kid"),
-                    "use": key.get("use"),
-                    "n": key.get("n"),
-                    "e": key.get("e"),
-                }
-                break
+        rsa_key = _get_signing_rsa_key(jwks, unverified_header.get("kid"))
 
         if not rsa_key:
             raise Exception("Unable to find appropriate key")
@@ -107,7 +114,7 @@ def get_auth0_userinfo(token: str) -> Dict[str, Any]:
         headers={"Authorization": f"Bearer {token}"},
         timeout=5,
     )
-    response.raise_for_status()
+    response.raise_for_status() # Raise HTTP errors if the request failed
     return response.json()
 
 
@@ -196,6 +203,7 @@ class AuthService:
 
                 user_id = str(user.get("_id"))
                 role = user.get("user_role", "user")
+                # Create an access token for the existing user
                 access_token = create_access_token(
                     user_id=user_id,
                     email=str(user.get("email") or email),
@@ -211,13 +219,7 @@ class AuthService:
                     "token_type": "bearer",
                 }
 
-            # During cutover, fail safely if legacy local account remains.
-            existing_local = self.table.find_one({"email": email, "auth_provider": "local"})
-            if existing_local:
-                raise AuthenticationError(
-                    "A legacy local account with this email exists. Run the Auth0 migration script to remove local users."
-                )
-
+            # New user will get their info inserted into the database
             user_data = {
                 "email": email,
                 "user_role": "user",
@@ -229,6 +231,8 @@ class AuthService:
 
             inserted_result = self.table.insert_one(user_data)
             new_user_id = str(inserted_result.inserted_id)
+
+            # Create an access token for the new user
             access_token = create_access_token(
                 user_id=new_user_id,
                 email=email,
@@ -252,36 +256,33 @@ class AuthService:
     def auth0_login(self, token: str) -> Dict[str, Any]:
         """
         Login using Auth0 access token.
-        Verifies token, resolves claims, and delegates to oauth_login.
+        Verifies token, resolves user profile from /userinfo, and delegates to oauth_login.
         """
         try:
             payload = verify_auth0_token(token)
-            oauth_sub = payload.get("sub") # Get the subject, the subject is a unique identifier for the user in Auth0
-            email = payload.get("email")
+            oauth_sub = payload.get("sub")
 
             if not oauth_sub:
                 raise AuthenticationError("Invalid Auth0 payload")
 
-            # TODO: Shuold have a standardised way to get email from the token
-            if not email:
-                try:
-                    userinfo = get_auth0_userinfo(token)
-                    userinfo_sub = userinfo.get("sub")
-                    userinfo_email = userinfo.get("email")
+            # We still verify token first and enforce subject consistency.
+            try:
+                userinfo = get_auth0_userinfo(token)
+                userinfo_sub = userinfo.get("sub") # Get the subject from the userinfo response
+                email = userinfo.get("email")
 
-                    if userinfo_sub and userinfo_sub != oauth_sub:
-                        raise AuthenticationError("Invalid Auth0 payload: subject mismatch")
-
-                    email = userinfo_email
-                except AuthenticationError:
-                    raise
-                except Exception as e:
-                    raise AuthenticationError(f"Invalid Auth0 payload: {e}")
+                # The userinfo sub must match the token sub to prevent spoofing a different user's email
+                if userinfo_sub and userinfo_sub != oauth_sub:
+                    raise AuthenticationError("Invalid Auth0 payload: subject mismatch")
+            except AuthenticationError:
+                raise
+            except Exception as e:
+                raise AuthenticationError(f"Invalid Auth0 payload: {e}")
 
             if not email:
                 raise AuthenticationError(
-                    "Invalid Auth0 payload: missing email claim. "
-                    "Request 'email' scope or add email claim in Auth0."
+                    "Invalid Auth0 payload: missing email in /userinfo. "
+                    "Ensure Auth0 scopes include 'openid profile email'."
                 )
 
             return self.oauth_login(str(email), str(oauth_sub))

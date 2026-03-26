@@ -22,3 +22,17 @@ def test_router_exposes_only_auth0_login_route():
     assert "\"/auth0-login\"" in content
     assert "\"/register\"" not in content
     assert "\"/login\"" not in content
+
+
+def test_auth0_login_uses_single_email_source_userinfo():
+    content = _read(AUTH_SERVICE_PATH)
+    assert "def auth0_login(" in content
+    assert "get_auth0_userinfo(token)" in content
+    assert "userinfo.get(\"email\")" in content
+    assert "payload.get(\"email\")" not in content
+
+
+def test_verify_auth0_token_uses_single_key_resolution_path():
+    content = _read(AUTH_SERVICE_PATH)
+    assert "def _get_signing_rsa_key(" in content
+    assert "rsa_key = _get_signing_rsa_key(" in content
