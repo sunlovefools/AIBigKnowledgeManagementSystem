@@ -89,6 +89,40 @@ def test_collection_service_create_list_and_uniqueness(monkeypatch):
         asyncio.run(cs.CollectionService.create_collection("user-1", "project a"))
 
 
+def test_collection_service_ensure_default_collection_deduplicates_existing_defaults(monkeypatch):
+    store = _FakeCollectionStore()
+    store.rows = [
+        {
+            "collection_id": "default-2",
+            "user_id": "user-1",
+            "name": "Default",
+            "normalized_name": "default",
+            "is_default": True,
+            "file_count": 0,
+            "created_at": "2026-02-01T00:00:00+00:00",
+            "updated_at": "2026-02-01T00:00:00+00:00",
+        },
+        {
+            "collection_id": "default-1",
+            "user_id": "user-1",
+            "name": "Default",
+            "normalized_name": "default",
+            "is_default": True,
+            "file_count": 0,
+            "created_at": "2026-01-01T00:00:00+00:00",
+            "updated_at": "2026-01-01T00:00:00+00:00",
+        },
+    ]
+    monkeypatch.setattr(cs, "get_user_collections_collection", lambda: store)
+
+    default_row = asyncio.run(cs.CollectionService.ensure_default_collection("user-1"))
+    assert default_row["collection_id"] == "default-1"
+
+    listed = asyncio.run(cs.CollectionService.list_collections("user-1"))
+    assert len(listed) == 1
+    assert listed[0]["collection_id"] == "default-1"
+
+
 def test_collection_service_list_file_ids_scopes_with_default_fallback(monkeypatch):
     store = _FakeCollectionStore()
     monkeypatch.setattr(cs, "get_user_collections_collection", lambda: store)

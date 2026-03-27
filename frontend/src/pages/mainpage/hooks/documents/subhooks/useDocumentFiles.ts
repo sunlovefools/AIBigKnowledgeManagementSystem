@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type {
     FileContentAsyncState,
     FileEntry,
@@ -19,6 +19,17 @@ export function useDocumentFiles(activeCollectionId: string | null) {
     const [fileListError, setFileListError] = useState<string | null>(null);
     const [isDocsCached, setIsDocsCached] = useState(false);
     const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
+    const cacheRef = useRef<
+        Record<
+            string,
+            {
+                filesState: FilesState;
+                chunkAsyncByFileId: Record<string, FileContentAsyncState>;
+                isDocsCached: boolean;
+            }
+        >
+    >({});
+    const activeCacheKey = activeCollectionId ?? "__default_collection__";
 
     const files = useMemo(
         () =>
@@ -66,11 +77,28 @@ export function useDocumentFiles(activeCollectionId: string | null) {
     }, [activeCollectionId]);
 
     useEffect(() => {
+        const cached = cacheRef.current[activeCacheKey];
+        if (cached) {
+            setFilesState(cached.filesState);
+            setChunkAsyncByFileId(cached.chunkAsyncByFileId);
+            setIsDocsCached(cached.isDocsCached);
+            setFileListError(null);
+            return;
+        }
+
         setFilesState(createEmptyFilesState());
         setChunkAsyncByFileId({});
         setFileListError(null);
         setIsDocsCached(false);
-    }, [activeCollectionId]);
+    }, [activeCacheKey]);
+
+    useEffect(() => {
+        cacheRef.current[activeCacheKey] = {
+            filesState,
+            chunkAsyncByFileId,
+            isDocsCached,
+        };
+    }, [activeCacheKey, chunkAsyncByFileId, filesState, isDocsCached]);
 
     useEffect(() => {
         // Auto-load file previews after authentication and page load.
@@ -143,7 +171,10 @@ export function useDocumentFiles(activeCollectionId: string | null) {
         [activeTab, getChunkAsyncById]
     );
 
-    const invalidateDocumentCache = useCallback(() => setIsDocsCached(false), []);
+    const invalidateDocumentCache = useCallback(() => {
+        delete cacheRef.current[activeCacheKey];
+        setIsDocsCached(false);
+    }, [activeCacheKey]);
 
     return {
         filesState,

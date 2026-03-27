@@ -74,14 +74,20 @@ class CollectionService:
         return store
 
     @staticmethod
+    def _sort_key_for_collection(item: dict[str, Any]) -> tuple[str, str]:
+        created_at = str(item.get("created_at") or "")
+        collection_id = str(item.get("collection_id") or "")
+        return created_at, collection_id
+
+    @staticmethod
     def _normalize_row(row: dict[str, Any] | None) -> dict[str, Any] | None:
         """Normalize a raw collection row from the database into a consistent dict format. Returns None if invalid."""
         if not isinstance(row, dict):
             return None
-        collection_id = str(row.get("collection_id").strip())
-        user_id = str(row.get("user_id").strip())
+        collection_id = str(row.get("collection_id") or row.get("collectionId") or "").strip()
+        user_id = str(row.get("user_id") or row.get("userId") or "").strip()
         name = str(row.get("name") or "").strip()
-        normalized_name = str(row.get("normalized_name")).strip()
+        normalized_name = str(row.get("normalized_name") or row.get("normalizedName") or "").strip()
 
         # Basic validation to ensure that the collection have the required fields
         if not (collection_id and user_id and name):
@@ -114,10 +120,20 @@ class CollectionService:
         store = CollectionService._get_store()
 
         def _ensure() -> dict[str, Any]:
-            existing = store.find_one({"user_id": normalized_user_id, "is_default": True})
-            normalized_existing = CollectionService._normalize_row(existing)
-            if normalized_existing is not None:
-                return normalized_existing
+            all_rows = [
+                normalized
+                for raw in store.find({"user_id": normalized_user_id})
+                if (normalized := CollectionService._normalize_row(raw)) is not None
+            ]
+            default_rows = [row for row in all_rows if bool(row.get("is_default"))]
+            default_rows.sort(key=CollectionService._sort_key_for_collection)
+            if default_rows:
+                canonical = default_rows[0]
+                for duplicate in default_rows[1:]:
+                    store.delete_one(
+                        {"user_id": normalized_user_id, "collection_id": duplicate["collection_id"]}
+                    )
+                return canonical
 
             now = CollectionService._now_iso()
             default_row = {
@@ -131,7 +147,23 @@ class CollectionService:
                 "updated_at": now,
             }
             store.insert_one(default_row)
-            return default_row
+
+            # Handle creation races by re-reading and deduplicating defaults.
+            post_insert_rows = [
+                normalized
+                for raw in store.find({"user_id": normalized_user_id, "is_default": True})
+                if (normalized := CollectionService._normalize_row(raw)) is not None
+            ]
+            post_insert_rows.sort(key=CollectionService._sort_key_for_collection)
+            if not post_insert_rows:
+                return default_row
+
+            canonical = post_insert_rows[0]
+            for duplicate in post_insert_rows[1:]:
+                store.delete_one(
+                    {"user_id": normalized_user_id, "collection_id": duplicate["collection_id"]}
+                )
+            return canonical
 
         return await asyncio.to_thread(_ensure)
 
@@ -142,11 +174,12 @@ class CollectionService:
         store = CollectionService._get_store()
 
         def _list() -> list[dict[str, Any]]:
-            rows: list[dict[str, Any]] = []
+            rows_by_id: dict[str, dict[str, Any]] = {}
             for row in store.find({"user_id": normalized_user_id}):
                 normalized = CollectionService._normalize_row(row)
                 if normalized is not None:
-                    rows.append(normalized)
+                    rows_by_id[normalized["collection_id"]] = normalized
+            rows = list(rows_by_id.values())
             rows.sort(key=lambda item: (not bool(item.get("is_default")), item["name"].casefold()))
             return rows
 

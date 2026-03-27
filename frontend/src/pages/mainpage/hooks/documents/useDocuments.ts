@@ -59,18 +59,91 @@ type DeleteCollectionResult = {
     error?: string;
 };
 
+type CollectionsCachePayload = {
+    cachedAt: number;
+    collections: UserCollectionSummary[];
+    activeCollectionId: string | null;
+};
+
+function getCollectionsCacheKey(): string {
+    const maybeUserEmail = typeof window !== "undefined"
+        ? (window.localStorage.getItem("userEmail") || "").trim().toLowerCase()
+        : "";
+    return maybeUserEmail
+        ? `kb.collections.cache.v1.${maybeUserEmail}`
+        : "kb.collections.cache.v1";
+}
+
+const COLLECTIONS_CACHE_TTL_MS = 2 * 60 * 1000;
+
+function sanitizeCollections(raw: UserCollectionSummary[]): UserCollectionSummary[] {
+    const dedupedById = new Map<string, UserCollectionSummary>();
+    for (const row of raw) {
+        dedupedById.set(row.collectionId, row);
+    }
+    const rows = Array.from(dedupedById.values());
+    const defaultRows = rows.filter((row) => row.isDefault);
+    if (defaultRows.length <= 1) return rows;
+
+    const [canonicalDefault, ...duplicates] = defaultRows.sort((a, b) =>
+        String(a.createdAt || "").localeCompare(String(b.createdAt || ""))
+    );
+    const duplicateIds = new Set(duplicates.map((row) => row.collectionId));
+    return rows.filter((row) => row.collectionId === canonicalDefault.collectionId || !duplicateIds.has(row.collectionId));
+}
+
+function loadCollectionsCache(): CollectionsCachePayload | null {
+    try {
+        const raw = sessionStorage.getItem(getCollectionsCacheKey());
+        if (!raw) return null;
+        const parsed = JSON.parse(raw) as CollectionsCachePayload;
+        if (!parsed || !Array.isArray(parsed.collections)) return null;
+        if (Date.now() - Number(parsed.cachedAt || 0) > COLLECTIONS_CACHE_TTL_MS) return null;
+        return {
+            cachedAt: Number(parsed.cachedAt || 0),
+            collections: sanitizeCollections(parsed.collections),
+            activeCollectionId: parsed.activeCollectionId ?? null,
+        };
+    } catch {
+        return null;
+    }
+}
+
+function saveCollectionsCache(payload: CollectionsCachePayload) {
+    try {
+        sessionStorage.setItem(getCollectionsCacheKey(), JSON.stringify(payload));
+    } catch {
+        // No-op when storage is unavailable.
+    }
+}
+
 // Deal with file and chunk state
 export function useDocuments() {
-    const [collections, setCollections] = useState<UserCollectionSummary[]>([]);
+    const initialCache = loadCollectionsCache();
+    const [collections, setCollections] = useState<UserCollectionSummary[]>(initialCache?.collections ?? []);
     const [isLoadingCollections, setIsLoadingCollections] = useState(false);
     const [collectionError, setCollectionError] = useState<string | null>(null);
-    const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
+    const [activeCollectionId, setActiveCollectionId] = useState<string | null>(
+        initialCache?.activeCollectionId ?? null
+    );
 
-    const fetchCollections = useCallback(async (preferredCollectionId?: string | null) => {
+    const fetchCollections = useCallback(
+        async (preferredCollectionId?: string | null, options?: { force?: boolean }) => {
+        if (!options?.force && collections.length > 0) {
+            setActiveCollectionId((previousId) => {
+                const preferred = preferredCollectionId ?? previousId;
+                if (preferred && collections.some((entry) => entry.collectionId === preferred)) {
+                    return preferred;
+                }
+                const defaultCollection = collections.find((entry) => entry.isDefault);
+                return defaultCollection?.collectionId ?? collections[0]?.collectionId ?? null;
+            });
+            return;
+        }
         setIsLoadingCollections(true);
         setCollectionError(null);
         try {
-            const incoming = await getCollections();
+            const incoming = sanitizeCollections(await getCollections());
             setCollections(incoming);
             setActiveCollectionId((previousId) => {
                 const preferred = preferredCollectionId ?? previousId;
@@ -87,11 +160,19 @@ export function useDocuments() {
         } finally {
             setIsLoadingCollections(false);
         }
-    }, []);
+    }, [collections]);
 
     useEffect(() => {
         void fetchCollections();
     }, [fetchCollections]);
+
+    useEffect(() => {
+        saveCollectionsCache({
+            cachedAt: Date.now(),
+            collections,
+            activeCollectionId,
+        });
+    }, [activeCollectionId, collections]);
 
     const activeCollection = useMemo(
         () => collections.find((entry) => entry.collectionId === activeCollectionId) ?? null,
@@ -100,6 +181,18 @@ export function useDocuments() {
 
     const fileDomain = useDocumentFiles(activeCollectionId);
     const { getContentStateById, loadFileChunks } = fileDomain;
+
+    useEffect(() => {
+        if (!activeCollectionId) return;
+        const localCount = fileDomain.files.length;
+        setCollections((previous) =>
+            previous.map((entry) =>
+                entry.collectionId === activeCollectionId
+                    ? { ...entry, fileCount: localCount }
+                    : entry
+            )
+        );
+    }, [activeCollectionId, fileDomain.files.length]);
 
     // function to get the full content of a document by file ID
     const getFullDocumentContent = useCallback(
@@ -433,7 +526,7 @@ export function useDocuments() {
             if (!trimmed) return { ok: false, error: "Collection name must not be empty." };
             try {
                 const created = await createCollection(trimmed);
-                await fetchCollections(created.collectionId);
+                await fetchCollections(created.collectionId, { force: true });
                 return { ok: true, collectionId: created.collectionId };
             } catch (error) {
                 const detail = getAxiosErrorDetail(error);
@@ -450,7 +543,7 @@ export function useDocuments() {
             if (!trimmed) return { ok: false, error: "Collection name must not be empty." };
             try {
                 await renameCollection(collectionId, trimmed);
-                await fetchCollections(collectionId);
+                await fetchCollections(collectionId, { force: true });
                 return { ok: true };
             } catch (error) {
                 const detail = getAxiosErrorDetail(error);
@@ -465,7 +558,7 @@ export function useDocuments() {
             if (!collectionId) return { ok: false, error: "Missing collection ID." };
             try {
                 const deleted = await deleteCollection(collectionId);
-                await fetchCollections();
+                await fetchCollections(undefined, { force: true });
                 const warningText = deleted.warnings.length > 0
                     ? ` Warnings: ${deleted.warnings.join(" ")}`
                     : "";
