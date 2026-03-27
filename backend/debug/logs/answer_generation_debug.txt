@@ -2652,3 +2652,50 @@ Answer Length: 1153
 Answer:
 Exams are categorized into two types: coursework and exams. Coursework includes assessments completed over days/weeks/months, such as essays, reports, and PGR progression reports, which are typically submitted via Moodle/Turnitin. Exams can be further divided into various categories including in-person exams, e-exams, language oral exams, individual presentations/vivas, practical exams (OSCE/OSPE), group presentations, in-class assessments, and PGR progression reviews treated as exams for EC purposes. The process involves submitting coursework before its original deadline and exams ideally before they begin but no later than 5 working days after the exam, with exceptions for compelling evidence of inability to submit on time, new evidence after an EC decision, or late diagnosis of a disability/long-term condition within the same academic year. Additionally, students must attend all examinations and provide photographic ID for in-person exams. Late arrivals are allowed up to one hour before the examination starts, but students who arrive after this period are not permitted to sit. Results are usually released at the end of the semester.
 ==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-27T12:27:54.668955+00:00
+Provider: OPENROUTER
+Model: z-ai/glm-4.5-air:free
+Context Length: 3405
+
+<QUERY>
+What is the address under the terms and conditions
+</QUERY>
+
+<CONTEXT>
+[1]
+file_name: General Terms and Conditions.pdf
+page_content: "## 10\\. Contact Us\n\nIf you have any questions about these Terms, please contact us at:\n\n-   Email: asdfggh@gmail.com\n\n-   Address: 123 Tech Avenue, Suite 400, Wilmington, DE 19801\n\nDisclaimer: This document is a template and does not constitute legal advice. It is recommended that you have a legal professional review your final Terms and Conditions."
+
+[2]
+file_name: General Terms and Conditions.pdf
+page_content: "## Terms and Conditions\n\nLast Updated: January 1, 2024\n\nWelcome to NovaStream Digital, your premier destination for cutting-edge digital streaming solutions and entertainment services. We are delighted to have you as part of our growing community of users who value high-quality digital content delivery. Please take a moment to carefully read these Terms and Conditions (\"Terms\", \"Terms and Conditions\") before accessing or using the www.novastream.io website (the \"Service\"), which is operated by NovaStream Digital Solutions LLC (\"us\", \"we\", or \"our\"), a registered company dedicated to providing innovative digital streaming experiences. These Terms and Conditions govern your use of our Service, outline the rights and responsibilities of both parties, and include important information regarding content usage, privacy policies, subscription details, payment processing, intellectual property rights, and limitations of liability. By continuing to use our Service, you acknowledge that you have read, understood, and agreed to be bound by these Terms and Conditions in their entirety.\n\nBy accessing or using the Service, you agree to be bound by these Terms. If you disagree with any part of the terms, then you may not access the Service"
+
+[3]
+file_name: General Terms and Conditions.pdf
+page_content: "## 8\\. Governing Law\n\nThese Terms shall be governed and construed in accordance with the laws of Delaware, USA , without regard to its conflict of law provisions."
+
+[4]
+file_name: General Terms and Conditions.pdf
+page_content: "## 6\\. Limitation of Liability\n\nIn no event shall NovaStream Digital Solutions LLC , nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential, or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from:\n\n-   Your access to or use of (or inability to access or use) the Service.\n\n-   Any conduct or content of any third party on the Service.\n\n-   Any content obtained from the Service."
+
+[5]
+file_name: General Terms and Conditions.pdf
+page_content: "## 7\\. Disclaimer\n\nYour use of the Service is at your sole risk. The Service is provided on an \"AS IS\" and \"AS AVAILABLE\" basis. The Service is provided without warranties of any kind, whether express or implied."
+
+[6]
+file_name: General Terms and Conditions.pdf
+page_content: "## 4\\. Prohibited Activities\n\nYou agree not to engage in any of the following prohibited activities:\n\n-   Copying, distributing, or disclosing any part of the Service in any medium.\n\n-   Using any automated system, including \"robots,\" \"spiders,\" or \"offline readers,\" to access the Service.\n\n-   Attempting to interfere with, compromise the system integrity or security, or decipher any transmissions to or from the servers running the Service."
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-27T12:28:01.441352+00:00
+Answer Length: 92
+Answer:
+123 Tech Avenue, Suite 400, Wilmington, DE 19801
+(Sources: General Terms and Conditions.pdf)
+==================================================

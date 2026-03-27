@@ -299,7 +299,7 @@ export async function requestSelectionPreview(
 
 // Renames a file in the knowledge base without touching its content.
 export async function renameKnowledgeFile(fileId: string, newFileName: string): Promise<RenameFileResponse> {
-    const response = await axios.patch<RenameFileResponse>(
+    const response = await apiClient.patch<RenameFileResponse>(
         `${API_BASE}/api/modifications/rename-file/${fileId}`,
         { newFileName }
     );
@@ -308,7 +308,7 @@ export async function renameKnowledgeFile(fileId: string, newFileName: string): 
 
 // Creates a new blank file in the knowledge base with a given name.
 export async function createBlankFile(fileName: string): Promise<CreateBlankFileResponse> {
-    const response = await axios.post<CreateBlankFileResponse>(
+    const response = await apiClient.post<CreateBlankFileResponse>(
         `${API_BASE}/api/modifications/create-blank-file`,
         { fileName }
     );

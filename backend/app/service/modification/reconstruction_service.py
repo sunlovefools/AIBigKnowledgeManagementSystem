@@ -90,13 +90,13 @@ class ReconstructionService:
         return None
 
     @staticmethod
-    async def _get_file_names_map() -> dict[str, str]:
+    async def _get_file_names_map(user_id: str) -> dict[str, str]:
         """
         Return a mapping of {normalised_lower_name: file_id} for all files
         currently stored in the knowledge base.  Used for duplicate-name checks.
         """
         try:
-            summaries = await ReconstructionService.get_all_preview_files()
+            summaries = await ReconstructionService.get_all_preview_files(user_id=user_id)
             return {s["fileName"].strip().lower(): s["fileId"] for s in summaries}
         except Exception:
             # Non-fatal: if we can't fetch the list we skip the duplicate check
@@ -874,13 +874,16 @@ class ReconstructionService:
             raise RuntimeError(f"File update failed: {str(e)}")
 
     @staticmethod
-    async def rename_file(file_id: str, new_file_name: str) -> dict:
+    async def rename_file(file_id: str, new_file_name: str, user_id: str) -> dict:
         """
         Rename a file by updating the file_name metadata across all its parent and child chunks,
         without modifying any content. Deletes the old chunks and re-ingests them with the new name.
         The file_id is preserved throughout.
         """
         new_file_name = new_file_name.strip()
+        normalized_user_id = str(user_id or "").strip()
+        if not normalized_user_id:
+            raise ValueError("user_id must be a non-empty string.")
 
         # ── 1. Validate the new name format ────────────────────────────────
         name_error = ReconstructionService._validate_file_name(new_file_name)
@@ -888,7 +891,7 @@ class ReconstructionService:
             raise ValueError(name_error)
 
         # ── 2. Check for duplicate names (case-insensitive, ignoring self) ─
-        existing_names = await ReconstructionService._get_file_names_map()
+        existing_names = await ReconstructionService._get_file_names_map(normalized_user_id)
         conflict_id = existing_names.get(new_file_name.lower())
         if conflict_id and conflict_id != file_id:
             raise ValueError(f"A file named '{new_file_name}' already exists. Please choose a different name.")
@@ -900,7 +903,12 @@ class ReconstructionService:
 
             def _load_existing_chunks() -> tuple[list[str], list[str], str]:
                 """Returns (parent_ids, chunk_contents_ordered, old_file_name)."""
-                cursor = parent_collection.find({"value.metadata.file_metadata.file_id": file_id})
+                cursor = parent_collection.find(
+                    {
+                        "value.metadata.file_metadata.file_id": file_id,
+                        "value.metadata.user_id": normalized_user_id,
+                    }
+                )
                 sortable_rows: list[dict[str, Any]] = []
                 old_name = ""
                 for row in cursor:
@@ -942,8 +950,8 @@ class ReconstructionService:
             # 1) Delete all old children + parents for this fileId
             print(f"  → Deleting {len(parent_ids)} old parent chunks...")
             for parent_id in parent_ids:
-                await delete_children_by_parent_id(parent_id)
-                await delete_parent_document(parent_id)
+                await delete_children_by_parent_id(parent_id, normalized_user_id)
+                await delete_parent_document(parent_id, normalized_user_id)
 
             # 2) Re-chunk the merged content under the new file name
             merged_content = normalize_markdown_for_modification("\n\n".join(contents))
@@ -975,7 +983,11 @@ class ReconstructionService:
             parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
 
             print("  → Storing renamed chunks...")
-            await upsert_documents(parent_chunks=parent_chunks_dicts, child_chunks=polished_child_chunks)
+            await upsert_documents(
+                parent_chunks=parent_chunks_dicts,
+                child_chunks=polished_child_chunks,
+                user_id=normalized_user_id,
+            )
 
             print(f"✅ Renamed '{old_file_name}' → '{new_file_name}' (file_id={file_id})")
             return {
@@ -991,7 +1003,7 @@ class ReconstructionService:
             raise RuntimeError(f"File rename failed: {str(e)}")
 
     @staticmethod
-    async def create_blank_file(file_name: str, placeholder_content: str) -> dict:
+    async def create_blank_file(file_name: str, placeholder_content: str, user_id: str) -> dict:
         """
         Create a new blank file in the knowledge base.
         Ingests a short placeholder chunk so the file is immediately discoverable
@@ -1004,6 +1016,9 @@ class ReconstructionService:
         from app.core.id_utils import generate_uuid_v6
 
         file_name = file_name.strip()
+        normalized_user_id = str(user_id or "").strip()
+        if not normalized_user_id:
+            raise ValueError("user_id must be a non-empty string.")
 
         # Format validation only — no DB round-trip needed here.
         name_error = ReconstructionService._validate_file_name(file_name)
@@ -1040,7 +1055,11 @@ class ReconstructionService:
             polished_child_chunks = polish_chunks(child_chunks_dicts)
             parent_chunks_dicts = [chunk.model_dump(by_alias=True) for chunk in parent_chunks_models]
 
-            await upsert_documents(parent_chunks=parent_chunks_dicts, child_chunks=polished_child_chunks)
+            await upsert_documents(
+                parent_chunks=parent_chunks_dicts,
+                child_chunks=polished_child_chunks,
+                user_id=normalized_user_id,
+            )
 
             print(f"✅ Blank file '{file_name}' created (file_id={new_file_id})")
             # Return the normalised content AND the real parentId so the frontend

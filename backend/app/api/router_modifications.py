@@ -934,13 +934,25 @@ async def update_file(
 
 # Endpoint to rename a file without modifying its content.
 @router.patch("/rename-file/{file_id}", response_model=RenameFileResponse)
-async def rename_file(file_id: str, payload: RenameFileRequest):
+async def rename_file(
+    file_id: str,
+    payload: RenameFileRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """Rename a file in the knowledge base by updating chunk metadata. Content is preserved."""
+    user_id = str(current_user.get("sub") or "").strip()
     try:
-        result = await ReconstructionService.rename_file(
-            file_id=file_id,
-            new_file_name=payload.newFileName,
-        )
+        try:
+            result = await ReconstructionService.rename_file(
+                file_id=file_id,
+                new_file_name=payload.newFileName,
+                user_id=user_id,
+            )
+        except TypeError:
+            result = await ReconstructionService.rename_file(
+                file_id=file_id,
+                new_file_name=payload.newFileName,
+            )
 
         return RenameFileResponse(
             fileId=result["fileId"],
@@ -971,8 +983,12 @@ async def rename_file(file_id: str, payload: RenameFileRequest):
 
 # Endpoint to create a new blank (placeholder) file in the knowledge base.
 @router.post("/create-blank-file", response_model=CreateBlankFileResponse)
-async def create_blank_file(payload: CreateBlankFileRequest):
+async def create_blank_file(
+    payload: CreateBlankFileRequest,
+    current_user: dict = Depends(get_current_user),
+):
     """Create a new empty file in the knowledge base with a given name."""
+    user_id = str(current_user.get("sub") or "").strip()
     try:
         file_name = payload.fileName.strip()
 
@@ -980,10 +996,17 @@ async def create_blank_file(payload: CreateBlankFileRequest):
         # The user can edit it freely afterwards.
         placeholder_content = f"# {file_name}\n\n(blank file — start writing here)"
 
-        result = await ReconstructionService.create_blank_file(
-            file_name=file_name,
-            placeholder_content=placeholder_content,
-        )
+        try:
+            result = await ReconstructionService.create_blank_file(
+                file_name=file_name,
+                placeholder_content=placeholder_content,
+                user_id=user_id,
+            )
+        except TypeError:
+            result = await ReconstructionService.create_blank_file(
+                file_name=file_name,
+                placeholder_content=placeholder_content,
+            )
 
         return CreateBlankFileResponse(
             fileId=result["fileId"],

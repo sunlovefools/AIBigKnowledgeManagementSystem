@@ -36,7 +36,7 @@ class IngestUploadResponse(BaseModel):
 async def _upsert_chunks(
     parent_chunks: list[dict[str, Any]],
     child_chunks: list[dict[str, Any]],
-    user_id: str,  # ADDED: passed down to upsert_documents so every chunk is tagged with its owner
+    user_id: str,
 ) -> None:
     """
     Upsert parent/child chunks into vector storage.
@@ -64,7 +64,7 @@ def ingest_health():
 @router.post("/upload", response_model=IngestUploadResponse)
 async def ingest_upload(
     file: FileUpload,
-    current_user: dict = Depends(get_current_user),  # ADDED: locks route + provides user_id
+    current_user: dict = Depends(get_current_user),
 ):
     """
     Unified ingestion endpoint for all document types.
