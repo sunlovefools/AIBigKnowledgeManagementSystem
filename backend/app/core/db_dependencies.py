@@ -44,3 +44,14 @@ def get_chat_messages_collection() -> Any | None:
 
     chat_collection_name = os.getenv("ASTRA_CHAT_COLLECTION", "chat_messages")
     return database.get_collection(chat_collection_name)
+
+
+@lru_cache(maxsize=1)
+def get_user_collections_collection() -> Any | None:
+    """Initializes and returns the Astra DB collection for user logical collections/folders."""
+    database = get_chat_database()
+    if database is None:
+        return None
+
+    user_collections_name = os.getenv("ASTRA_USER_COLLECTIONS_COLLECTION", "user_collections")
+    return database.get_collection(user_collections_name)

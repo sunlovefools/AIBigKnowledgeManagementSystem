@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { HighlightedSelection, ParentChunkContent, SidebarFileSummary } from "../../../types";
+import type { HighlightedSelection, ParentChunkContent, SidebarFileSummary, UserCollectionSummary } from "../../../types";
 import { apiClient, authenticatedFetch } from "../../../../../auth/apiClient";
 
 // Normalize trailing slash so endpoint concatenation is predictable.
@@ -59,6 +59,17 @@ export type CreateBlankFileResponse = {
     parentId: string;
     parentChunks: number;
     chunks: number;
+};
+
+export type CreateCollectionResponse = UserCollectionSummary;
+
+export type DeleteCollectionResponse = {
+    collectionId: string;
+    name: string;
+    deletedFiles: number;
+    deletedParentChunks: number;
+    deletedChildChunks: number;
+    warnings: string[];
 };
 
 export type AgentModifyResponse = {
@@ -198,18 +209,46 @@ async function readJsonStreamResult<T>(
 }
 
 // Loads sidebar metadata for all files currently available in the knowledge base.
-export async function getAllPreviewFiles(): Promise<SidebarFileSummary[]> {
-    const response = await apiClient.get(`${API_BASE}/api/retrieve/all-preview-files`);
+export async function getAllPreviewFiles(collectionId?: string | null): Promise<SidebarFileSummary[]> {
+    const response = await apiClient.get(`${API_BASE}/api/retrieve/all-preview-files`, {
+        ...(collectionId ? { params: { collectionId } } : {}),
+    });
     return (response.data.files ?? []) as SidebarFileSummary[];
+}
+
+export async function getCollections(): Promise<UserCollectionSummary[]> {
+    const response = await apiClient.get(`${API_BASE}/api/collections`);
+    return (response.data.collections ?? []) as UserCollectionSummary[];
+}
+
+export async function createCollection(name: string): Promise<CreateCollectionResponse> {
+    const response = await apiClient.post<CreateCollectionResponse>(`${API_BASE}/api/collections`, { name });
+    return response.data;
+}
+
+export async function renameCollection(collectionId: string, newName: string): Promise<UserCollectionSummary> {
+    const response = await apiClient.patch<UserCollectionSummary>(`${API_BASE}/api/collections/${collectionId}`, { newName });
+    return response.data;
+}
+
+export async function deleteCollection(collectionId: string): Promise<DeleteCollectionResponse> {
+    const response = await apiClient.delete<DeleteCollectionResponse>(`${API_BASE}/api/collections/${collectionId}`);
+    return response.data;
 }
 
 // Fetches one page of parent chunks for a file.
 export async function getFileChunks(
     fileId: string,
-    cursor: string | null
+    cursor: string | null,
+    collectionId?: string | null,
 ): Promise<{ chunks: ParentChunkContent[]; hasMore: boolean; nextCursor: string | null }> {
     const response = await apiClient.get(`${API_BASE}/api/retrieve/file-chunks`, {
-        params: { fileId, limit: PAGE_SIZE, ...(cursor ? { cursor } : {}) },
+        params: {
+            fileId,
+            limit: PAGE_SIZE,
+            ...(cursor ? { cursor } : {}),
+            ...(collectionId ? { collectionId } : {}),
+        },
     });
     return {
         chunks: (response.data.chunks ?? []) as ParentChunkContent[],
@@ -253,6 +292,7 @@ export async function batchUpdateParentChunks(payload: {
 export async function requestAgentModify(
     instruction: string,
     fileIds: string[] | null,
+    collectionId: string | null,
     onProgress?: (progress: ModificationProgressEvent) => void
 ): Promise<AgentModifyResponse> {
     // Use fetch instead of axios here because we need direct stream-reader access.
@@ -265,6 +305,7 @@ export async function requestAgentModify(
         body: JSON.stringify({
             user_instructions: instruction,
             fileIds: fileIds && fileIds.length > 0 ? fileIds : null,
+            collectionId: collectionId || null,
         }),
     });
     return await readJsonStreamResult<AgentModifyResponse>(response, onProgress);
@@ -307,10 +348,13 @@ export async function renameKnowledgeFile(fileId: string, newFileName: string): 
 }
 
 // Creates a new blank file in the knowledge base with a given name.
-export async function createBlankFile(fileName: string): Promise<CreateBlankFileResponse> {
+export async function createBlankFile(fileName: string, collectionId?: string | null): Promise<CreateBlankFileResponse> {
     const response = await apiClient.post<CreateBlankFileResponse>(
         `${API_BASE}/api/modifications/create-blank-file`,
-        { fileName }
+        {
+            fileName,
+            ...(collectionId ? { collectionId } : {}),
+        }
     );
     return response.data;
 }

@@ -20,6 +20,7 @@ from app.vectordb.vectordb import (
 from app.service.modification.markdown_chunker import (
     split_parent_child_chunks_from_markdown,
 )
+from app.service.collection.collection_service import CollectionService
 from app.service.rag.ingestion.markdown_canonicalizer import (
     normalize_markdown_for_modification,
 )
@@ -96,8 +97,45 @@ class ReconstructionService:
         currently stored in the knowledge base.  Used for duplicate-name checks.
         """
         try:
-            summaries = await ReconstructionService.get_all_preview_files(user_id=user_id)
-            return {s["fileName"].strip().lower(): s["fileId"] for s in summaries}
+            rows = await PARENT_STORE.get_all_files()
+            by_file_id: dict[str, dict[str, Any]] = {}
+            for row in rows:
+                fields = ReconstructionService._extract_parent_row_fields(row)
+                if not fields:
+                    continue
+                parent_doc = row.get("value") if isinstance(row, dict) else None
+                metadata = (
+                    parent_doc.get("metadata")
+                    if isinstance(parent_doc, dict) and isinstance(parent_doc.get("metadata"), dict)
+                    else {}
+                )
+                if str(metadata.get("user_id") or "").strip() != str(user_id or "").strip():
+                    continue
+                file_id = str(fields.get("fileId") or "").strip()
+                if not file_id:
+                    continue
+                candidate = {
+                    "fileId": file_id,
+                    "fileName": str(fields.get("fileName") or ""),
+                    "_chunkNumber": fields.get("chunkNumber")
+                    if isinstance(fields.get("chunkNumber"), int)
+                    else 10**9,
+                    "_parentId": str(fields.get("parentId") or ""),
+                }
+                existing = by_file_id.get(file_id)
+                if existing is None or (
+                    candidate["_chunkNumber"],
+                    candidate["_parentId"],
+                ) < (
+                    existing["_chunkNumber"],
+                    existing["_parentId"],
+                ):
+                    by_file_id[file_id] = candidate
+            return {
+                str(item["fileName"]).strip().lower(): str(item["fileId"])
+                for item in by_file_id.values()
+                if str(item.get("fileName") or "").strip()
+            }
         except Exception:
             # Non-fatal: if we can't fetch the list we skip the duplicate check
             # rather than blocking the operation entirely.
@@ -110,6 +148,40 @@ class ReconstructionService:
             return ""
         cleaned = " ".join(str(text).split())  # collapse whitespace/newlines
         return cleaned[:max_chars]
+
+    @staticmethod
+    def _extract_collection_metadata(metadata: dict[str, Any]) -> dict[str, str]:
+        collection_meta = metadata.get("collection_metadata") if isinstance(metadata, dict) else {}
+        if not isinstance(collection_meta, dict):
+            collection_meta = {}
+        return {
+            "collectionId": str(collection_meta.get("collection_id") or "").strip(),
+            "collectionName": str(collection_meta.get("collection_name") or "").strip(),
+        }
+
+    @staticmethod
+    def _resolve_row_collection_id(
+        metadata: dict[str, Any],
+        default_collection_id: str,
+    ) -> str:
+        collection_meta = ReconstructionService._extract_collection_metadata(metadata)
+        collection_id = str(collection_meta.get("collectionId") or "").strip()
+        if collection_id:
+            return collection_id
+        return str(default_collection_id or "").strip()
+
+    @staticmethod
+    def _matches_collection_scope(
+        metadata: dict[str, Any],
+        *,
+        active_collection_id: str,
+        default_collection_id: str,
+    ) -> bool:
+        resolved_collection_id = ReconstructionService._resolve_row_collection_id(
+            metadata,
+            default_collection_id=default_collection_id,
+        )
+        return resolved_collection_id == active_collection_id
 
     @staticmethod
     def _extract_parent_row_fields(row: dict) -> dict[str, Any] | None:
@@ -159,6 +231,8 @@ class ReconstructionService:
         if not page_numbers:
             page_numbers = [0]
 
+        collection_metadata = ReconstructionService._extract_collection_metadata(metadata)
+
         return {
             "parentId": parent_id,
             "fileId": file_id,
@@ -166,6 +240,8 @@ class ReconstructionService:
             "content": content,
             "chunkNumber": chunk_number_int,
             "pageNumbers": page_numbers,
+            "collectionId": collection_metadata["collectionId"],
+            "collectionName": collection_metadata["collectionName"],
         }
 
     @staticmethod
@@ -238,6 +314,8 @@ class ReconstructionService:
         current_parent_id: str | None,
         limit: int,
         user_id: str,
+        collection_id: str,
+        default_collection_id: str,
     ) -> tuple[list[dict], bool, str | None]:
         """
         Find parent chunks for a fileId with deterministic ordering and cursor.
@@ -266,6 +344,18 @@ class ReconstructionService:
         for row in rows:
             fields = ReconstructionService._extract_parent_row_fields(row)
             if not fields:
+                continue
+            parent_doc = row.get("value") if isinstance(row, dict) else {}
+            metadata = (
+                parent_doc.get("metadata")
+                if isinstance(parent_doc, dict) and isinstance(parent_doc.get("metadata"), dict)
+                else {}
+            )
+            if not ReconstructionService._matches_collection_scope(
+                metadata,
+                active_collection_id=collection_id,
+                default_collection_id=default_collection_id,
+            ):
                 continue
             chunk_num = fields["chunkNumber"]
             if chunk_num is None:
@@ -329,7 +419,7 @@ class ReconstructionService:
     # ------------------------------------------------------------------
 
     @staticmethod
-    async def get_all_preview_files(user_id: str) -> list[dict]:
+    async def get_all_preview_files(user_id: str, collection_id: str | None = None) -> list[dict]:
         """
         Retrieve a filename-merged file list for the sidebar.
 
@@ -341,6 +431,13 @@ class ReconstructionService:
             normalized_user_id = str(user_id or "").strip()
             if not normalized_user_id:
                 raise ValueError("user_id must be a non-empty string.")
+            active_collection = await CollectionService.resolve_active_collection(
+                user_id=normalized_user_id,
+                requested_collection_id=collection_id,
+            )
+            default_collection = await CollectionService.ensure_default_collection(normalized_user_id)
+            active_collection_id = str(active_collection.get("collection_id") or "").strip()
+            default_collection_id = str(default_collection.get("collection_id") or "").strip()
 
             rows = await PARENT_STORE.get_all_files()
             if not rows:
@@ -360,6 +457,12 @@ class ReconstructionService:
                     else {}
                 )
                 if str(metadata.get("user_id") or "").strip() != normalized_user_id:
+                    continue
+                if not ReconstructionService._matches_collection_scope(
+                    metadata,
+                    active_collection_id=active_collection_id,
+                    default_collection_id=default_collection_id,
+                ):
                     continue
 
                 file_id = fields["fileId"]
@@ -427,11 +530,17 @@ class ReconstructionService:
         limit: int,
         cursor: str | None,
         user_id: str,  # ADDED: scopes pagination to current user's chunks only
+        collection_id: str | None = None,
     ) -> dict:
         """Retrieve paginated parent chunks for a merged file ID item."""
         print(f"🔄 Retrieving paginated parent chunks for file_id: {file_id}")
 
         try:
+            active_collection = await CollectionService.resolve_active_collection(
+                user_id=user_id,
+                requested_collection_id=collection_id,
+            )
+            default_collection = await CollectionService.ensure_default_collection(user_id)
             current_chunk_number, current_parent_id = ReconstructionService._decode_parent_chunks_cursor(
                 cursor
             )
@@ -442,6 +551,8 @@ class ReconstructionService:
                 current_parent_id=current_parent_id,
                 limit=limit,
                 user_id=user_id,  # ADDED: forwarded to DB query filter
+                collection_id=str(active_collection.get("collection_id") or ""),
+                default_collection_id=str(default_collection.get("collection_id") or ""),
             )
 
             result = {
@@ -673,6 +784,7 @@ class ReconstructionService:
         try:
             normalized_new_content = normalize_markdown_for_modification(new_content)
             existing_file_id: str | None = None
+            resolved_collection_metadata: dict[str, str] = {}
             try:
                 old_doc = await PARENT_STORE.aget(parent_id)
                 if isinstance(old_doc, dict):
@@ -683,6 +795,10 @@ class ReconstructionService:
                         metadata
                         .get("file_metadata", {})
                         .get("file_id")
+                    )
+                    resolved_collection_metadata = await CollectionService.resolve_collection_metadata_for_row(
+                        user_id=user_id,
+                        metadata=metadata,
                     )
             except Exception:
                 pass
@@ -710,6 +826,11 @@ class ReconstructionService:
                 for chunk in child_chunks_models:
                     if isinstance(chunk.file_metadata, dict):
                         chunk.file_metadata["file_id"] = existing_file_id
+            ReconstructionService._apply_collection_metadata_to_chunk_models(
+                parent_chunks_models,
+                child_chunks_models,
+                resolved_collection_metadata,
+            )
 
             if not parent_chunks_models:
                 raise ValueError("New content produced no chunks — content may be empty.")
@@ -763,7 +884,7 @@ class ReconstructionService:
             normalized_new_content = normalize_markdown_for_modification(new_content)
             parent_collection = PARENT_STORE.collection
 
-            def _load_existing_file_state() -> tuple[list[str], str]:
+            def _load_existing_file_state() -> tuple[list[str], str, dict[str, Any]]:
                 cursor = parent_collection.find(
                     {
                         "value.metadata.file_metadata.file_id": file_id,
@@ -771,6 +892,7 @@ class ReconstructionService:
                     }
                 )
                 sortable_rows: list[dict[str, Any]] = []
+                first_metadata: dict[str, Any] = {}
                 for row in cursor:
                     if not isinstance(row, dict):
                         continue
@@ -782,6 +904,8 @@ class ReconstructionService:
                     parent_id = str(fields.get("parentId") or "").strip()
                     if not parent_id:
                         continue
+                    if not first_metadata:
+                        first_metadata = ReconstructionService._extract_parent_metadata_from_row(row)
 
                     chunk_number = fields.get("chunkNumber")
                     sortable_rows.append(
@@ -797,9 +921,13 @@ class ReconstructionService:
                 merged_content = normalize_markdown_for_modification(
                     "\n\n".join(item["content"] for item in sortable_rows)
                 )
-                return parent_ids, merged_content
+                return parent_ids, merged_content, first_metadata
 
-            parent_ids, existing_content = await asyncio.to_thread(_load_existing_file_state)
+            parent_ids, existing_content, first_metadata = await asyncio.to_thread(_load_existing_file_state)
+            resolved_collection_metadata = await CollectionService.resolve_collection_metadata_for_row(
+                user_id=user_id,
+                metadata=first_metadata,
+            )
 
             if not parent_ids:
                 raise RuntimeError(f"No parent chunks found for file_id={file_id}")
@@ -842,6 +970,11 @@ class ReconstructionService:
             for chunk in child_chunks_models:
                 if isinstance(chunk.file_metadata, dict):
                     chunk.file_metadata["file_id"] = file_id
+            ReconstructionService._apply_collection_metadata_to_chunk_models(
+                parent_chunks_models,
+                child_chunks_models,
+                resolved_collection_metadata,
+            )
 
             # 3) Polish child chunks
             print("  → Polishing child chunks...")
@@ -901,8 +1034,8 @@ class ReconstructionService:
         try:
             parent_collection = PARENT_STORE.collection
 
-            def _load_existing_chunks() -> tuple[list[str], list[str], str]:
-                """Returns (parent_ids, chunk_contents_ordered, old_file_name)."""
+            def _load_existing_chunks() -> tuple[list[str], list[str], str, dict[str, Any]]:
+                """Returns (parent_ids, chunk_contents_ordered, old_file_name, first_metadata)."""
                 cursor = parent_collection.find(
                     {
                         "value.metadata.file_metadata.file_id": file_id,
@@ -911,6 +1044,7 @@ class ReconstructionService:
                 )
                 sortable_rows: list[dict[str, Any]] = []
                 old_name = ""
+                first_metadata: dict[str, Any] = {}
                 for row in cursor:
                     if not isinstance(row, dict):
                         continue
@@ -920,6 +1054,8 @@ class ReconstructionService:
                     parent_id = str(fields.get("parentId") or "").strip()
                     if not parent_id:
                         continue
+                    if not first_metadata:
+                        first_metadata = ReconstructionService._extract_parent_metadata_from_row(row)
                     if not old_name:
                         old_name = str(fields.get("fileName") or "")
                     chunk_number = fields.get("chunkNumber")
@@ -931,9 +1067,13 @@ class ReconstructionService:
                 sortable_rows.sort(key=lambda item: (item["chunkNumber"], item["parentId"]))
                 parent_ids = [r["parentId"] for r in sortable_rows]
                 contents = [r["content"] for r in sortable_rows]
-                return parent_ids, contents, old_name
+                return parent_ids, contents, old_name, first_metadata
 
-            parent_ids, contents, old_file_name = await asyncio.to_thread(_load_existing_chunks)
+            parent_ids, contents, old_file_name, first_metadata = await asyncio.to_thread(_load_existing_chunks)
+            resolved_collection_metadata = await CollectionService.resolve_collection_metadata_for_row(
+                user_id=normalized_user_id,
+                metadata=first_metadata,
+            )
 
             if not parent_ids:
                 raise RuntimeError(f"No parent chunks found for file_id={file_id}")
@@ -975,6 +1115,11 @@ class ReconstructionService:
             for chunk in child_chunks_models:
                 if isinstance(chunk.file_metadata, dict):
                     chunk.file_metadata["file_id"] = file_id
+            ReconstructionService._apply_collection_metadata_to_chunk_models(
+                parent_chunks_models,
+                child_chunks_models,
+                resolved_collection_metadata,
+            )
 
             # 4) Polish and persist
             print("  → Polishing child chunks...")
@@ -1003,7 +1148,12 @@ class ReconstructionService:
             raise RuntimeError(f"File rename failed: {str(e)}")
 
     @staticmethod
-    async def create_blank_file(file_name: str, placeholder_content: str, user_id: str) -> dict:
+    async def create_blank_file(
+        file_name: str,
+        placeholder_content: str,
+        user_id: str,
+        collection_metadata: dict[str, str] | None = None,
+    ) -> dict:
         """
         Create a new blank file in the knowledge base.
         Ingests a short placeholder chunk so the file is immediately discoverable
@@ -1030,6 +1180,14 @@ class ReconstructionService:
 
         try:
             normalized_content = normalize_markdown_for_modification(placeholder_content)
+            resolved_collection_metadata = (
+                {
+                    "collection_id": str((collection_metadata or {}).get("collection_id") or "").strip(),
+                    "collection_name": str((collection_metadata or {}).get("collection_name") or "").strip(),
+                }
+                if isinstance(collection_metadata, dict)
+                else {}
+            )
 
             parent_chunks_models, child_chunks_models = split_parent_child_chunks_from_markdown(
                 normalized_content,
@@ -1050,6 +1208,11 @@ class ReconstructionService:
             for chunk in child_chunks_models:
                 if isinstance(chunk.file_metadata, dict):
                     chunk.file_metadata["file_id"] = new_file_id
+            ReconstructionService._apply_collection_metadata_to_chunk_models(
+                parent_chunks_models,
+                child_chunks_models,
+                resolved_collection_metadata,
+            )
 
             child_chunks_dicts = [chunk.model_dump(by_alias=False) for chunk in child_chunks_models]
             polished_child_chunks = polish_chunks(child_chunks_dicts)
@@ -1120,6 +1283,7 @@ class ReconstructionService:
 
             chunk_number = fields.get("chunkNumber")
             content = str(fields.get("content") or "")
+            metadata = ReconstructionService._extract_parent_metadata_from_row(row)
             sortable_rows.append(
                 {
                     "parentId": parent_id,
@@ -1127,6 +1291,7 @@ class ReconstructionService:
                     "content": content,
                     "normalizedContent": normalize_markdown_for_modification(content),
                     "row": row,
+                    "collectionMetadata": ReconstructionService._extract_collection_metadata(metadata),
                 }
             )
 
@@ -1154,6 +1319,47 @@ class ReconstructionService:
         if isinstance(value, (int, float)):
             return int(value)
         return None
+
+    @staticmethod
+    def _extract_parent_metadata_from_row(row: dict[str, Any]) -> dict[str, Any]:
+        if not isinstance(row, dict):
+            return {}
+        value = row.get("value")
+        if not isinstance(value, dict):
+            return {}
+        metadata = value.get("metadata")
+        if not isinstance(metadata, dict):
+            return {}
+        return metadata
+
+    @staticmethod
+    def _apply_collection_metadata_to_chunk_models(
+        parent_chunks_models: list[Any],
+        child_chunks_models: list[Any],
+        collection_metadata: dict[str, str],
+    ) -> None:
+        normalized = {
+            "collection_id": str(collection_metadata.get("collection_id") or "").strip(),
+            "collection_name": str(collection_metadata.get("collection_name") or "").strip(),
+        }
+        if not normalized["collection_id"]:
+            return
+
+        for parent_chunk in parent_chunks_models:
+            if hasattr(parent_chunk, "collection_metadata"):
+                current = getattr(parent_chunk, "collection_metadata", {})
+                if not isinstance(current, dict):
+                    current = {}
+                current.update(normalized)
+                setattr(parent_chunk, "collection_metadata", current)
+
+        for child_chunk in child_chunks_models:
+            if hasattr(child_chunk, "collection_metadata"):
+                current = getattr(child_chunk, "collection_metadata", {})
+                if not isinstance(current, dict):
+                    current = {}
+                current.update(normalized)
+                setattr(child_chunk, "collection_metadata", current)
 
     @staticmethod
     async def _update_parent_chunks_batch_fast(
@@ -1185,6 +1391,13 @@ class ReconstructionService:
 
         # 2) Load current state and validate parent IDs.
         sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name, user_id)
+        first_row_metadata = ReconstructionService._extract_parent_metadata_from_row(
+            sortable_rows[0]["row"]
+        )
+        resolved_collection_metadata = await CollectionService.resolve_collection_metadata_for_row(
+            user_id=user_id,
+            metadata=first_row_metadata,
+        )
         parent_index = {item["parentId"]: index for index, item in enumerate(sortable_rows)}
         unknown_parent_ids = [
             parent_id for parent_id in deduped_updates.keys() if parent_id not in parent_index
@@ -1233,6 +1446,11 @@ class ReconstructionService:
             for child_chunk in replacement_child_models:
                 if isinstance(child_chunk.file_metadata, dict):
                     child_chunk.file_metadata["file_id"] = file_id
+            ReconstructionService._apply_collection_metadata_to_chunk_models(
+                replacement_parent_models,
+                replacement_child_models,
+                resolved_collection_metadata,
+            )
 
             replacements_by_parent[parent_id] = {
                 "parents": replacement_parent_models,
@@ -1362,6 +1580,13 @@ class ReconstructionService:
             raise ValueError("fullContent must not be empty")
 
         sortable_rows = await ReconstructionService._load_sortable_rows_for_file(file_id, file_name, user_id)
+        first_row_metadata = ReconstructionService._extract_parent_metadata_from_row(
+            sortable_rows[0]["row"]
+        )
+        resolved_collection_metadata = await CollectionService.resolve_collection_metadata_for_row(
+            user_id=user_id,
+            metadata=first_row_metadata,
+        )
         existing_parent_ids = {str(item["parentId"]) for item in sortable_rows}
         cleaned_touched_parent_ids = [str(parent_id).strip() for parent_id in touched_parent_ids if str(parent_id).strip()]
         if not cleaned_touched_parent_ids:
@@ -1404,6 +1629,11 @@ class ReconstructionService:
         for child_chunk in new_child_models:
             if isinstance(child_chunk.file_metadata, dict):
                 child_chunk.file_metadata["file_id"] = file_id
+        ReconstructionService._apply_collection_metadata_to_chunk_models(
+            new_parent_models,
+            new_child_models,
+            resolved_collection_metadata,
+        )
 
         child_models_by_parent: dict[str, list[Any]] = {}
         for child_model in new_child_models:

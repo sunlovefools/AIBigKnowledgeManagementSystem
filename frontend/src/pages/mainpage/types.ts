@@ -67,6 +67,15 @@ export type SidebarFileSummary = {
     previewTexts: string;
 };
 
+export type UserCollectionSummary = {
+    collectionId: string;
+    name: string;
+    isDefault: boolean;
+    fileCount: number;
+    createdAt: string;
+    updatedAt: string;
+};
+
 // Text selection captured from the active file view.
 export type HighlightedSelection = {
     fileId: string;

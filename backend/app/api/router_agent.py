@@ -16,6 +16,11 @@ from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 from app.core.dependencies import get_current_user
+from app.service.collection.collection_service import (
+    CollectionNotFoundError,
+    CollectionService,
+    CollectionServiceError,
+)
 
 try:
     from backend.debug.debug_logger import log_token_usage
@@ -43,6 +48,7 @@ class AgenticModificationRequest(BaseModel):
 
     user_instructions: str
     fileIds: Optional[list[str]] = None
+    collectionId: Optional[str] = None
 
 
 class AgenticModificationResponse(BaseModel):
@@ -258,7 +264,35 @@ async def _run_agentic_pipeline(
     import aiohttp
 
     run_id = uuid4().hex
-    file_ids = request.fileIds if request.fileIds else None
+    try:
+        active_collection = await CollectionService.resolve_active_collection(
+            user_id=user_id,
+            requested_collection_id=request.collectionId,
+        )
+        scoped_file_ids = set(
+            await CollectionService.list_file_ids_for_collection(
+                user_id=user_id,
+                collection_id=str(active_collection.get("collection_id") or ""),
+            )
+        )
+    except CollectionNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except CollectionServiceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Collection service error: {str(e)}",
+        )
+
+    requested_file_ids = {
+        str(file_id or "").strip()
+        for file_id in (request.fileIds or [])
+        if str(file_id or "").strip()
+    }
+    if requested_file_ids:
+        final_file_ids = sorted(scoped_file_ids.intersection(requested_file_ids))
+    else:
+        final_file_ids = sorted(scoped_file_ids)
+    file_ids = final_file_ids if final_file_ids else ["__empty_scope__"]
     initial_state = {
         "user_instructions": request.user_instructions.strip(),
         "user_id": user_id,
@@ -332,6 +366,31 @@ async def _run_agentic_pipeline(
             )
         )
     return response
+
+
+@router.post("/modify", response_model=AgenticModificationResponse)
+@router.post("/v2/modify", response_model=AgenticModificationResponse)
+async def agentic_modify(
+    request: AgenticModificationRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    user_id = str(current_user.get("sub") or "").strip() if isinstance(current_user, dict) else ""
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required.",
+        )
+
+    try:
+        return await _run_agentic_pipeline(request, user_id=user_id)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Agentic Modification pipeline failed: {str(exc)}",
+        )
+
 
 # -- Main entry point for the agentic modification pipeline, with SSE streaming of progress updates and final result --
 @router.post("/modify-stream")

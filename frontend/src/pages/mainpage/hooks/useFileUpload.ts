@@ -10,10 +10,11 @@ const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
 type UseFileUploadParams = {
     onUploadMessage: (message: string) => void;
     onUploadSuccess?: () => Promise<void> | void;
+    collectionId?: string | null;
 };
 
 // Custom hook to manage file upload state and interactions
-export function useFileUpload({ onUploadMessage, onUploadSuccess }: UseFileUploadParams) {
+export function useFileUpload({ onUploadMessage, onUploadSuccess, collectionId }: UseFileUploadParams) {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [fileContent, setFileContent] = useState("");
     const [isUploading, setIsUploading] = useState(false);
@@ -64,6 +65,7 @@ export function useFileUpload({ onUploadMessage, onUploadSuccess }: UseFileUploa
                 fileName: selectedFile.name,
                 contentType: resolveUploadContentType(selectedFile),
                 data: fileContent,
+                ...(collectionId ? { collectionId } : {}),
             });
 
             onUploadMessage(`"${selectedFile.name}" has been added to the knowledge base.`);
@@ -81,6 +83,7 @@ export function useFileUpload({ onUploadMessage, onUploadSuccess }: UseFileUploa
         isUploading,
         onUploadMessage,
         onUploadSuccess,
+        collectionId,
         selectedFile,
     ]);
 

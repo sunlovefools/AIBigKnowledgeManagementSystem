@@ -14,6 +14,7 @@ import app.api.router_conversations as conversations_router
 import app.api.router_modifications as modifications_router
 import app.api.router_retrieve as retrieve_router
 import app.api.router_agent as agent_router
+import app.api.router_collections as collections_router
 import app.api.router_auth as auth_router  # ADDED: uncommented now that auth is implemented
 
 
@@ -79,6 +80,13 @@ app.include_router(
     agent_router.router,
     prefix="/api/agent",
     tags=["Agent"]
+)
+
+# Collections router
+app.include_router(
+    collections_router.router,
+    prefix="/api/collections",
+    tags=["Collections"],
 )
 
 # --- Data Models ---

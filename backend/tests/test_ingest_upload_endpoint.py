@@ -28,6 +28,24 @@ from app.service.rag.ingestion.docling import (
 )
 
 
+@pytest.fixture(autouse=True)
+def _patch_collection_service(monkeypatch):
+    async def _resolve_active_collection(*, user_id: str, requested_collection_id: str | None = None):
+        _ = user_id, requested_collection_id
+        return {"collection_id": "collection-default", "name": "Default"}
+
+    async def _reconcile_all_collection_file_counts(user_id: str):
+        _ = user_id
+        return None
+
+    monkeypatch.setattr(router_ingest.CollectionService, "resolve_active_collection", _resolve_active_collection)
+    monkeypatch.setattr(
+        router_ingest.CollectionService,
+        "reconcile_all_collection_file_counts",
+        _reconcile_all_collection_file_counts,
+    )
+
+
 def _b64(data: bytes) -> str:
     return base64.b64encode(data).decode("utf-8")
 
@@ -62,7 +80,7 @@ def test_upload_rejects_invalid_base64():
         data="not-base64",
     )
     with pytest.raises(HTTPException) as exc:
-        asyncio.run(router_ingest.ingest_upload(file_upload))
+        asyncio.run(router_ingest.ingest_upload(file_upload, current_user={"sub": "user-1"}))
     assert exc.value.status_code == 400
 
 
@@ -90,7 +108,7 @@ def test_upload_uses_legacy_extractor_by_default(monkeypatch):
         contentType="application/pdf",
         data=_b64(b"%PDF-1.4 fake"),
     )
-    response = asyncio.run(router_ingest.ingest_upload(file_upload))
+    response = asyncio.run(router_ingest.ingest_upload(file_upload, current_user={"sub": "user-1"}))
     assert response.status == "ok"
     assert response.strategy == "legacy"
     assert captured["text"] == "legacy-text"
@@ -133,7 +151,7 @@ def test_upload_uses_docling_when_enabled(monkeypatch):
         contentType="application/pdf",
         data=_b64(b"%PDF-1.4 fake"),
     )
-    response = asyncio.run(router_ingest.ingest_upload(file_upload))
+    response = asyncio.run(router_ingest.ingest_upload(file_upload, current_user={"sub": "user-1"}))
     assert response.status == "ok"
     assert response.strategy == "docling-pdf"
     assert response.warnings[0] == "warning-1"
@@ -187,7 +205,7 @@ def test_upload_non_pdf_stays_legacy_even_when_docling_enabled(monkeypatch):
         contentType="text/plain",
         data=_b64(b"hello"),
     )
-    response = asyncio.run(router_ingest.ingest_upload(file_upload))
+    response = asyncio.run(router_ingest.ingest_upload(file_upload, current_user={"sub": "user-1"}))
     assert response.status == "ok"
     assert response.strategy == "legacy"
     assert captured["text"] == "plain-text"
@@ -208,5 +226,5 @@ def test_upload_rejects_docling_when_no_structured_blocks(monkeypatch):
     )
 
     with pytest.raises(HTTPException) as exc:
-        asyncio.run(router_ingest.ingest_upload(file_upload))
+        asyncio.run(router_ingest.ingest_upload(file_upload, current_user={"sub": "user-1"}))
     assert exc.value.status_code == 422

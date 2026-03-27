@@ -5,6 +5,7 @@ legacy chunker module path.
 """
 
 from pydantic import BaseModel
+from pydantic import Field
 
 
 class ParentChunkModel(BaseModel):
@@ -13,6 +14,7 @@ class ParentChunkModel(BaseModel):
     parent_chunk_id: str
     content: str
     file_metadata: dict
+    collection_metadata: dict = Field(default_factory=dict)
     parent_chunk_metadata: dict
     content_flags: dict
     artifact_refs: dict
@@ -24,6 +26,7 @@ class ChildChunkModel(BaseModel):
     child_chunk_id: str
     content: str
     file_metadata: dict
+    collection_metadata: dict = Field(default_factory=dict)
     child_chunk_metadata: dict
     content_flags: dict
     artifact_refs: dict

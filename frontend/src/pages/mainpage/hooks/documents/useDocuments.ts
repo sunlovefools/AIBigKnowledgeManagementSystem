@@ -1,8 +1,21 @@
 // The main orchestrator hook used by components
 // Contain of all the facade hooks related to document file management, editing, and agent interactions.
 
-import { useCallback, useRef, useState } from "react";
-import { deleteKnowledgeFile, createBlankFile, renameKnowledgeFile, getAxiosErrorDetail, type DeleteFileResponse, type RenameFileResponse } from "./api/documentsApi";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { UserCollectionSummary } from "../../types";
+import {
+    createBlankFile,
+    createCollection,
+    deleteCollection,
+    deleteKnowledgeFile,
+    getAxiosErrorDetail,
+    getCollections,
+    renameCollection,
+    renameKnowledgeFile,
+    type DeleteCollectionResponse,
+    type DeleteFileResponse,
+    type RenameFileResponse,
+} from "./api/documentsApi";
 import { removeFileFromState, closeTabState, openTabState, swapTempFileId, patchFileName } from "./state/transitions";
 import { useDocumentAgent } from "./subhooks/useDocumentAgent";
 import { useDocumentEditing } from "./subhooks/useDocumentEditing";
@@ -28,9 +41,64 @@ type RenameFileResult = {
     error?: string;
 };
 
+type CreateCollectionResult = {
+    ok: boolean;
+    collectionId?: string;
+    error?: string;
+};
+
+type RenameCollectionResult = {
+    ok: boolean;
+    error?: string;
+};
+
+type DeleteCollectionResult = {
+    ok: boolean;
+    data?: DeleteCollectionResponse;
+    warningText?: string;
+    error?: string;
+};
+
 // Deal with file and chunk state
 export function useDocuments() {
-    const fileDomain = useDocumentFiles();
+    const [collections, setCollections] = useState<UserCollectionSummary[]>([]);
+    const [isLoadingCollections, setIsLoadingCollections] = useState(false);
+    const [collectionError, setCollectionError] = useState<string | null>(null);
+    const [activeCollectionId, setActiveCollectionId] = useState<string | null>(null);
+
+    const fetchCollections = useCallback(async (preferredCollectionId?: string | null) => {
+        setIsLoadingCollections(true);
+        setCollectionError(null);
+        try {
+            const incoming = await getCollections();
+            setCollections(incoming);
+            setActiveCollectionId((previousId) => {
+                const preferred = preferredCollectionId ?? previousId;
+                if (preferred && incoming.some((entry) => entry.collectionId === preferred)) {
+                    return preferred;
+                }
+                const defaultCollection = incoming.find((entry) => entry.isDefault);
+                return defaultCollection?.collectionId ?? incoming[0]?.collectionId ?? null;
+            });
+        } catch {
+            setCollections([]);
+            setCollectionError("Failed to load collections.");
+            setActiveCollectionId(null);
+        } finally {
+            setIsLoadingCollections(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        void fetchCollections();
+    }, [fetchCollections]);
+
+    const activeCollection = useMemo(
+        () => collections.find((entry) => entry.collectionId === activeCollectionId) ?? null,
+        [collections, activeCollectionId]
+    );
+
+    const fileDomain = useDocumentFiles(activeCollectionId);
     const { getContentStateById, loadFileChunks } = fileDomain;
 
     // function to get the full content of a document by file ID
@@ -71,6 +139,7 @@ export function useDocuments() {
     });
 
     const agentDomain = useDocumentAgent({
+        activeCollectionId,
         editingFileId: editingDomain.editingFileId,
         editingDraftByFileId: editingDomain.editingDraftByFileId,
         setEditingFileId: editingDomain.setEditingFileId,
@@ -204,6 +273,10 @@ export function useDocuments() {
     // Used to block save until the real ID is available.
     const [pendingCreationFileIds, setPendingCreationFileIds] = useState<Set<string>>(new Set());
 
+    useEffect(() => {
+        setPendingCreationFileIds(new Set());
+    }, [activeCollectionId]);
+
     const createNewBlankFile = useCallback(
         async (fileName: string): Promise<CreateFileResult> => {
             if (!fileName.trim()) return { ok: false, error: "File name must not be empty." };
@@ -243,7 +316,7 @@ export function useDocuments() {
 
             // ── Step 2: Fire the DB write in the background ────────────────────────
             // We do NOT await — the editor opens instantly while this runs.
-            createBlankFile(fileName.trim()).then((result) => {
+            createBlankFile(fileName.trim(), activeCollectionId).then((result) => {
                 // ── Step 3 (success): swap temp ID → real ID across all state ──────
                 fileDomain.setFilesState((prev) =>
                     swapTempFileId(prev, tempId, result.fileId, result.parentId)
@@ -301,7 +374,7 @@ export function useDocuments() {
             // Return immediately with the temp ID so the caller can open the editor
             return { ok: true, fileId: tempId, initialContent: placeholderContent };
         },
-        [editingDomain, fileDomain]
+        [activeCollectionId, editingDomain, fileDomain]
     );
 
     // Wraps saveEditingActiveDocument so that if the user somehow saves before the
@@ -354,7 +427,68 @@ export function useDocuments() {
         [fileDomain]
     );
 
+    const createNewCollection = useCallback(
+        async (name: string): Promise<CreateCollectionResult> => {
+            const trimmed = name.trim();
+            if (!trimmed) return { ok: false, error: "Collection name must not be empty." };
+            try {
+                const created = await createCollection(trimmed);
+                await fetchCollections(created.collectionId);
+                return { ok: true, collectionId: created.collectionId };
+            } catch (error) {
+                const detail = getAxiosErrorDetail(error);
+                return { ok: false, error: detail ?? "Failed to create collection." };
+            }
+        },
+        [fetchCollections]
+    );
+
+    const renameExistingCollection = useCallback(
+        async (collectionId: string, newName: string): Promise<RenameCollectionResult> => {
+            const trimmed = newName.trim();
+            if (!collectionId) return { ok: false, error: "Missing collection ID." };
+            if (!trimmed) return { ok: false, error: "Collection name must not be empty." };
+            try {
+                await renameCollection(collectionId, trimmed);
+                await fetchCollections(collectionId);
+                return { ok: true };
+            } catch (error) {
+                const detail = getAxiosErrorDetail(error);
+                return { ok: false, error: detail ?? "Failed to rename collection." };
+            }
+        },
+        [fetchCollections]
+    );
+
+    const deleteExistingCollection = useCallback(
+        async (collectionId: string): Promise<DeleteCollectionResult> => {
+            if (!collectionId) return { ok: false, error: "Missing collection ID." };
+            try {
+                const deleted = await deleteCollection(collectionId);
+                await fetchCollections();
+                const warningText = deleted.warnings.length > 0
+                    ? ` Warnings: ${deleted.warnings.join(" ")}`
+                    : "";
+                return { ok: true, data: deleted, warningText };
+            } catch (error) {
+                const detail = getAxiosErrorDetail(error);
+                return { ok: false, error: detail ?? "Failed to delete collection." };
+            }
+        },
+        [fetchCollections]
+    );
+
     return {
+        collections,
+        isLoadingCollections,
+        collectionError,
+        activeCollectionId,
+        activeCollection,
+        setActiveCollectionId,
+        refreshCollections: fetchCollections,
+        createNewCollection,
+        renameExistingCollection,
+        deleteExistingCollection,
         files: fileDomain.files,
         filesState: fileDomain.filesState,
         chunkAsyncByFileId: fileDomain.chunkAsyncByFileId,

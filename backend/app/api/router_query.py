@@ -10,6 +10,11 @@ from app.core.db_dependencies import (
     get_conversations_collection,
 )
 from app.core.dependencies import get_current_user
+from app.service.collection.collection_service import (
+    CollectionNotFoundError,
+    CollectionService,
+    CollectionServiceError,
+)
 from app.service.rag.retrieval.answer_generator import generate_answer
 from app.service.rag.retrieval.query_refiner import refine_query
 from app.vectordb.vectordb import search_and_retrieve_context
@@ -331,6 +336,7 @@ class QueryRequest(BaseModel):
     query: str
     top_k: int = 20
     conversation_id: str | None = None
+    collectionId: str | None = None
 
 
 class QueryResponse(BaseModel):
@@ -357,6 +363,19 @@ async def query_documents(
 
     user_email = _normalized_email(str(current_user.get("email") or ""))
     conversation_id = request.conversation_id or str(uuid4())
+    try:
+        active_collection = await CollectionService.resolve_active_collection(
+            user_id=user_id,
+            requested_collection_id=request.collectionId,
+        )
+        scoped_file_ids = await CollectionService.list_file_ids_for_collection(
+            user_id=user_id,
+            collection_id=str(active_collection.get("collection_id") or ""),
+        )
+    except CollectionNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except CollectionServiceError as e:
+        raise HTTPException(status_code=503, detail=str(e))
 
     # A full query turn usually persists both a user message and an AI message.
     # Reject early when there is not enough capacity left in an existing thread.
@@ -401,6 +420,7 @@ async def query_documents(
             query=request.query,
             top_k=request.top_k,
             user_id=user_id,
+            included_file_ids=scoped_file_ids,
         )
 
         if not rag_docs:

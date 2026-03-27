@@ -5,6 +5,8 @@ import sys
 import types
 from pathlib import Path
 
+import pytest
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 stub_vectordb = types.ModuleType("app.vectordb.vectordb")
@@ -18,6 +20,24 @@ stub_vectordb.upsert_documents = _unused_upsert_documents
 sys.modules["app.vectordb.vectordb"] = stub_vectordb
 
 router_ingest = importlib.import_module("app.api.router_ingest")
+
+
+@pytest.fixture(autouse=True)
+def _patch_collection_service(monkeypatch):
+    async def _resolve_active_collection(*, user_id: str, requested_collection_id: str | None = None):
+        _ = user_id, requested_collection_id
+        return {"collection_id": "collection-default", "name": "Default"}
+
+    async def _reconcile_all_collection_file_counts(user_id: str):
+        _ = user_id
+        return None
+
+    monkeypatch.setattr(router_ingest.CollectionService, "resolve_active_collection", _resolve_active_collection)
+    monkeypatch.setattr(
+        router_ingest.CollectionService,
+        "reconcile_all_collection_file_counts",
+        _reconcile_all_collection_file_counts,
+    )
 
 
 def _b64(data: bytes) -> str:
@@ -75,7 +95,7 @@ def test_ingest_upload_canonicalizes_legacy_chunks_before_upsert(monkeypatch):
         data=_b64(b"# raw markdown"),
     )
 
-    response = asyncio.run(router_ingest.ingest_upload(file_upload))
+    response = asyncio.run(router_ingest.ingest_upload(file_upload, current_user={"sub": "user-1"}))
 
     assert response.status == "ok"
     parent_chunks = captured["parent_chunks"]
@@ -141,7 +161,7 @@ def test_ingest_upload_canonicalizes_docling_chunks_before_upsert(monkeypatch):
         data=_b64(b"%PDF-1.4 fake"),
     )
 
-    response = asyncio.run(router_ingest.ingest_upload(file_upload))
+    response = asyncio.run(router_ingest.ingest_upload(file_upload, current_user={"sub": "user-1"}))
 
     assert response.status == "ok"
     parent_chunks = captured["parent_chunks"]

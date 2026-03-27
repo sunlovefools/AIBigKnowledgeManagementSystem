@@ -1,5 +1,5 @@
 import { useRef, useState, useEffect, type ChangeEventHandler, type KeyboardEvent } from "react";
-import type { SidebarFileSummary } from "../types";
+import type { SidebarFileSummary, UserCollectionSummary } from "../types";
 import { FILE_INPUT_ACCEPT } from "../utils/uploadFormats";
 
 // ── Client-side file-name validation ──────────────────────────────────────────
@@ -11,6 +11,7 @@ const RESERVED_NAMES = new Set([
     "LPT1","LPT2","LPT3","LPT4","LPT5","LPT6","LPT7","LPT8","LPT9",
 ]);
 const MAX_NAME_LENGTH = 200;
+const MAX_COLLECTION_NAME_LENGTH = 120;
 
 // Extensions that imply a binary format.
 // New blank files are always plain text — these extensions would be misleading.
@@ -86,7 +87,34 @@ function validateFileName(
     return null;
 }
 
+function validateCollectionName(
+    name: string,
+    existingCollections: UserCollectionSummary[],
+    excludeCollectionId?: string
+): string | null {
+    const trimmed = name.trim();
+    if (!trimmed) return "Collection name must not be empty.";
+    if (trimmed.length > MAX_COLLECTION_NAME_LENGTH) {
+        return `Collection name must not exceed ${MAX_COLLECTION_NAME_LENGTH} characters.`;
+    }
+
+    const duplicate = existingCollections.find(
+        (collection) =>
+            collection.name.trim().toLowerCase() === trimmed.toLowerCase() &&
+            collection.collectionId !== excludeCollectionId
+    );
+    if (duplicate) {
+        return `A collection named "${duplicate.name}" already exists.`;
+    }
+
+    return null;
+}
+
 type SidebarProps = {
+    collections: UserCollectionSummary[];
+    activeCollectionId: string | null;
+    isLoadingCollections: boolean;
+    collectionError: string | null;
     selectedFile: File | null;
     isUploading: boolean;
     files: SidebarFileSummary[];
@@ -106,11 +134,20 @@ type SidebarProps = {
     // New file / rename
     onCreateBlankFile: (fileName: string) => Promise<{ ok: boolean; fileId?: string; error?: string }>;
     onRenameFile: (fileId: string, newName: string) => Promise<{ ok: boolean; error?: string }>;
+    // Collection CRUD
+    onSelectCollection: (collectionId: string) => void;
+    onCreateCollection: (name: string) => Promise<{ ok: boolean; collectionId?: string; error?: string }>;
+    onRenameCollection: (collectionId: string, newName: string) => Promise<{ ok: boolean; error?: string }>;
+    onDeleteCollection: (collectionId: string) => Promise<{ ok: boolean; warningText?: string; error?: string }>;
     // Optimistic creation: IDs still being committed to the DB
     pendingCreationFileIds: Set<string>;
 };
 
 export default function Sidebar({
+    collections,
+    activeCollectionId,
+    isLoadingCollections,
+    collectionError,
     selectedFile,
     isUploading,
     files,
@@ -127,9 +164,26 @@ export default function Sidebar({
     onRefreshFiles,
     onCreateBlankFile,
     onRenameFile,
+    onSelectCollection,
+    onCreateCollection,
+    onRenameCollection,
+    onDeleteCollection,
     pendingCreationFileIds,
 }: SidebarProps) {
     const fileRef = useRef<HTMLInputElement | null>(null);
+    const activeCollection = collections.find((collection) => collection.collectionId === activeCollectionId) ?? null;
+
+    const [isCreatingCollection, setIsCreatingCollection] = useState(false);
+    const [newCollectionName, setNewCollectionName] = useState("");
+    const [isSubmittingCollectionCreate, setIsSubmittingCollectionCreate] = useState(false);
+    const [isRenamingCollection, setIsRenamingCollection] = useState(false);
+    const [collectionRenameValue, setCollectionRenameValue] = useState("");
+    const [isSubmittingCollectionRename, setIsSubmittingCollectionRename] = useState(false);
+    const [isDeletingCollection, setIsDeletingCollection] = useState(false);
+    const [collectionActionError, setCollectionActionError] = useState<string | null>(null);
+    const [collectionActionInfo, setCollectionActionInfo] = useState<string | null>(null);
+    const collectionCreateInputRef = useRef<HTMLInputElement | null>(null);
+    const collectionRenameInputRef = useRef<HTMLInputElement | null>(null);
 
     // ── New-file creation state ──────────────────────────────────────
     const [isCreatingFile, setIsCreatingFile] = useState(false);
@@ -158,12 +212,143 @@ export default function Sidebar({
         }
     }, [renamingFileId]);
 
+    useEffect(() => {
+        if (isCreatingCollection) {
+            setTimeout(() => collectionCreateInputRef.current?.focus(), 0);
+        }
+    }, [isCreatingCollection]);
+
+    useEffect(() => {
+        if (isRenamingCollection) {
+            setTimeout(() => collectionRenameInputRef.current?.focus(), 0);
+        }
+    }, [isRenamingCollection]);
+
+    useEffect(() => {
+        setIsRenamingCollection(false);
+        setCollectionRenameValue("");
+        setCollectionActionError(null);
+        setCollectionActionInfo(null);
+    }, [activeCollectionId]);
+
     // ── Upload helpers ───────────────────────────────────────────────
     const handleFileSelectClick = () => fileRef.current?.click();
 
     const handleClear = () => {
         onClearFile();
         if (fileRef.current) fileRef.current.value = "";
+    };
+
+    const openCreateCollectionForm = () => {
+        setIsCreatingCollection(true);
+        setNewCollectionName("");
+        setCollectionActionError(null);
+        setCollectionActionInfo(null);
+    };
+
+    const cancelCreateCollection = () => {
+        setIsCreatingCollection(false);
+        setNewCollectionName("");
+        setCollectionActionError(null);
+    };
+
+    const submitCreateCollection = async () => {
+        const validationError = validateCollectionName(newCollectionName, collections);
+        if (validationError) {
+            setCollectionActionError(validationError);
+            collectionCreateInputRef.current?.focus();
+            return;
+        }
+
+        setIsSubmittingCollectionCreate(true);
+        setCollectionActionError(null);
+        setCollectionActionInfo(null);
+        const result = await onCreateCollection(newCollectionName.trim());
+        setIsSubmittingCollectionCreate(false);
+
+        if (!result.ok || !result.collectionId) {
+            setCollectionActionError(result.error ?? "Failed to create collection.");
+            collectionCreateInputRef.current?.focus();
+            return;
+        }
+
+        setIsCreatingCollection(false);
+        setNewCollectionName("");
+        onSelectCollection(result.collectionId);
+        setCollectionActionInfo("Collection created.");
+    };
+
+    const startRenameCollection = () => {
+        if (!activeCollection) return;
+        setIsRenamingCollection(true);
+        setCollectionRenameValue(activeCollection.name);
+        setCollectionActionError(null);
+        setCollectionActionInfo(null);
+    };
+
+    const cancelRenameCollection = () => {
+        setIsRenamingCollection(false);
+        setCollectionRenameValue("");
+        setCollectionActionError(null);
+    };
+
+    const submitRenameCollection = async () => {
+        if (!activeCollection) return;
+        const validationError = validateCollectionName(
+            collectionRenameValue,
+            collections,
+            activeCollection.collectionId
+        );
+        if (validationError) {
+            setCollectionActionError(validationError);
+            collectionRenameInputRef.current?.focus();
+            return;
+        }
+
+        const trimmed = collectionRenameValue.trim();
+        if (trimmed === activeCollection.name) {
+            cancelRenameCollection();
+            return;
+        }
+
+        setIsSubmittingCollectionRename(true);
+        setCollectionActionError(null);
+        setCollectionActionInfo(null);
+        const result = await onRenameCollection(activeCollection.collectionId, trimmed);
+        setIsSubmittingCollectionRename(false);
+
+        if (!result.ok) {
+            setCollectionActionError(result.error ?? "Failed to rename collection.");
+            collectionRenameInputRef.current?.focus();
+            return;
+        }
+
+        setIsRenamingCollection(false);
+        setCollectionRenameValue("");
+        setCollectionActionInfo("Collection renamed.");
+    };
+
+    const handleDeleteCollection = async () => {
+        if (!activeCollection || activeCollection.isDefault || isDeletingCollection) return;
+
+        const confirmed = window.confirm(
+            `Delete collection "${activeCollection.name}"?\n\n` +
+            "This will permanently delete all files and indexed chunks in this collection."
+        );
+        if (!confirmed) return;
+
+        setIsDeletingCollection(true);
+        setCollectionActionError(null);
+        setCollectionActionInfo(null);
+        const result = await onDeleteCollection(activeCollection.collectionId);
+        setIsDeletingCollection(false);
+
+        if (!result.ok) {
+            setCollectionActionError(result.error ?? "Failed to delete collection.");
+            return;
+        }
+
+        setCollectionActionInfo(`Collection deleted.${result.warningText ?? ""}`.trim());
     };
 
     // ── New-file handlers ────────────────────────────────────────────
@@ -209,6 +394,24 @@ export default function Sidebar({
             void submitCreate();
         } else if (e.key === "Escape") {
             cancelCreate();
+        }
+    };
+
+    const handleCreateCollectionKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            void submitCreateCollection();
+        } else if (e.key === "Escape") {
+            cancelCreateCollection();
+        }
+    };
+
+    const handleRenameCollectionKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter") {
+            e.preventDefault();
+            void submitRenameCollection();
+        } else if (e.key === "Escape") {
+            cancelRenameCollection();
         }
     };
 
@@ -270,6 +473,139 @@ export default function Sidebar({
             </p>
 
             <div className="sources-section">
+                <div className="collection-section">
+                    <div className="section-title">Collection</div>
+                    {isLoadingCollections ? (
+                        <div className="sidebar-documents-status">Loading collections...</div>
+                    ) : collectionError ? (
+                        <div className="sidebar-documents-status error">{collectionError}</div>
+                    ) : collections.length === 0 ? (
+                        <div className="sidebar-documents-status">No collections available.</div>
+                    ) : (
+                        <>
+                            <div className="collection-controls-row">
+                                <select
+                                    className="collection-select"
+                                    value={activeCollectionId ?? ""}
+                                    onChange={(event) => onSelectCollection(event.target.value)}
+                                    aria-label="Select collection"
+                                >
+                                    {collections.map((collection) => (
+                                        <option key={collection.collectionId} value={collection.collectionId}>
+                                            {collection.name}
+                                        </option>
+                                    ))}
+                                </select>
+                                <button
+                                    className="collection-action-btn"
+                                    type="button"
+                                    onClick={openCreateCollectionForm}
+                                    disabled={isCreatingCollection || isSubmittingCollectionCreate}
+                                >
+                                    + New
+                                </button>
+                                <button
+                                    className="collection-action-btn"
+                                    type="button"
+                                    onClick={startRenameCollection}
+                                    disabled={!activeCollection || isRenamingCollection || isSubmittingCollectionRename}
+                                >
+                                    Rename
+                                </button>
+                                <button
+                                    className="collection-action-btn danger"
+                                    type="button"
+                                    onClick={() => { void handleDeleteCollection(); }}
+                                    disabled={!activeCollection || activeCollection.isDefault || isDeletingCollection}
+                                    title={activeCollection?.isDefault ? "Default collection cannot be deleted" : "Delete collection and all files in it"}
+                                >
+                                    {isDeletingCollection ? "Deleting..." : "Delete"}
+                                </button>
+                            </div>
+
+                            {activeCollection && (
+                                <div className="collection-meta">
+                                    {activeCollection.isDefault ? "Default" : "Custom"} collection - {activeCollection.fileCount} file(s)
+                                </div>
+                            )}
+                        </>
+                    )}
+
+                    {isCreatingCollection && (
+                        <div className="sidebar-create-file-form">
+                            <input
+                                ref={collectionCreateInputRef}
+                                className="sidebar-rename-input"
+                                type="text"
+                                value={newCollectionName}
+                                onChange={(event) => setNewCollectionName(event.target.value)}
+                                onKeyDown={handleCreateCollectionKeyDown}
+                                placeholder="New collection name"
+                                disabled={isSubmittingCollectionCreate}
+                                maxLength={MAX_COLLECTION_NAME_LENGTH}
+                            />
+                            <div className="sidebar-rename-actions">
+                                <button
+                                    className="sidebar-rename-confirm-btn"
+                                    type="button"
+                                    onClick={() => { void submitCreateCollection(); }}
+                                    disabled={isSubmittingCollectionCreate}
+                                >
+                                    {isSubmittingCollectionCreate ? "Creating..." : "Create"}
+                                </button>
+                                <button
+                                    className="sidebar-rename-cancel-btn"
+                                    type="button"
+                                    onClick={cancelCreateCollection}
+                                    disabled={isSubmittingCollectionCreate}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {isRenamingCollection && activeCollection && (
+                        <div className="sidebar-create-file-form">
+                            <input
+                                ref={collectionRenameInputRef}
+                                className="sidebar-rename-input"
+                                type="text"
+                                value={collectionRenameValue}
+                                onChange={(event) => setCollectionRenameValue(event.target.value)}
+                                onKeyDown={handleRenameCollectionKeyDown}
+                                disabled={isSubmittingCollectionRename}
+                                maxLength={MAX_COLLECTION_NAME_LENGTH}
+                            />
+                            <div className="sidebar-rename-actions">
+                                <button
+                                    className="sidebar-rename-confirm-btn"
+                                    type="button"
+                                    onClick={() => { void submitRenameCollection(); }}
+                                    disabled={isSubmittingCollectionRename}
+                                >
+                                    {isSubmittingCollectionRename ? "Saving..." : "Save"}
+                                </button>
+                                <button
+                                    className="sidebar-rename-cancel-btn"
+                                    type="button"
+                                    onClick={cancelRenameCollection}
+                                    disabled={isSubmittingCollectionRename}
+                                >
+                                    Cancel
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {collectionActionError && (
+                        <div className="sidebar-rename-error">{collectionActionError}</div>
+                    )}
+                    {collectionActionInfo && (
+                        <div className="sidebar-collection-info">{collectionActionInfo}</div>
+                    )}
+                </div>
+
                 <div className="section-title">Upload</div>
 
                 <input

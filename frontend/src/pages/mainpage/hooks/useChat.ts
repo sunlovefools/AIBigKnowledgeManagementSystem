@@ -26,6 +26,10 @@ type ConversationApiMessage = {
     userEmail?: string;
 };
 
+type HandleQueryOptions = {
+    collectionId?: string | null;
+};
+
 function getApiErrorDetail(error: unknown): string | null {
     if (!error || typeof error !== "object") return null;
     const maybeResponse = (error as { response?: { data?: { detail?: unknown } } }).response;
@@ -308,7 +312,7 @@ export function useChat() {
         []
     );
 
-    const handleQuery = useCallback(async () => {
+    const handleQuery = useCallback(async (options?: HandleQueryOptions) => {
         const textInput = input.trim();
         if (!textInput || isQuerying) {
             return;
@@ -326,6 +330,7 @@ export function useChat() {
                 query: textInput,
                 conversation_id: conversationId,
                 user_email: userEmail,
+                collectionId: options?.collectionId ?? null,
             });
 
             if (typeof response.data?.conversation_id === "string") {

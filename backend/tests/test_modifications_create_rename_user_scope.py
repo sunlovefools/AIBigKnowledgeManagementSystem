@@ -97,10 +97,17 @@ def _make_child_model(*, child_id: str, parent_id: str, content: str, file_id: s
 def test_create_blank_file_endpoint_passes_authenticated_user_id(monkeypatch):
     captured: dict[str, str] = {}
 
-    async def _create_blank_file(*, file_name: str, placeholder_content: str, user_id: str) -> dict:
+    async def _create_blank_file(
+        *,
+        file_name: str,
+        placeholder_content: str,
+        user_id: str,
+        collection_metadata: dict | None = None,
+    ) -> dict:
         captured["file_name"] = file_name
         captured["placeholder_content"] = placeholder_content
         captured["user_id"] = user_id
+        captured["collection_metadata"] = collection_metadata
         return {
             "fileId": "file-1",
             "fileName": file_name,
@@ -110,7 +117,21 @@ def test_create_blank_file_endpoint_passes_authenticated_user_id(monkeypatch):
             "chunks": 1,
         }
 
+    async def _resolve_active_collection(*, user_id: str, requested_collection_id: str | None = None) -> dict:
+        _ = requested_collection_id
+        return {"collection_id": "collection-default", "name": "Default", "user_id": user_id}
+
+    async def _reconcile_all_collection_file_counts(user_id: str) -> None:
+        _ = user_id
+        return None
+
     monkeypatch.setattr(router_modifications.ReconstructionService, "create_blank_file", _create_blank_file)
+    monkeypatch.setattr(router_modifications.CollectionService, "resolve_active_collection", _resolve_active_collection)
+    monkeypatch.setattr(
+        router_modifications.CollectionService,
+        "reconcile_all_collection_file_counts",
+        _reconcile_all_collection_file_counts,
+    )
 
     payload = router_modifications.CreateBlankFileRequest(fileName="Test")
     response = asyncio.run(
@@ -119,6 +140,7 @@ def test_create_blank_file_endpoint_passes_authenticated_user_id(monkeypatch):
 
     assert captured["file_name"] == "Test"
     assert captured["user_id"] == "user-123"
+    assert captured["collection_metadata"]["collection_id"] == "collection-default"
     assert "# Test" in captured["placeholder_content"]
     assert response.fileId == "file-1"
     assert response.fileName == "Test"

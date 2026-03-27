@@ -191,6 +191,11 @@ async def upsert_documents(
                 "user_id": normalized_user_id,  # ADDED: tag child chunk with owner â€” this is what the search filter matches against
                 "file_metadata": child_chunk_dict["file_metadata"],
                 "child_chunk_metadata": child_chunk_dict["child_chunk_metadata"],
+                "collection_metadata": (
+                    child_chunk_dict.get("collection_metadata")
+                    if isinstance(child_chunk_dict.get("collection_metadata"), dict)
+                    else {}
+                ),
                 "content_flags": content_flags,
                 "artifact_refs": artifact_refs,
             },
@@ -664,7 +669,8 @@ async def lexical_search_child_chunks(
 async def search_and_retrieve_context(
     query: str,
     top_k: int,
-    user_id: str  # ADDED: scopes vector search to current user's documents only
+    user_id: str,  # ADDED: scopes vector search to current user's documents only
+    included_file_ids: List[str] | set[str] | tuple[str, ...] | None = None,
 ) -> List[Dict[str, Any]]:
     """
     Performs vector search on child chunks and retrieves normalized parent document dicts.
@@ -688,15 +694,22 @@ async def search_and_retrieve_context(
     normalized_user_id = str(user_id or "").strip()
     if not normalized_user_id:
         raise ValueError("user_id must be a non-empty string.")
+    normalized_included_file_ids = _normalize_included_file_ids(included_file_ids)
+    if included_file_ids is not None and not normalized_included_file_ids:
+        return []
 
     print(f"Searching Vector Store (Child Chunks) for {query!r} (top_k={top_k})...")
 
     # 1. Search the Vector Store (Child Chunks)
     try:
+        filter_doc: Dict[str, Any] = {"user_id": normalized_user_id}
+        if normalized_included_file_ids:
+            filter_doc["file_metadata.file_id"] = {"$in": normalized_included_file_ids}
+
         child_documents_with_scores = await VECTOR_STORE.asimilarity_search_with_score(
             query,
             k=top_k,
-            filter={"user_id": normalized_user_id}  # ADDED: filter on metadata key; Astra wrapper prefixes metadata path internally
+            filter=filter_doc,  # ADDED: filter on metadata key; Astra wrapper prefixes metadata path internally
         )
         print(f"Found {len(child_documents_with_scores)} relevant child chunks.")
     except Exception as error:
@@ -751,9 +764,24 @@ async def search_and_retrieve_context(
             parent_doc_with_id["id"] = parent_id
 
             normalized = _normalize_parent_document(parent_doc_with_id)
+            normalized_metadata = (
+                normalized.get("metadata")
+                if isinstance(normalized, dict) and isinstance(normalized.get("metadata"), dict)
+                else {}
+            )
+            normalized_file_metadata = (
+                normalized_metadata.get("file_metadata")
+                if isinstance(normalized_metadata.get("file_metadata"), dict)
+                else {}
+            )
+            normalized_file_id = str(normalized_file_metadata.get("file_id") or "").strip()
             if (
                 normalized is not None
                 and str((normalized.get("metadata") or {}).get("user_id") or "").strip() == normalized_user_id
+                and (
+                    not normalized_included_file_ids
+                    or normalized_file_id in normalized_included_file_ids
+                )
             ):
                 parent_documents.append(normalized)
 

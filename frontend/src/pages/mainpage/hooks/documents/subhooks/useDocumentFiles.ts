@@ -12,7 +12,7 @@ import { createEmptyContentAsyncState, createEmptyContentState, createEmptyFiles
 import { markFileChunkLoading, patchChunkContent, replaceFilesFromSidebarSummaries, syncChunkAsyncIndex } from "../state/transitions";
 
 // Owns file list state, tab state, and per-file chunk loading/pagination.
-export function useDocumentFiles() {
+export function useDocumentFiles(activeCollectionId: string | null) {
     const [filesState, setFilesState] = useState<FilesState>(createEmptyFilesState());
     const [chunkAsyncByFileId, setChunkAsyncByFileId] = useState<Record<string, FileContentAsyncState>>({});
     const [isLoadingFiles, setIsLoadingFiles] = useState(false);
@@ -54,7 +54,7 @@ export function useDocumentFiles() {
         setIsLoadingFiles(true);
         setFileListError(null);
         try {
-            const incoming = await getAllPreviewFiles();
+            const incoming = await getAllPreviewFiles(activeCollectionId);
             setIsDocsCached(true);
             setFilesState((prev) => replaceFilesFromSidebarSummaries(prev, incoming));
             setChunkAsyncByFileId((prev) => syncChunkAsyncIndex(prev, incoming));
@@ -63,7 +63,14 @@ export function useDocumentFiles() {
         } finally {
             setIsLoadingFiles(false);
         }
-    }, []);
+    }, [activeCollectionId]);
+
+    useEffect(() => {
+        setFilesState(createEmptyFilesState());
+        setChunkAsyncByFileId({});
+        setFileListError(null);
+        setIsDocsCached(false);
+    }, [activeCollectionId]);
 
     useEffect(() => {
         // Auto-load file previews after authentication and page load.
@@ -91,7 +98,7 @@ export function useDocumentFiles() {
 
             const cursor = reset ? null : current.nextCursor;
             try {
-                const response = await getFileChunks(fileId, cursor);
+                const response = await getFileChunks(fileId, cursor, activeCollectionId);
                 const existing = reset ? [] : getContentStateById(fileId).chunks;
                 const merged = reset ? response.chunks : [...existing, ...response.chunks];
                 // Deduplicate by parentId in case the backend returns overlapping windows.
@@ -124,7 +131,7 @@ export function useDocumentFiles() {
                 return [];
             }
         },
-        [getChunkAsyncById, getContentStateById, getFileNameById]
+        [activeCollectionId, getChunkAsyncById, getContentStateById, getFileNameById]
     );
 
     const activeTabData = useMemo<FileTabState | null>(

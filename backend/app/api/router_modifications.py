@@ -15,6 +15,11 @@ from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 
 from app.core.dependencies import get_current_user
+from app.service.collection.collection_service import (
+    CollectionNotFoundError,
+    CollectionService,
+    CollectionServiceError,
+)
 from app.service.modification.reconstruction_service import ReconstructionService
 from app.service.modification.llm_editor_service import LlmEditorService
 
@@ -102,6 +107,7 @@ class RenameFileResponse(BaseModel):
 class CreateBlankFileRequest(BaseModel):
     """Payload for creating a new blank file in the knowledge base."""
     fileName: str
+    collectionId: str | None = None
 
 
 class CreateBlankFileResponse(BaseModel):
@@ -991,6 +997,10 @@ async def create_blank_file(
     user_id = str(current_user.get("sub") or "").strip()
     try:
         file_name = payload.fileName.strip()
+        active_collection = await CollectionService.resolve_active_collection(
+            user_id=user_id,
+            requested_collection_id=payload.collectionId,
+        )
 
         # A blank file needs at least some content so the chunker does not reject it.
         # The user can edit it freely afterwards.
@@ -1001,12 +1011,21 @@ async def create_blank_file(
                 file_name=file_name,
                 placeholder_content=placeholder_content,
                 user_id=user_id,
+                collection_metadata={
+                    "collection_id": str(active_collection.get("collection_id") or ""),
+                    "collection_name": str(active_collection.get("name") or CollectionService.DEFAULT_COLLECTION_NAME),
+                },
             )
         except TypeError:
             result = await ReconstructionService.create_blank_file(
                 file_name=file_name,
                 placeholder_content=placeholder_content,
+                collection_metadata={
+                    "collection_id": str(active_collection.get("collection_id") or ""),
+                    "collection_name": str(active_collection.get("name") or CollectionService.DEFAULT_COLLECTION_NAME),
+                },
             )
+        await CollectionService.reconcile_all_collection_file_counts(user_id)
 
         return CreateBlankFileResponse(
             fileId=result["fileId"],
@@ -1029,6 +1048,13 @@ async def create_blank_file(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Database service error: {str(e)}",
         )
+    except CollectionNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except CollectionServiceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Collection service error: {str(e)}",
+        )
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(
@@ -1050,6 +1076,7 @@ async def delete_file_by_id(
             deleted = await ReconstructionService.delete_file(file_id=file_id, user_id=user_id)
         except TypeError:
             deleted = await ReconstructionService.delete_file(file_id=file_id)
+        await CollectionService.reconcile_all_collection_file_counts(user_id)
         return DeleteFileResponse(
             fileId=deleted["fileId"],
             fileName=deleted["fileName"],

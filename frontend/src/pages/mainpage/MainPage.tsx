@@ -76,6 +76,15 @@ export default function MainPage() {
         useChat(); // Run the useChat hook to get chat-related state and handlers
 
     const {
+        collections,
+        isLoadingCollections,
+        collectionError,
+        activeCollectionId,
+        activeCollection,
+        setActiveCollectionId,
+        createNewCollection,
+        renameExistingCollection,
+        deleteExistingCollection,
         files,
         isLoadingFiles,
         fileListError,
@@ -118,6 +127,13 @@ export default function MainPage() {
         clearAgentState,
         ensureFileFullyLoaded,
     } = useDocuments();
+
+    useEffect(() => {
+        setSelectedFileIds(new Set());
+        setHighlightedSelection(null);
+        setSelectionError(null);
+        setPendingDeleteFile(null);
+    }, [activeCollectionId]);
 
     const handleToggleFileSelection = useCallback((fileId: string) => {
         setSelectedFileIds((prev) => {
@@ -171,7 +187,7 @@ export default function MainPage() {
             return;
         }
 
-        await handleQuery();
+        await handleQuery({ collectionId: activeCollectionId });
     };
 
     const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -229,6 +245,7 @@ export default function MainPage() {
             invalidateDocumentCache();
             await handleRefreshDocuments();
         },
+        collectionId: activeCollectionId,
     });
 
     const activeChunkSignature = activeTabData?.chunks
@@ -756,6 +773,10 @@ export default function MainPage() {
         >
             <div className={`sidebar-container ${isSidebarOpen ? "open" : "closed"}`}>
                 <Sidebar
+                    collections={collections}
+                    activeCollectionId={activeCollectionId}
+                    isLoadingCollections={isLoadingCollections}
+                    collectionError={collectionError}
                     selectedFile={selectedFile}
                     isUploading={isUploading}
                     files={files}
@@ -768,6 +789,43 @@ export default function MainPage() {
                     onFileSelect={handleFileSelect}
                     onUpload={handleUpload}
                     onClearFile={clearFile}
+                    onSelectCollection={(collectionId) => setActiveCollectionId(collectionId)}
+                    onCreateCollection={async (name) => {
+                        const result = await createNewCollection(name);
+                        if (!result.ok) {
+                            appendMessage({ role: "ai", text: result.error ?? "Failed to create collection." });
+                        } else {
+                            appendMessage({ role: "ai", text: `Created collection "${name.trim()}".` });
+                        }
+                        return result;
+                    }}
+                    onRenameCollection={async (collectionId, newName) => {
+                        const oldName = collections.find((entry) => entry.collectionId === collectionId)?.name ?? "collection";
+                        const result = await renameExistingCollection(collectionId, newName);
+                        if (!result.ok) {
+                            appendMessage({ role: "ai", text: result.error ?? "Failed to rename collection." });
+                        } else {
+                            appendMessage({ role: "ai", text: `Renamed collection "${oldName}" to "${newName}".` });
+                        }
+                        return result;
+                    }}
+                    onDeleteCollection={async (collectionId) => {
+                        const oldName = collections.find((entry) => entry.collectionId === collectionId)?.name ?? "collection";
+                        const result = await deleteExistingCollection(collectionId);
+                        if (!result.ok || !result.data) {
+                            appendMessage({ role: "ai", text: result.error ?? "Failed to delete collection." });
+                            return result;
+                        }
+
+                        appendMessage({
+                            role: "ai",
+                            text:
+                                `Deleted collection "${oldName}" and ${result.data.deletedFiles} file(s) ` +
+                                `(${result.data.deletedParentChunks} parent chunks, ${result.data.deletedChildChunks} child chunks).` +
+                                `${result.warningText ?? ""}`,
+                        });
+                        return result;
+                    }}
                     onOpenFile={(fileId) => {
                         void openDocumentTab(fileId);
                         setIsModificationPanelOpen(true);
@@ -820,7 +878,9 @@ export default function MainPage() {
                                 <line x1="3" y1="18" x2="21" y2="18" />
                             </svg>
                         </button>
-                        <div className="nav-eyebrow">Document chat</div>
+                        <div className="nav-eyebrow">
+                            Document chat{activeCollection ? ` - ${activeCollection.name}` : ""}
+                        </div>
                         <div className="nav-title">Ask your documents</div>
                     </div>
                     <div className="nav-actions">

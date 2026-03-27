@@ -11,6 +11,11 @@ from pydantic import BaseModel
 
 from app.service.modification.reconstruction_service import ReconstructionService
 from app.core.dependencies import get_current_user  # ADDED: auth dependency
+from app.service.collection.collection_service import (
+    CollectionNotFoundError,
+    CollectionService,
+    CollectionServiceError,
+)
 
 
 router = APIRouter()
@@ -56,14 +61,20 @@ class FileChunksResponse(BaseModel):
 
 @router.get("/all-preview-files", response_model=FileSummaryResponse)
 async def get_all_preview_files(
+    collection_id: str | None = Query(default=None, alias="collectionId"),
     current_user: dict = Depends(get_current_user),  # ADDED: locks route + provides user_id
 ):
     """Return filename-merged summaries for the left sidebar."""
     user_id = current_user["sub"]  # ADDED: scope results to current user only
 
     try:
+        active_collection = await CollectionService.resolve_active_collection(
+            user_id=user_id,
+            requested_collection_id=collection_id,
+        )
         files = await ReconstructionService.get_all_preview_files(
-            user_id=user_id  # ADDED: ReconstructionService must filter by user_id
+            user_id=user_id,  # ADDED: ReconstructionService must filter by user_id
+            collection_id=str(active_collection.get("collection_id") or ""),
         )
         response_files = [
             FileSummary(
@@ -79,6 +90,13 @@ async def get_all_preview_files(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Database service error: {str(e)}",
         )
+    except CollectionNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except CollectionServiceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Collection service error: {str(e)}",
+        )
     except Exception as e:
         traceback.print_exc()
         raise HTTPException(
@@ -90,6 +108,7 @@ async def get_all_preview_files(
 @router.get("/file-chunks", response_model=FileChunksResponse)
 async def get_file_chunks(
     file_id: str = Query(..., alias="fileId", min_length=1),
+    collection_id: str | None = Query(default=None, alias="collectionId"),
     limit: int = Query(default=7, ge=1, le=20),
     cursor: str | None = Query(default=None),
     current_user: dict = Depends(get_current_user),  # ADDED: locks route + provides user_id
@@ -98,11 +117,16 @@ async def get_file_chunks(
     user_id = current_user["sub"]  # ADDED: scope results to current user only
 
     try:
+        active_collection = await CollectionService.resolve_active_collection(
+            user_id=user_id,
+            requested_collection_id=collection_id,
+        )
         result = await ReconstructionService.get_file_parent_chunks(
             file_id=file_id,
             limit=limit,
             cursor=cursor,
             user_id=user_id,  # ADDED: ReconstructionService must filter by user_id
+            collection_id=str(active_collection.get("collection_id") or ""),
         )
 
         return FileChunksResponse(
@@ -123,6 +147,13 @@ async def get_file_chunks(
         raise HTTPException(
             status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
             detail=f"Database service error: {str(e)}",
+        )
+    except CollectionNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except CollectionServiceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Collection service error: {str(e)}",
         )
     except Exception as e:
         traceback.print_exc()

@@ -28,6 +28,19 @@ from app.service.modification import reconstruction_service as rs
 from app.service.rag.ingestion.chunker import ChildChunkModel, ParentChunkModel
 
 
+@pytest.fixture(autouse=True)
+def _patch_collection_reconcile(monkeypatch):
+    async def _reconcile_all_collection_file_counts(user_id: str) -> None:
+        _ = user_id
+        return None
+
+    monkeypatch.setattr(
+        router_modifications.CollectionService,
+        "reconcile_all_collection_file_counts",
+        _reconcile_all_collection_file_counts,
+    )
+
+
 def _make_parent_row(
     *,
     parent_id: str,

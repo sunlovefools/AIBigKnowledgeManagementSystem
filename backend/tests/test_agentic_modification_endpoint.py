@@ -10,16 +10,31 @@ from pydantic import ValidationError
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.api import router_agent
-from app.service.rag.agentic_modification.graph import retrieval_brief_graph as retrieval_brief_graph_module
 
 
 def _build_payload(**overrides):
     payload = {
         "user_instructions": "Change the refund day from 14 days to 30 days for UK refund policy.",
         "fileIds": None,
+        "collectionId": None,
     }
     payload.update(overrides)
     return router_agent.AgenticModificationRequest(**payload)
+
+
+def _patch_collection_scope(monkeypatch, *, file_ids: list[str] | None = None):
+    async def _resolve_active_collection(*, user_id: str, requested_collection_id: str | None = None):
+        _ = user_id, requested_collection_id
+        return {"collection_id": "collection-default", "name": "Default"}
+
+    async def _list_file_ids_for_collection(*, user_id: str, collection_id: str):
+        _ = user_id, collection_id
+        if file_ids is None:
+            return ["file-1", "file-2", "file-a", "file-b"]
+        return file_ids
+
+    monkeypatch.setattr(router_agent.CollectionService, "resolve_active_collection", _resolve_active_collection)
+    monkeypatch.setattr(router_agent.CollectionService, "list_file_ids_for_collection", _list_file_ids_for_collection)
 
 
 class _FakeGraph:
@@ -83,16 +98,22 @@ class _FakeGraph:
 
 def test_agentic_modify_rejects_empty_user_instructions():
     with pytest.raises(HTTPException) as exc:
-        asyncio.run(router_agent.agentic_modify(_build_payload(user_instructions="   ")))
+        asyncio.run(
+            router_agent.agentic_modify(
+                _build_payload(user_instructions="   "),
+                current_user={"sub": "user-1"},
+            )
+        )
 
     assert exc.value.status_code == 422
 
 
 def test_agentic_modify_returns_retrieval_brief_and_node_outputs(monkeypatch):
     monkeypatch.setattr(router_agent, "log_token_usage", lambda **kwargs: None)
-    monkeypatch.setattr(retrieval_brief_graph_module, "retrieval_brief_graph", _FakeGraph())
+    monkeypatch.setattr(router_agent, "_load_retrieval_graph", lambda: _FakeGraph())
+    _patch_collection_scope(monkeypatch)
 
-    response = asyncio.run(router_agent.agentic_modify(_build_payload()))
+    response = asyncio.run(router_agent.agentic_modify(_build_payload(), current_user={"sub": "user-1"}))
     payload = response.model_dump()
 
     assert payload == {
@@ -176,11 +197,13 @@ def test_agentic_modify_forwards_optional_file_ids(monkeypatch):
             }
 
     monkeypatch.setattr(router_agent, "log_token_usage", lambda **kwargs: None)
-    monkeypatch.setattr(retrieval_brief_graph_module, "retrieval_brief_graph", _ScopedGraph())
+    monkeypatch.setattr(router_agent, "_load_retrieval_graph", lambda: _ScopedGraph())
+    _patch_collection_scope(monkeypatch, file_ids=["file-a", "file-b", "file-c"])
 
     response = asyncio.run(
         router_agent.agentic_modify(
-            _build_payload(fileIds=["file-a", "file-b"])
+            _build_payload(fileIds=["file-a", "file-b"]),
+            current_user={"sub": "user-1"},
         )
     )
     payload = response.model_dump()

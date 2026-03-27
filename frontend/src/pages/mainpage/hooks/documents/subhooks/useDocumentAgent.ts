@@ -19,6 +19,7 @@ export type RequestAgentResult = {
 type RejectMode = "reject" | "undo";
 
 type UseDocumentAgentParams = {
+    activeCollectionId: string | null;
     editingFileId: string | null;
     editingDraftByFileId: Record<string, string>;
     setEditingFileId: Dispatch<SetStateAction<string | null>>;
@@ -64,6 +65,7 @@ function normalizeIncomingProposal(
 
 // Manages AI proposal requests and proposal application/revert flows.
 export function useDocumentAgent({
+    activeCollectionId,
     editingFileId,
     editingDraftByFileId,
     setEditingFileId,
@@ -146,7 +148,12 @@ export function useDocumentAgent({
 
             try {
                 // Progress callback is forwarded unchanged to stream API layer.
-                const { intention, proposals } = await requestAgentModify(trimmed, fileIds, onProgress);
+                const { intention, proposals } = await requestAgentModify(
+                    trimmed,
+                    fileIds,
+                    activeCollectionId,
+                    onProgress
+                );
                 const mapped = proposals.map(normalizeIncomingProposal);
                 setAgentIntention(intention);
                 setAgentProposals(mapped);
@@ -163,7 +170,7 @@ export function useDocumentAgent({
                 setIsAgentGenerating(false);
             }
         },
-        [editingFileId, isAgentGenerating]
+        [activeCollectionId, editingFileId, isAgentGenerating]
     );
 
     // Requests an edit proposal for an explicit highlighted text region.

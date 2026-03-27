@@ -36,6 +36,24 @@ sys.modules["app.service.rag.ingestion.ingest_upload_service"] = stub_ingest_ser
 from app.api import router_ingest
 
 
+@pytest.fixture(autouse=True)
+def _patch_collection_service(monkeypatch):
+    async def _resolve_active_collection(*, user_id: str, requested_collection_id: str | None = None):
+        _ = user_id, requested_collection_id
+        return {"collection_id": "collection-default", "name": "Default"}
+
+    async def _reconcile_all_collection_file_counts(user_id: str):
+        _ = user_id
+        return None
+
+    monkeypatch.setattr(router_ingest.CollectionService, "resolve_active_collection", _resolve_active_collection)
+    monkeypatch.setattr(
+        router_ingest.CollectionService,
+        "reconcile_all_collection_file_counts",
+        _reconcile_all_collection_file_counts,
+    )
+
+
 def test_upsert_chunks_helper_forwards_user_id(monkeypatch):
     captured = {}
 
