@@ -344,6 +344,7 @@ export function useDocuments() {
                     delete next[fileId];
                     return next;
                 });
+                fileDomain.invalidateCachedFileChunks(fileId);
                 editingDomain.clearDraftForFile(fileId);
                 editingDomain.setEditingFileId((prev) => (prev === fileId ? null : prev));
                 agentDomain.clearAgentStateForFile(fileId);

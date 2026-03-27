@@ -11,6 +11,19 @@ import { getAllPreviewFiles, getFileChunks } from "../api/documentsApi";
 import { createEmptyContentAsyncState, createEmptyContentState, createEmptyFilesState, toSidebarFileSummary } from "../state/factories";
 import { markFileChunkLoading, patchChunkContent, replaceFilesFromSidebarSummaries, syncChunkAsyncIndex } from "../state/transitions";
 
+const FILE_CHUNK_CACHE_LIMIT = 5;
+
+type CachedFileChunks = {
+    chunks: ParentChunkContent[];
+    hasMore: boolean;
+    nextCursor: string | null;
+};
+
+function buildFileChunkCacheKey(collectionId: string | null, fileId: string): string {
+    const scope = collectionId ?? "__default_collection__";
+    return `${scope}::${fileId}`;
+}
+
 // Owns file list state, tab state, and per-file chunk loading/pagination.
 export function useDocumentFiles(activeCollectionId: string | null) {
     const [filesState, setFilesState] = useState<FilesState>(createEmptyFilesState());
@@ -29,7 +42,42 @@ export function useDocumentFiles(activeCollectionId: string | null) {
             }
         >
     >({});
+    const fileChunkCacheRef = useRef<Map<string, CachedFileChunks>>(new Map());
     const activeCacheKey = activeCollectionId ?? "__default_collection__";
+
+    const getCachedFileChunks = useCallback(
+        (fileId: string): CachedFileChunks | null => {
+            const key = buildFileChunkCacheKey(activeCollectionId, fileId);
+            const cached = fileChunkCacheRef.current.get(key);
+            if (!cached) return null;
+            // Refresh recency for LRU behavior.
+            fileChunkCacheRef.current.delete(key);
+            fileChunkCacheRef.current.set(key, cached);
+            return cached;
+        },
+        [activeCollectionId]
+    );
+
+    const setCachedFileChunks = useCallback(
+        (fileId: string, value: CachedFileChunks) => {
+            const key = buildFileChunkCacheKey(activeCollectionId, fileId);
+            fileChunkCacheRef.current.delete(key);
+            fileChunkCacheRef.current.set(key, value);
+            while (fileChunkCacheRef.current.size > FILE_CHUNK_CACHE_LIMIT) {
+                const oldestKey = fileChunkCacheRef.current.keys().next().value;
+                if (!oldestKey) break;
+                fileChunkCacheRef.current.delete(oldestKey);
+            }
+        },
+        [activeCollectionId]
+    );
+
+    const invalidateCachedFileChunks = useCallback(
+        (fileId: string) => {
+            fileChunkCacheRef.current.delete(buildFileChunkCacheKey(activeCollectionId, fileId));
+        },
+        [activeCollectionId]
+    );
 
     const files = useMemo(
         () =>
@@ -109,6 +157,42 @@ export function useDocumentFiles(activeCollectionId: string | null) {
         async (fileId: string, reset = false): Promise<ParentChunkContent[]> => {
             const current = getContentStateById(fileId);
             const currentAsync = getChunkAsyncById(fileId);
+            const cached = getCachedFileChunks(fileId);
+
+            // Hard resets for tab-open can reuse cached chunks and skip network.
+            if (reset && cached) {
+                setFilesState((prev) =>
+                    patchChunkContent(prev, fileId, cached.chunks, cached.hasMore, cached.nextCursor)
+                );
+                setChunkAsyncByFileId((prev) => ({
+                    ...prev,
+                    [fileId]: {
+                        ...(prev[fileId] ?? createEmptyContentAsyncState()),
+                        isLoading: false,
+                        isInitialized: true,
+                        error: null,
+                    },
+                }));
+                return cached.chunks;
+            }
+
+            // First-open path can hydrate from cache as well.
+            if (!reset && !currentAsync.isInitialized && cached) {
+                setFilesState((prev) =>
+                    patchChunkContent(prev, fileId, cached.chunks, cached.hasMore, cached.nextCursor)
+                );
+                setChunkAsyncByFileId((prev) => ({
+                    ...prev,
+                    [fileId]: {
+                        ...(prev[fileId] ?? createEmptyContentAsyncState()),
+                        isLoading: false,
+                        isInitialized: true,
+                        error: null,
+                    },
+                }));
+                return cached.chunks;
+            }
+
             // Prevent duplicate in-flight loads and stop when pagination is exhausted.
             if (!reset && currentAsync.isLoading) return current.chunks;
             if (!reset && currentAsync.isInitialized && !current.hasMore) return current.chunks;
@@ -144,6 +228,11 @@ export function useDocumentFiles(activeCollectionId: string | null) {
                         error: null,
                     },
                 }));
+                setCachedFileChunks(fileId, {
+                    chunks: deduped,
+                    hasMore: response.hasMore,
+                    nextCursor: response.nextCursor,
+                });
                 return deduped;
             } catch {
                 const fileName = getFileNameById(fileId);
@@ -159,7 +248,7 @@ export function useDocumentFiles(activeCollectionId: string | null) {
                 return [];
             }
         },
-        [activeCollectionId, getChunkAsyncById, getContentStateById, getFileNameById]
+        [activeCollectionId, getCachedFileChunks, getChunkAsyncById, getContentStateById, getFileNameById, setCachedFileChunks]
     );
 
     const activeTabData = useMemo<FileTabState | null>(
@@ -193,6 +282,7 @@ export function useDocumentFiles(activeCollectionId: string | null) {
         fetchFiles,
         loadFileChunks,
         invalidateDocumentCache,
+        invalidateCachedFileChunks,
         getFileNameById,
         getFileIdByName,
         getContentStateById,
