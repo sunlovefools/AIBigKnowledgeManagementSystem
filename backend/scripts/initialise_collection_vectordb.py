@@ -1,84 +1,86 @@
 #!/usr/bin/env python3
 """
-Initialize two Astra DB collections:
+Initialize Astra DB collections used by this project.
 
-1) Default_Child_Collection
-   - Vector-enabled (dimension=768, metric=cosine)
-   - Selective indexing on:
-      - metadata.user_id
-      - file_metadata.file_id
-      - child_chunk_metadata.child_chunk_number
-      - child_chunk_metadata.parent_id (to maintain Parent-Child relationship)
+Vector keyspace collections:
+- Default_Child_Collection (vector-enabled)
+- Default_Parent_Collection (non-vector)
 
-2) Default_Parent_Collection
-   - Non-vector collection
-   - Selective indexing on:
-      - value.metadata.user_id
-      - file_metadata.file_id
-      - parent_chunk_metadata.parent_chunk_number
+Chat/metadata keyspace collections:
+- chat_messages
+- conversations
+- user_collections
 
-Env vars required:
-  ASTRA_DB_URL
-  ASTRA_DB_TOKEN
-
-Optional:
-  ASTRA_DB_KEYSPACE
-  ASTRA_CHILD_COLLECTION (default: Default_Child_Collection)
-  ASTRA_PARENT_COLLECTION (default: Default_Parent_Collection)
-
-Notes:
-- For embeddings, Astra stores vectors in the reserved "$vector" field in documents.
-- Indexing "allow" means only those paths are indexed for filtering/sorting.
-- Existing collections may need one-time recreation/reindex for new allow-list
-  fields to become queryable. This script is non-destructive and will not drop
-  existing collections automatically.
+The script supports separate vector/chat keyspaces or a shared keyspace.
 """
 
 from __future__ import annotations
 
 import os
 import sys
-from dotenv import load_dotenv
+from typing import Any
+
 from astrapy import DataAPIClient
-from astrapy.constants import VectorMetric, DefaultIdType
+from astrapy.constants import DefaultIdType, VectorMetric
 from astrapy.info import (
-    CollectionDefinition,
-    CollectionVectorOptions,
     CollectionDefaultIDOptions,
+    CollectionDefinition,
     CollectionLexicalOptions,
+    CollectionVectorOptions,
 )
+from dotenv import load_dotenv
 
 load_dotenv()
-def get_database():
-    endpoint = os.environ["ASTRA_DB_URL"]
-    token = os.environ["ASTRA_DB_TOKEN"]
-    keyspace = "default_keyspace"
 
+
+def _require(name: str) -> str:
+    value = str(os.getenv(name) or "").strip()
+    if not value:
+        raise KeyError(name)
+    return value
+
+
+def _optional(name: str) -> str | None:
+    value = str(os.getenv(name) or "").strip()
+    return value or None
+
+
+def _get_vector_database():
+    endpoint = _require("ASTRA_DB_URL")
+    token = _require("ASTRA_DB_TOKEN")
+    keyspace = _optional("ASTRA_DB_KEYSPACE")
     client = DataAPIClient()
     if keyspace:
         return client.get_database(endpoint, token=token, keyspace=keyspace)
     return client.get_database(endpoint, token=token)
 
 
-def ensure_collection(database, name: str, definition: CollectionDefinition):
+def _get_chat_database():
+    endpoint = _optional("ASTRA_CHAT_DB_URL") or _require("ASTRA_DB_URL")
+    token = _optional("ASTRA_CHAT_DB_TOKEN") or _require("ASTRA_DB_TOKEN")
+    keyspace = _optional("ASTRA_CHAT_KEYSPACE") or _optional("ASTRA_DB_KEYSPACE")
+    client = DataAPIClient()
+    if keyspace:
+        return client.get_database(endpoint, token=token, keyspace=keyspace)
+    return client.get_database(endpoint, token=token)
+
+
+def _ensure_collection(database: Any, name: str, definition: CollectionDefinition | None = None):
     existing_names = set(database.list_collection_names())
     if name in existing_names:
-        print(f"!!!Collection already exists: {name}")
+        print(f"Collection already exists: {name}")
         return database.get_collection(name)
 
     print(f"Creating collection: {name}")
-    coll = database.create_collection(name, definition=definition)
+    if definition is None:
+        coll = database.create_collection(name)
+    else:
+        coll = database.create_collection(name, definition=definition)
     print(f"Created: {name}")
     return coll
 
 
-def main() -> int:
-    child_name = os.getenv("ASTRA_CHILD_COLLECTION", "Default_Child_Collection")
-    parent_name = os.getenv("ASTRA_PARENT_COLLECTION", "Default_Parent_Collection")
-
-    database = get_database()
-
-    # Standard English lexical options for both collections
+def _child_collection_definition() -> CollectionDefinition:
     english_lexical_options = CollectionLexicalOptions(
         enabled=True,
         analyzer={
@@ -89,11 +91,9 @@ def main() -> int:
                 {"name": "asciifolding"},
                 {"name": "stop"},
             ],
-        }
+        },
     )
-
-    # --- Child (vector) collection definition ---
-    child_definition = CollectionDefinition(
+    return CollectionDefinition(
         lexical=english_lexical_options,
         vector=CollectionVectorOptions(
             dimension=768,
@@ -104,6 +104,8 @@ def main() -> int:
                 "metadata.user_id",
                 "metadata.file_metadata.file_name",
                 "metadata.file_metadata.file_id",
+                "metadata.collection_metadata.collection_id",
+                "metadata.collection_metadata.collection_name",
                 "metadata.child_chunk_metadata.parent_id",
                 "metadata.child_chunk_metadata.child_chunk_number",
             ]
@@ -111,30 +113,105 @@ def main() -> int:
         default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
     )
 
-    # --- Parent (non-vector) collection definition ---
-    parent_definition = CollectionDefinition(
+
+def _parent_collection_definition() -> CollectionDefinition:
+    return CollectionDefinition(
         indexing={
             "allow": [
                 "value.metadata.user_id",
                 "value.metadata.file_metadata.file_name",
                 "value.metadata.file_metadata.file_id",
+                "value.metadata.collection_metadata.collection_id",
+                "value.metadata.collection_metadata.collection_name",
                 "value.metadata.parent_chunk_metadata.parent_chunk_number",
             ]
         },
         default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
     )
-    ensure_collection(database, child_name, child_definition)
-    ensure_collection(database, parent_name, parent_definition)
 
-    print("\nDone.")
+
+def _chat_messages_definition() -> CollectionDefinition:
+    return CollectionDefinition(
+        indexing={
+            "allow": [
+                "conversationId",
+                "userId",
+                "userEmail",
+                "role",
+                "timestamp",
+            ]
+        },
+        default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
+    )
+
+
+def _conversations_definition() -> CollectionDefinition:
+    return CollectionDefinition(
+        indexing={
+            "allow": [
+                "conversationId",
+                "userId",
+                "userEmail",
+                "title",
+                "updatedAt",
+                "createdAt",
+            ]
+        },
+        default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
+    )
+
+
+def _user_collections_definition() -> CollectionDefinition:
+    return CollectionDefinition(
+        indexing={
+            "allow": [
+                "collection_id",
+                "user_id",
+                "name",
+                "normalized_name",
+                "is_default",
+                "file_count",
+                "updated_at",
+                "created_at",
+            ]
+        },
+        default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
+    )
+
+
+def main() -> int:
+    child_name = (
+        _optional("ASTRA_CHILD_COLLECTION")
+        or _optional("CHILD_COLLECTION_NAME")
+        or "Default_Child_Collection"
+    )
+    parent_name = (
+        _optional("ASTRA_PARENT_COLLECTION")
+        or _optional("PARENT_COLLECTION_NAME")
+        or "Default_Parent_Collection"
+    )
+    chat_messages_name = _optional("ASTRA_CHAT_COLLECTION") or "chat_messages"
+    conversations_name = _optional("ASTRA_CONVERSATIONS_COLLECTION") or "conversations"
+    user_collections_name = _optional("ASTRA_USER_COLLECTIONS_COLLECTION") or "user_collections"
+
+    vector_database = _get_vector_database()
+    chat_database = _get_chat_database()
+
+    _ensure_collection(vector_database, child_name, _child_collection_definition())
+    _ensure_collection(vector_database, parent_name, _parent_collection_definition())
+
+    _ensure_collection(chat_database, chat_messages_name, _chat_messages_definition())
+    _ensure_collection(chat_database, conversations_name, _conversations_definition())
+    _ensure_collection(chat_database, user_collections_name, _user_collections_definition())
+
+    print("\nInitialization complete.")
     return 0
 
 
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except KeyError as e:
-        missing = e.args[0]
+    except KeyError as exc:
+        missing = str(exc.args[0])
         print(f"Missing required environment variable: {missing}", file=sys.stderr)
-        return_code = 2
-        raise SystemExit(return_code)
+        raise SystemExit(2)
