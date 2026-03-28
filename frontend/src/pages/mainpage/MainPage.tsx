@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { useNavigate } from "react-router-dom";
-import { useAuth0 } from "@auth0/auth0-react";
+import { useSearchParams } from "react-router-dom";
 
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
+import GlobalSidebar from "../../components/GlobalSidebar";
 import Sidebar from "./components/Sidebar";
 import ChatArea from "./components/ChatArea";
 import ChatInput from "./components/ChatInput";
@@ -14,15 +14,13 @@ import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
 import type { AgentProposal, HighlightedSelection, PendingModificationNavItem } from "./types";
 import type { ModificationProgressEvent } from "./hooks/documents/api/documentsApi";
-import { clearAuthSession, getAuthProvider } from "../../auth/session";
 
 function getProposalKey(proposal: AgentProposal): string {
     return `${proposal.parentId}-${proposal.selectionStart ?? "full"}`;
 }
 
 export default function MainPage() {
-    const navigate = useNavigate();
-    const { logout } = useAuth0();
+    const [searchParams] = useSearchParams();
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
     // Controls the collapsible "current chat title" menu shown inside chat-stage-shell.
     const [isConversationMenuOpen, setIsConversationMenuOpen] = useState(false);
@@ -80,7 +78,6 @@ export default function MainPage() {
         isLoadingCollections,
         collectionError,
         activeCollectionId,
-        activeCollection,
         setActiveCollectionId,
         createNewCollection,
         renameExistingCollection,
@@ -127,6 +124,15 @@ export default function MainPage() {
         clearAgentState,
         ensureFileFullyLoaded,
     } = useDocuments();
+
+    const requestedCollectionId = searchParams.get("collectionId")?.trim() || null;
+
+    useEffect(() => {
+        if (!requestedCollectionId || collections.length === 0) return;
+        if (!collections.some((entry) => entry.collectionId === requestedCollectionId)) return;
+        if (activeCollectionId === requestedCollectionId) return;
+        setActiveCollectionId(requestedCollectionId);
+    }, [activeCollectionId, collections, requestedCollectionId, setActiveCollectionId]);
 
     useEffect(() => {
         setSelectedFileIds(new Set());
@@ -653,22 +659,6 @@ export default function MainPage() {
         }
     };
 
-    const handleLogout = () => {
-        const provider = getAuthProvider();
-        clearAuthSession();
-
-        if (provider === "auth0") {
-            logout({
-                logoutParams: {
-                    returnTo: `${window.location.origin}/login`,
-                },
-            });
-            return;
-        }
-
-        navigate("/login");
-    };
-
     const modificationPanel = (
         <ModificationPanel
             files={files}
@@ -763,14 +753,16 @@ export default function MainPage() {
     );
 
     return (
-        <div
-            className={`app-root ${isMobile ? "mobile-layout" : ""} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
-            style={{
-                "--sidebar-width": `${sidebarWidth}px`,
-                "--mod-panel-width": `${modPanelWidth}px`,
-                "--assistant-stage-width": `${modPanelWidth}px`,
-            } as CSSProperties}
-        >
+        <div className="mainpage-shell">
+            <GlobalSidebar mode="mainpage" />
+            <div
+                className={`app-root ${isMobile ? "mobile-layout" : ""} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
+                style={{
+                    "--sidebar-width": `${sidebarWidth}px`,
+                    "--mod-panel-width": `${modPanelWidth}px`,
+                    "--assistant-stage-width": `${modPanelWidth}px`,
+                } as CSSProperties}
+            >
             <div className={`sidebar-container ${isSidebarOpen ? "open" : "closed"}`}>
                 <Sidebar
                     collections={collections}
@@ -864,29 +856,19 @@ export default function MainPage() {
             )}
 
             <main className="main-content">
-                <header className="top-nav">
-                    <div className="nav-title-row">
-                        <button
-                            className="nav-sidebar-toggle"
-                            onClick={toggleSidebar}
-                            aria-label={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
-                            title={isSidebarOpen ? "Hide sidebar" : "Show sidebar"}
-                        >
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                                <line x1="3" y1="6" x2="21" y2="6" />
-                                <line x1="3" y1="12" x2="21" y2="12" />
-                                <line x1="3" y1="18" x2="21" y2="18" />
-                            </svg>
-                        </button>
-                        <div className="nav-eyebrow">
-                            Document chat{activeCollection ? ` - ${activeCollection.name}` : ""}
-                        </div>
-                        <div className="nav-title">Ask your documents</div>
-                    </div>
-                    <div className="nav-actions">
-                        <button className="nav-btn" onClick={handleLogout}>Logout</button>
-                    </div>
-                </header>
+                <button
+                    className={`workspace-sidebar-toggle ${isSidebarOpen ? "open" : ""}`}
+                    onClick={toggleSidebar}
+                    aria-label={isSidebarOpen ? "Hide upload panel" : "Show upload panel"}
+                    title={isSidebarOpen ? "Hide upload panel" : "Show upload panel"}
+                    type="button"
+                >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                        <line x1="4" y1="6" x2="20" y2="6" />
+                        <line x1="4" y1="12" x2="20" y2="12" />
+                        <line x1="4" y1="18" x2="20" y2="18" />
+                    </svg>
+                </button>
 
                 {isMobile ? (
                     renderChatWorkspace(chatEmptyStateMode)
@@ -1069,6 +1051,7 @@ export default function MainPage() {
                     </div>
                 </div>
             )}
+            </div>
         </div>
     );
 }

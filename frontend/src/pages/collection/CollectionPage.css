@@ -1,0 +1,270 @@
+.collection-page-shell {
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+    background:
+        radial-gradient(130% 90% at 10% 8%, rgba(191, 219, 254, 0.45) 0%, transparent 50%),
+        radial-gradient(90% 80% at 92% 6%, rgba(186, 230, 253, 0.42) 0%, transparent 45%),
+        #f8fafc;
+    color: #0f172a;
+}
+
+.collection-page-main {
+    flex: 1;
+    min-width: 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: clamp(22px, 4vw, 42px);
+    box-sizing: border-box;
+}
+
+.collection-chat-stage {
+    max-width: 880px;
+    margin: clamp(30px, 8vh, 80px) auto 34px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.collection-chat-copy {
+    text-align: center;
+}
+
+.collection-chat-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 0.74rem;
+    color: #64748b;
+    font-weight: 700;
+}
+
+.collection-chat-title {
+    margin: 10px 0 8px;
+    font-size: clamp(1.8rem, 2.4vw, 2.4rem);
+    letter-spacing: -0.02em;
+}
+
+.collection-chat-subtitle {
+    margin: 0;
+    color: #475569;
+    font-size: 0.98rem;
+}
+
+.collection-chat-history {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 220px;
+    overflow: auto;
+    padding: 4px;
+}
+
+.collection-history-item {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    padding: 9px 11px;
+    border-radius: 12px;
+    border: 1px solid #dbe5f0;
+    background: rgba(255, 255, 255, 0.9);
+    font-size: 0.88rem;
+}
+
+.collection-history-item.user {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+}
+
+.collection-history-role {
+    font-weight: 700;
+    color: #334155;
+    flex-shrink: 0;
+}
+
+.collection-history-text {
+    color: #1f2937;
+    word-break: break-word;
+}
+
+.collection-chatbox {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 10px;
+    border: 1px solid #dbe5f0;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
+    padding: 12px;
+}
+
+.collection-chat-input {
+    width: 100%;
+    resize: none;
+    border: none;
+    outline: none;
+    min-height: 52px;
+    max-height: 180px;
+    color: #0f172a;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    font-family: inherit;
+    background: transparent;
+}
+
+.collection-chat-send {
+    align-self: end;
+    height: 42px;
+    border-radius: 12px;
+    border: 1px solid #1e293b;
+    background: #0f172a;
+    color: #ffffff;
+    font-weight: 600;
+    padding: 0 16px;
+    cursor: pointer;
+}
+
+.collection-chat-send:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+}
+
+.collection-list-stage {
+    max-width: 1060px;
+    margin: 0 auto 18px;
+}
+
+.collection-list-header h2 {
+    margin: 0 0 14px;
+    font-size: 1.2rem;
+}
+
+.collection-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 12px;
+}
+
+.collection-card {
+    text-align: left;
+    border: 1px solid #dbe5f0;
+    border-radius: 18px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.96);
+    cursor: pointer;
+    min-height: 118px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.collection-card:hover {
+    border-color: #bfdbfe;
+    background: #ffffff;
+    box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
+}
+
+.collection-add-card {
+    border-style: dashed;
+    justify-content: center;
+    align-items: flex-start;
+}
+
+.collection-add-plus {
+    font-size: 1.55rem;
+    line-height: 1;
+}
+
+.collection-card-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.collection-card-subtitle {
+    font-size: 0.86rem;
+    color: #64748b;
+}
+
+.collection-card-meta {
+    margin-top: auto;
+    font-size: 0.78rem;
+    color: #475569;
+}
+
+.collection-create-card {
+    cursor: default;
+}
+
+.collection-create-label {
+    font-size: 0.82rem;
+    color: #475569;
+}
+
+.collection-create-input {
+    width: 100%;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    padding: 9px 10px;
+    box-sizing: border-box;
+    color: #0f172a;
+    background: #ffffff;
+}
+
+.collection-create-input:focus {
+    outline: 2px solid rgba(59, 130, 246, 0.2);
+    border-color: #93c5fd;
+}
+
+.collection-create-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.collection-create-btn {
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    background: #f8fafc;
+    color: #334155;
+    padding: 7px 11px;
+    font-size: 0.84rem;
+    cursor: pointer;
+}
+
+.collection-create-btn.primary {
+    border-color: #1e293b;
+    background: #0f172a;
+    color: #ffffff;
+}
+
+.collection-status {
+    margin-bottom: 10px;
+    border-radius: 10px;
+    border: 1px solid #dbe5f0;
+    background: #f8fafc;
+    color: #475569;
+    font-size: 0.85rem;
+    padding: 8px 10px;
+}
+
+.collection-status.error {
+    border-color: #fecaca;
+    background: #fff1f2;
+    color: #b91c1c;
+}
+
+.collection-status.info {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+@media (max-width: 900px) {
+    .collection-chatbox {
+        grid-template-columns: 1fr;
+    }
+
+    .collection-chat-send {
+        justify-self: flex-end;
+    }
+}

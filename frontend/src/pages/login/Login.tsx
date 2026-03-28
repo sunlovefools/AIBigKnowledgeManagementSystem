@@ -31,7 +31,7 @@ export default function Login() {
     useEffect(() => {
         const token = localStorage.getItem("token")?.trim();
         if (token) {
-            navigate("/mainpage", { replace: true });
+            navigate("/collections", { replace: true });
         }
     }, [navigate]);
 
@@ -59,7 +59,7 @@ export default function Login() {
                 });
 
                 saveAuthSession(response.data, "auth0");
-                navigate("/mainpage", { replace: true });
+                navigate("/collections", { replace: true });
             } catch (exchangeErr) {
                 let errorMessage = "OAuth login failed. Please try again.";
 
