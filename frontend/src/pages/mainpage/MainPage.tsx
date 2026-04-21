@@ -19,9 +19,12 @@ function getProposalKey(proposal: AgentProposal): string {
     return `${proposal.parentId}-${proposal.selectionStart ?? "full"}`;
 }
 
+type MobileWorkspace = "chat" | "files" | "document";
+
 export default function MainPage() {
     const [searchParams] = useSearchParams();
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
+    const [mobileWorkspace, setMobileWorkspace] = useState<MobileWorkspace>("chat");
     // Controls the collapsible "current chat title" menu shown inside chat-stage-shell.
     const [isConversationMenuOpen, setIsConversationMenuOpen] = useState(false);
     const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
@@ -45,7 +48,6 @@ export default function MainPage() {
         isResizing,
         isSidebarToggling,
         toggleSidebar,
-        closeSidebar,
         startSidebarResize,
         startModPanelResize,
     } = useResizableLayout(); // Run the useResizableLayout hook to get layout-related state and handlers
@@ -60,7 +62,9 @@ export default function MainPage() {
         conversationsError,
         conversationMessagesError,
         conversationId,
+        isAgenticSearchEnabled,
         setInput,
+        toggleAgenticSearch,
         appendMessage,
         startProgressMessage,
         pushProgressStep,
@@ -259,6 +263,7 @@ export default function MainPage() {
         .join("|") ?? "";
     const hasSelectedDocument = Boolean(activeTab);
     const isDesktopWorkspaceActive = !isMobile && isModificationPanelOpen && hasSelectedDocument;
+    const activeMobileWorkspace = isMobile ? mobileWorkspace : "chat";
     const chatEmptyStateMode = isEditMode && !hasSelectedDocument ? "no-document" : "welcome";
     // The active chat title is driven by selected conversation metadata; fallback is a new-chat label.
     const activeConversationSummary = useMemo(
@@ -302,12 +307,32 @@ export default function MainPage() {
     const handleNavigateToModification = useCallback(async (fileId: string, proposalKey: string) => {
         setIsModificationPanelOpen(true);
         setIsEditMode(true);
+        if (isMobile) {
+            setMobileWorkspace("document");
+        }
 
         if (activeTab !== fileId) {
             await openDocumentTab(fileId);
         }
         setFocusedProposalKey(proposalKey);
-    }, [activeTab, openDocumentTab]);
+    }, [activeTab, isMobile, openDocumentTab]);
+
+    const handleMobileWorkspaceChange = useCallback((workspace: MobileWorkspace) => {
+        if (!isMobile) return;
+
+        setMobileWorkspace(workspace);
+        if (workspace === "chat") {
+            setIsModificationPanelOpen(false);
+            return;
+        }
+
+        if (workspace === "files") {
+            setIsModificationPanelOpen(false);
+            return;
+        }
+
+        setIsModificationPanelOpen(true);
+    }, [isMobile]);
 
     // Creates a fresh chat and resets menu/rename UI state.
     const handleStartNewConversationFromHeader = useCallback(() => {
@@ -503,6 +528,8 @@ export default function MainPage() {
             <ChatInput
                 input={input}
                 isQuerying={isQuerying || isAgentGenerating}
+                isAgenticSearchEnabled={isAgenticSearchEnabled}
+                isAgenticToggleDisabled={isEditMode || isQuerying || isAgentGenerating}
                 isModificationPanelOpen={isModificationPanelOpen}
                 isEditMode={isEditMode}
                 highlightedSelection={highlightedSelection}
@@ -510,6 +537,7 @@ export default function MainPage() {
                 onInputChange={setInput}
                 onInputKeyDown={handleComposerKeyDown}
                 onToggleModificationPanel={handleToggleModificationPanel}
+                onToggleAgenticSearch={toggleAgenticSearch}
                 onClearHighlightedSelection={clearHighlightedSelection}
                 onNavigateToModification={(fileId, proposalKey) => { void handleNavigateToModification(fileId, proposalKey); }}
                 onSend={() => { void handleComposerSend(); }}
@@ -613,6 +641,26 @@ export default function MainPage() {
     // - Panel open, view mode  → switch to edit mode (don't close panel)
     // - Panel open, edit mode  → exit edit mode back to view mode
     const handleToggleModificationPanel = () => {
+        if (isMobile) {
+            if (!isModificationPanelOpen || mobileWorkspace !== "document") {
+                setIsModificationPanelOpen(true);
+                setMobileWorkspace("document");
+                setIsEditMode(true);
+                return;
+            }
+
+            if (!isEditMode) {
+                setIsEditMode(true);
+                return;
+            }
+
+            setIsEditMode(false);
+            setSelectedFileIds(new Set());
+            clearHighlightedSelection();
+            setFocusedProposalKey(null);
+            return;
+        }
+
         if (!isModificationPanelOpen) {
             setIsModificationPanelOpen(true);
             setIsEditMode(true);
@@ -628,6 +676,9 @@ export default function MainPage() {
 
     const handleCloseModificationPanel = () => {
         setIsModificationPanelOpen(false);
+        if (isMobile) {
+            setMobileWorkspace("chat");
+        }
         setIsEditMode(false);
         setSelectedFileIds(new Set());
         clearHighlightedSelection();
@@ -756,14 +807,14 @@ export default function MainPage() {
         <div className="mainpage-shell">
             <GlobalSidebar mode="mainpage" />
             <div
-                className={`app-root ${isMobile ? "mobile-layout" : ""} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
+                className={`app-root ${isMobile ? "mobile-layout" : ""} mobile-workspace-${activeMobileWorkspace} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
                 style={{
                     "--sidebar-width": `${sidebarWidth}px`,
                     "--mod-panel-width": `${modPanelWidth}px`,
                     "--assistant-stage-width": `${modPanelWidth}px`,
                 } as CSSProperties}
             >
-            <div className={`sidebar-container ${isSidebarOpen ? "open" : "closed"}`}>
+            <div className={`sidebar-container ${isMobile ? activeMobileWorkspace === "files" ? "open" : "closed" : isSidebarOpen ? "open" : "closed"}`}>
                 <Sidebar
                     collections={collections}
                     activeCollectionId={activeCollectionId}
@@ -821,6 +872,9 @@ export default function MainPage() {
                     onOpenFile={(fileId) => {
                         void openDocumentTab(fileId);
                         setIsModificationPanelOpen(true);
+                        if (isMobile) {
+                            setMobileWorkspace("document");
+                        }
                     }}
                     onRefreshFiles={() => { void handleRefreshDocuments(); }}
                     onCreateBlankFile={async (fileName) => {
@@ -829,6 +883,9 @@ export default function MainPage() {
                         const result = await createNewBlankFile(fileName);
                         if (result.ok && result.fileId) {
                             setIsModificationPanelOpen(true);
+                            if (isMobile) {
+                                setMobileWorkspace("document");
+                            }
                             // initialContent is the placeholder; skip the DB load entirely.
                             await openDocumentTabAndEdit(result.fileId, result.initialContent);
                         }
@@ -858,9 +915,31 @@ export default function MainPage() {
             <main className="main-content">
                 <button
                     className={`workspace-sidebar-toggle ${isSidebarOpen ? "open" : ""}`}
-                    onClick={toggleSidebar}
-                    aria-label={isSidebarOpen ? "Hide upload panel" : "Show upload panel"}
-                    title={isSidebarOpen ? "Hide upload panel" : "Show upload panel"}
+                    onClick={() => {
+                        if (isMobile) {
+                            handleMobileWorkspaceChange(activeMobileWorkspace === "files" ? "chat" : "files");
+                            return;
+                        }
+                        toggleSidebar();
+                    }}
+                    aria-label={
+                        isMobile
+                            ? activeMobileWorkspace === "files"
+                                ? "Show chat"
+                                : "Show files"
+                            : isSidebarOpen
+                                ? "Hide upload panel"
+                                : "Show upload panel"
+                    }
+                    title={
+                        isMobile
+                            ? activeMobileWorkspace === "files"
+                                ? "Show chat"
+                                : "Show files"
+                            : isSidebarOpen
+                                ? "Hide upload panel"
+                                : "Show upload panel"
+                    }
                     type="button"
                 >
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -998,16 +1077,38 @@ export default function MainPage() {
             </main>
 
             {isMobile && (
-                <div className={`mod-panel-container ${isModificationPanelOpen ? "open" : "closed"}`}>
+                <div className={`mod-panel-container ${activeMobileWorkspace === "document" && isModificationPanelOpen ? "open" : "closed"}`}>
                     {modificationPanel}
                 </div>
             )}
 
-            {isMobile && isModificationPanelOpen && (
-                <button className="panel-backdrop" onClick={handleCloseModificationPanel} aria-label="Close modifications panel" />
-            )}
-            {isMobile && isSidebarOpen && (
-                <button className="panel-backdrop" onClick={closeSidebar} aria-label="Close sidebar" />
+            {isMobile && (
+                <nav className="mobile-workspace-switcher" aria-label="Workspace sections">
+                    <button
+                        className={`mobile-workspace-button ${activeMobileWorkspace === "files" ? "active" : ""}`}
+                        type="button"
+                        onClick={() => handleMobileWorkspaceChange("files")}
+                        aria-current={activeMobileWorkspace === "files" ? "page" : undefined}
+                    >
+                        Files
+                    </button>
+                    <button
+                        className={`mobile-workspace-button ${activeMobileWorkspace === "chat" ? "active" : ""}`}
+                        type="button"
+                        onClick={() => handleMobileWorkspaceChange("chat")}
+                        aria-current={activeMobileWorkspace === "chat" ? "page" : undefined}
+                    >
+                        Chat
+                    </button>
+                    <button
+                        className={`mobile-workspace-button ${activeMobileWorkspace === "document" ? "active" : ""}`}
+                        type="button"
+                        onClick={() => handleMobileWorkspaceChange("document")}
+                        aria-current={activeMobileWorkspace === "document" ? "page" : undefined}
+                    >
+                        Document
+                    </button>
+                </nav>
             )}
 
             {pendingDeleteFile && (

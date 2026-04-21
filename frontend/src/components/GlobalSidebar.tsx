@@ -136,7 +136,7 @@ export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarPro
                             end={item.to === "/collections"}
                         >
                             <span className="global-sidebar-icon">{item.icon}</span>
-                            {isExpanded && <span className="global-sidebar-label">{item.label}</span>}
+                            <span className="global-sidebar-label">{item.label}</span>
                         </NavLink>
                     ))}
                 </nav>

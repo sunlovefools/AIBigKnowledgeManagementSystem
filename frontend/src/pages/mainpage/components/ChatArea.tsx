@@ -13,13 +13,36 @@ type ChatAreaProps = {
 
 function renderStepLabel(step: ChatProgressStep): string {
     const batchPrefix = typeof step.batchId === "number" ? `B${step.batchId} ` : "";
+    const stepPrefix = typeof step.step === "number" ? `S${step.step} ` : "";
+    const toolPrefix = step.tool ? `[${step.tool}] ` : "";
     const detail = String(step.message || "").trim() || "Working...";
-    return `${batchPrefix}${detail}`;
+    return `${batchPrefix}${stepPrefix}${toolPrefix}${detail}`;
 }
 
-function getProgressTitle(scope: "agentic" | "selection", status: "running" | "completed" | "failed"): string {
+function renderStepDetails(step: ChatProgressStep): string[] {
+    const details: string[] = [];
+    if (step.intent) {
+        details.push(`Intent: ${step.intent}`);
+    }
+    if (step.argumentsPreview) {
+        details.push(`Args: ${step.argumentsPreview}`);
+    }
+    if (step.observation) {
+        details.push(`Observation: ${step.observation}`);
+    }
+    if (step.decision) {
+        details.push(`Decision: ${step.decision}`);
+    }
+    return details;
+}
+
+function getProgressTitle(
+    scope: "agentic" | "selection" | "agentic-search",
+    status: "running" | "completed" | "failed"
+): string {
     if (status === "completed") return "Completed";
     if (status === "failed") return "Failed";
+    if (scope === "agentic-search") return "Agentic search in progress";
     return scope === "selection" ? "Selection edit in progress" : "Agent is working";
 }
 
@@ -121,11 +144,23 @@ export default function ChatArea({
 
                                     {historyCount > 0 && isExpanded && (
                                         <ul className="progress-step-list">
-                                            {historicalSteps.map((step, index) => (
-                                                <li key={`${msg.id}-step-${index}`} className="progress-step-item">
-                                                    {renderStepLabel(step)}
-                                                </li>
-                                            ))}
+                                            {historicalSteps.map((step, index) => {
+                                                const detailRows = renderStepDetails(step);
+                                                return (
+                                                    <li key={`${msg.id}-step-${index}`} className="progress-step-item">
+                                                        <div className="progress-step-primary">
+                                                            {renderStepLabel(step)}
+                                                        </div>
+                                                        {detailRows.length > 0 && (
+                                                            <div className="progress-step-details">
+                                                                {detailRows.map((row, rowIndex) => (
+                                                                    <div key={`${msg.id}-step-${index}-detail-${rowIndex}`}>{row}</div>
+                                                                ))}
+                                                            </div>
+                                                        )}
+                                                    </li>
+                                                );
+                                            })}
                                         </ul>
                                     )}
                                 </div>

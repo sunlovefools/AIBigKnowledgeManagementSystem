@@ -254,3 +254,38 @@ def test_search_and_retrieve_context_uses_user_id_metadata_key(monkeypatch):
             "filter": {"user_id": "user-1"},
         }
     ]
+
+
+def test_normalize_parent_document_prepends_semantic_table_context():
+    raw_doc = {
+        "id": "parent-1",
+        "page_content": "| Region | Q1 |\n| --- | --- |\n| APAC | 10 |",
+        "metadata": {
+            "file_metadata": {"file_name": "report.pdf"},
+            "parent_chunk_metadata": {
+                "table_semantic": {
+                    "general_description": "Quarterly regional performance table.",
+                    "col_headers": ["Region", "Q1"],
+                }
+            },
+        },
+    }
+
+    normalized = vectordb._normalize_parent_document(raw_doc)
+    assert normalized is not None
+    assert normalized["page_content"].startswith(
+        "General Description: Quarterly regional performance table."
+    )
+    assert "Headers:\n| Region | Q1 |\n| --- | --- |" in normalized["page_content"]
+
+
+def test_normalize_parent_document_leaves_non_semantic_content_unchanged():
+    raw_doc = {
+        "id": "parent-1",
+        "page_content": "original parent text",
+        "metadata": {"file_metadata": {"file_name": "notes.pdf"}},
+    }
+
+    normalized = vectordb._normalize_parent_document(raw_doc)
+    assert normalized is not None
+    assert normalized["page_content"] == "original parent text"

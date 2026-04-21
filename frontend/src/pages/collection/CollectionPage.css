@@ -1,13 +1,10 @@
 .collection-page-shell {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     display: flex;
     overflow: hidden;
-    background:
-        radial-gradient(130% 90% at 10% 8%, rgba(191, 219, 254, 0.45) 0%, transparent 50%),
-        radial-gradient(90% 80% at 92% 6%, rgba(186, 230, 253, 0.42) 0%, transparent 45%),
-        #f8fafc;
-    color: #0f172a;
+    background: #f6f7f4;
+    color: #15201d;
 }
 
 .collection-page-main {
@@ -21,7 +18,7 @@
 
 .collection-chat-stage {
     max-width: 880px;
-    margin: clamp(30px, 8vh, 80px) auto 34px;
+    margin: 44px auto 34px;
     display: flex;
     flex-direction: column;
     gap: 14px;
@@ -41,8 +38,8 @@
 
 .collection-chat-title {
     margin: 10px 0 8px;
-    font-size: clamp(1.8rem, 2.4vw, 2.4rem);
-    letter-spacing: -0.02em;
+    font-size: 2.25rem;
+    letter-spacing: 0;
 }
 
 .collection-chat-subtitle {
@@ -65,7 +62,7 @@
     gap: 10px;
     align-items: flex-start;
     padding: 9px 11px;
-    border-radius: 12px;
+    border-radius: 8px;
     border: 1px solid #dbe5f0;
     background: rgba(255, 255, 255, 0.9);
     font-size: 0.88rem;
@@ -92,9 +89,9 @@
     grid-template-columns: 1fr auto;
     gap: 10px;
     border: 1px solid #dbe5f0;
-    border-radius: 20px;
+    border-radius: 8px;
     background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 16px 34px rgba(15, 23, 42, 0.1);
+    box-shadow: 0 12px 28px rgba(21, 32, 29, 0.08);
     padding: 12px;
 }
 
@@ -115,9 +112,9 @@
 .collection-chat-send {
     align-self: end;
     height: 42px;
-    border-radius: 12px;
-    border: 1px solid #1e293b;
-    background: #0f172a;
+    border-radius: 8px;
+    border: 1px solid #0f766e;
+    background: #0f766e;
     color: #ffffff;
     font-weight: 600;
     padding: 0 16px;
@@ -148,7 +145,7 @@
 .collection-card {
     text-align: left;
     border: 1px solid #dbe5f0;
-    border-radius: 18px;
+    border-radius: 8px;
     padding: 14px;
     background: rgba(255, 255, 255, 0.96);
     cursor: pointer;
@@ -159,7 +156,7 @@
 }
 
 .collection-card:hover {
-    border-color: #bfdbfe;
+    border-color: #9ccbc4;
     background: #ffffff;
     box-shadow: 0 8px 22px rgba(15, 23, 42, 0.08);
 }
@@ -204,7 +201,7 @@
 .collection-create-input {
     width: 100%;
     border: 1px solid #cbd5e1;
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 9px 10px;
     box-sizing: border-box;
     color: #0f172a;
@@ -223,7 +220,7 @@
 
 .collection-create-btn {
     border: 1px solid #cbd5e1;
-    border-radius: 10px;
+    border-radius: 8px;
     background: #f8fafc;
     color: #334155;
     padding: 7px 11px;
@@ -232,14 +229,14 @@
 }
 
 .collection-create-btn.primary {
-    border-color: #1e293b;
-    background: #0f172a;
+    border-color: #0f766e;
+    background: #0f766e;
     color: #ffffff;
 }
 
 .collection-status {
     margin-bottom: 10px;
-    border-radius: 10px;
+    border-radius: 8px;
     border: 1px solid #dbe5f0;
     background: #f8fafc;
     color: #475569;
@@ -260,11 +257,53 @@
 }
 
 @media (max-width: 900px) {
+    .collection-page-shell {
+        padding-bottom: calc(64px + env(safe-area-inset-bottom));
+    }
+
+    .collection-page-main {
+        padding: 18px 14px 22px;
+    }
+
+    .collection-chat-stage {
+        margin: 12px auto 24px;
+        gap: 12px;
+    }
+
+    .collection-chat-copy {
+        text-align: left;
+    }
+
+    .collection-chat-title {
+        font-size: 1.9rem;
+    }
+
+    .collection-chat-subtitle {
+        font-size: 0.95rem;
+    }
+
     .collection-chatbox {
         grid-template-columns: 1fr;
     }
 
     .collection-chat-send {
-        justify-self: flex-end;
+        width: 100%;
+        min-height: 44px;
+    }
+
+    .collection-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .collection-card {
+        min-height: 104px;
+    }
+
+    .collection-create-actions {
+        flex-direction: column;
+    }
+
+    .collection-create-btn {
+        min-height: 42px;
     }
 }

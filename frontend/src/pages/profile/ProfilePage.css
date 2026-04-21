@@ -1,11 +1,9 @@
 .profile-page-shell {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
     display: flex;
     overflow: hidden;
-    background:
-        radial-gradient(90% 80% at 0% 0%, rgba(191, 219, 254, 0.45) 0%, transparent 50%),
-        #f8fafc;
+    background: #f6f7f4;
 }
 
 .profile-page-main {
@@ -22,7 +20,7 @@
 .profile-card {
     width: min(580px, 100%);
     border: 1px solid #dbe5f0;
-    border-radius: 22px;
+    border-radius: 8px;
     padding: 24px;
     background: rgba(255, 255, 255, 0.96);
     box-shadow: 0 16px 32px rgba(15, 23, 42, 0.08);
@@ -69,7 +67,7 @@
 
 .profile-logout-btn {
     border: 1px solid #dc2626;
-    border-radius: 12px;
+    border-radius: 8px;
     background: #dc2626;
     color: #ffffff;
     padding: 9px 14px;
@@ -80,4 +78,40 @@
 .profile-logout-btn:hover {
     background: #b91c1c;
     border-color: #b91c1c;
+}
+
+@media (max-width: 1024px) {
+    .profile-page-shell {
+        padding-bottom: calc(64px + env(safe-area-inset-bottom));
+    }
+
+    .profile-page-main {
+        align-items: flex-start;
+        padding: 18px 14px 24px;
+        overflow-y: auto;
+    }
+
+    .profile-card {
+        margin-top: 12px;
+        padding: 18px;
+    }
+
+    .profile-row {
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .profile-value {
+        text-align: left;
+        overflow-wrap: anywhere;
+    }
+
+    .profile-actions {
+        justify-content: stretch;
+    }
+
+    .profile-logout-btn {
+        width: 100%;
+        min-height: 44px;
+    }
 }

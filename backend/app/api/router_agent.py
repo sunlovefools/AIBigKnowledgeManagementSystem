@@ -14,7 +14,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, status, Depends
 from fastapi.responses import StreamingResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from app.core.dependencies import get_current_user
 from app.service.collection.collection_service import (
     CollectionNotFoundError,
@@ -68,6 +68,26 @@ class AgenticModificationResponse(BaseModel):
     node6_editor_result: dict[str, Any]
 
 
+class AgenticQueryRequest(BaseModel):
+    """Request payload for Agentic Query v1."""
+
+    query: str
+    conversation_id: str | None = None
+    collectionId: str | None = None
+    seed_top_k: int = 8
+    max_steps: int = 6
+
+
+class AgenticQueryResponse(BaseModel):
+    """Response payload for Agentic Query v1."""
+
+    answer: str
+    citations: list[str] = Field(default_factory=list)
+    conversation_id: str
+    saved_messages: list[dict[str, Any]] = Field(default_factory=list)
+    run_id: str
+
+
 @router.get("/health")
 def agent_health():
     return {"agent": "ok"}
@@ -100,6 +120,50 @@ def _format_sse(event_name: str, data: dict[str, Any]) -> str:
     # SSE frame format: one event block separated by a blank line.
     payload = json.dumps(data, ensure_ascii=False)
     return f"event: {event_name}\ndata: {payload}\n\n"
+
+
+def _load_agentic_query_runner():
+    try:
+        from app.service.rag.agentic_query.runtime import run_agentic_query
+
+        return run_agentic_query
+    except ModuleNotFoundError as exc:
+        if exc.name != "app":
+            raise
+        from service.rag.agentic_query.runtime import run_agentic_query
+
+        return run_agentic_query
+
+
+def _load_query_helpers():
+    try:
+        from app.api import router_query
+
+        return router_query
+    except ModuleNotFoundError as exc:
+        if exc.name != "app":
+            raise
+        from api import router_query
+
+        return router_query
+
+
+def _get_chat_messages_collection():
+    try:
+        from app.core.db_dependencies import get_chat_messages_collection
+
+        return get_chat_messages_collection()
+    except Exception:
+        return None
+
+
+def _get_conversations_collection():
+    try:
+        from app.core.db_dependencies import get_conversations_collection
+
+        return get_conversations_collection()
+    except Exception:
+        return None
 
 
 def _load_retrieval_graph():
@@ -366,6 +430,248 @@ async def _run_agentic_pipeline(
             )
         )
     return response
+
+
+def _build_agentic_query_answer_text(answer: str, citations: list[str]) -> str:
+    normalized_answer = str(answer or "").strip() or "No answer found in the provided context."
+    normalized_citations = [str(item).strip() for item in citations if str(item).strip()]
+    if not normalized_citations:
+        return normalized_answer
+    return normalized_answer + "\n\n" + f"(Sources: {', '.join(normalized_citations)})"
+
+
+async def _run_agentic_query_pipeline(
+    request: AgenticQueryRequest,
+    user_id: str,
+    *,
+    user_email: str | None,
+    chat_collection: Any,
+    conversations_collection: Any,
+    progress_callback: ProgressCallback | None = None,
+) -> AgenticQueryResponse:
+    query_helpers = _load_query_helpers()
+    normalized_query = str(request.query or "").strip()
+    if not normalized_query:
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="query must not be empty.",
+        )
+
+    conversation_id = request.conversation_id or str(uuid4())
+    normalized_user_email = query_helpers._normalized_email(user_email)
+
+    try:
+        active_collection = await CollectionService.resolve_active_collection(
+            user_id=user_id,
+            requested_collection_id=request.collectionId,
+        )
+        scoped_file_ids = await CollectionService.list_file_ids_for_collection(
+            user_id=user_id,
+            collection_id=str(active_collection.get("collection_id") or ""),
+        )
+    except CollectionNotFoundError as exc:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+    except CollectionServiceError as exc:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Collection service error: {str(exc)}",
+        )
+
+    if request.conversation_id and chat_collection is not None:
+        existing_count = query_helpers._count_documents(
+            chat_collection,
+            query_helpers._conversation_owner_filter(
+                conversation_id,
+                user_id,
+                normalized_user_email,
+            ),
+        )
+        if existing_count >= query_helpers.MAX_MESSAGES_PER_CONVERSATION - 1:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=(
+                    "This conversation has reached the 20-message limit. "
+                    "Please start a new conversation."
+                ),
+            )
+
+    saved_messages: list[dict[str, Any]] = []
+    try:
+        saved_user_message = query_helpers._save_chat_message(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            user_email=normalized_user_email,
+            role="user",
+            text=normalized_query,
+            chat_collection=chat_collection,
+            conversations_collection=conversations_collection,
+        )
+        if saved_user_message is not None:
+            saved_messages.append(saved_user_message)
+    except PermissionError as exc:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail=str(exc))
+    except query_helpers.MessageLimitExceededError as exc:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(exc))
+    except Exception as exc:
+        print(f"Failed to persist user chat message for agentic query: {exc}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to persist user chat message.",
+        )
+
+    run_agentic_query = _load_agentic_query_runner()
+    try:
+        runtime_result = await run_agentic_query(
+            user_query=normalized_query,
+            user_id=user_id,
+            included_file_ids=[
+                str(file_id).strip()
+                for file_id in scoped_file_ids
+                if str(file_id).strip()
+            ],
+            seed_top_k=request.seed_top_k,
+            max_steps=request.max_steps,
+            progress_callback=progress_callback,
+        )
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Agentic Query pipeline failed: {str(exc)}",
+        )
+
+    normalized_citations = [
+        str(item).strip()
+        for item in (runtime_result.citations or [])
+        if str(item).strip()
+    ]
+    response_answer = str(runtime_result.answer or "").strip() or "No answer found in the provided context."
+    persisted_ai_text = _build_agentic_query_answer_text(response_answer, normalized_citations)
+
+    try:
+        saved_ai_message = query_helpers._save_chat_message(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            user_email=normalized_user_email,
+            role="ai",
+            text=persisted_ai_text,
+            chat_collection=chat_collection,
+            conversations_collection=conversations_collection,
+        )
+        if saved_ai_message is not None:
+            saved_messages.append(saved_ai_message)
+    except Exception as exc:
+        print(f"Failed to persist AI chat message for agentic query: {exc}")
+
+    return AgenticQueryResponse(
+        answer=response_answer,
+        citations=normalized_citations,
+        conversation_id=conversation_id,
+        saved_messages=saved_messages,
+        run_id=str(runtime_result.run_id),
+    )
+
+
+@router.post("/query", response_model=AgenticQueryResponse)
+async def agentic_query(
+    request: AgenticQueryRequest,
+    current_user: dict = Depends(get_current_user),
+    chat_collection: Any = Depends(_get_chat_messages_collection),
+    conversations_collection: Any = Depends(_get_conversations_collection),
+):
+    user_id = str(current_user.get("sub") or "").strip() if isinstance(current_user, dict) else ""
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required.",
+        )
+    user_email = str(current_user.get("email") or "").strip() if isinstance(current_user, dict) else ""
+    return await _run_agentic_query_pipeline(
+        request,
+        user_id=user_id,
+        user_email=user_email,
+        chat_collection=chat_collection,
+        conversations_collection=conversations_collection,
+    )
+
+
+@router.post("/query-stream")
+async def agentic_query_stream(
+    request: AgenticQueryRequest,
+    current_user: dict = Depends(get_current_user),
+    chat_collection: Any = Depends(_get_chat_messages_collection),
+    conversations_collection: Any = Depends(_get_conversations_collection),
+):
+    user_id = str(current_user.get("sub") or "").strip() if isinstance(current_user, dict) else ""
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required.",
+        )
+    user_email = str(current_user.get("email") or "").strip() if isinstance(current_user, dict) else ""
+
+    queue: asyncio.Queue[str | None] = asyncio.Queue()
+
+    async def _push_progress(event_payload: dict[str, Any]) -> None:
+        await queue.put(_format_sse("progress", event_payload))
+
+    async def _runner() -> None:
+        try:
+            response = await _run_agentic_query_pipeline(
+                request,
+                user_id=user_id,
+                user_email=user_email,
+                chat_collection=chat_collection,
+                conversations_collection=conversations_collection,
+                progress_callback=_push_progress,
+            )
+            await queue.put(_format_sse("result", response.model_dump()))
+        except HTTPException as exc:
+            await queue.put(
+                _format_sse(
+                    "error",
+                    {
+                        "statusCode": int(exc.status_code),
+                        "detail": str(exc.detail),
+                    },
+                )
+            )
+        except Exception as exc:
+            await queue.put(
+                _format_sse(
+                    "error",
+                    {
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        "detail": str(exc),
+                    },
+                )
+            )
+        finally:
+            await queue.put(None)
+
+    task = asyncio.create_task(_runner())
+
+    async def _event_stream():
+        try:
+            while True:
+                next_item = await queue.get()
+                if next_item is None:
+                    break
+                yield next_item
+        finally:
+            if not task.done():
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+
+    return StreamingResponse(
+        _event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.post("/modify", response_model=AgenticModificationResponse)

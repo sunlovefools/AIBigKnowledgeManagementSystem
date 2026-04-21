@@ -16,7 +16,7 @@ Source code of truth:
 - Non-PDF files: always `legacy` chunker (`split_parent_child_chunks`).
 - PDF files:
 1. If `INGEST_PDF_EXTRACTOR=legacy`: legacy chunker.
-2. If `INGEST_PDF_EXTRACTOR=docling`: Docling block chunker (`split_parent_child_chunks_from_docling_blocks`).
+2. If `INGEST_PDF_EXTRACTOR=docling`: Docling block chunker (`split_parent_child_chunks_from_docling_blocks`), optionally augmented by semantic table ingestion when `TABLE_SEMANTIC_INGESTION_ENABLED=true`.
 
 ### Modification / re-chunking
 All modification flows use markdown chunker (`split_parent_child_chunks_from_markdown`):
@@ -159,6 +159,21 @@ If merged child list is empty but parent content exists, one fallback child is c
 - intro section is created when content appears before first header
 - back-to-back headers stay in same preamble
 - table children ignore `child_max_words` by design
+
+### 4A. Semantic PDF table augmentation (`docling/table_semantic/`)
+
+When `TABLE_SEMANTIC_INGESTION_ENABLED=true`, PDF Docling tables are preprocessed before normal Docling chunking:
+
+- Non-image markdown tables are classified with an OpenAI-compatible LLM (`layout|matrix|entity_list`).
+- `layout` tables are flattened into key-value bullet text and fed into standard Docling chunking.
+- `matrix` / `entity_list` tables produce semantic table chunks:
+1. Global table description.
+2. Batched row-slice summaries.
+3. Child rows per chunk: 10 (`<=10` cols) or 5 (`>10` cols).
+4. Parent grouping: 3 semantic child chunks per parent (last group may be smaller).
+- Semantic parent metadata includes `parent_chunk_metadata.table_semantic`.
+- Semantic child metadata includes `child_chunk_metadata.table_slice`.
+- Ingestion fails fast when a required semantic LLM stage fails.
 
 ## 5. Modification chunking (`markdown_chunker.py`)
 

@@ -4,6 +4,8 @@ import type { HighlightedSelection, PendingModificationNavItem } from "../types"
 type ChatInputProps = {
     input: string;
     isQuerying: boolean;
+    isAgenticSearchEnabled: boolean;
+    isAgenticToggleDisabled?: boolean;
     isModificationPanelOpen: boolean;
     isEditMode: boolean;
     highlightedSelection: HighlightedSelection | null;
@@ -11,6 +13,7 @@ type ChatInputProps = {
     onInputChange: (value: string) => void;
     onInputKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
     onToggleModificationPanel: () => void;
+    onToggleAgenticSearch: () => void;
     onClearHighlightedSelection: () => void;
     onNavigateToModification?: (fileId: string, proposalKey: string) => void;
     onSend: () => void;
@@ -19,6 +22,8 @@ type ChatInputProps = {
 export default function ChatInput({
     input,
     isQuerying,
+    isAgenticSearchEnabled,
+    isAgenticToggleDisabled = false,
     isModificationPanelOpen,
     isEditMode,
     highlightedSelection,
@@ -26,6 +31,7 @@ export default function ChatInput({
     onInputChange,
     onInputKeyDown,
     onToggleModificationPanel,
+    onToggleAgenticSearch,
     onClearHighlightedSelection,
     onNavigateToModification,
     onSend,
@@ -68,6 +74,18 @@ export default function ChatInput({
     return (
         <div className="input-area-wrapper">
             <div className={`input-container ${isEditMode ? "edit-mode-active" : ""}`}>
+                <div className="input-search-mode-row">
+                    <button
+                        type="button"
+                        className={`agentic-search-toggle ${isAgenticSearchEnabled ? "active" : ""}`}
+                        onClick={onToggleAgenticSearch}
+                        disabled={isAgenticToggleDisabled}
+                        aria-pressed={isAgenticSearchEnabled}
+                        title={isAgenticSearchEnabled ? "Using /api/agent/query" : "Using /api/query"}
+                    >
+                        Agentic Search: {isAgenticSearchEnabled ? "On" : "Off"}
+                    </button>
+                </div>
                 {showPendingTray && (
                     <div className="input-pending-tray">
                         <button

@@ -45,7 +45,7 @@ export function useFileUpload({ onUploadMessage, onUploadSuccess, collectionId }
         } else {
             setFileContent("");
         }
-    }, []);
+    }, [onUploadMessage]);
 
     // Handler to clear the selected file and its content
     const clearFile = useCallback(() => {

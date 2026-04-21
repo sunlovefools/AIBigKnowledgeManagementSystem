@@ -10,6 +10,7 @@ _RETRIEVAL_RERANK_FILE = "retrieval_rerank_debug.txt"
 _ANSWER_FILE = "answer_generation_debug.txt"
 _VECTOR_DB_PARENT_CHUNKS_FILE = "vector_database_parent_chunks_log.txt"
 _MOD_AGENT_FILE = "modification_agent_debug.txt"
+_AGENTIC_QUERY_FILE = "agentic_query_debug.txt"
 
 
 def _resolve_debug_dir() -> Path:
@@ -343,6 +344,135 @@ def log_modification_agent_search_group(
         _append(_MOD_AGENT_FILE, lines)
     except Exception as exc:
         print(f"Warning: failed to write modification agent search/group debug log: {exc}")
+
+
+def _truncate_for_log(text: str, *, max_chars: int = 12000) -> str:
+    normalized = str(text or "")
+    if len(normalized) <= max_chars:
+        return normalized
+    return normalized[:max_chars] + f"\n...[truncated {len(normalized) - max_chars} chars]"
+
+
+def log_agentic_query_llm_request(
+    *,
+    run_id: str | None,
+    step: int | None,
+    system_prompt: str,
+    user_prompt: str,
+) -> None:
+    """Append agentic query LLM request details to backend/debug/logs/agentic_query_debug.txt."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        lines = [
+            "=" * 50,
+            "DEBUG: AGENTIC QUERY LLM REQUEST",
+            "-" * 50,
+            f"Timestamp: {timestamp}",
+            f"Run ID: {run_id if run_id else 'N/A'}",
+            f"Step: {step if isinstance(step, int) else 'N/A'}",
+            f"System Prompt Length: {len(system_prompt)}",
+            f"User Prompt Length: {len(user_prompt)}",
+            "",
+            "<SYSTEM_PROMPT>",
+            _truncate_for_log(system_prompt),
+            "</SYSTEM_PROMPT>",
+            "",
+            "<USER_PROMPT>",
+            _truncate_for_log(user_prompt),
+            "</USER_PROMPT>",
+            "-" * 50,
+        ]
+        _append(_AGENTIC_QUERY_FILE, lines)
+    except Exception as exc:
+        print(f"Warning: failed to write agentic query LLM request debug log: {exc}")
+
+
+def log_agentic_query_llm_response(
+    *,
+    run_id: str | None,
+    step: int | None,
+    response_text: str,
+) -> None:
+    """Append agentic query LLM raw response to backend/debug/logs/agentic_query_debug.txt."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        lines = [
+            "-" * 50,
+            "DEBUG: AGENTIC QUERY LLM RESPONSE",
+            "-" * 50,
+            f"Timestamp: {timestamp}",
+            f"Run ID: {run_id if run_id else 'N/A'}",
+            f"Step: {step if isinstance(step, int) else 'N/A'}",
+            f"Response Length: {len(response_text)}",
+            "<LLM_RESPONSE>",
+            _truncate_for_log(response_text),
+            "</LLM_RESPONSE>",
+            "-" * 50,
+        ]
+        _append(_AGENTIC_QUERY_FILE, lines)
+    except Exception as exc:
+        print(f"Warning: failed to write agentic query LLM response debug log: {exc}")
+
+
+def log_agentic_query_action(
+    *,
+    run_id: str | None,
+    step: int | None,
+    action: str,
+    arguments: dict[str, Any] | None = None,
+    result: dict[str, Any] | None = None,
+    error: str | None = None,
+) -> None:
+    """Append one agentic query action execution block to backend/debug/logs/agentic_query_debug.txt."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        payload = {
+            "arguments": arguments if isinstance(arguments, dict) else {},
+            "result": result if isinstance(result, dict) else {},
+            "error": str(error) if error else None,
+        }
+        lines = [
+            "=" * 50,
+            "DEBUG: AGENTIC QUERY ACTION",
+            "-" * 50,
+            f"Timestamp: {timestamp}",
+            f"Run ID: {run_id if run_id else 'N/A'}",
+            f"Step: {step if isinstance(step, int) else 'N/A'}",
+            f"Action: {action}",
+            "<ACTION_PAYLOAD>",
+            _truncate_for_log(json.dumps(payload, ensure_ascii=False, indent=2)),
+            "</ACTION_PAYLOAD>",
+            "=" * 50,
+        ]
+        _append(_AGENTIC_QUERY_FILE, lines)
+    except Exception as exc:
+        print(f"Warning: failed to write agentic query action debug log: {exc}")
+
+
+def log_agentic_query_config_event(
+    *,
+    run_id: str | None,
+    event: str,
+    payload: dict[str, Any] | None = None,
+) -> None:
+    """Append agentic query config/runtime transparency events to backend/debug/logs/agentic_query_debug.txt."""
+    try:
+        timestamp = datetime.now(timezone.utc).isoformat()
+        lines = [
+            "=" * 50,
+            "DEBUG: AGENTIC QUERY CONFIG EVENT",
+            "-" * 50,
+            f"Timestamp: {timestamp}",
+            f"Run ID: {run_id if run_id else 'N/A'}",
+            f"Event: {event}",
+            "<CONFIG_EVENT_PAYLOAD>",
+            _truncate_for_log(json.dumps(payload or {}, ensure_ascii=False, indent=2)),
+            "</CONFIG_EVENT_PAYLOAD>",
+            "=" * 50,
+        ]
+        _append(_AGENTIC_QUERY_FILE, lines)
+    except Exception as exc:
+        print(f"Warning: failed to write agentic query config event debug log: {exc}")
 
 
 _TOKEN_USAGE_FILE = "token_usage.txt"

@@ -434,9 +434,59 @@ def _normalize_parent_document(raw_doc: Any) -> Dict[str, Any] | None:
     return {
         "id": raw_doc.get("id"),
         "metadata": metadata,
-        "page_content": str(page_content),
+        "page_content": _enrich_parent_content_with_table_semantic_context(
+            metadata=metadata,
+            page_content=str(page_content),
+        ),
         "type": str(raw_doc.get("type", "Document")),
     }
+
+
+def _render_headers_markdown(headers: Any) -> str:
+    if not isinstance(headers, list):
+        return ""
+    normalized = [str(item).strip() for item in headers if str(item).strip()]
+    if not normalized:
+        return ""
+    header_line = "| " + " | ".join(normalized) + " |"
+    separator_line = "| " + " | ".join(["---"] * len(normalized)) + " |"
+    return f"{header_line}\n{separator_line}"
+
+
+def _enrich_parent_content_with_table_semantic_context(
+    *,
+    metadata: Dict[str, Any],
+    page_content: str,
+) -> str:
+    """
+    Prepend semantic table context for retrieval-time answer generation.
+    """
+
+    parent_chunk_metadata = (
+        metadata.get("parent_chunk_metadata")
+        if isinstance(metadata.get("parent_chunk_metadata"), dict)
+        else {}
+    )
+    table_semantic = (
+        parent_chunk_metadata.get("table_semantic")
+        if isinstance(parent_chunk_metadata.get("table_semantic"), dict)
+        else {}
+    )
+    if not table_semantic:
+        return page_content
+
+    general_description = str(table_semantic.get("general_description") or "").strip()
+    headers_markdown = _render_headers_markdown(table_semantic.get("col_headers"))
+
+    prefix_parts: List[str] = []
+    if general_description:
+        prefix_parts.append(f"General Description: {general_description}")
+    if headers_markdown:
+        prefix_parts.append(f"Headers:\n{headers_markdown}")
+
+    if not prefix_parts:
+        return page_content
+    return "\n\n".join(prefix_parts + [page_content]).strip()
 
 
 def _map_reranked_pairs_to_child_docs(

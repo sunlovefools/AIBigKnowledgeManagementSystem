@@ -19,6 +19,10 @@ from app.service.rag.ingestion.docling.storage import local_artifacts_store
 from app.service.rag.ingestion.docling.chunker import (
     split_parent_child_chunks_from_docling_blocks,
 )
+from app.service.rag.ingestion.docling.table_semantic import (
+    TableSemanticIngestionError,
+    process_semantic_tables_for_pdf,
+)
 from app.service.rag.ingestion.docling.pptexcel_extractor import (
     is_pptexcel_document,
     parse_pptexcel_with_docling,
@@ -57,6 +61,79 @@ class DoclingChunkingFailedError(RuntimeError):
 
 class UpsertChunksFailedError(RuntimeError):
     pass
+
+
+def _sort_semantic_parents(parent_chunks_models: list[Any]) -> list[Any]:
+    """Sort semantic parents deterministically by source table block and group index."""
+
+    def _key(model: Any) -> tuple[int, int, str]:
+        metadata = getattr(model, "parent_chunk_metadata", {}) or {}
+        semantic = metadata.get("table_semantic") if isinstance(metadata, dict) else {}
+        if not isinstance(semantic, dict):
+            semantic = {}
+        table_block_index = semantic.get("table_block_index", 10**9)
+        group_index = semantic.get("group_index", 10**9)
+        try:
+            table_block_index = int(table_block_index)
+        except (TypeError, ValueError):
+            table_block_index = 10**9
+        try:
+            group_index = int(group_index)
+        except (TypeError, ValueError):
+            group_index = 10**9
+        return table_block_index, group_index, str(getattr(model, "parent_chunk_id", ""))
+
+    return sorted(parent_chunks_models, key=_key)
+
+
+def _sort_semantic_children(child_chunks_models: list[Any]) -> list[Any]:
+    """Sort semantic children deterministically by source table block and slice index."""
+
+    def _key(model: Any) -> tuple[int, int, str]:
+        metadata = getattr(model, "child_chunk_metadata", {}) or {}
+        slice_meta = metadata.get("table_slice") if isinstance(metadata, dict) else {}
+        if not isinstance(slice_meta, dict):
+            slice_meta = {}
+        table_block_index = slice_meta.get("table_block_index", 10**9)
+        slice_index = slice_meta.get("slice_index", 10**9)
+        try:
+            table_block_index = int(table_block_index)
+        except (TypeError, ValueError):
+            table_block_index = 10**9
+        try:
+            slice_index = int(slice_index)
+        except (TypeError, ValueError):
+            slice_index = 10**9
+        return table_block_index, slice_index, str(getattr(model, "child_chunk_id", ""))
+
+    return sorted(child_chunks_models, key=_key)
+
+
+def _resequence_merged_chunk_numbers(
+    parent_chunks_models: list[Any],
+    child_chunks_models: list[Any],
+) -> tuple[list[Any], list[Any]]:
+    """Reset parent/child sequence numbers after merging chunk streams."""
+
+    for index, parent_chunk in enumerate(parent_chunks_models):
+        parent_meta = (
+            parent_chunk.parent_chunk_metadata
+            if isinstance(getattr(parent_chunk, "parent_chunk_metadata", None), dict)
+            else {}
+        )
+        parent_meta["parent_chunk_number"] = index
+        parent_chunk.parent_chunk_metadata = parent_meta
+
+    for index, child_chunk in enumerate(child_chunks_models):
+        child_meta = (
+            child_chunk.child_chunk_metadata
+            if isinstance(getattr(child_chunk, "child_chunk_metadata", None), dict)
+            else {}
+        )
+        child_meta["child_chunk_number"] = index
+        child_chunk.child_chunk_metadata = child_meta
+
+    return parent_chunks_models, child_chunks_models
 
 
 def decode_base64(data: str) -> bytes:
@@ -149,31 +226,58 @@ def run_docling_pdf_pipeline(
         )
 
     try:
-        # Docling-PDF-chunker 5: Convert structured blocks into parent/child chunk models.
-        parent_chunks_models, child_chunks_models = (
-            split_parent_child_chunks_from_docling_blocks(
+        # Docling-PDF-chunker 5: Run semantic-table preprocessing for PDF tables.
+        transformed_blocks, semantic_parent_models, semantic_child_models, semantic_warnings = (
+            process_semantic_tables_for_pdf(
                 blocks=parse_result.structured_blocks,
+                file_name=file_name,
+                file_id=file_id,
+                artifact_dir=artifact_dir,
+            )
+        )
+
+        # Docling-PDF-chunker 6: Convert transformed structured blocks into standard parent/child chunk models.
+        standard_parent_models, standard_child_models = (
+            split_parent_child_chunks_from_docling_blocks(
+                blocks=transformed_blocks,
                 file_name=file_name,
                 artifact_dir=artifact_dir,
                 file_id=file_id,
             )
         )
+
+        # Docling-PDF-chunker 7: Merge standard and semantic chunk streams and re-sequence numbers.
+        parent_chunks_models = list(standard_parent_models) + _sort_semantic_parents(
+            list(semantic_parent_models)
+        )
+        child_chunks_models = list(standard_child_models) + _sort_semantic_children(
+            list(semantic_child_models)
+        )
+        parent_chunks_models, child_chunks_models = _resequence_merged_chunk_numbers(
+            parent_chunks_models,
+            child_chunks_models,
+        )
+
+        if semantic_warnings:
+            parse_result.warnings.extend(semantic_warnings)
+    except TableSemanticIngestionError as exc:
+        raise DoclingChunkingFailedError(str(exc)) from exc
     except Exception as exc:
-        # Docling-PDF-chunker 5a: Normalize chunking failure for router-level HTTP mapping.
+        # Docling-PDF-chunker 6a: Normalize chunking failure for router-level HTTP mapping.
         raise DoclingChunkingFailedError(str(exc)) from exc
 
-    # Docling-PDF-chunker 6: Convert chunk models into dictionaries for storage/upsert.
+    # Docling-PDF-chunker 8: Convert chunk models into dictionaries for storage/upsert.
     parent_chunks_dicts = [chunk.model_dump() for chunk in parent_chunks_models]
     child_chunks_dicts = [chunk.model_dump() for chunk in child_chunks_models]
 
-    # Docling-PDF-chunker 7: Aggregate parse warnings and partial-failure summary.
+    # Docling-PDF-chunker 9: Aggregate parse warnings and partial-failure summary.
     warnings = list(parse_result.warnings)
     if parse_result.partial_failures:
         warnings.append(
             f"Docling reported {len(parse_result.partial_failures)} partial failure chunk(s)."
         )
 
-    # Docling-PDF-chunker 8: Return chunk payloads, warnings, and Docling run id for logging.
+    # Docling-PDF-chunker 10: Return chunk payloads, warnings, and Docling run id for logging.
     return parent_chunks_dicts, child_chunks_dicts, warnings, run_id
 
 

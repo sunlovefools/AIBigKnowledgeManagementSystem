@@ -69,6 +69,9 @@ Flow:
 3. Require non-empty `structured_blocks`.
 4. Chunk via Docling chunker (`split_parent_child_chunks_from_docling_blocks`).
 5. Upsert to vector stores without legacy polish step.
+6. When semantic-table ingestion is enabled, classify each non-image markdown table and:
+   - `layout`: flatten to key-value bullets and keep normal chunking.
+   - `matrix` / `entity_list`: generate semantic child/parent table chunks and merge with standard chunks.
 
 Docling branch preserves richer metadata for visual content, including:
 - `content_flags`
@@ -86,6 +89,14 @@ Docling branch preserves richer metadata for visual content, including:
 - `INGEST_PDF_EXTRACTOR=legacy|docling`
 - `DOCLING_BACKEND_SELECTION=beam|local`
 - `DOCLING_ARTIFACTS_ENABLED=true|false`
+- `TABLE_SEMANTIC_INGESTION_ENABLED=true|false` (defaults to `true`)
+- `TABLE_SEMANTIC_LLM_URL=<openai-compatible-chat-completions-url>`
+- `TABLE_SEMANTIC_LLM_API_KEY=<required-when-semantic-tables-encountered>`
+- `TABLE_SEMANTIC_CLASSIFIER_MODEL=<model-name>`
+- `TABLE_SEMANTIC_GLOBAL_MODEL=<model-name>`
+- `TABLE_SEMANTIC_ROW_MODEL=<model-name>`
+- `TABLE_SEMANTIC_TIMEOUT_S=<seconds>`
+- `TABLE_SEMANTIC_MAX_SAMPLE_ROWS=<int>`
 
 ## Local Test (curl)
 

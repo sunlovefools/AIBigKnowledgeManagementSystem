@@ -97,6 +97,14 @@ BEAM_TIMEOUT=60
 
 # (Optional) Docling artifact/debug outputs (default true)
 DOCLING_ARTIFACTS_ENABLED=true
+TABLE_SEMANTIC_INGESTION_ENABLED=true
+TABLE_SEMANTIC_LLM_URL=https://api.deepseek.com/v1/chat/completions
+TABLE_SEMANTIC_LLM_API_KEY=<deepseek-or-openai-compatible-key>
+TABLE_SEMANTIC_CLASSIFIER_MODEL=deepseek-chat
+TABLE_SEMANTIC_GLOBAL_MODEL=deepseek-chat
+TABLE_SEMANTIC_ROW_MODEL=deepseek-chat
+TABLE_SEMANTIC_TIMEOUT_S=60
+TABLE_SEMANTIC_MAX_SAMPLE_ROWS=8
 
 # (Optional) AWS S3 image uploads for Docling preview artifacts (required toggle)
 AWS_S3_UPLOAD_ENABLED=false

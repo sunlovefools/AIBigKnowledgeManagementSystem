@@ -2699,3 +2699,167 @@ Answer:
 123 Tech Avenue, Suite 400, Wilmington, DE 19801
 (Sources: General Terms and Conditions.pdf)
 ==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-29T13:13:07.908279+00:00
+Provider: OPENROUTER
+Model: z-ai/glm-4.5-air:free
+Context Length: 6841
+
+<QUERY>
+What happens to a Barbarian's Rage damage bonus as they gain levels, according to the class description?
+</QUERY>
+
+<CONTEXT>
+[1]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## R a g e\n\nIn battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action.\n\nWhile raging, you gain the following benefits if you aren't wearing heavy armor:\n\n-   You have advantage on Strength checks and Strength saving throws.\n\n-   When you make a melee weapon attack using Strength, you gain a bonus to the damage roll that increases as you gain levels as a barbarian, as shown in the Rage Damage column of the Barbarian table.\n\n-   You have resistance to bludgeoning, piercing, and slashing damage.\n\nIf you are able to cast spells, you can't cast them or concentrate on them while raging.\n\nYour rage lasts for 1  minute. It ends early if you are knocked unconscious or if your turn ends and you haven't attacked a hostile creature since your last turn or taken damage since then. You can also end your rage on your turn as a bonus action.\n\nOnce you have raged the number of times shown for your barbarian level in the Rages column of the Barbarian table, you must finish a long rest before you can rage again."
+
+[2]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## T h e   B a r b a r i a n\n\n| Level   |   Proficiency Bonus | Features                      | Rages     |   Rage Damage |\n|---------|---------------------|-------------------------------|-----------|---------------|\n| 1st     |                  +2 | Rage, Unarmored Defense       | 2         |            +2 |\n| 2nd     |                  +2 | Reckless Attack, Danger Sense | 2         |            +2 |\n| 3rd     |                  +2 | Primal Path                   | 3         |            +2 |\n| 4th     |                  +2 | Ability Score Improvement     | 3         |            +2 |\n| 5th     |                  +3 | Extra Attack, Fast Movement   | 3         |            +2 |\n| 6th     |                  +3 | Path feature                  | 4         |            +2 |\n| 7th     |                  +3 | Feral Instinct                | 4         |            +2 |\n| 8th     |                  +3 | Ability Score Improvement     | 4         |            +2 |\n| 9th     |                  +4 | Brutal Critical (1 die)       | 4         |            +3 |\n| 10th    |                  +4 | Path feature                  | 4         |            +3 |\n| 11th    |                  +4 | Relentless Rage               | 4         |            +3 |\n| 12th    |                  +4 | Ability Score Improvement     | 5         |            +3 |\n| 13th    |                  +5 | Brutal Critical (2 dice)      | 5         |            +3 |\n| 14th    |                  +5 | Path feature                  | 5         |            +3 |\n| 15th    |                  +5 | Persistent Rage               | 5         |            +3 |\n| 16th    |                  +5 | Ability Score Improvement     | 5         |            +4 |\n| 17th    |                  +6 | Brutal Critical (3 dice)      | 6         |            +4 |\n| 18th    |                  +6 | Indomitable Might             | 6         |            +4 |\n| 19th    |                  +6 | Ability Score Improvement     | 6         |            +4 |\n| 20th    |                  +6 | Primal Champion               | Unlimited |            +4 |\n\nmonsters. Barbarians charge headlong into that danger so that their people don't have to.\n\nTheir courage in the face of danger makes barbarians perfectly suited for adventuring. Wandering is often a way of life for their native tribes, and the rootless life of the adventurer is little hardship for a barbarian. Som e barbarians miss the close-knit family structures of the tribe, but eventually find them replaced by the bonds formed among the members of their adventuring parties."
+
+[3]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## Class Features\n\nAs a barbarian, you gain the following class features.\n\nH it  P o in t s Hit Dice:  1 d12 per barbarian level Hit Points at 1st Level: 12 + your Constitution modifier Hit Points at Higher Levels:  1 d12 (or 7) + your Constitution modifier per barbarian level after 1st"
+
+[4]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## P r i m a l   I n s t i n c t\n\nPeople of towns and cities take pride in how their civilized ways set them apart from animals, as if denying one's own nature was a mark of superiority. To a barbarian, though, civilization is no virtue, but a sign of weakness. The strong embrace their animal naturekeen instincts, primal physicality, and ferocious rage. Barbarians are uncomfortable when hedged in by walls and crowds. They thrive in the wilds of their homelands: the tundra, jungle, or grasslands where their tribes live and hunt.\n\nBarbarians come alive in the chaos of combat. They can enter a berserk state where rage takes over, giving them superhuman strength and resilience. A barbarian can draw on this reservoir of fury only a few times without resting, but those few rages are usually sufficient to defeat whatever threats arise."
+
+[5]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## P r i m a l   P a t h\n\nAt 3rd level, you choose a path that shapes the nature of your rage. Choose the Path of the Berserker or the Path of the Totem Warrior, both detailed at the end of the class description. Your choice grants you features at 3rd level and again at 6th,  10th, and  14th levels."
+
+[6]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## F r e n z y\n\nStarting when you choose this path at 3rd level, you can go into a frenzy when you rage. If you do so, for the duration of your rage you can make a single melee weapon attack as a bonus action on each of your turns after this one. When your rage ends, you suffer one level of exhaustion (as described in appendix A)."
+
+[7]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## Primal Paths\n\nRage burns in every barbarian's heart, a furnace that drives him or her toward greatness. Different\n\n<!-- image-uuid: 1f12b70b-9158-6569-8f65-190fc5aab50c -->\n\n<!-- image-uuid: 1f12b70b-9271-6c6a-8db5-ac2d8b1e2088 -->\n\ncreature until the end of your next turn. This effect ends if the creature ends its turn out of line of sight or more than 60 feet away from you.\n\nIf the creature succeeds on its saving throw, you can't use this feature on that creature again for 24 hours."
+
+[8]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## Pa t h   o f   t h e   B e r s e r k e r\n\nFor some barbarians, rage is a means to an end-- that end being violence. The Path of the Berserker is a path of untrammeled fury, slick with blood. As you enter the berserker's rage, you thrill in the chaos of battle, heedless of your own health or well-being."
+</CONTEXT>
+--------------------------------------------------
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-03-29T13:13:38.140545+00:00
+Provider: OPENROUTER
+Model: z-ai/glm-4.5-air:free
+Context Length: 6841
+
+<QUERY>
+What happens to a Barbarian's Rage damage bonus as they gain levels, according to the class description?
+</QUERY>
+
+<CONTEXT>
+[1]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## R a g e\n\nIn battle, you fight with primal ferocity. On your turn, you can enter a rage as a bonus action.\n\nWhile raging, you gain the following benefits if you aren't wearing heavy armor:\n\n-   You have advantage on Strength checks and Strength saving throws.\n\n-   When you make a melee weapon attack using Strength, you gain a bonus to the damage roll that increases as you gain levels as a barbarian, as shown in the Rage Damage column of the Barbarian table.\n\n-   You have resistance to bludgeoning, piercing, and slashing damage.\n\nIf you are able to cast spells, you can't cast them or concentrate on them while raging.\n\nYour rage lasts for 1  minute. It ends early if you are knocked unconscious or if your turn ends and you haven't attacked a hostile creature since your last turn or taken damage since then. You can also end your rage on your turn as a bonus action.\n\nOnce you have raged the number of times shown for your barbarian level in the Rages column of the Barbarian table, you must finish a long rest before you can rage again."
+
+[2]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## T h e   B a r b a r i a n\n\n| Level   |   Proficiency Bonus | Features                      | Rages     |   Rage Damage |\n|---------|---------------------|-------------------------------|-----------|---------------|\n| 1st     |                  +2 | Rage, Unarmored Defense       | 2         |            +2 |\n| 2nd     |                  +2 | Reckless Attack, Danger Sense | 2         |            +2 |\n| 3rd     |                  +2 | Primal Path                   | 3         |            +2 |\n| 4th     |                  +2 | Ability Score Improvement     | 3         |            +2 |\n| 5th     |                  +3 | Extra Attack, Fast Movement   | 3         |            +2 |\n| 6th     |                  +3 | Path feature                  | 4         |            +2 |\n| 7th     |                  +3 | Feral Instinct                | 4         |            +2 |\n| 8th     |                  +3 | Ability Score Improvement     | 4         |            +2 |\n| 9th     |                  +4 | Brutal Critical (1 die)       | 4         |            +3 |\n| 10th    |                  +4 | Path feature                  | 4         |            +3 |\n| 11th    |                  +4 | Relentless Rage               | 4         |            +3 |\n| 12th    |                  +4 | Ability Score Improvement     | 5         |            +3 |\n| 13th    |                  +5 | Brutal Critical (2 dice)      | 5         |            +3 |\n| 14th    |                  +5 | Path feature                  | 5         |            +3 |\n| 15th    |                  +5 | Persistent Rage               | 5         |            +3 |\n| 16th    |                  +5 | Ability Score Improvement     | 5         |            +4 |\n| 17th    |                  +6 | Brutal Critical (3 dice)      | 6         |            +4 |\n| 18th    |                  +6 | Indomitable Might             | 6         |            +4 |\n| 19th    |                  +6 | Ability Score Improvement     | 6         |            +4 |\n| 20th    |                  +6 | Primal Champion               | Unlimited |            +4 |\n\nmonsters. Barbarians charge headlong into that danger so that their people don't have to.\n\nTheir courage in the face of danger makes barbarians perfectly suited for adventuring. Wandering is often a way of life for their native tribes, and the rootless life of the adventurer is little hardship for a barbarian. Som e barbarians miss the close-knit family structures of the tribe, but eventually find them replaced by the bonds formed among the members of their adventuring parties."
+
+[3]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## Class Features\n\nAs a barbarian, you gain the following class features.\n\nH it  P o in t s Hit Dice:  1 d12 per barbarian level Hit Points at 1st Level: 12 + your Constitution modifier Hit Points at Higher Levels:  1 d12 (or 7) + your Constitution modifier per barbarian level after 1st"
+
+[4]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## P r i m a l   I n s t i n c t\n\nPeople of towns and cities take pride in how their civilized ways set them apart from animals, as if denying one's own nature was a mark of superiority. To a barbarian, though, civilization is no virtue, but a sign of weakness. The strong embrace their animal naturekeen instincts, primal physicality, and ferocious rage. Barbarians are uncomfortable when hedged in by walls and crowds. They thrive in the wilds of their homelands: the tundra, jungle, or grasslands where their tribes live and hunt.\n\nBarbarians come alive in the chaos of combat. They can enter a berserk state where rage takes over, giving them superhuman strength and resilience. A barbarian can draw on this reservoir of fury only a few times without resting, but those few rages are usually sufficient to defeat whatever threats arise."
+
+[5]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## P r i m a l   P a t h\n\nAt 3rd level, you choose a path that shapes the nature of your rage. Choose the Path of the Berserker or the Path of the Totem Warrior, both detailed at the end of the class description. Your choice grants you features at 3rd level and again at 6th,  10th, and  14th levels."
+
+[6]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## F r e n z y\n\nStarting when you choose this path at 3rd level, you can go into a frenzy when you rage. If you do so, for the duration of your rage you can make a single melee weapon attack as a bonus action on each of your turns after this one. When your rage ends, you suffer one level of exhaustion (as described in appendix A)."
+
+[7]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## Primal Paths\n\nRage burns in every barbarian's heart, a furnace that drives him or her toward greatness. Different\n\n<!-- image-uuid: 1f12b70b-9158-6569-8f65-190fc5aab50c -->\n\n<!-- image-uuid: 1f12b70b-9271-6c6a-8db5-ac2d8b1e2088 -->\n\ncreature until the end of your next turn. This effect ends if the creature ends its turn out of line of sight or more than 60 feet away from you.\n\nIf the creature succeeds on its saving throw, you can't use this feature on that creature again for 24 hours."
+
+[8]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## Pa t h   o f   t h e   B e r s e r k e r\n\nFor some barbarians, rage is a means to an end-- that end being violence. The Path of the Berserker is a path of untrammeled fury, slick with blood. As you enter the berserker's rage, you thrill in the chaos of battle, heedless of your own health or well-being."
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-03-29T13:14:17.461289+00:00
+Answer Length: 223
+Answer:
+The Rage damage bonus for a Barbarian increases as they gain levels. It starts at +2 for levels 1-8, increases to +3 at 9th level, and increases again to +4 at 16th level.
+(Sources: dnd_04_classes_barbarian_bard_cleric.pdf)
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-04-19T18:15:01.259900+00:00
+Provider: OPENROUTER
+Model: z-ai/glm-4.5-air:free
+Context Length: 5029
+
+<QUERY>
+What is the speed of light?
+</QUERY>
+
+<CONTEXT>
+[1]
+file_name: Random Facts.pdf
+page_content: "## Section 2: Science & Technology\n\n1. The first programmable general-purpose computer, the ENIAC , weighed over 27 tons .\n\n2. Bluetooth technology was named after King Harald 'Bluetooth' Gormsson, a 10th-century Scandinavian king who united tribes - symbolically similar to how Bluetooth unites devices.\n\n3. Glass is actually a slow-moving liquid , not a true solid; its particles continue to move extremely slowly over long periods.\n\n4. The speed of light in a vacuum is exactly 0 meters per second ."
+
+[2]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## St o r m b o r n\n\nAt  17th level, you have a flying speed equal to your current walking speed whenever you are not underground or indoors."
+
+[3]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## Fa s t   M o v e m e n t\n\nStarting at 5th level, your speed increases by 10 feet while you aren't wearing heavy armor."
+
+[4]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## C o r o n a  o f   L i g h t\n\nStarting at 17th level, you can use your action to activate an aura of sunlight that lasts for 1  minute or until you dismiss it using another action. You emit bright light in a 60-foot radius and dim light 30 feet beyond that. Your enemies in the bright light have disadvantage on saving throws against any spell that deals fire or radiant damage.\n\n<!-- image-uuid: 1f12c464-9840-66ac-910a-f9ba5f2d830a -->"
+
+[5]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## L i g h t   D o m a i n   S p e l l s\n\n## Cleric Level Spells\n\n| 1st   | burning hands, faerie fire       |\n|-------|----------------------------------|\n| 3rd   | f l aming sphere, scorching ray  |\n| 5th   | daylight, f i reball             |\n| 7th   | guardian o ffaith, wall off i re |\n| 9th   | f l ame strike, scrying          |"
+
+[6]
+file_name: Random Facts.pdf
+page_content: "## Section 4: Miscellaneous\n\n1. A day on Venus (rotation) is longer than a year on Venus (orbit).\n\n2. Bananas are berries , but strawberries are not technically berries.\n\n3. The world's largest snowflake ever recorded was 38 cm wide , reportedly falling in Montana, USA in 1887.\n\n4. Octopuses have three hearts , nine brains , and blue blood."
+
+[7]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## P r o f i c i e n c i e s\n\nArmor: Light armor, medium armor, shields Weapons: All simple weapons Tools: None\n\nSaving Throws: Wisdom, Charisma Skills: Choose two from History, Insight, Medicine, Persuasion, and Religion"
+
+[8]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## Ward in g  F l a r e\n\nAlso at 1st level, you can interpose divine light between yourself and an attacking enemy. W hen you are attacked by a creature within 30 feet of you that you can see, you can use your reaction to impose disadvantage on the attack roll, causing light to flare before the attacker before it hits or misses. An attacker that can't be blinded is immune to this feature.\n\nYou can use this feature a number of times equal to your Wisdom modifier (a minimum of once). You regain all expended uses when you finish a long rest.\n\nC h a n n e l  D i v i n i t y :  R a d i a n c e   o f  t h e   D a w n Starting at 2nd level, you can use your Channel Divinity to harness sunlight, banishing darkness and dealing radiant damage to your foes.\n\nAs an action, you present your holy symbol, and any magical darkness within 30 feet of you is dispelled. Additionally, each hostile creature within 30 feet of you must make a Constitution saving throw. A creature takes radiant damage equal to 2d10 + your cleric level on a failed saving throw, and half as much damage on a successful one. A creature that has total cover from you is not affected."
+
+[9]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## A spect of t h e   B e a s t\n\nAt 6th  level, you gain a magical benefit based on the totem animal of your choice. You can choose the same animal you selected at 3rd level or a different one.\n\nBear. You gain the might of a bear. Your carrying capacity (including maximum load and maximum lift) is doubled, and you have advantage on Strength checks made to push, pull, lift, or break objects.\n\nEagle. You gain the eyesight of an eagle. You can see up to  1  mile away with no difficulty, able to discern even fine details as though looking at something no more than  100 feet away from you. Additionally, dim light doesn't im pose disadvantage on your W isdom (Perception) checks.\n\nWolf, You gain the hunting sensibilities of a wolf. You can track other creatures while traveling at a fast pace, and you can move stealthily while traveling at a normal pace (see chapter 8 for rules on travel pace)."
+
+[10]
+file_name: dnd_04_classes_barbarian_bard_cleric.pdf
+page_content: "## B o n u s   C a n t r i p\n\nWhen you choose this domain at 1st level, you gain the light cantrip if you don't already know it."
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-04-19T18:15:14.307502+00:00
+Answer Length: 132
+Answer:
+The speed of light in a vacuum is exactly 0 meters per second.
+(Sources: Random Facts.pdf, dnd_04_classes_barbarian_bard_cleric.pdf)
+==================================================

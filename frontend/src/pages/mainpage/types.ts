@@ -44,6 +44,12 @@ export type ChatProgressStep = {
     stage: string;
     message: string;
     batchId?: number;
+    step?: number;
+    tool?: string;
+    intent?: string;
+    decision?: string;
+    observation?: string;
+    argumentsPreview?: string;
 };
 
 // Progress timeline card that remains in chat history per call.
@@ -52,7 +58,7 @@ export type ChatProgressMessage = {
     kind: "progress";
     role: "ai";
     status: "running" | "completed" | "failed";
-    scope: "agentic" | "selection";
+    scope: "agentic" | "selection" | "agentic-search";
     currentStageText: string;
     steps: ChatProgressStep[];
 };

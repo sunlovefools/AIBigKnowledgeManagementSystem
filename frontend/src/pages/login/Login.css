@@ -1,13 +1,10 @@
 .login-container {
-    min-height: 100vh;
+    min-height: 100dvh;
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 28px 18px;
-    background:
-        radial-gradient(120% 120% at 8% 10%, rgba(37, 99, 235, 0.16) 0%, transparent 40%),
-        radial-gradient(120% 120% at 92% 90%, rgba(148, 163, 184, 0.2) 0%, transparent 44%),
-        #f6f8fb;
+    background: #f6f7f4;
 }
 
 .login-card {
@@ -15,7 +12,7 @@
     max-width: 460px;
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.97) 0%, rgba(248, 251, 255, 0.98) 100%);
     border: 1px solid #dbe5f0;
-    border-radius: 20px;
+    border-radius: 8px;
     padding: 30px 26px;
     box-shadow: 0 18px 48px rgba(15, 23, 42, 0.09);
 }
@@ -47,20 +44,20 @@
     display: inline-flex;
     align-items: center;
     padding: 7px 12px;
-    border-radius: 999px;
-    border: 1px solid #bfdbfe;
-    background: #eff6ff;
-    color: #1e40af;
+    border-radius: 8px;
+    border: 1px solid #9ccbc4;
+    background: #e8f5f1;
+    color: #0f4f4a;
     font-size: 0.86rem;
     font-weight: 600;
 }
 
 .login-button {
     width: 100%;
-    border: 1px solid #1d4ed8;
-    border-radius: 12px;
+    border: 1px solid #0f766e;
+    border-radius: 8px;
     padding: 12px 14px;
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    background: #0f766e;
     color: #ffffff;
     font-size: 0.95rem;
     font-weight: 600;
@@ -73,7 +70,7 @@
 
 .login-button:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 10px 24px rgba(37, 99, 235, 0.3);
+    box-shadow: 0 10px 24px rgba(15, 118, 110, 0.22);
 }
 
 .login-button:disabled {
@@ -83,7 +80,7 @@
 
 .login-message {
     margin: 0 0 12px;
-    border-radius: 10px;
+    border-radius: 8px;
     padding: 10px 12px;
     font-size: 0.86rem;
     line-height: 1.45;
@@ -96,9 +93,13 @@
 }
 
 @media (max-width: 540px) {
+    .login-container {
+        align-items: flex-start;
+        padding: calc(18px + env(safe-area-inset-top)) 14px calc(18px + env(safe-area-inset-bottom));
+    }
+
     .login-card {
-        border-radius: 16px;
-        padding: 24px 18px;
+        padding: 22px 16px;
     }
 
     .login-card h1 {

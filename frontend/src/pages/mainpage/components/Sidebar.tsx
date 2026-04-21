@@ -4,7 +4,7 @@ import { FILE_INPUT_ACCEPT } from "../utils/uploadFormats";
 
 // ── Client-side file-name validation ──────────────────────────────────────────
 // Mirrors the backend rules so the user gets instant feedback without a round-trip.
-const ILLEGAL_CHARS = /[/\\:*?"<>|\x00]/;
+const ILLEGAL_CHARS = /[/\\:*?"<>|]/;
 const RESERVED_NAMES = new Set([
     "CON","PRN","AUX","NUL",
     "COM1","COM2","COM3","COM4","COM5","COM6","COM7","COM8","COM9",
