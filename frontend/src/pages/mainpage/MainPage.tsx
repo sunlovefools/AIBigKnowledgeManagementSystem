@@ -814,6 +814,19 @@ export default function MainPage() {
                     "--assistant-stage-width": `${modPanelWidth}px`,
                 } as CSSProperties}
             >
+            {!isMobile && !isSidebarOpen && (
+                <button
+                    className="workspace-sidebar-expand-tab"
+                    onClick={toggleSidebar}
+                    aria-label="Show sources"
+                    title="Show sources"
+                    type="button"
+                >
+                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                                            <polyline points="9 18 15 12 9 6" />
+                                        </svg>
+                                    </button>
+                                )}
             <div className={`sidebar-container ${isMobile ? activeMobileWorkspace === "files" ? "open" : "closed" : isSidebarOpen ? "open" : "closed"}`}>
                 <Sidebar
                     collections={collections}
@@ -829,6 +842,7 @@ export default function MainPage() {
                     isEditMode={isEditMode}
                     selectedFileIds={selectedFileIds}
                     onToggleFileSelection={handleToggleFileSelection}
+                    onCollapseSources={!isMobile ? toggleSidebar : undefined}
                     onFileSelect={handleFileSelect}
                     onUpload={handleUpload}
                     onClearFile={clearFile}
@@ -898,6 +912,7 @@ export default function MainPage() {
                         }
                         return result;
                     }}
+                    onRequestDeleteFile={handleRequestDeleteFile}
                     pendingCreationFileIds={pendingCreationFileIds}
                 />
             </div>
@@ -913,42 +928,6 @@ export default function MainPage() {
             )}
 
             <main className="main-content">
-                <button
-                    className={`workspace-sidebar-toggle ${isSidebarOpen ? "open" : ""}`}
-                    onClick={() => {
-                        if (isMobile) {
-                            handleMobileWorkspaceChange(activeMobileWorkspace === "files" ? "chat" : "files");
-                            return;
-                        }
-                        toggleSidebar();
-                    }}
-                    aria-label={
-                        isMobile
-                            ? activeMobileWorkspace === "files"
-                                ? "Show chat"
-                                : "Show files"
-                            : isSidebarOpen
-                                ? "Hide upload panel"
-                                : "Show upload panel"
-                    }
-                    title={
-                        isMobile
-                            ? activeMobileWorkspace === "files"
-                                ? "Show chat"
-                                : "Show files"
-                            : isSidebarOpen
-                                ? "Hide upload panel"
-                                : "Show upload panel"
-                    }
-                    type="button"
-                >
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <line x1="4" y1="6" x2="20" y2="6" />
-                        <line x1="4" y1="12" x2="20" y2="12" />
-                        <line x1="4" y1="18" x2="20" y2="18" />
-                    </svg>
-                </button>
-
                 {isMobile ? (
                     renderChatWorkspace(chatEmptyStateMode)
                 ) : isDesktopWorkspaceActive ? (

@@ -125,6 +125,7 @@ type SidebarProps = {
     isEditMode: boolean;
     selectedFileIds: Set<string>;
     onToggleFileSelection: (fileId: string) => void;
+    onCollapseSources?: () => void;
     // Handlers
     onFileSelect: ChangeEventHandler<HTMLInputElement>;
     onUpload: () => void;
@@ -134,6 +135,7 @@ type SidebarProps = {
     // New file / rename
     onCreateBlankFile: (fileName: string) => Promise<{ ok: boolean; fileId?: string; error?: string }>;
     onRenameFile: (fileId: string, newName: string) => Promise<{ ok: boolean; error?: string }>;
+    onRequestDeleteFile: (fileId: string) => void;
     // Collection CRUD
     onSelectCollection: (collectionId: string) => void;
     onCreateCollection: (name: string) => Promise<{ ok: boolean; collectionId?: string; error?: string }>;
@@ -157,6 +159,7 @@ export default function Sidebar({
     isEditMode,
     selectedFileIds,
     onToggleFileSelection,
+    onCollapseSources,
     onFileSelect,
     onUpload,
     onClearFile,
@@ -164,6 +167,7 @@ export default function Sidebar({
     onRefreshFiles,
     onCreateBlankFile,
     onRenameFile,
+    onRequestDeleteFile,
     onSelectCollection,
     onCreateCollection,
     onRenameCollection,
@@ -196,6 +200,7 @@ export default function Sidebar({
     const [renamingFileId, setRenamingFileId] = useState<string | null>(null);
     const [renameValue, setRenameValue] = useState("");
     const [renameError, setRenameError] = useState<string | null>(null);
+    const [openFileActionMenuId, setOpenFileActionMenuId] = useState<string | null>(null);
     const renameInputRef = useRef<HTMLInputElement | null>(null);
 
     // Focus the new-file input whenever it becomes visible
@@ -230,6 +235,25 @@ export default function Sidebar({
         setCollectionActionError(null);
         setCollectionActionInfo(null);
     }, [activeCollectionId]);
+
+    useEffect(() => {
+        if (openFileActionMenuId && !files.some((file) => file.fileId === openFileActionMenuId)) {
+            setOpenFileActionMenuId(null);
+        }
+    }, [files, openFileActionMenuId]);
+
+    useEffect(() => {
+        if (!openFileActionMenuId) return;
+
+        const handleEscape = (event: globalThis.KeyboardEvent) => {
+            if (event.key === "Escape") {
+                setOpenFileActionMenuId(null);
+            }
+        };
+
+        window.addEventListener("keydown", handleEscape);
+        return () => window.removeEventListener("keydown", handleEscape);
+    }, [openFileActionMenuId]);
 
     // ── Upload helpers ───────────────────────────────────────────────
     const handleFileSelectClick = () => fileRef.current?.click();
@@ -420,6 +444,7 @@ export default function Sidebar({
         setRenamingFileId(fileId);
         setRenameValue(currentName);
         setRenameError(null);
+        setOpenFileActionMenuId(null);
     };
 
     const cancelRename = () => {
@@ -460,17 +485,29 @@ export default function Sidebar({
     };
 
     return (
-        <aside className="sidebar">
+        <aside className="sidebar" onClick={() => setOpenFileActionMenuId(null)}>
             <div className="sidebar-header">
-                <div className="logo-mark">KB</div>
-                <div>
-                    <div className="eyebrow">Workspace</div>
-                    <div className="sidebar-title">Upload sources</div>
+                <div className="sidebar-header-main">
+                    <div className="logo-mark">KB</div>
+                    <div>
+                        <div className="eyebrow">Workspace</div>
+                        <div className="sidebar-title">Sources</div>
+                    </div>
                 </div>
+                {onCollapseSources && (
+                    <button
+                        className="sidebar-collapse-btn"
+                        type="button"
+                        onClick={onCollapseSources}
+                        aria-label="Collapse sources"
+                        title="Collapse sources"
+                    >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                            <polyline points="15 18 9 12 15 6" />
+                        </svg>
+                    </button>
+                )}
             </div>
-            <p className="sidebar-hint">
-                PDF, DOCX, TXT, PPTX or XLSX - keep everything you need for the chat here.
-            </p>
 
             <div className="sources-section">
                 <div className="collection-section">
@@ -501,14 +538,16 @@ export default function Sidebar({
                                     type="button"
                                     onClick={openCreateCollectionForm}
                                     disabled={isCreatingCollection || isSubmittingCollectionCreate}
+                                    title="Create collection"
                                 >
-                                    + New
+                                    New
                                 </button>
                                 <button
                                     className="collection-action-btn"
                                     type="button"
                                     onClick={startRenameCollection}
                                     disabled={!activeCollection || isRenamingCollection || isSubmittingCollectionRename}
+                                    title="Rename collection"
                                 >
                                     Rename
                                 </button>
@@ -525,7 +564,7 @@ export default function Sidebar({
 
                             {activeCollection && (
                                 <div className="collection-meta">
-                                    {activeCollection.isDefault ? "Default" : "Custom"} collection - {activeCollection.fileCount} file(s)
+                                    {activeCollection.fileCount} file(s)
                                 </div>
                             )}
                         </>
@@ -606,8 +645,6 @@ export default function Sidebar({
                     )}
                 </div>
 
-                <div className="section-title">Upload</div>
-
                 <input
                     ref={fileRef}
                     type="file"
@@ -619,8 +656,13 @@ export default function Sidebar({
 
                 {!selectedFile && (
                     <button className="add-source-btn" onClick={handleFileSelectClick}>
-                        <span className="plus-icon" aria-hidden>+</span>
-                        Select file
+                        <span className="plus-icon" aria-hidden>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M12 5v14" />
+                                <path d="M5 12h14" />
+                            </svg>
+                        </span>
+                        Upload file
                     </button>
                 )}
 
@@ -635,7 +677,7 @@ export default function Sidebar({
                                 onClick={onUpload}
                                 disabled={isUploading}
                             >
-                                {isUploading ? "Uploading..." : "Confirm upload"}
+                                {isUploading ? "Uploading..." : "Upload"}
                             </button>
                             <button
                                 className="action-btn remove-btn"
@@ -651,7 +693,7 @@ export default function Sidebar({
                 {/* ── Knowledge files header ── */}
                 <div className="sidebar-documents-header">
                     <div className="section-title">
-                        Knowledge files ({files.length})
+                        Files ({files.length})
                         {isEditMode && selectedFileIds.size > 0 && (
                             <span className="sidebar-selection-badge">
                                 {selectedFileIds.size} selected
@@ -667,7 +709,7 @@ export default function Sidebar({
                             title="Create a new blank file"
                             aria-label="Create new blank file"
                         >
-                            + New
+                            New note
                         </button>
                         <button
                             className="sidebar-refresh-btn"
@@ -799,10 +841,13 @@ export default function Sidebar({
                                     </div>
                                 ) : (
                                     /* ── Normal file row ── */
-                                    <div className="sidebar-document-row">
+                                    <div className={`sidebar-document-row ${activeTab === file.fileId ? "active" : ""}`}>
                                         <button
                                             className={`sidebar-document-item ${activeTab === file.fileId ? "active" : ""}`}
-                                            onClick={() => onOpenFile(file.fileId)}
+                                            onClick={() => {
+                                                setOpenFileActionMenuId(null);
+                                                onOpenFile(file.fileId);
+                                            }}
                                             type="button"
                                         >
                                             <div className="sidebar-document-title">
@@ -817,24 +862,66 @@ export default function Sidebar({
                                                 {file.previewTexts || "..."}
                                             </div>
                                         </button>
-                                        <button
-                                            className="sidebar-rename-icon-btn"
-                                            type="button"
-                                            title={`Rename "${file.fileName}"`}
-                                            aria-label={`Rename ${file.fileName}`}
-                                            // Disable rename while creation is still pending
-                                            disabled={pendingCreationFileIds.has(file.fileId)}
-                                            onClick={(e) => {
-                                                e.stopPropagation();
-                                                startRename(file.fileId, file.fileName);
-                                            }}
+                                        <div
+                                            className="sidebar-document-actions"
+                                            onClick={(event) => event.stopPropagation()}
                                         >
-                                            {/* Pencil SVG */}
-                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
-                                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
-                                            </svg>
-                                        </button>
+                                            <button
+                                                className="sidebar-file-menu-btn"
+                                                type="button"
+                                                title={`File actions for "${file.fileName}"`}
+                                                aria-label={`File actions for ${file.fileName}`}
+                                                aria-haspopup="menu"
+                                                aria-expanded={openFileActionMenuId === file.fileId}
+                                                disabled={pendingCreationFileIds.has(file.fileId)}
+                                                onClick={() => {
+                                                    setOpenFileActionMenuId((current) =>
+                                                        current === file.fileId ? null : file.fileId
+                                                    );
+                                                }}
+                                            >
+                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                                                    <circle cx="12" cy="5" r="1" />
+                                                    <circle cx="12" cy="12" r="1" />
+                                                    <circle cx="12" cy="19" r="1" />
+                                                </svg>
+                                            </button>
+
+                                            {openFileActionMenuId === file.fileId && (
+                                                <div className="sidebar-file-action-menu" role="menu">
+                                                    <button
+                                                        type="button"
+                                                        role="menuitem"
+                                                        className="sidebar-file-action-item"
+                                                        onClick={() => startRename(file.fileId, file.fileName)}
+                                                    >
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                                                            <path d="M12 20h9" />
+                                                            <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                                                        </svg>
+                                                        Rename
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        role="menuitem"
+                                                        className="sidebar-file-action-item danger"
+                                                        onClick={() => {
+                                                            setOpenFileActionMenuId(null);
+                                                            onRequestDeleteFile(file.fileId);
+                                                        }}
+                                                    >
+                                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                                                            <path d="M3 6h18" />
+                                                            <path d="M8 6V4h8v2" />
+                                                            <path d="M19 6l-1 14H6L5 6" />
+                                                            <path d="M10 11v5" />
+                                                            <path d="M14 11v5" />
+                                                        </svg>
+                                                        Delete
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 )}
                             </div>

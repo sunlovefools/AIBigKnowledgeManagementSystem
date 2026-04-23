@@ -1,0 +1,890 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sky Glass Prototype</title>
+    <style>
+        :root {
+            --sky-0: #f8fdff;
+            --sky-1: #e9f8ff;
+            --sky-2: #ccefff;
+            --blue: #2f80ed;
+            --blue-dark: #1557b0;
+            --ink: #102033;
+            --muted: #60758b;
+            --line: rgba(128, 190, 236, 0.42);
+            --glass: rgba(255, 255, 255, 0.72);
+            --glass-strong: rgba(255, 255, 255, 0.88);
+            --shadow: 0 30px 80px rgba(32, 116, 185, 0.16);
+            --radius: 18px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 15% 18%, rgba(125, 211, 252, 0.36), transparent 28%),
+                radial-gradient(circle at 84% 8%, rgba(147, 197, 253, 0.34), transparent 30%),
+                linear-gradient(145deg, #fafdff 0%, #eaf8ff 48%, #f7fcff 100%);
+        }
+
+        button,
+        input,
+        textarea,
+        select {
+            font: inherit;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .page {
+            min-height: 100vh;
+            padding: 22px;
+        }
+
+        .frame {
+            max-width: 1480px;
+            margin: 0 auto;
+            display: grid;
+            gap: 18px;
+        }
+
+        .header {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 18px;
+            align-items: center;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--glass);
+            backdrop-filter: blur(26px);
+            box-shadow: var(--shadow);
+        }
+
+        .brand {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            min-width: 0;
+        }
+
+        .logo {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(135deg, #74d4ff, #2f80ed);
+            color: white;
+            font-weight: 900;
+            box-shadow: 0 16px 30px rgba(47, 128, 237, 0.28);
+        }
+
+        h1,
+        h2,
+        h3 {
+            letter-spacing: 0;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(1.4rem, 2vw, 2rem);
+        }
+
+        .brand p {
+            margin: 4px 0 0;
+            color: var(--muted);
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+
+        .tabs button {
+            min-height: 40px;
+            padding: 0 14px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.58);
+            color: #315d82;
+            font-weight: 800;
+        }
+
+        .tabs button.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+            box-shadow: 0 14px 26px rgba(47, 128, 237, 0.25);
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        .glass {
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: var(--glass);
+            backdrop-filter: blur(26px);
+            box-shadow: var(--shadow);
+        }
+
+        .kicker {
+            margin: 0 0 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.16em;
+            color: var(--blue-dark);
+            font-size: 0.72rem;
+            font-weight: 900;
+        }
+
+        .primary,
+        .secondary {
+            min-height: 42px;
+            border-radius: 999px;
+            padding: 0 17px;
+            font-weight: 850;
+        }
+
+        .primary {
+            border: 1px solid var(--blue);
+            background: var(--blue);
+            color: white;
+            box-shadow: 0 14px 30px rgba(47, 128, 237, 0.24);
+        }
+
+        .secondary {
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.7);
+            color: #24557b;
+        }
+
+        .login {
+            min-height: 72vh;
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 420px;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .login-copy {
+            padding: clamp(28px, 6vw, 68px);
+        }
+
+        .login-copy h2,
+        .collections-hero h2 {
+            margin: 0;
+            font-size: clamp(2.5rem, 7vw, 5.6rem);
+            line-height: 0.94;
+        }
+
+        .login-copy p,
+        .collections-hero p {
+            color: var(--muted);
+            max-width: 620px;
+            line-height: 1.65;
+            font-size: 1.05rem;
+        }
+
+        .signin {
+            padding: 26px;
+            background: var(--glass-strong);
+        }
+
+        .signin h3 {
+            margin: 0 0 8px;
+            font-size: 1.5rem;
+        }
+
+        .auth-note {
+            display: inline-flex;
+            border-radius: 999px;
+            padding: 8px 12px;
+            background: #e2f5ff;
+            color: var(--blue-dark);
+            font-weight: 850;
+            margin: 8px 0 18px;
+        }
+
+        .collections {
+            display: grid;
+            gap: 18px;
+        }
+
+        .collections-hero {
+            min-height: 330px;
+            padding: clamp(28px, 5vw, 56px);
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(330px, 520px);
+            align-items: end;
+            gap: 20px;
+        }
+
+        .ask-card {
+            padding: 18px;
+            background: var(--glass-strong);
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 118px;
+            resize: none;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.78);
+            color: var(--ink);
+            padding: 14px;
+            outline: none;
+        }
+
+        .ask-actions {
+            margin-top: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            color: var(--muted);
+        }
+
+        .collection-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 14px;
+        }
+
+        .card {
+            padding: 18px;
+            min-height: 154px;
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            background: rgba(255, 255, 255, 0.68);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 18px 44px rgba(32, 116, 185, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .card h3,
+        .pane h3 {
+            margin: 0;
+        }
+
+        .card p,
+        .small {
+            margin: 0;
+            color: var(--muted);
+            line-height: 1.48;
+        }
+
+        .metric {
+            margin-top: auto;
+            color: var(--blue-dark);
+            font-weight: 900;
+        }
+
+        .workspace {
+            height: calc(100vh - 126px);
+            min-height: 690px;
+            display: grid;
+            grid-template-columns: 280px minmax(360px, 1fr) 420px;
+            gap: 14px;
+        }
+
+        .pane {
+            min-height: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .pane-header {
+            padding: 16px;
+            border-bottom: 1px solid var(--line);
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.44);
+        }
+
+        .pane-body {
+            min-height: 0;
+            overflow: auto;
+            padding: 14px;
+        }
+
+        select,
+        input {
+            width: 100%;
+            min-height: 42px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 0 12px;
+            background: rgba(255, 255, 255, 0.76);
+            color: var(--ink);
+        }
+
+        .upload {
+            margin: 14px 0;
+            padding: 16px;
+            border: 1px dashed rgba(47, 128, 237, 0.45);
+            border-radius: 16px;
+            background: rgba(226, 245, 255, 0.62);
+        }
+
+        .file-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .file {
+            padding: 12px;
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.64);
+        }
+
+        .file.active {
+            border-color: rgba(47, 128, 237, 0.9);
+            background: rgba(226, 245, 255, 0.8);
+        }
+
+        .file strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .thread {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 18px;
+            display: grid;
+            gap: 14px;
+            align-content: start;
+        }
+
+        .message {
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .avatar {
+            width: 36px;
+            height: 36px;
+            flex: 0 0 36px;
+            border-radius: 50%;
+            display: grid;
+            place-items: center;
+            background: rgba(226, 245, 255, 0.9);
+            color: var(--blue-dark);
+            font-weight: 900;
+            font-size: 0.78rem;
+        }
+
+        .bubble {
+            border: 1px solid var(--line);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.78);
+            padding: 12px 14px;
+            line-height: 1.52;
+            max-width: 760px;
+        }
+
+        .message.user {
+            justify-content: flex-end;
+        }
+
+        .message.user .avatar {
+            order: 2;
+            background: var(--blue);
+            color: white;
+        }
+
+        .message.user .bubble {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+        }
+
+        .composer {
+            border-top: 1px solid var(--line);
+            padding: 14px;
+            background: rgba(255, 255, 255, 0.54);
+        }
+
+        .chips {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .chip {
+            min-height: 30px;
+            padding: 0 10px;
+            border-radius: 999px;
+            display: inline-grid;
+            place-items: center;
+            border: 1px solid var(--line);
+            background: rgba(255, 255, 255, 0.66);
+            color: #315d82;
+            font-size: 0.8rem;
+            font-weight: 850;
+        }
+
+        .chip.active {
+            background: #e2f5ff;
+            border-color: rgba(47, 128, 237, 0.45);
+            color: var(--blue-dark);
+        }
+
+        .doc-content {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 18px;
+            line-height: 1.68;
+        }
+
+        .proposal {
+            padding: 14px;
+            border-radius: 16px;
+            border: 1px solid rgba(47, 128, 237, 0.35);
+            background: rgba(226, 245, 255, 0.78);
+            margin-bottom: 16px;
+        }
+
+        .proposal-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 9px;
+            color: var(--blue-dark);
+            font-weight: 900;
+        }
+
+        .proposal-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mini {
+            min-height: 32px;
+            padding: 0 11px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: white;
+            color: #24557b;
+            font-weight: 850;
+        }
+
+        .accept {
+            background: #0ea66d;
+            border-color: #0ea66d;
+            color: white;
+        }
+
+        .reject {
+            color: #c92f2f;
+        }
+
+        .highlight {
+            background: #dff5ff;
+            border-radius: 8px;
+            padding: 2px 5px;
+            border: 1px solid rgba(47, 128, 237, 0.25);
+        }
+
+        .profile {
+            min-height: 72vh;
+            display: grid;
+            grid-template-columns: 1fr 420px;
+            gap: 18px;
+            align-items: center;
+        }
+
+        .profile-main {
+            padding: clamp(28px, 6vw, 66px);
+        }
+
+        .profile-main h2 {
+            margin: 0;
+            font-size: clamp(2.2rem, 6vw, 4.6rem);
+            line-height: 0.96;
+        }
+
+        .profile-card {
+            padding: 24px;
+            background: var(--glass-strong);
+        }
+
+        .profile-row {
+            border-top: 1px solid var(--line);
+            padding: 14px 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 18px;
+        }
+
+        .profile-row span:first-child {
+            color: var(--muted);
+            font-weight: 850;
+        }
+
+        .profile-row span:last-child {
+            font-weight: 900;
+            text-align: right;
+            overflow-wrap: anywhere;
+        }
+
+        .mobile-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(230px, 1fr));
+            gap: 18px;
+        }
+
+        .phone {
+            height: 650px;
+            border-radius: 34px;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            background: linear-gradient(180deg, #ffffff, #dff3ff);
+            padding: 12px;
+            box-shadow: var(--shadow);
+        }
+
+        .phone-screen {
+            height: 100%;
+            border-radius: 25px;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 20% 0%, rgba(125, 211, 252, 0.38), transparent 38%),
+                #f9fdff;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--line);
+        }
+
+        .phone-head,
+        .phone-nav {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(18px);
+            border-bottom: 1px solid var(--line);
+            padding: 14px;
+            font-weight: 900;
+        }
+
+        .phone-body {
+            flex: 1;
+            padding: 12px;
+            overflow: hidden;
+            display: grid;
+            gap: 10px;
+            align-content: start;
+        }
+
+        .phone-nav {
+            border-top: 1px solid var(--line);
+            border-bottom: 0;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 8px;
+        }
+
+        .phone-nav span {
+            min-height: 38px;
+            display: grid;
+            place-items: center;
+            border-radius: 999px;
+            color: #315d82;
+            font-size: 0.76rem;
+            font-weight: 850;
+        }
+
+        .phone-nav .active {
+            background: var(--blue);
+            color: white;
+        }
+
+        @media (max-width: 1120px) {
+            .workspace {
+                grid-template-columns: 260px 1fr;
+                height: auto;
+            }
+
+            .workspace .pane:last-child {
+                grid-column: 1 / -1;
+                min-height: 560px;
+            }
+
+            .collection-grid,
+            .mobile-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 780px) {
+            .page {
+                padding: 12px;
+            }
+
+            .header,
+            .login,
+            .collections-hero,
+            .workspace,
+            .profile,
+            .collection-grid,
+            .mobile-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .header {
+                align-items: start;
+            }
+
+            .tabs {
+                justify-content: flex-start;
+            }
+
+            .login-copy,
+            .collections-hero,
+            .profile-main {
+                padding: 24px;
+            }
+
+            .pane {
+                min-height: 520px;
+            }
+
+            .ask-actions,
+            .proposal-head,
+            .profile-row {
+                align-items: stretch;
+                flex-direction: column;
+            }
+
+            .profile-row span:last-child {
+                text-align: left;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="frame">
+            <header class="header">
+                <div class="brand">
+                    <div class="logo">KB</div>
+                    <div>
+                        <h1>Sky Glass</h1>
+                        <p>Airy, optimistic, translucent light-blue workspace direction.</p>
+                    </div>
+                </div>
+                <nav class="tabs">
+                    <button class="active" data-view="collections">Collections</button>
+                    <button data-view="workspace">Workspace</button>
+                    <button data-view="login">Login</button>
+                    <button data-view="profile">Profile</button>
+                    <button data-view="mobile">Mobile</button>
+                </nav>
+            </header>
+
+            <section id="login" class="screen">
+                <div class="login">
+                    <div class="login-copy glass">
+                        <p class="kicker">Team44 Workspace</p>
+                        <h2>Knowledge work, lighter.</h2>
+                        <p>Sign in to search collections, ask questions, and review AI edits in one calm workspace.</p>
+                    </div>
+                    <div class="signin glass">
+                        <h3>Sign in</h3>
+                        <p class="small">Secure Auth0 access for your document and chat workspace.</p>
+                        <span class="auth-note">Only Auth0 login is supported</span>
+                        <button class="primary" style="width: 100%;">Continue with Auth0</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="collections" class="screen active">
+                <div class="collections">
+                    <div class="collections-hero glass">
+                        <div>
+                            <p class="kicker">Global scope</p>
+                            <h2>Ask with context.</h2>
+                            <p>Begin with a broad question, then move into a collection when the source set matters.</p>
+                        </div>
+                        <div class="ask-card glass">
+                            <textarea>Find the strongest launch blockers and suggest what to fix first.</textarea>
+                            <div class="ask-actions">
+                                <span>Searches all collections</span>
+                                <button class="primary">Ask AI</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collection-grid">
+                        <div class="card">
+                            <p class="kicker">Create</p>
+                            <h3>New Collection</h3>
+                            <p>Add files into a focused workspace.</p>
+                            <button class="secondary" style="margin-top: auto;">Create</button>
+                        </div>
+                        <div class="card">
+                            <h3>Product Docs</h3>
+                            <p>Roadmaps, launch docs, and requirements.</p>
+                            <div class="metric">12 files</div>
+                        </div>
+                        <div class="card">
+                            <h3>Research Papers</h3>
+                            <p>PDFs, citations, and extracted tables.</p>
+                            <div class="metric">24 files</div>
+                        </div>
+                        <div class="card">
+                            <h3>Meeting Notes</h3>
+                            <p>Team decisions and weekly follow-ups.</p>
+                            <div class="metric">8 files</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="workspace" class="screen">
+                <div class="workspace">
+                    <aside class="pane glass">
+                        <div class="pane-header">
+                            <h3>Files</h3>
+                            <button class="secondary">New</button>
+                        </div>
+                        <div class="pane-body">
+                            <p class="kicker">Collection</p>
+                            <select><option>Product Docs</option><option>Research Papers</option></select>
+                            <div class="upload">
+                                <h3>Upload source</h3>
+                                <p class="small">PDF, DOCX, TXT, PPTX, XLSX</p>
+                                <button class="primary" style="width: 100%; margin-top: 12px;">Select file</button>
+                            </div>
+                            <div class="file-list">
+                                <div class="file active"><strong>launch-plan.md</strong><span class="small">Milestones, ownership, launch copy...</span></div>
+                                <div class="file"><strong>enterprise-feedback.pdf</strong><span class="small">Security and onboarding concerns...</span></div>
+                                <div class="file"><strong>q2-roadmap.docx</strong><span class="small">Platform work and UX debt...</span></div>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <section class="pane glass">
+                        <div class="pane-header">
+                            <h3>Chat</h3>
+                            <button class="secondary">New chat</button>
+                        </div>
+                        <div class="thread">
+                            <div class="message">
+                                <div class="avatar">AI</div>
+                                <div class="bubble">I found three relevant files. The enterprise rollout needs clearer ownership, readiness metrics, and updated security wording.</div>
+                            </div>
+                            <div class="message user">
+                                <div class="avatar">You</div>
+                                <div class="bubble">Create inline proposals for the launch plan.</div>
+                            </div>
+                            <div class="message">
+                                <div class="avatar">AI</div>
+                                <div class="bubble">Prepared 3 proposals. Review the highlighted document sections before saving.</div>
+                            </div>
+                        </div>
+                        <div class="composer">
+                            <div class="chips">
+                                <span class="chip active">Agentic search</span>
+                                <span class="chip active">Edit mode</span>
+                                <span class="chip">3 pending</span>
+                            </div>
+                            <textarea>Make this more specific and confident.</textarea>
+                            <div class="ask-actions">
+                                <span>Highlight text for a targeted edit</span>
+                                <button class="primary">Send</button>
+                            </div>
+                        </div>
+                    </section>
+
+                    <section class="pane glass">
+                        <div class="pane-header">
+                            <div>
+                                <h3>launch-plan.md</h3>
+                                <p class="small">Edit mode - 3 proposals</p>
+                            </div>
+                            <button class="secondary">Refresh</button>
+                        </div>
+                        <div class="doc-content">
+                            <div class="proposal">
+                                <div class="proposal-head">
+                                    <span>Enterprise rollout proposal</span>
+                                    <span class="proposal-actions"><button class="mini accept">Accept</button><button class="mini reject">Reject</button></span>
+                                </div>
+                                Replace vague readiness language with measurable launch criteria.
+                            </div>
+                            <h3>Enterprise Launch Plan</h3>
+                            <p>The rollout starts with sales, support, and product aligned on target accounts and escalation ownership.</p>
+                            <p><span class="highlight">Readiness is measured by completed onboarding steps, answered security questions, and a named owner for every milestone.</span></p>
+                            <p>The launch team will review adoption signals weekly and update customer-facing documentation as feedback arrives.</p>
+                        </div>
+                    </section>
+                </div>
+            </section>
+
+            <section id="profile" class="screen">
+                <div class="profile">
+                    <div class="profile-main glass">
+                        <p class="kicker">Profile</p>
+                        <h2>Calm account controls.</h2>
+                        <p class="small" style="max-width: 520px;">Settings stay simple and readable, with the same premium glass treatment as the workspace.</p>
+                    </div>
+                    <div class="profile-card glass">
+                        <h3>Account</h3>
+                        <div class="profile-row"><span>Email</span><span>student@example.com</span></div>
+                        <div class="profile-row"><span>Provider</span><span>auth0</span></div>
+                        <button class="primary" style="width: 100%;">Logout</button>
+                    </div>
+                </div>
+            </section>
+
+            <section id="mobile" class="screen">
+                <div class="mobile-grid">
+                    <div class="phone"><div class="phone-screen"><div class="phone-head">Files</div><div class="phone-body"><div class="upload"><strong>Upload source</strong><button class="primary" style="width: 100%; margin-top: 10px;">Select file</button></div><div class="file active"><strong>launch-plan.md</strong><span class="small">Enterprise rollout...</span></div><div class="file"><strong>q2-roadmap.docx</strong><span class="small">Platform milestones...</span></div></div><div class="phone-nav"><span class="active">Files</span><span>Chat</span><span>Document</span></div></div></div>
+                    <div class="phone"><div class="phone-screen"><div class="phone-head">Chat</div><div class="phone-body"><div class="bubble">Ready to ask about your files.</div><div class="bubble" style="background: var(--blue); color: white;">Find launch risks.</div><textarea>Ask or edit...</textarea><button class="primary">Send</button></div><div class="phone-nav"><span>Files</span><span class="active">Chat</span><span>Document</span></div></div></div>
+                    <div class="phone"><div class="phone-screen"><div class="phone-head">Document</div><div class="phone-body"><div class="proposal"><strong>2 pending changes</strong><br />Review inline before saving.</div><p><span class="highlight">Readiness is measured by completed onboarding steps.</span></p></div><div class="phone-nav"><span>Files</span><span>Chat</span><span class="active">Document</span></div></div></div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const controls = document.querySelectorAll("[data-view]");
+        const screens = document.querySelectorAll(".screen");
+        controls.forEach((control) => {
+            control.addEventListener("click", () => {
+                const target = control.getAttribute("data-view");
+                screens.forEach((screen) => screen.classList.toggle("active", screen.id === target));
+                controls.forEach((item) => item.classList.toggle("active", item.getAttribute("data-view") === target));
+            });
+        });
+    </script>
+</body>
+</html>

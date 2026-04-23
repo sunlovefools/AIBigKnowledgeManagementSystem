@@ -78,6 +78,7 @@ function readInitialExpanded(mode: GlobalSidebarMode): boolean {
 
 export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarProps) {
     const [isExpanded, setIsExpanded] = useState(() => readInitialExpanded(mode));
+    const isMainpage = mode === "mainpage";
 
     useEffect(() => {
         setIsExpanded(readInitialExpanded(mode));
@@ -88,9 +89,9 @@ export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarPro
         window.localStorage.setItem(STORAGE_KEYS[mode], String(isExpanded));
     }, [mode, isExpanded]);
 
-    const showNavItems = mode === "collection" || isExpanded;
-    const isButtonOnly = mode === "mainpage" && !isExpanded;
-    const useSemisphereToggle = mode === "mainpage" && !isExpanded;
+    const showNavItems = mode === "collection" || isExpanded || isMainpage;
+    const isButtonOnly = isMainpage;
+    const useSemisphereToggle = false;
 
     return (
         <aside
@@ -102,6 +103,12 @@ export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarPro
                 className,
             ].join(" ").trim()}
         >
+            {isMainpage && (
+                <div className="global-sidebar-mainpage-brand">
+                    <span className="global-sidebar-mainpage-dot" aria-hidden="true">KB</span>
+                    <span>Knowledge Base</span>
+                </div>
+            )}
             <button
                 type="button"
                 className={`global-sidebar-toggle ${useSemisphereToggle ? "semisphere" : ""}`}
@@ -131,7 +138,7 @@ export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarPro
                             key={item.to}
                             to={item.to}
                             className={({ isActive }) =>
-                                `global-sidebar-link ${isActive ? "active" : ""} ${isExpanded ? "with-label" : "icon-only"}`
+                                `global-sidebar-link ${isActive ? "active" : ""} ${isExpanded || isMainpage ? "with-label" : "icon-only"}`
                             }
                             end={item.to === "/collections"}
                         >

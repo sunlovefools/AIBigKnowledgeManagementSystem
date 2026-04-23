@@ -4,8 +4,8 @@
     font-weight: 400;
 
     color-scheme: light;
-    color: #15201d;
-    background: #f6f7f4;
+    color: #0f172a;
+    background: #f5fbff;
 
     font-synthesis: none;
     text-rendering: optimizeLegibility;
@@ -27,7 +27,7 @@ body {
     min-width: 320px;
     min-height: 100vh;
     min-height: 100dvh;
-    background: #f6f7f4;
+    background: #f5fbff;
 }
 
 *,
@@ -38,7 +38,7 @@ body {
 
 * {
     scrollbar-width: thin;
-    scrollbar-color: #93a39d transparent;
+    scrollbar-color: #a9d5ff transparent;
 }
 
 *::-webkit-scrollbar {
@@ -47,7 +47,7 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-    background: #93a39d;
+    background: #a9d5ff;
     border-radius: 8px;
 }
 
@@ -67,14 +67,14 @@ button {
     font-size: 1em;
     font-weight: 500;
     font-family: inherit;
-    background-color: #13221d;
+    background-color: #0b63ce;
     cursor: pointer;
     transition: border-color 0.25s;
     touch-action: manipulation;
 }
 
 button:hover {
-    border-color: #0f766e;
+    border-color: #2388ff;
 }
 button:focus,
 button:focus-visible {
