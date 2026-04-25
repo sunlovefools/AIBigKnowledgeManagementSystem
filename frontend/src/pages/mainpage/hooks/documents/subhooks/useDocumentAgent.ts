@@ -480,6 +480,164 @@ export function useDocumentAgent({
         rejectAgentProposal(parentId, "undo");
     }, [rejectAgentProposal]);
 
+    const acceptActiveFileProposals = useCallback(async (fileId: string) => {
+        const pendingProposals = agentProposals.filter(
+            (proposal) =>
+                proposal.fileId === fileId &&
+                !agentAcceptedMap.has(proposal.parentId) &&
+                !agentRejectedIds.has(proposal.parentId)
+        );
+        if (!pendingProposals.length) return;
+        if (editingFileId && editingFileId !== fileId) {
+            setSaveError("Save or cancel the current edit session before applying proposals in another file.");
+            return;
+        }
+
+        let chunksForFile = getContentStateById(fileId).chunks;
+        if (!chunksForFile.length) {
+            chunksForFile = await loadFileChunks(fileId, true);
+        }
+
+        const baselineContent = chunksForFile.map((chunk) => chunk.content).join("\n\n");
+        if (!baselineContent) {
+            setSaveError("Cannot load document content. Please refresh and try again.");
+            return;
+        }
+
+        let draft = editingDraftByFileId[fileId] ?? baselineContent;
+        let localAcceptedMap = new Map(agentAcceptedMap);
+        const acceptedThisRun: AgentProposal[] = [];
+        const { ranges } = buildChunkRanges(chunksForFile);
+
+        for (const proposal of pendingProposals) {
+            const isSelectionProposal =
+                proposal.source === "selection" &&
+                proposal.selectionStart !== undefined &&
+                proposal.selectionEnd !== undefined;
+
+            let baselineOffset = -1;
+            if (isSelectionProposal) {
+                const selectionStart = proposal.selectionStart;
+                const selectionEnd = proposal.selectionEnd;
+                if (
+                    selectionStart === undefined ||
+                    selectionEnd === undefined ||
+                    selectionStart < 0 ||
+                    selectionEnd <= selectionStart ||
+                    selectionEnd > baselineContent.length
+                ) {
+                    setSaveError("One highlighted selection is out of range for the current document.");
+                    return;
+                }
+
+                baselineOffset = selectionStart;
+                if (baselineContent.slice(selectionStart, selectionEnd) !== proposal.original) {
+                    baselineOffset = findNearestOccurrence(baselineContent, proposal.original, selectionStart);
+                }
+            } else {
+                const targetChunk = chunksForFile.find((chunk) => chunk.parentId === proposal.parentId);
+                const targetRange = ranges.find((range) => range.parentId === proposal.parentId);
+                const chunkOffset = targetChunk?.content.indexOf(proposal.original) ?? -1;
+                baselineOffset = targetRange && chunkOffset >= 0 ? targetRange.start + chunkOffset : -1;
+            }
+
+            if (baselineOffset < 0) {
+                setSaveError(`Original text was not found for "${proposal.fileName}". The proposal may be stale.`);
+                return;
+            }
+
+            const priorDelta = Array.from(localAcceptedMap.values())
+                .filter(
+                    (entry) =>
+                        entry.fileId === proposal.fileId &&
+                        entry.parentId !== proposal.parentId &&
+                        typeof entry.patchBaselineOffset === "number" &&
+                        entry.patchBaselineOffset < baselineOffset
+                )
+                .reduce((sum, entry) => sum + (entry.proposed.length - entry.original.length), 0);
+
+            let draftOffset = baselineOffset + priorDelta;
+            if (draft.slice(draftOffset, draftOffset + proposal.original.length) !== proposal.original) {
+                draftOffset = findNearestOccurrence(draft, proposal.original, draftOffset);
+            }
+            if (draftOffset === -1) {
+                setSaveError("Failed to apply all proposals because the current draft no longer matches one proposal.");
+                return;
+            }
+
+            draft =
+                draft.slice(0, draftOffset) +
+                proposal.proposed +
+                draft.slice(draftOffset + proposal.original.length);
+
+            localAcceptedMap = remapAcceptedAgentOffsets(
+                localAcceptedMap,
+                proposal.parentId,
+                proposal.fileId,
+                draftOffset,
+                proposal.proposed.length - proposal.original.length
+            );
+            const acceptedProposal = {
+                ...proposal,
+                patchOffset: draftOffset,
+                patchBaselineOffset: baselineOffset,
+            };
+            localAcceptedMap.set(proposal.parentId, acceptedProposal);
+            acceptedThisRun.push(acceptedProposal);
+        }
+
+        setFilesState((prev) => ({
+            ...prev,
+            openTabIds: prev.openTabIds.includes(fileId)
+                ? prev.openTabIds
+                : [...prev.openTabIds, fileId],
+            activeFileId: fileId,
+        }));
+        setEditingFileId(fileId);
+        setEditingDraftByFileId((prev) => ({ ...prev, [fileId]: draft }));
+        setAgentAcceptedMap(localAcceptedMap);
+        setAgentRejectedIds((prev) => {
+            const next = new Set(prev);
+            for (const proposal of acceptedThisRun) {
+                next.delete(proposal.parentId);
+            }
+            return next;
+        });
+        setSaveError(null);
+    }, [
+        agentAcceptedMap,
+        agentProposals,
+        agentRejectedIds,
+        editingDraftByFileId,
+        editingFileId,
+        getContentStateById,
+        loadFileChunks,
+        setEditingDraftByFileId,
+        setEditingFileId,
+        setFilesState,
+        setSaveError,
+    ]);
+
+    const rejectActiveFileProposals = useCallback((fileId: string) => {
+        if (editingFileId && editingFileId !== fileId) {
+            setSaveError("Save or cancel the current edit session before rejecting proposals in another file.");
+            return;
+        }
+
+        const pendingParentIds = agentProposals
+            .filter(
+                (proposal) =>
+                    proposal.fileId === fileId &&
+                    !agentAcceptedMap.has(proposal.parentId) &&
+                    !agentRejectedIds.has(proposal.parentId)
+            )
+            .map((proposal) => proposal.parentId);
+        if (!pendingParentIds.length) return;
+
+        setAgentRejectedIds((prev) => new Set([...prev, ...pendingParentIds]));
+        setSaveError(null);
+    }, [agentAcceptedMap, agentProposals, agentRejectedIds, editingFileId, setSaveError]);
+
     return {
         isAgentGenerating,
         agentProposals,
@@ -494,5 +652,7 @@ export function useDocumentAgent({
         acceptAgentProposal,
         rejectAgentProposal,
         undoAgentProposal,
+        acceptActiveFileProposals,
+        rejectActiveFileProposals,
     };
 }

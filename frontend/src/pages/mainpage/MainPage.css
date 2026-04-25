@@ -2753,6 +2753,11 @@ html,
     padding-bottom: 6px;
     margin-bottom: 8px;
     border-bottom: 1px solid #dbe5f0;
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    background: rgba(255, 255, 255, 0.96);
+    backdrop-filter: blur(10px);
 }
 .mod-panel-editing-indicator {
     font-size: 0.74rem;
@@ -3053,6 +3058,7 @@ html,
 .inline-review-summary {
     margin-top: 8px;
     display: flex;
+    align-items: center;
     gap: 8px;
     flex-wrap: wrap;
     font-size: 12px;
@@ -3066,17 +3072,178 @@ html,
     border: 1px solid #e2e8f0;
 }
 
+.inline-review-bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+    width: 100%;
+    margin-top: 2px;
+}
+
+.inline-review-bulk-btn {
+    border: 1px solid #cbd5e1;
+    border-radius: 999px;
+    background: #ffffff;
+    color: #334155;
+    padding: 5px 10px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    cursor: pointer;
+}
+
+.inline-review-bulk-btn.accept {
+    border-color: #86efac;
+    background: #f0fdf4;
+    color: #166534;
+}
+
+.inline-review-bulk-btn.reject {
+    border-color: #fecaca;
+    background: #fff7f7;
+    color: #991b1b;
+}
+
+.inline-review-bulk-btn:hover:not(:disabled) {
+    filter: brightness(0.98);
+    transform: translateY(-1px);
+}
+
+.inline-review-bulk-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
 .mod-panel-document-flow.inline-review-active {
     border-radius: 8px;
     border: 1px solid #dbe7f7;
     background: #fcfdff;
-    padding: 10px;
+    padding: 12px;
 }
 
 .mod-panel-inline-review {
-    white-space: pre-wrap;
     line-height: 1.7;
-    font-size: 0.88rem;
+    font-size: 0.9rem;
+}
+
+.review-text-marker {
+    border-radius: 4px;
+    padding: 0 2px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    transition: background 0.16s ease, box-shadow 0.16s ease;
+}
+
+.review-text-marker.pending.replace {
+    background: rgba(253, 230, 138, 0.42);
+    box-shadow: inset 0 -2px 0 rgba(245, 158, 11, 0.45);
+}
+
+.review-text-marker.pending.delete {
+    background: rgba(254, 202, 202, 0.46);
+    color: #991b1b;
+    text-decoration: line-through;
+    text-decoration-thickness: 1.5px;
+}
+
+.review-text-marker.accepted {
+    background: rgba(187, 247, 208, 0.46);
+    box-shadow: inset 0 -2px 0 rgba(22, 163, 74, 0.35);
+}
+
+.review-text-marker.active,
+.review-text-marker.focused {
+    box-shadow:
+        inset 0 -2px 0 rgba(37, 99, 235, 0.48),
+        0 0 0 2px rgba(37, 99, 235, 0.12);
+}
+
+.review-suggestion-widget {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    max-width: min(100%, 520px);
+    margin: 0 3px;
+    vertical-align: baseline;
+    white-space: normal;
+}
+
+.review-suggestion-pill {
+    display: inline-flex;
+    align-items: center;
+    max-width: min(100%, 320px);
+    border: 1px solid #bbf7d0;
+    border-radius: 999px;
+    background: #ecfdf5;
+    color: #166534;
+    padding: 2px 8px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    line-height: 1.4;
+    cursor: pointer;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.review-suggestion-widget.pending .review-suggestion-pill {
+    border-color: #bfdbfe;
+    background: #eff6ff;
+    color: #1d4ed8;
+}
+
+.review-suggestion-widget.accepted .review-suggestion-pill {
+    border-color: #86efac;
+    background: #f0fdf4;
+    color: #15803d;
+}
+
+.review-suggestion-actions {
+    display: none;
+    align-items: center;
+    gap: 5px;
+    padding: 3px;
+    border: 1px solid #dbeafe;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+}
+
+.review-suggestion-widget.active .review-suggestion-actions,
+.review-suggestion-widget:focus-within .review-suggestion-actions,
+.review-suggestion-widget:hover .review-suggestion-actions {
+    display: inline-flex;
+}
+
+.review-action {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 4px 9px;
+    font-size: 0.7rem;
+    font-weight: 850;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.review-action-accept {
+    border-color: #16a34a;
+    background: #16a34a;
+    color: #ffffff;
+}
+
+.review-action-reject {
+    border-color: #fecaca;
+    background: #fff7f7;
+    color: #991b1b;
+}
+
+.review-action-undo {
+    border-color: #cbd5e1;
+    background: #ffffff;
+    color: #334155;
+}
+
+.review-suggestion-widget.focused .review-suggestion-pill {
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18);
 }
 
 .inline-diff-marker {
@@ -4130,6 +4297,23 @@ html,
         display: inline-flex;
         max-width: 100%;
         overflow-wrap: anywhere;
+    }
+
+    .mobile-layout .review-suggestion-widget {
+        max-width: 100%;
+        flex-wrap: wrap;
+        margin: 2px 0;
+    }
+
+    .mobile-layout .review-suggestion-actions {
+        width: 100%;
+        justify-content: stretch;
+        border-radius: 12px;
+    }
+
+    .mobile-layout .review-action {
+        flex: 1;
+        min-height: 34px;
     }
 
     .mobile-layout .inline-diff-actions-row {

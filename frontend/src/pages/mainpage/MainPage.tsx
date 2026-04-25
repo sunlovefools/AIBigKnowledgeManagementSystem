@@ -133,6 +133,8 @@ export default function ConversationPage() {
         acceptAgentProposal,
         rejectAgentProposal,
         undoAgentProposal,
+        acceptActiveFileProposals,
+        rejectActiveFileProposals,
         clearAgentState,
     } = useDocuments();
 
@@ -350,6 +352,9 @@ export default function ConversationPage() {
         }
         return Array.from(grouped.values());
     }, [agentAcceptedMap, agentProposals, agentRejectedIds]);
+    const hasUnresolvedActiveFileSuggestions = Boolean(
+        activeTab && pendingModificationItems.some((item) => item.fileId === activeTab && item.pendingCount > 0)
+    );
 
     const handleNavigateToModification = useCallback(async (fileId: string, proposalKey: string) => {
         setIsModificationPanelOpen(true);
@@ -813,6 +818,8 @@ export default function ConversationPage() {
             onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
             onRejectAgentProposal={rejectAgentProposal}
             onUndoAgentProposal={undoAgentProposal}
+            onAcceptActiveFileProposals={acceptActiveFileProposals}
+            onRejectActiveFileProposals={rejectActiveFileProposals}
             onClearAgentProposals={clearAgentState}
             focusedProposalKey={focusedProposalKey}
             onFocusedProposalHandled={() => setFocusedProposalKey(null)}
@@ -861,6 +868,8 @@ export default function ConversationPage() {
             onAcceptAgentProposal={(proposal) => acceptAgentProposal(proposal)}
             onRejectAgentProposal={rejectAgentProposal}
             onUndoAgentProposal={undoAgentProposal}
+            onAcceptActiveFileProposals={acceptActiveFileProposals}
+            onRejectActiveFileProposals={rejectActiveFileProposals}
             onClearAgentProposals={clearAgentState}
             focusedProposalKey={focusedProposalKey}
             onFocusedProposalHandled={() => setFocusedProposalKey(null)}
@@ -1065,7 +1074,7 @@ export default function ConversationPage() {
                                                 className="edit-btn"
                                                 type="button"
                                                 onClick={startEditingActiveDocument}
-                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
+                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading) || hasUnresolvedActiveFileSuggestions}
                                             >
                                                 Edit
                                             </button>

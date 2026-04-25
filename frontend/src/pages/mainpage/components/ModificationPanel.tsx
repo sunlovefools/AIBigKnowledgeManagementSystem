@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
-import MarkdownEditor from "./FileViewingAndModification";
+import { useEffect, useMemo, useRef } from "react";
+import MarkdownEditor, { type MarkdownReviewMarker } from "./FileViewingAndModification";
 import type {
     AgentProposal,
     FileTabAsyncState,
@@ -9,7 +9,7 @@ import type {
     SidebarFileSummary,
 } from "../types";
 import { buildChunkRanges } from "../hooks/documents/utils/chunkText";
-import { buildInlineDiffTokens } from "../hooks/documents/utils/inlineDiff";
+import { buildInlineDiffTokens, buildProposalHunks } from "../hooks/documents/utils/inlineDiff";
 
 type ModificationPanelProps = {
     files: SidebarFileSummary[];
@@ -54,6 +54,8 @@ type ModificationPanelProps = {
     onAcceptAgentProposal: (proposal: AgentProposal) => Promise<void>;
     onRejectAgentProposal: (parentId: string) => void;
     onUndoAgentProposal: (parentId: string) => void;
+    onAcceptActiveFileProposals: (fileId: string) => Promise<void>;
+    onRejectActiveFileProposals: (fileId: string) => void;
     onClearAgentProposals: () => void;
 };
 
@@ -174,50 +176,62 @@ export default function ModificationPanel({
     onAcceptAgentProposal,
     onRejectAgentProposal,
     onUndoAgentProposal,
+    onAcceptActiveFileProposals,
+    onRejectActiveFileProposals,
     onClearAgentProposals,
 }: ModificationPanelProps) {
     const contentRef = useRef<HTMLDivElement | null>(null);
     const previousProposalCountRef = useRef(0);
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
     const activeDocumentView = useMemo(() => buildChunkRanges(activeTabData?.chunks ?? []), [activeTabData?.chunks]);
+    const activePlainDocumentView = useMemo(
+        () => buildChunkRanges((activeTabData?.chunks ?? []).map((chunk) => ({
+            ...chunk,
+            content: projectMarkdownToPlain(chunk.content),
+        }))),
+        [activeTabData?.chunks]
+    );
     const activeFileProposals = useMemo(
         () => (activeTab ? agentProposals.filter((proposal) => proposal.fileId === activeTab) : []),
         [activeTab, agentProposals]
     );
     const reviewBaseText = isEditing ? editingContent : activeDocumentView.fullText;
+    const reviewBasePlainText = useMemo(() => projectMarkdownToPlain(reviewBaseText), [reviewBaseText]);
     const resolvedInlineMarkers = useMemo<ResolvedProposalMarker[]>(() => {
         if (!activeTab || !activeTabData?.chunks.length || !activeFileProposals.length) return [];
-        const baselineText = activeDocumentView.fullText;
+        const baselineText = activePlainDocumentView.fullText;
         const acceptedEntries = Array.from(agentAcceptedMap.values()).filter((entry) => entry.fileId === activeTab);
         const markers: ResolvedProposalMarker[] = [];
         for (const proposal of activeFileProposals) {
             if (agentRejectedIds.has(proposal.parentId) && !agentAcceptedMap.has(proposal.parentId)) continue;
             const accepted = agentAcceptedMap.get(proposal.parentId);
             const status = accepted ? "accepted" : "pending";
+            const plainOriginal = projectMarkdownToPlain(proposal.original);
+            const plainProposed = projectMarkdownToPlain(proposal.proposed);
+            const hunks = buildProposalHunks(plainOriginal, plainProposed);
+            if (!hunks.length) continue;
             let baselineOffset = -1;
             if (proposal.source === "selection" && proposal.selectionStart !== undefined) {
-                baselineOffset = proposal.selectionStart;
-                if (baselineText.slice(baselineOffset, baselineOffset + proposal.original.length) !== proposal.original) {
-                    baselineOffset = findNearestOccurrence(baselineText, proposal.original, proposal.selectionStart);
-                }
+                baselineOffset = findNearestOccurrence(baselineText, plainOriginal, proposal.selectionStart);
             } else {
-                const targetRange = activeDocumentView.ranges.find((range) => range.parentId === proposal.parentId);
+                const targetRange = activePlainDocumentView.ranges.find((range) => range.parentId === proposal.parentId);
                 const targetChunk = activeTabData.chunks.find((chunk) => chunk.parentId === proposal.parentId);
-                const chunkOffset = targetChunk?.content.indexOf(proposal.original) ?? -1;
+                const targetChunkPlainText = projectMarkdownToPlain(targetChunk?.content ?? "");
+                const chunkOffset = targetChunkPlainText.indexOf(plainOriginal);
                 baselineOffset = targetRange && chunkOffset >= 0
                     ? targetRange.start + chunkOffset
-                    : findNearestOccurrence(baselineText, proposal.original, targetRange?.start ?? 0);
+                    : findNearestOccurrence(baselineText, plainOriginal, targetRange?.start ?? 0);
             }
             if (baselineOffset < 0) continue;
             const priorDelta = acceptedEntries
                 .filter((entry) => entry.parentId !== proposal.parentId && typeof entry.patchBaselineOffset === "number" && entry.patchBaselineOffset < baselineOffset)
-                .reduce((sum, entry) => sum + (entry.proposed.length - entry.original.length), 0);
-            const expectedSourceText = status === "accepted" ? proposal.proposed : proposal.original;
+                .reduce((sum, entry) => sum + (projectMarkdownToPlain(entry.proposed).length - projectMarkdownToPlain(entry.original).length), 0);
+            const expectedSourceText = status === "accepted" ? plainProposed : plainOriginal;
             let offset = status === "accepted" && accepted?.patchOffset !== undefined
-                ? accepted.patchOffset
+                ? findNearestOccurrence(reviewBasePlainText, plainProposed, accepted.patchOffset)
                 : baselineOffset + priorDelta;
-            if (reviewBaseText.slice(offset, offset + expectedSourceText.length) !== expectedSourceText) {
-                offset = findNearestOccurrence(reviewBaseText, expectedSourceText, offset);
+            if (reviewBasePlainText.slice(offset, offset + expectedSourceText.length) !== expectedSourceText) {
+                offset = findNearestOccurrence(reviewBasePlainText, expectedSourceText, offset);
             }
             if (offset < 0) continue;
             markers.push({
@@ -228,17 +242,28 @@ export default function ModificationPanel({
                 offset,
                 baselineOffset,
                 sourceLength: expectedSourceText.length,
-                replacementLength: proposal.proposed.length,
+                replacementLength: plainProposed.length,
                 status,
                 proposal,
-                tokens: buildInlineDiffTokens(proposal.original, proposal.proposed),
+                tokens: buildInlineDiffTokens(plainOriginal, plainProposed),
+                hunks,
             });
         }
         return markers.sort((left, right) => left.offset - right.offset);
-    }, [activeDocumentView.fullText, activeDocumentView.ranges, activeFileProposals, activeTab, activeTabData?.chunks, agentAcceptedMap, agentRejectedIds, reviewBaseText]);
+    }, [activeFileProposals, activePlainDocumentView.fullText, activePlainDocumentView.ranges, activeTab, activeTabData?.chunks, agentAcceptedMap, agentRejectedIds, reviewBasePlainText]);
     const hasInlineReview = resolvedInlineMarkers.length > 0;
     const pendingCount = resolvedInlineMarkers.filter((marker) => marker.status === "pending").length;
     const acceptedCount = resolvedInlineMarkers.filter((marker) => marker.status === "accepted").length;
+    const reviewMarkers = useMemo<MarkdownReviewMarker[]>(
+        () => resolvedInlineMarkers.map((marker) => ({
+            proposalKey: marker.proposalKey,
+            parentId: marker.parentId,
+            status: marker.status,
+            hunks: marker.hunks,
+            offset: marker.offset,
+        })),
+        [resolvedInlineMarkers]
+    );
     const showAgentSection = isEditMode && (isAgentGenerating || agentProposals.length > 0 || agentError !== null || !activeTab);
 
     useEffect(() => {
@@ -251,7 +276,7 @@ export default function ModificationPanel({
 
     useEffect(() => {
         if (!focusedProposalKey || !contentRef.current) return;
-        const marker = contentRef.current.querySelector<HTMLElement>(`.inline-diff-marker[data-proposal-key="${focusedProposalKey}"]`);
+        const marker = contentRef.current.querySelector<HTMLElement>(`.review-suggestion-widget[data-proposal-key="${focusedProposalKey}"], .review-text-marker[data-proposal-key="${focusedProposalKey}"]`);
         if (!marker) return;
         marker.scrollIntoView({ behavior: "smooth", block: "center" });
         marker.classList.add("focused");
@@ -259,48 +284,6 @@ export default function ModificationPanel({
         onFocusedProposalHandled?.();
         return () => window.clearTimeout(timerId);
     }, [focusedProposalKey, onFocusedProposalHandled, resolvedInlineMarkers]);
-
-    const inlineReviewNodes = useMemo(() => {
-        if (!hasInlineReview) return [] as ReactNode[];
-        const nodes: ReactNode[] = [];
-        let cursor = 0;
-        for (const marker of resolvedInlineMarkers) {
-            if (marker.offset < cursor) continue;
-            if (marker.offset > cursor) nodes.push(<span key={`t-${cursor}-${marker.offset}`}>{reviewBaseText.slice(cursor, marker.offset)}</span>);
-            const isSelectionPending = marker.status === "pending" && marker.proposal.source === "selection";
-            nodes.push(
-                <span key={marker.proposalKey} className={`inline-diff-marker ${marker.status}`} data-proposal-key={marker.proposalKey}>
-                    {isSelectionPending ? (
-                        <span className="inline-selection-diff">
-                            <span className="inline-selection-before">{marker.proposal.original}</span>
-                            <span className="inline-selection-after">{marker.proposal.proposed}</span>
-                        </span>
-                    ) : (
-                        <span className="inline-diff-content">
-                            {marker.tokens.map((token, index) => (
-                                <span key={`${marker.proposalKey}-${token.type}-${index}`} className={`inline-diff-token ${token.type}`}>{token.text}</span>
-                            ))}
-                        </span>
-                    )}
-
-                    <span className="inline-diff-actions-row">
-                        {marker.status === "pending" && (
-                            <>
-                                <button className="inline-action inline-action-accept" type="button" onClick={() => { void onAcceptAgentProposal(marker.proposal); }}>Accept</button>
-                                <button className="inline-action inline-action-reject" type="button" onClick={() => onRejectAgentProposal(marker.parentId)}>Reject</button>
-                            </>
-                        )}
-                        {marker.status === "accepted" && (
-                            <button className="inline-action inline-action-undo" type="button" onClick={() => onUndoAgentProposal(marker.parentId)}>Undo</button>
-                        )}
-                    </span>
-                </span>
-            );
-            cursor = marker.offset + marker.sourceLength;
-        }
-        if (cursor < reviewBaseText.length) nodes.push(<span key={`t-${cursor}-end`}>{reviewBaseText.slice(cursor)}</span>);
-        return nodes;
-    }, [hasInlineReview, onAcceptAgentProposal, onRejectAgentProposal, onUndoAgentProposal, resolvedInlineMarkers, reviewBaseText]);
 
     const handleContentScroll = () => {
         if (!contentRef.current || !activeTabData || activeTabAsync?.isLoading || !activeTabData.hasMore) return;
@@ -372,6 +355,7 @@ export default function ModificationPanel({
 
     const editScopeLabel = selectedFileIds.size > 0 ? `${selectedFileIds.size} file(s) selected` : "All files";
     const activeFileName = activeTab ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab : "No file selected";
+    const hasUnresolvedSuggestions = pendingCount > 0;
 
     return (
         <aside className="modification-panel">
@@ -411,8 +395,16 @@ export default function ModificationPanel({
                         {!isAgentGenerating && agentProposals.length === 0 && !agentError && (
                             <div className="mod-panel-empty">Type an instruction in the chat to modify documents.<br /><em>{selectedFileIds.size > 0 ? `Will search ${selectedFileIds.size} selected file(s).` : "Will search all files - or check files in sidebar to narrow scope."}</em></div>
                         )}
-                        {!isAgentGenerating && activeFileProposals.length > 0 && (
-                            <div className="inline-review-summary">{pendingCount > 0 && <span>{pendingCount} pending</span>}{acceptedCount > 0 && <span>{acceptedCount} accepted</span>}<span>Review changes inline below.</span></div>
+                        {!isAgentGenerating && activeFileProposals.length > 0 && activeTab && (
+                            <div className="inline-review-summary">
+                                {pendingCount > 0 && <span>{pendingCount} pending</span>}
+                                {acceptedCount > 0 && <span>{acceptedCount} accepted</span>}
+                                <span>Review changes inline below.</span>
+                                <div className="inline-review-bulk-actions">
+                                    <button className="inline-review-bulk-btn accept" type="button" onClick={() => { void onAcceptActiveFileProposals(activeTab); }} disabled={pendingCount === 0}>Accept all in this file</button>
+                                    <button className="inline-review-bulk-btn reject" type="button" onClick={() => onRejectActiveFileProposals(activeTab)} disabled={pendingCount === 0}>Reject all in this file</button>
+                                </div>
+                            </div>
                         )}
                     </section>
                 )}
@@ -433,16 +425,34 @@ export default function ModificationPanel({
                                         </>
                                     ) : (
                                         <div className="document-action-group">
-                                            <button className="edit-btn" type="button" onClick={onStartEditing} disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading) || hasInlineReview}>Edit</button>
+                                            <button className="edit-btn" type="button" onClick={onStartEditing} disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading) || hasUnresolvedSuggestions}>Edit</button>
                                             <button className="delete-btn" type="button" onClick={onDeleteActiveFile} disabled={isSaving || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}>{isDeletingActiveFile ? "Deleting..." : "Delete"}</button>
                                         </div>
                                     )}
                                 </div>
                             )}
+                            {isEditMode && !isEditing && hasUnresolvedSuggestions && <div className="mod-panel-selection-hint">Resolve suggestions first before free editing.</div>}
                             {isEditMode && !isEditing && !hasInlineReview && <div className="mod-panel-selection-hint">Highlight text to edit directly.</div>}
                             {selectionError && <div className="mod-panel-selection-error">{selectionError}</div>}
                             {hasInlineReview ? (
-                                <div className="mod-panel-document-flow inline-review-active"><div className="mod-panel-document-text mod-panel-inline-review">{inlineReviewNodes}</div></div>
+                                <div className="mod-panel-document-flow inline-review-active">
+                                    <div className="mod-panel-document-text mod-panel-inline-review">
+                                        <MarkdownEditor
+                                            markdown={reviewBaseText}
+                                            editable={false}
+                                            className="mod-panel-segment-editor"
+                                            reviewMarkers={reviewMarkers}
+                                            reviewCallbacks={{
+                                                onAccept: (parentId) => {
+                                                    const proposal = resolvedInlineMarkers.find((marker) => marker.parentId === parentId)?.proposal;
+                                                    if (proposal) void onAcceptAgentProposal(proposal);
+                                                },
+                                                onReject: onRejectAgentProposal,
+                                                onUndo: onUndoAgentProposal,
+                                            }}
+                                        />
+                                    </div>
+                                </div>
                             ) : isEditing ? (
                                 <MarkdownEditor markdown={editingContent} editable={!isSaving} onChange={onEditingContentChange} className="mod-panel-active-editor" />
                             ) : (

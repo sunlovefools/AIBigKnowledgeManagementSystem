@@ -643,6 +643,8 @@ export function useDocuments() {
         acceptAgentProposal: agentDomain.acceptAgentProposal,
         rejectAgentProposal: agentDomain.rejectAgentProposal,
         undoAgentProposal: agentDomain.undoAgentProposal,
+        acceptActiveFileProposals: agentDomain.acceptActiveFileProposals,
+        rejectActiveFileProposals: agentDomain.rejectActiveFileProposals,
         clearAgentState: agentDomain.clearAgentState,
         ensureFileFullyLoaded,
     };

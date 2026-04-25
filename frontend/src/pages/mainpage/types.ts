@@ -203,6 +203,17 @@ export type InlineDiffToken = {
     text: string;
 };
 
+export type ProposalHunk = {
+    type: "insert" | "delete" | "replace";
+    originalStart: number;
+    originalEnd: number;
+    proposedStart: number;
+    proposedEnd: number;
+    originalText: string;
+    proposedText: string;
+    tokens: InlineDiffToken[];
+};
+
 export type ResolvedProposalMarker = {
     proposalKey: string;
     parentId: string;
@@ -215,6 +226,7 @@ export type ResolvedProposalMarker = {
     status: ProposalStatus;
     proposal: AgentProposal;
     tokens: InlineDiffToken[];
+    hunks: ProposalHunk[];
 };
 
 export type PendingModificationNavItem = {
