@@ -15,13 +15,29 @@ from pydantic import BaseModel, Field
 class AgentAction(BaseModel):
     """One model-issued action in the JSON tool protocol."""
 
-    action: Literal["search_context", "fetch_parent_chunk", "read_reference", "finish"]
+    action: Literal[
+        "load_skill",
+        "search_files",
+        "search_context",
+        "fetch_parent_chunk",
+        "fetch_file_context",
+        "read_reference",
+        "finish",
+    ]
     # Arguments are validated again by per-action argument models.
     arguments: dict[str, Any] = Field(default_factory=dict)
-    # Short step-level rationale shown in debug/progress trace.
+    # Short operational action summary shown in debug/progress trace.
     intent: str | None = None
-    # Optional one-line decision plan for what to do next if needed.
+    success_criteria: str | None = None
+    fallback: str | None = None
+    # Backward-compatible one-line fallback used by earlier prompt versions.
     decision: str | None = None
+
+
+class LoadSkillArguments(BaseModel):
+    """Arguments for loading one skill body."""
+
+    skill_name: str
 
 
 class SearchContextArguments(BaseModel):
@@ -31,15 +47,31 @@ class SearchContextArguments(BaseModel):
     top_k: int = 8
 
 
+class SearchFilesArguments(BaseModel):
+    """Arguments for finding scoped files by filename."""
+
+    query: str
+    limit: int = 5
+
+
 class FetchParentChunkArguments(BaseModel):
     """Arguments for loading one specific parent chunk."""
 
     parent_id: str
 
 
+class FetchFileContextArguments(BaseModel):
+    """Arguments for loading ordered parent chunks from one scoped file."""
+
+    file_id: str | None = None
+    file_name: str | None = None
+    max_chunks: int = 20
+
+
 class ReadReferenceArguments(BaseModel):
     """Arguments for loading one optional markdown reference document."""
 
+    skill_name: str
     ref_id: str
 
 
@@ -58,6 +90,15 @@ class EvidenceItem(BaseModel):
     file_name: str
     parent_chunk_number: int | None = None
     snippet: str
+
+
+class FileMatch(BaseModel):
+    """Compact scoped file search result."""
+
+    file_id: str
+    file_name: str
+    first_parent_id: str | None = None
+    preview: str = ""
 
 
 class AgenticQueryRunResult(BaseModel):

@@ -2,7 +2,7 @@ import { useEffect, useState, type ReactNode } from "react";
 import { NavLink } from "react-router-dom";
 import "./GlobalSidebar.css";
 
-export type GlobalSidebarMode = "collection" | "mainpage";
+export type GlobalSidebarMode = "collection" | "conversation";
 
 type GlobalSidebarProps = {
     mode: GlobalSidebarMode;
@@ -17,12 +17,12 @@ type SidebarNavItem = {
 
 const STORAGE_KEYS: Record<GlobalSidebarMode, string> = {
     collection: "global_sidebar_collection_expanded",
-    mainpage: "global_sidebar_mainpage_expanded",
+    conversation: "global_sidebar_conversation_expanded",
 };
 
 const DEFAULT_EXPANDED: Record<GlobalSidebarMode, boolean> = {
     collection: false,
-    mainpage: false,
+    conversation: false,
 };
 
 const NAV_ITEMS: SidebarNavItem[] = [
@@ -43,6 +43,27 @@ const NAV_ITEMS: SidebarNavItem[] = [
             >
                 <path d="M3 11.5 12 4l9 7.5" />
                 <path d="M5.5 10.5V20h13V10.5" />
+            </svg>
+        ),
+    },
+    {
+        to: "/conversation",
+        label: "Conversation",
+        icon: (
+            <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.9"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+            >
+                <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z" />
+                <path d="M8 9h8" />
+                <path d="M8 13h5" />
             </svg>
         ),
     },
@@ -78,7 +99,7 @@ function readInitialExpanded(mode: GlobalSidebarMode): boolean {
 
 export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarProps) {
     const [isExpanded, setIsExpanded] = useState(() => readInitialExpanded(mode));
-    const isMainpage = mode === "mainpage";
+    const isConversation = mode === "conversation";
 
     useEffect(() => {
         setIsExpanded(readInitialExpanded(mode));
@@ -89,8 +110,8 @@ export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarPro
         window.localStorage.setItem(STORAGE_KEYS[mode], String(isExpanded));
     }, [mode, isExpanded]);
 
-    const showNavItems = mode === "collection" || isExpanded || isMainpage;
-    const isButtonOnly = isMainpage;
+    const showNavItems = mode === "collection" || isExpanded || isConversation;
+    const isButtonOnly = isConversation;
     const useSemisphereToggle = false;
 
     return (
@@ -98,12 +119,13 @@ export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarPro
             className={[
                 "global-sidebar",
                 mode,
+                isConversation ? "mainpage" : "",
                 isExpanded ? "expanded" : "collapsed",
                 isButtonOnly ? "button-only" : "",
                 className,
             ].join(" ").trim()}
         >
-            {isMainpage && (
+            {isConversation && (
                 <div className="global-sidebar-mainpage-brand">
                     <span className="global-sidebar-mainpage-dot" aria-hidden="true">KB</span>
                     <span>Knowledge Base</span>
@@ -138,7 +160,7 @@ export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarPro
                             key={item.to}
                             to={item.to}
                             className={({ isActive }) =>
-                                `global-sidebar-link ${isActive ? "active" : ""} ${isExpanded || isMainpage ? "with-label" : "icon-only"}`
+                                `global-sidebar-link ${isActive ? "active" : ""} ${isExpanded || isConversation ? "with-label" : "icon-only"}`
                             }
                             end={item.to === "/collections"}
                         >

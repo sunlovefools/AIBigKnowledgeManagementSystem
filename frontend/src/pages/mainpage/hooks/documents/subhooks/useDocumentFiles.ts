@@ -19,6 +19,8 @@ type CachedFileChunks = {
     nextCursor: string | null;
 };
 
+type FileChunksPage = Awaited<ReturnType<typeof getFileChunks>>;
+
 function buildFileChunkCacheKey(collectionId: string | null, fileId: string): string {
     const scope = collectionId ?? "__default_collection__";
     return `${scope}::${fileId}`;
@@ -43,6 +45,7 @@ export function useDocumentFiles(activeCollectionId: string | null) {
         >
     >({});
     const fileChunkCacheRef = useRef<Map<string, CachedFileChunks>>(new Map());
+    const inFlightChunkPagesRef = useRef<Map<string, Promise<FileChunksPage>>>(new Map());
     const activeCacheKey = activeCollectionId ?? "__default_collection__";
 
     const getCachedFileChunks = useCallback(
@@ -75,6 +78,21 @@ export function useDocumentFiles(activeCollectionId: string | null) {
     const invalidateCachedFileChunks = useCallback(
         (fileId: string) => {
             fileChunkCacheRef.current.delete(buildFileChunkCacheKey(activeCollectionId, fileId));
+        },
+        [activeCollectionId]
+    );
+
+    const fetchChunkPage = useCallback(
+        (fileId: string, cursor: string | null): Promise<FileChunksPage> => {
+            const key = `${buildFileChunkCacheKey(activeCollectionId, fileId)}::${cursor ?? "__first_page__"}`;
+            const existing = inFlightChunkPagesRef.current.get(key);
+            if (existing) return existing;
+
+            const request = getFileChunks(fileId, cursor, activeCollectionId).finally(() => {
+                inFlightChunkPagesRef.current.delete(key);
+            });
+            inFlightChunkPagesRef.current.set(key, request);
+            return request;
         },
         [activeCollectionId]
     );
@@ -210,7 +228,7 @@ export function useDocumentFiles(activeCollectionId: string | null) {
 
             const cursor = reset ? null : current.nextCursor;
             try {
-                const response = await getFileChunks(fileId, cursor, activeCollectionId);
+                const response = await fetchChunkPage(fileId, cursor);
                 const existing = reset ? [] : getContentStateById(fileId).chunks;
                 const merged = reset ? response.chunks : [...existing, ...response.chunks];
                 // Deduplicate by parentId in case the backend returns overlapping windows.
@@ -248,7 +266,94 @@ export function useDocumentFiles(activeCollectionId: string | null) {
                 return [];
             }
         },
-        [activeCollectionId, getCachedFileChunks, getChunkAsyncById, getContentStateById, getFileNameById, setCachedFileChunks]
+        [fetchChunkPage, getCachedFileChunks, getChunkAsyncById, getContentStateById, getFileNameById, setCachedFileChunks]
+    );
+
+    const loadFileChunksUntilParent = useCallback(
+        async (fileId: string, parentId: string): Promise<ParentChunkContent[]> => {
+            const cached = getCachedFileChunks(fileId);
+            if (cached && (cached.chunks.some((chunk) => chunk.parentId === parentId) || !cached.hasMore)) {
+                setFilesState((prev) =>
+                    patchChunkContent(prev, fileId, cached.chunks, cached.hasMore, cached.nextCursor)
+                );
+                setChunkAsyncByFileId((prev) => ({
+                    ...prev,
+                    [fileId]: {
+                        ...(prev[fileId] ?? createEmptyContentAsyncState()),
+                        isLoading: false,
+                        isInitialized: true,
+                        error: null,
+                    },
+                }));
+                return cached.chunks;
+            }
+
+            setFilesState((prev) => markFileChunkLoading(prev, fileId, true));
+            setChunkAsyncByFileId((prev) => ({
+                ...prev,
+                [fileId]: {
+                    ...(prev[fileId] ?? createEmptyContentAsyncState()),
+                    isLoading: true,
+                    isInitialized: false,
+                    error: null,
+                },
+            }));
+
+            let cursor: string | null = null;
+            let hasMore = true;
+            let nextCursor: string | null = null;
+            let chunks: ParentChunkContent[] = [];
+            let safetyCounter = 0;
+
+            try {
+                while (hasMore && safetyCounter < 200) {
+                    const response = await fetchChunkPage(fileId, cursor);
+                    chunks = Array.from(
+                        new Map([...chunks, ...response.chunks].map((chunk) => [chunk.parentId, chunk])).values()
+                    );
+                    hasMore = response.hasMore;
+                    nextCursor = response.nextCursor;
+
+                    setFilesState((prev) =>
+                        patchChunkContent(prev, fileId, chunks, hasMore, nextCursor)
+                    );
+                    setCachedFileChunks(fileId, {
+                        chunks,
+                        hasMore,
+                        nextCursor,
+                    });
+
+                    if (chunks.some((chunk) => chunk.parentId === parentId)) break;
+                    if (!hasMore || !nextCursor) break;
+                    cursor = nextCursor;
+                    safetyCounter += 1;
+                }
+
+                setChunkAsyncByFileId((prev) => ({
+                    ...prev,
+                    [fileId]: {
+                        ...(prev[fileId] ?? createEmptyContentAsyncState()),
+                        isLoading: false,
+                        isInitialized: true,
+                        error: null,
+                    },
+                }));
+                return chunks;
+            } catch {
+                const fileName = getFileNameById(fileId);
+                setChunkAsyncByFileId((prev) => ({
+                    ...prev,
+                    [fileId]: {
+                        ...(prev[fileId] ?? createEmptyContentAsyncState()),
+                        isLoading: false,
+                        isInitialized: true,
+                        error: `Failed to load content for ${fileName}.`,
+                    },
+                }));
+                return chunks;
+            }
+        },
+        [fetchChunkPage, getCachedFileChunks, getFileNameById, setCachedFileChunks]
     );
 
     const activeTabData = useMemo<FileTabState | null>(
@@ -281,6 +386,7 @@ export function useDocumentFiles(activeCollectionId: string | null) {
         activeTabAsync,
         fetchFiles,
         loadFileChunks,
+        loadFileChunksUntilParent,
         invalidateDocumentCache,
         invalidateCachedFileChunks,
         getFileNameById,

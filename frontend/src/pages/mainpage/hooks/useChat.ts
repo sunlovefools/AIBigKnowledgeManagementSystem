@@ -4,9 +4,11 @@ import type {
     ChatMessage,
     ChatProgressMessage,
     ChatProgressStep,
+    ChatProgressTranscriptItem,
     ChatRole,
     ChatTextMessage,
     ConversationSummary,
+    QuerySearchScope,
 } from "../types";
 
 const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:8000").replace(/\/$/, "");
@@ -16,6 +18,9 @@ const AGENTIC_SEARCH_ENABLED_STORAGE_KEY = "agenticSearchEnabled";
 type AppendTextMessagePayload = {
     role: ChatRole;
     text: string;
+    searchScope?: QuerySearchScope;
+    collectionId?: string | null;
+    collectionName?: string | null;
 };
 
 type ConversationApiMessage = {
@@ -24,10 +29,19 @@ type ConversationApiMessage = {
     text?: string;
     timestamp?: string;
     userEmail?: string;
+    searchScope?: QuerySearchScope;
+    collectionId?: string | null;
+    collectionName?: string | null;
 };
 
 type HandleQueryOptions = {
+    query?: string;
     collectionId?: string | null;
+    collectionName?: string | null;
+    forceAgenticSearch?: boolean;
+    searchScope?: QuerySearchScope;
+    maxSteps?: number;
+    seedTopK?: number;
 };
 
 type AgenticQueryResponsePayload = {
@@ -215,6 +229,25 @@ function optionalNumber(value: unknown): number | undefined {
     return undefined;
 }
 
+function normalizeTranscriptMessage(value: unknown): ChatProgressTranscriptItem | undefined {
+    if (!value || typeof value !== "object") return undefined;
+    const raw = value as Record<string, unknown>;
+    const rawRole = String(raw.role || "").trim();
+    const role: ChatProgressTranscriptItem["role"] =
+        rawRole === "system" || rawRole === "tool" ? rawRole : "assistant";
+    const title = optionalText(raw.title);
+    const summary = optionalText(raw.summary);
+    if (!title || !summary) return undefined;
+    const status = optionalText(raw.status);
+    return {
+        role,
+        title,
+        summary,
+        ...(optionalText(raw.detail) ? { detail: optionalText(raw.detail) } : {}),
+        ...(status ? { status } : {}),
+    };
+}
+
 export function useChat() {
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [conversations, setConversations] = useState<ConversationSummary[]>([]);
@@ -241,6 +274,9 @@ export function useChat() {
         kind: "text",
         role: payload.role,
         text: payload.text,
+        searchScope: payload.searchScope,
+        collectionId: payload.collectionId ?? null,
+        collectionName: payload.collectionName ?? null,
     }), [nextMessageId]);
 
     const toConversationTextMessage = useCallback(
@@ -252,6 +288,9 @@ export function useChat() {
             messageId: message.messageId,
             timestamp: message.timestamp,
             userEmail: message.userEmail,
+            searchScope: message.searchScope,
+            collectionId: message.collectionId ?? null,
+            collectionName: message.collectionName ?? null,
         }),
         [nextMessageId]
     );
@@ -275,6 +314,7 @@ export function useChat() {
                 scope,
                 currentStageText: initialStageText,
                 steps: [initialStep],
+                transcript: [],
             };
             setMessages((previousMessages) => [...previousMessages, message]);
             return id;
@@ -382,6 +422,9 @@ export function useChat() {
         const decision = optionalText(metadata?.decision);
         const observation = optionalText(metadata?.observation);
         const argumentsPreview = optionalText(metadata?.argumentsPreview);
+        const successCriteria = optionalText(metadata?.successCriteria);
+        const fallback = optionalText(metadata?.fallback);
+        const transcriptMessage = normalizeTranscriptMessage(metadata?.transcriptMessage);
         const stagePrefixParts: string[] = [];
         if (typeof step === "number") {
             stagePrefixParts.push(`Step ${step}`);
@@ -400,9 +443,12 @@ export function useChat() {
             ...(typeof step === "number" ? { step } : {}),
             ...(tool ? { tool } : {}),
             ...(intent ? { intent } : {}),
+            ...(successCriteria ? { successCriteria } : {}),
+            ...(fallback ? { fallback } : {}),
             ...(decision ? { decision } : {}),
             ...(observation ? { observation } : {}),
             ...(argumentsPreview ? { argumentsPreview } : {}),
+            ...(transcriptMessage ? { transcriptMessage } : {}),
         };
 
         setMessages((previousMessages) =>
@@ -419,6 +465,8 @@ export function useChat() {
                     latestStep.tool === incomingStep.tool &&
                     latestStep.intent === incomingStep.intent &&
                     latestStep.decision === incomingStep.decision &&
+                    latestStep.successCriteria === incomingStep.successCriteria &&
+                    latestStep.fallback === incomingStep.fallback &&
                     latestStep.observation === incomingStep.observation &&
                     latestStep.argumentsPreview === incomingStep.argumentsPreview &&
                     incomingStatus === message.status;
@@ -426,12 +474,25 @@ export function useChat() {
                 const nextSteps = isDuplicateStep
                     ? message.steps
                     : [...message.steps, incomingStep];
+                const latestTranscript = message.transcript[message.transcript.length - 1];
+                const isDuplicateTranscript =
+                    !!latestTranscript &&
+                    !!transcriptMessage &&
+                    latestTranscript.role === transcriptMessage.role &&
+                    latestTranscript.title === transcriptMessage.title &&
+                    latestTranscript.summary === transcriptMessage.summary &&
+                    latestTranscript.detail === transcriptMessage.detail &&
+                    latestTranscript.status === transcriptMessage.status;
+                const nextTranscript = transcriptMessage && !isDuplicateTranscript
+                    ? [...message.transcript, transcriptMessage]
+                    : message.transcript;
 
                 return {
                     ...message,
                     status: message.status === "failed" || incomingStatus === "failed" ? "failed" : "running",
                     currentStageText,
                     steps: nextSteps,
+                    transcript: nextTranscript,
                 };
             })
         );
@@ -499,15 +560,25 @@ export function useChat() {
     );
 
     const handleQuery = useCallback(async (options?: HandleQueryOptions) => {
-        const textInput = input.trim();
+        const textInput = (options?.query ?? input).trim();
         if (!textInput || isQuerying) {
             return;
         }
 
+        const searchScope = options?.searchScope ?? "all_collections";
+        const scopedCollectionId = searchScope === "collection" ? options?.collectionId ?? null : null;
+        const scopedCollectionName = searchScope === "collection" ? options?.collectionName ?? null : null;
+        const shouldUseAgenticSearch = options?.forceAgenticSearch ?? isAgenticSearchEnabled;
         setIsQuerying(true);
         let agenticProgressMessageId: string | null = null;
-        const userMessage = buildTextMessage({ role: "user", text: textInput });
-        if (isAgenticSearchEnabled) {
+        const userMessage = buildTextMessage({
+            role: "user",
+            text: textInput,
+            searchScope,
+            collectionId: scopedCollectionId,
+            collectionName: scopedCollectionName,
+        });
+        if (shouldUseAgenticSearch) {
             setMessages((previousMessages) => [...previousMessages, userMessage]);
         } else {
             const placeholderMessage = buildTextMessage({ role: "ai", text: "Processing..." });
@@ -516,7 +587,7 @@ export function useChat() {
         setInput("");
 
         try {
-            if (isAgenticSearchEnabled) {
+            if (shouldUseAgenticSearch) {
                 agenticProgressMessageId = startProgressMessage(
                     "agentic-search",
                     "Agentic search started."
@@ -530,9 +601,11 @@ export function useChat() {
                     body: JSON.stringify({
                         query: textInput,
                         conversation_id: conversationId,
-                        collectionId: options?.collectionId ?? null,
-                        seed_top_k: 8,
-                        max_steps: 6,
+                        collectionId: scopedCollectionId,
+                        collectionName: scopedCollectionName,
+                        searchScope,
+                        seed_top_k: options?.seedTopK ?? 8,
+                        max_steps: options?.maxSteps ?? 6,
                     }),
                 });
                 const streamResult = await readAgenticQueryStreamResult(
@@ -560,7 +633,13 @@ export function useChat() {
                 if (agenticProgressMessageId) {
                     finishProgressMessage(agenticProgressMessageId, "completed", "Agentic search completed.");
                 }
-                appendMessage({ role: "ai", text: answerWithCitations });
+                appendMessage({
+                    role: "ai",
+                    text: answerWithCitations,
+                    searchScope,
+                    collectionId: scopedCollectionId,
+                    collectionName: scopedCollectionName,
+                });
                 void refreshConversations();
                 return;
             }
@@ -568,7 +647,7 @@ export function useChat() {
             const response = await apiClient.post(`${API_BASE}/api/query`, {
                 query: textInput,
                 conversation_id: conversationId,
-                collectionId: options?.collectionId ?? null,
+                collectionId: scopedCollectionId,
             });
 
             if (typeof response.data?.conversation_id === "string") {
@@ -577,7 +656,13 @@ export function useChat() {
 
             setMessages((previousMessages) => [
                 ...previousMessages.slice(0, -1),
-                buildTextMessage({ role: "ai", text: response.data.answer || "(no response)" }),
+                buildTextMessage({
+                    role: "ai",
+                    text: response.data.answer || "(no response)",
+                    searchScope,
+                    collectionId: scopedCollectionId,
+                    collectionName: scopedCollectionName,
+                }),
             ]);
             void refreshConversations();
         } catch (error) {
@@ -586,13 +671,16 @@ export function useChat() {
                 || (error instanceof Error ? error.message : null)
                 || "Error: Failed to get response from server.";
 
-            if (isAgenticSearchEnabled) {
+            if (shouldUseAgenticSearch) {
                 if (agenticProgressMessageId) {
                     finishProgressMessage(agenticProgressMessageId, "failed", fallbackError);
                 }
                 appendMessage({
                     role: "ai",
                     text: fallbackError,
+                    searchScope,
+                    collectionId: scopedCollectionId,
+                    collectionName: scopedCollectionName,
                 });
             } else {
                 setMessages((previousMessages) => [
@@ -600,6 +688,9 @@ export function useChat() {
                     buildTextMessage({
                         role: "ai",
                         text: fallbackError,
+                        searchScope,
+                        collectionId: scopedCollectionId,
+                        collectionName: scopedCollectionName,
                     }),
                 ]);
             }

@@ -4,11 +4,12 @@ import {
     requestAgentModify,
     requestSelectionPreview,
     type AgentModifyResponse,
+    type ModificationAgentMode,
     type ModificationProgressEvent,
 } from "../api/documentsApi";
 import { buildChunkRanges } from "../utils/chunkText";
 import { findNearestOccurrence } from "../utils/editText";
-import { remapAcceptedAgentOffsets } from "../state/transitions";
+import { openTabState, remapAcceptedAgentOffsets } from "../state/transitions";
 
 export type RequestAgentResult = {
     ok: boolean;
@@ -28,6 +29,7 @@ type UseDocumentAgentParams = {
     getContentStateById: (fileId: string) => FileContentState;
     getEditorBaselineContent: (fileId: string | null) => string;
     loadFileChunks: (fileId: string, reset?: boolean) => Promise<ParentChunkContent[]>;
+    loadFileChunksUntilParent: (fileId: string, parentId: string) => Promise<ParentChunkContent[]>;
     setFilesState: Dispatch<SetStateAction<FilesState>>;
 };
 
@@ -74,6 +76,7 @@ export function useDocumentAgent({
     getContentStateById,
     getEditorBaselineContent,
     loadFileChunks,
+    loadFileChunksUntilParent,
     setFilesState,
 }: UseDocumentAgentParams) {
     const [isAgentGenerating, setIsAgentGenerating] = useState(false);
@@ -123,10 +126,22 @@ export function useDocumentAgent({
         [getKnownParentIdsForFile]
     );
 
+    const focusFirstProposalTarget = useCallback(
+        async (proposals: AgentProposal[]) => {
+            const firstProposal = proposals[0];
+            if (!firstProposal) return;
+
+            setFilesState((prev) => openTabState(prev, firstProposal.fileId));
+            await loadFileChunksUntilParent(firstProposal.fileId, firstProposal.parentId);
+        },
+        [loadFileChunksUntilParent, setFilesState]
+    );
+
     const requestAgentEditPreview = useCallback(
         async (
             instruction: string,
             fileIds: string[] | null,
+            mode: ModificationAgentMode = "workflow",
             onProgress?: (progress: ModificationProgressEvent) => void
         ): Promise<RequestAgentResult> => {
             const trimmed = instruction.trim();
@@ -152,11 +167,13 @@ export function useDocumentAgent({
                     trimmed,
                     fileIds,
                     activeCollectionId,
+                    mode,
                     onProgress
                 );
                 const mapped = proposals.map(normalizeIncomingProposal);
                 setAgentIntention(intention);
                 setAgentProposals(mapped);
+                await focusFirstProposalTarget(mapped);
                 const uniqueFiles = new Set(mapped.map((p) => p.fileId)).size;
                 const summary = mapped.length > 0
                     ? `Agent found ${mapped.length} change(s) across ${uniqueFiles} file(s).`
@@ -170,7 +187,7 @@ export function useDocumentAgent({
                 setIsAgentGenerating(false);
             }
         },
-        [activeCollectionId, editingFileId, isAgentGenerating]
+        [activeCollectionId, editingFileId, focusFirstProposalTarget, isAgentGenerating]
     );
 
     // Requests an edit proposal for an explicit highlighted text region.

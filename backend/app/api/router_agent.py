@@ -74,6 +74,8 @@ class AgenticQueryRequest(BaseModel):
     query: str
     conversation_id: str | None = None
     collectionId: str | None = None
+    collectionName: str | None = None
+    searchScope: Literal["collection", "all_collections"] = "collection"
     seed_top_k: int = 8
     max_steps: int = 6
 
@@ -179,6 +181,23 @@ def _load_retrieval_graph():
             raise
         from graph.retrieval_brief_graph import retrieval_brief_graph
         return retrieval_brief_graph
+
+
+def _load_agentic_modification_skill_runner():
+    try:
+        from app.service.rag.agentic_modification_skill.runtime import (
+            run_agentic_modification_skill,
+        )
+
+        return run_agentic_modification_skill
+    except ModuleNotFoundError as exc:
+        if exc.name != "app":
+            raise
+        from service.rag.agentic_modification_skill.runtime import (
+            run_agentic_modification_skill,
+        )
+
+        return run_agentic_modification_skill
 
 
 def _build_agentic_response(final_state: dict[str, Any], *, run_id: str) -> AgenticModificationResponse:
@@ -432,6 +451,89 @@ async def _run_agentic_pipeline(
     return response
 
 
+async def _run_agentic_skills_pipeline(
+    request: AgenticModificationRequest,
+    user_id: str,
+    *,
+    progress_callback: ProgressCallback | None = None,
+) -> AgenticModificationResponse:
+    """Run the Skills-style Agentic Modification runtime."""
+    if not request.user_instructions.strip():
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+            detail="user_instructions must not be empty.",
+        )
+
+    try:
+        active_collection = await CollectionService.resolve_active_collection(
+            user_id=user_id,
+            requested_collection_id=request.collectionId,
+        )
+        scoped_file_ids = set(
+            await CollectionService.list_file_ids_for_collection(
+                user_id=user_id,
+                collection_id=str(active_collection.get("collection_id") or ""),
+            )
+        )
+    except CollectionNotFoundError as e:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(e))
+    except CollectionServiceError as e:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail=f"Collection service error: {str(e)}",
+        )
+
+    requested_file_ids = {
+        str(file_id or "").strip()
+        for file_id in (request.fileIds or [])
+        if str(file_id or "").strip()
+    }
+    if requested_file_ids:
+        final_file_ids = sorted(scoped_file_ids.intersection(requested_file_ids))
+    else:
+        final_file_ids = sorted(scoped_file_ids)
+    file_ids = final_file_ids if final_file_ids else ["__empty_scope__"]
+
+    run_agentic_modification_skill = _load_agentic_modification_skill_runner()
+    runtime_result = await run_agentic_modification_skill(
+        user_instruction=request.user_instructions.strip(),
+        user_id=user_id,
+        included_file_ids=file_ids,
+        progress_callback=progress_callback,
+    )
+    payload = runtime_result.model_dump()
+    final_state = {
+        "intention": payload.get("intention", "edit"),
+        "proposals": payload.get("proposals", []),
+        "goal": payload.get("goal") or request.user_instructions.strip(),
+        "lexical_anchors": payload.get("lexical_anchors", []),
+        "semantic_anchors": payload.get("semantic_anchors", []),
+        "anchors": payload.get("anchors", []),
+        "constraint": payload.get("constraint", "None"),
+        "node2_search_group_result": {
+            "runtime": "agentic_modification_skill",
+            "coverage_report": payload.get("coverage_report", {}),
+        },
+        "node3_non_strong_signal_file_context_expansion_result": {},
+        "node4_file_filtering_result": {},
+        "node5_parent_chunk_constraint_verifier_result": {},
+        "node6_editor_result": {
+            "runtime": "agentic_modification_skill",
+            "run_id": payload.get("run_id"),
+            "termination_reason": payload.get("termination_reason"),
+            "tool_call_count": payload.get("tool_call_count", 0),
+            "llm_call_count": payload.get("llm_call_count", 0),
+            "skill_runtime_result": payload.get("skill_runtime_result", {}),
+        },
+        "token_prompt_total": payload.get("token_prompt_total", 0),
+        "token_completion_total": payload.get("token_completion_total", 0),
+        "token_total": payload.get("token_total", 0),
+        "llm_call_count": payload.get("llm_call_count", 0),
+        "error": None,
+    }
+    return _build_agentic_response(final_state, run_id=str(payload.get("run_id") or uuid4().hex))
+
+
 def _build_agentic_query_answer_text(answer: str, citations: list[str]) -> str:
     normalized_answer = str(answer or "").strip() or "No answer found in the provided context."
     normalized_citations = [str(item).strip() for item in citations if str(item).strip()]
@@ -460,22 +562,30 @@ async def _run_agentic_query_pipeline(
     conversation_id = request.conversation_id or str(uuid4())
     normalized_user_email = query_helpers._normalized_email(user_email)
 
-    try:
-        active_collection = await CollectionService.resolve_active_collection(
-            user_id=user_id,
-            requested_collection_id=request.collectionId,
-        )
-        scoped_file_ids = await CollectionService.list_file_ids_for_collection(
-            user_id=user_id,
-            collection_id=str(active_collection.get("collection_id") or ""),
-        )
-    except CollectionNotFoundError as exc:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
-    except CollectionServiceError as exc:
-        raise HTTPException(
-            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
-            detail=f"Collection service error: {str(exc)}",
-        )
+    scoped_file_ids: list[str] | None = None
+    scope_collection_id: str | None = None
+    scope_collection_name: str | None = None
+    if request.searchScope == "collection":
+        try:
+            active_collection = await CollectionService.resolve_active_collection(
+                user_id=user_id,
+                requested_collection_id=request.collectionId,
+            )
+            scope_collection_id = str(active_collection.get("collection_id") or "").strip() or None
+            scope_collection_name = str(
+                active_collection.get("name") or request.collectionName or ""
+            ).strip() or None
+            scoped_file_ids = await CollectionService.list_file_ids_for_collection(
+                user_id=user_id,
+                collection_id=scope_collection_id or "",
+            )
+        except CollectionNotFoundError as exc:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=str(exc))
+        except CollectionServiceError as exc:
+            raise HTTPException(
+                status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                detail=f"Collection service error: {str(exc)}",
+            )
 
     if request.conversation_id and chat_collection is not None:
         existing_count = query_helpers._count_documents(
@@ -505,6 +615,9 @@ async def _run_agentic_query_pipeline(
             text=normalized_query,
             chat_collection=chat_collection,
             conversations_collection=conversations_collection,
+            search_scope=request.searchScope,
+            collection_id=scope_collection_id,
+            collection_name=scope_collection_name,
         )
         if saved_user_message is not None:
             saved_messages.append(saved_user_message)
@@ -524,11 +637,15 @@ async def _run_agentic_query_pipeline(
         runtime_result = await run_agentic_query(
             user_query=normalized_query,
             user_id=user_id,
-            included_file_ids=[
-                str(file_id).strip()
-                for file_id in scoped_file_ids
-                if str(file_id).strip()
-            ],
+            included_file_ids=(
+                None
+                if scoped_file_ids is None
+                else [
+                    str(file_id).strip()
+                    for file_id in scoped_file_ids
+                    if str(file_id).strip()
+                ]
+            ),
             seed_top_k=request.seed_top_k,
             max_steps=request.max_steps,
             progress_callback=progress_callback,
@@ -556,6 +673,9 @@ async def _run_agentic_query_pipeline(
             text=persisted_ai_text,
             chat_collection=chat_collection,
             conversations_collection=conversations_collection,
+            search_scope=request.searchScope,
+            collection_id=scope_collection_id,
+            collection_name=scope_collection_name,
         )
         if saved_ai_message is not None:
             saved_messages.append(saved_ai_message)
@@ -698,6 +818,29 @@ async def agentic_modify(
         )
 
 
+@router.post("/modify-skills", response_model=AgenticModificationResponse)
+async def agentic_modify_skills(
+    request: AgenticModificationRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    user_id = str(current_user.get("sub") or "").strip() if isinstance(current_user, dict) else ""
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required.",
+        )
+
+    try:
+        return await _run_agentic_skills_pipeline(request, user_id=user_id)
+    except HTTPException:
+        raise
+    except Exception as exc:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Skills Agentic Modification pipeline failed: {str(exc)}",
+        )
+
+
 # -- Main entry point for the agentic modification pipeline, with SSE streaming of progress updates and final result --
 @router.post("/modify-stream")
 async def agentic_modify_stream(
@@ -761,6 +904,80 @@ async def agentic_modify_stream(
                 yield next_item
         finally:
             # Client disconnect should stop the background runner promptly.
+            if not task.done():
+                task.cancel()
+                with suppress(asyncio.CancelledError):
+                    await task
+
+    return StreamingResponse(
+        _event_stream(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
+
+
+@router.post("/modify-skills-stream")
+async def agentic_modify_skills_stream(
+    request: AgenticModificationRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    user_id = str(current_user.get("sub") or "").strip() if isinstance(current_user, dict) else ""
+    if not user_id:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Authentication required.",
+        )
+
+    queue: asyncio.Queue[str | None] = asyncio.Queue()
+
+    async def _push_progress(event_payload: dict[str, Any]) -> None:
+        await queue.put(_format_sse("progress", event_payload))
+
+    async def _runner() -> None:
+        try:
+            response = await _run_agentic_skills_pipeline(
+                request,
+                user_id=user_id,
+                progress_callback=_push_progress,
+            )
+            await queue.put(_format_sse("result", response.model_dump()))
+        except HTTPException as exc:
+            await queue.put(
+                _format_sse(
+                    "error",
+                    {
+                        "statusCode": int(exc.status_code),
+                        "detail": str(exc.detail),
+                    },
+                )
+            )
+        except Exception as exc:
+            await queue.put(
+                _format_sse(
+                    "error",
+                    {
+                        "statusCode": status.HTTP_500_INTERNAL_SERVER_ERROR,
+                        "detail": str(exc),
+                    },
+                )
+            )
+        finally:
+            await queue.put(None)
+
+    task = asyncio.create_task(_runner())
+
+    async def _event_stream():
+        try:
+            while True:
+                next_item = await queue.get()
+                if next_item is None:
+                    break
+                yield next_item
+        finally:
             if not task.done():
                 task.cancel()
                 with suppress(asyncio.CancelledError):

@@ -255,6 +255,9 @@ def _save_chat_message(
     text: str,
     chat_collection: Any,
     conversations_collection: Any,
+    search_scope: str | None = None,
+    collection_id: str | None = None,
+    collection_name: str | None = None,
 ):
     if chat_collection is None:
         return None
@@ -304,6 +307,10 @@ def _save_chat_message(
         "text": text,
         "timestamp": timestamp,
     }
+    if search_scope:
+        chat_document["searchScope"] = search_scope
+        chat_document["collectionId"] = collection_id
+        chat_document["collectionName"] = collection_name
 
     result = chat_collection.insert_one(chat_document)
 
@@ -329,6 +336,9 @@ def _save_chat_message(
         "role": role,
         "text": text,
         "timestamp": timestamp,
+        "searchScope": search_scope,
+        "collectionId": collection_id,
+        "collectionName": collection_name,
     }
 
 
@@ -404,6 +414,9 @@ async def query_documents(
             text=request.query,
             chat_collection=chat_collection,
             conversations_collection=conversations_collection,
+            search_scope="collection",
+            collection_id=str(active_collection.get("collection_id") or "") or None,
+            collection_name=str(active_collection.get("name") or "") or None,
         )
         if saved_user_message is not None:
             saved_messages.append(saved_user_message)
@@ -434,6 +447,9 @@ async def query_documents(
                     text=no_docs_answer,
                     chat_collection=chat_collection,
                     conversations_collection=conversations_collection,
+                    search_scope="collection",
+                    collection_id=str(active_collection.get("collection_id") or "") or None,
+                    collection_name=str(active_collection.get("name") or "") or None,
                 )
                 if saved_ai_message is not None:
                     saved_messages.append(saved_ai_message)
@@ -474,6 +490,9 @@ async def query_documents(
             text=answer,
             chat_collection=chat_collection,
             conversations_collection=conversations_collection,
+            search_scope="collection",
+            collection_id=str(active_collection.get("collection_id") or "") or None,
+            collection_name=str(active_collection.get("name") or "") or None,
         )
         if saved_ai_message is not None:
             saved_messages.append(saved_ai_message)

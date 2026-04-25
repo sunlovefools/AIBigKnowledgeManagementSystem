@@ -86,6 +86,8 @@ export type AgentModifyResponse = {
     }>;
 };
 
+export type ModificationAgentMode = "workflow" | "skills";
+
 export type SelectionEditPreviewResponse = {
     fileId: string;
     fileName: string;
@@ -293,10 +295,12 @@ export async function requestAgentModify(
     instruction: string,
     fileIds: string[] | null,
     collectionId: string | null,
+    mode: ModificationAgentMode = "workflow",
     onProgress?: (progress: ModificationProgressEvent) => void
 ): Promise<AgentModifyResponse> {
     // Use fetch instead of axios here because we need direct stream-reader access.
-    const response = await authenticatedFetch(`${API_BASE}/api/agent/modify-stream`, {
+    const endpoint = mode === "skills" ? "modify-skills-stream" : "modify-stream";
+    const response = await authenticatedFetch(`${API_BASE}/api/agent/${endpoint}`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

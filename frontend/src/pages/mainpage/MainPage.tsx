@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent } from "react";
-import { useSearchParams } from "react-router-dom";
 
 import "./MainPage.css";
 import "highlight.js/styles/github.css";
@@ -12,17 +11,25 @@ import { useChat } from "./hooks/useChat";
 import { useDocuments } from "./hooks/documents/useDocuments";
 import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
-import type { AgentProposal, HighlightedSelection, PendingModificationNavItem } from "./types";
-import type { ModificationProgressEvent } from "./hooks/documents/api/documentsApi";
+import { consumeConversationLaunch } from "./conversationLaunch";
+import type { AgentProposal, ChatScope, HighlightedSelection, PendingModificationNavItem } from "./types";
+import type { ModificationAgentMode, ModificationProgressEvent } from "./hooks/documents/api/documentsApi";
 
 function getProposalKey(proposal: AgentProposal): string {
     return `${proposal.parentId}-${proposal.selectionStart ?? "full"}`;
 }
 
 type MobileWorkspace = "chat" | "files" | "document";
+const MODIFICATION_AGENT_MODE_STORAGE_KEY = "modificationAgentMode";
 
-export default function MainPage() {
-    const [searchParams] = useSearchParams();
+function loadModificationAgentMode(): ModificationAgentMode {
+    if (typeof window === "undefined") return "workflow";
+    return window.localStorage.getItem(MODIFICATION_AGENT_MODE_STORAGE_KEY) === "skills"
+        ? "skills"
+        : "workflow";
+}
+
+export default function ConversationPage() {
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
     const [mobileWorkspace, setMobileWorkspace] = useState<MobileWorkspace>("chat");
     // Controls the collapsible "current chat title" menu shown inside chat-stage-shell.
@@ -36,9 +43,12 @@ export default function MainPage() {
     const [selectionError, setSelectionError] = useState<string | null>(null);
     const [pendingDeleteFile, setPendingDeleteFile] = useState<{ fileId: string; fileName: string } | null>(null);
     const [focusedProposalKey, setFocusedProposalKey] = useState<string | null>(null);
+    const [chatScope, setChatScope] = useState<ChatScope>({ type: "all_collections" });
+    const [modificationAgentMode, setModificationAgentMode] = useState<ModificationAgentMode>(loadModificationAgentMode);
 
     const bottomRef = useRef<HTMLDivElement | null>(null);
     const conversationMenuRef = useRef<HTMLDivElement | null>(null);
+    const hasConsumedLaunchRef = useRef(false);
 
     const {
         sidebarWidth,
@@ -62,9 +72,7 @@ export default function MainPage() {
         conversationsError,
         conversationMessagesError,
         conversationId,
-        isAgenticSearchEnabled,
         setInput,
-        toggleAgenticSearch,
         appendMessage,
         startProgressMessage,
         pushProgressStep,
@@ -126,17 +134,34 @@ export default function MainPage() {
         rejectAgentProposal,
         undoAgentProposal,
         clearAgentState,
-        ensureFileFullyLoaded,
     } = useDocuments();
 
-    const requestedCollectionId = searchParams.get("collectionId")?.trim() || null;
-
     useEffect(() => {
-        if (!requestedCollectionId || collections.length === 0) return;
-        if (!collections.some((entry) => entry.collectionId === requestedCollectionId)) return;
-        if (activeCollectionId === requestedCollectionId) return;
-        setActiveCollectionId(requestedCollectionId);
-    }, [activeCollectionId, collections, requestedCollectionId, setActiveCollectionId]);
+        if (hasConsumedLaunchRef.current) return;
+        hasConsumedLaunchRef.current = true;
+
+        const launch = consumeConversationLaunch();
+        if (!launch) return;
+
+        setChatScope(launch.scope);
+        if (launch.scope.type === "collection") {
+            // Browsing sources and query scope can diverge later, but launches
+            // from a collection should open that collection's files initially.
+            setActiveCollectionId(launch.scope.collectionId);
+        }
+        if (launch.prompt?.trim()) {
+            setInput(launch.prompt);
+            void handleQuery({
+                query: launch.prompt,
+                forceAgenticSearch: true,
+                searchScope: launch.scope.type,
+                collectionId: launch.scope.type === "collection" ? launch.scope.collectionId : null,
+                collectionName: launch.scope.type === "collection" ? launch.scope.collectionName ?? null : null,
+                seedTopK: 8,
+                maxSteps: 10,
+            });
+        }
+    }, [handleQuery, setActiveCollectionId, setInput]);
 
     useEffect(() => {
         setSelectedFileIds(new Set());
@@ -144,6 +169,10 @@ export default function MainPage() {
         setSelectionError(null);
         setPendingDeleteFile(null);
     }, [activeCollectionId]);
+
+    useEffect(() => {
+        window.localStorage.setItem(MODIFICATION_AGENT_MODE_STORAGE_KEY, modificationAgentMode);
+    }, [modificationAgentMode]);
 
     const handleToggleFileSelection = useCallback((fileId: string) => {
         setSelectedFileIds((prev) => {
@@ -178,6 +207,7 @@ export default function MainPage() {
                     : await requestAgentEditPreview(
                         textInput,
                         selectedFileIds.size > 0 ? Array.from(selectedFileIds) : null,
+                        modificationAgentMode,
                         onProgress
                     );
                 appendMessage({
@@ -187,6 +217,12 @@ export default function MainPage() {
                             : `Edit failed: ${result.error ?? "Unknown error"}`,
                 });
                 progressStatus = result.ok ? "completed" : "failed";
+                if (result.ok) {
+                    setIsModificationPanelOpen(true);
+                    if (isMobile) {
+                        setMobileWorkspace("document");
+                    }
+                }
                 if (result.ok && selectedRange) {
                     setHighlightedSelection(null);
                     setSelectionError(null);
@@ -197,7 +233,12 @@ export default function MainPage() {
             return;
         }
 
-        await handleQuery({ collectionId: activeCollectionId });
+        await handleQuery({
+            forceAgenticSearch: true,
+            searchScope: chatScope.type,
+            collectionId: chatScope.type === "collection" ? chatScope.collectionId : null,
+            collectionName: chatScope.type === "collection" ? chatScope.collectionName ?? null : null,
+        });
     };
 
     const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -270,6 +311,12 @@ export default function MainPage() {
         () => conversations.find((conversation) => conversation.conversationId === conversationId) ?? null,
         [conversations, conversationId]
     );
+    const chatScopeLabel = useMemo(() => {
+        if (chatScope.type === "all_collections") return "All collections";
+        return chatScope.collectionName
+            || collections.find((collection) => collection.collectionId === chatScope.collectionId)?.name
+            || "Selected collection";
+    }, [chatScope, collections]);
     const currentChatTitle = activeConversationSummary?.title?.trim() || "New AI chat";
     const previousConversations = useMemo(
         () => conversations.filter((conversation) => conversation.conversationId !== conversationId),
@@ -348,6 +395,41 @@ export default function MainPage() {
         setRenameTitle("");
         void loadConversationMessages(targetConversationId);
     }, [loadConversationMessages]);
+
+    const handleChatScopeChange = useCallback((value: string) => {
+        if (value === "__all_collections__") {
+            setChatScope({ type: "all_collections" });
+            return;
+        }
+
+        const selectedCollection = collections.find((collection) => collection.collectionId === value);
+        if (!selectedCollection) return;
+        setChatScope({
+            type: "collection",
+            collectionId: selectedCollection.collectionId,
+            collectionName: selectedCollection.name,
+        });
+    }, [collections]);
+
+    const chatScopeControls = (
+        <label className="chat-scope-selector">
+            <span>Search scope</span>
+            <select
+                value={chatScope.type === "all_collections" ? "__all_collections__" : chatScope.collectionId}
+                onChange={(event) => handleChatScopeChange(event.target.value)}
+                disabled={isQuerying || isAgentGenerating || isEditMode}
+                aria-label="Select search scope"
+            >
+                <option value="__all_collections__">All collections</option>
+                {collections.map((collection) => (
+                    <option key={collection.collectionId} value={collection.collectionId}>
+                        {collection.name}
+                    </option>
+                ))}
+            </select>
+            <span className="chat-scope-current">Searching {chatScopeLabel}</span>
+        </label>
+    );
 
     const renderChatWorkspace = (emptyStateMode: "welcome" | "no-document") => (
         <div className="chat-stage-shell">
@@ -528,16 +610,16 @@ export default function MainPage() {
             <ChatInput
                 input={input}
                 isQuerying={isQuerying || isAgentGenerating}
-                isAgenticSearchEnabled={isAgenticSearchEnabled}
-                isAgenticToggleDisabled={isEditMode || isQuerying || isAgentGenerating}
+                scopeControls={chatScopeControls}
                 isModificationPanelOpen={isModificationPanelOpen}
                 isEditMode={isEditMode}
+                modificationAgentMode={modificationAgentMode}
                 highlightedSelection={highlightedSelection}
                 pendingModificationItems={pendingModificationItems}
+                onModificationAgentModeChange={setModificationAgentMode}
                 onInputChange={setInput}
                 onInputKeyDown={handleComposerKeyDown}
                 onToggleModificationPanel={handleToggleModificationPanel}
-                onToggleAgenticSearch={toggleAgenticSearch}
                 onClearHighlightedSelection={clearHighlightedSelection}
                 onNavigateToModification={(fileId, proposalKey) => { void handleNavigateToModification(fileId, proposalKey); }}
                 onSend={() => { void handleComposerSend(); }}
@@ -597,24 +679,6 @@ export default function MainPage() {
         setHighlightedSelection(null);
         setSelectionError(null);
     }, [activeChunkSignature]);
-
-    useEffect(() => {
-        if (!agentProposals.length) return;
-
-        let isCancelled = false;
-        const fileIds = Array.from(new Set(agentProposals.map((proposal) => proposal.fileId)));
-        const hydrateProposalFiles = async () => {
-            for (const fileId of fileIds) {
-                if (isCancelled) return;
-                await ensureFileFullyLoaded(fileId);
-            }
-        };
-
-        void hydrateProposalFiles();
-        return () => {
-            isCancelled = true;
-        };
-    }, [agentProposals, ensureFileFullyLoaded]);
 
     const handleSelectionChange = useCallback((selection: HighlightedSelection | null) => {
         setHighlightedSelection(selection);
@@ -805,7 +869,7 @@ export default function MainPage() {
 
     return (
         <div className="mainpage-shell">
-            <GlobalSidebar mode="mainpage" />
+            <GlobalSidebar mode="conversation" />
             <div
                 className={`app-root ${isMobile ? "mobile-layout" : ""} mobile-workspace-${activeMobileWorkspace} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
                 style={{

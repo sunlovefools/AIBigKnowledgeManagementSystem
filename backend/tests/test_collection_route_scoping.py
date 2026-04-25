@@ -9,6 +9,12 @@ fake_dependencies = types.ModuleType("app.core.dependencies")
 fake_dependencies.get_current_user = lambda: {"sub": "test-user"}
 sys.modules["app.core.dependencies"] = fake_dependencies
 
+fake_db_dependencies = types.ModuleType("app.core.db_dependencies")
+fake_db_dependencies.get_chat_messages_collection = lambda: None
+fake_db_dependencies.get_conversations_collection = lambda: None
+fake_db_dependencies.get_user_collections_collection = lambda: None
+sys.modules["app.core.db_dependencies"] = fake_db_dependencies
+
 fake_query_refiner = types.ModuleType("app.service.rag.retrieval.query_refiner")
 fake_query_refiner.refine_query = lambda query: query
 sys.modules["app.service.rag.retrieval.query_refiner"] = fake_query_refiner

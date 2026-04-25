@@ -1,19 +1,12 @@
-import { useMemo, useState, type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import GlobalSidebar from "../../components/GlobalSidebar";
+import { saveConversationLaunch } from "../mainpage/conversationLaunch";
 import { useDocuments } from "../mainpage/hooks/documents/useDocuments";
-import { useChat } from "../mainpage/hooks/useChat";
 import "./CollectionPage.css";
 
 export default function CollectionPage() {
     const navigate = useNavigate();
-    const {
-        input,
-        setInput,
-        isQuerying,
-        handleQuery,
-        messages,
-    } = useChat();
     const {
         collections,
         isLoadingCollections,
@@ -26,15 +19,19 @@ export default function CollectionPage() {
     const [collectionActionError, setCollectionActionError] = useState<string | null>(null);
     const [collectionActionInfo, setCollectionActionInfo] = useState<string | null>(null);
     const [isCreatingCollection, setIsCreatingCollection] = useState(false);
-
-    const recentMessages = useMemo(
-        () => messages.filter((message) => message.kind === "text").slice(-4),
-        [messages]
-    );
+    const [input, setInput] = useState("");
 
     const handleSend = () => {
-        if (!input.trim() || isQuerying) return;
-        void handleQuery();
+        const prompt = input.trim();
+        if (!prompt) return;
+
+        // The collection landing page only launches conversations; the chat turn
+        // is executed by /conversation so answers always use the full chat UI.
+        saveConversationLaunch({
+            prompt,
+            scope: { type: "all_collections" },
+        });
+        navigate("/conversation");
     };
 
     const handleComposerKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
@@ -84,25 +81,9 @@ export default function CollectionPage() {
                         <div className="collection-chat-eyebrow">Global scope</div>
                         <h1 className="collection-chat-title">Ask across your knowledge</h1>
                         <p className="collection-chat-subtitle">
-                            Start with a broad question, then enter a specific collection below.
+                            Agentic search checks all collections you own, then you can enter a specific collection below.
                         </p>
                     </div>
-
-                    {recentMessages.length > 0 && (
-                        <div className="collection-chat-history" aria-live="polite">
-                            {recentMessages.map((message) => (
-                                <div
-                                    key={message.id}
-                                    className={`collection-history-item ${message.role === "user" ? "user" : "ai"}`}
-                                >
-                                    <span className="collection-history-role">
-                                        {message.role === "user" ? "You" : "AI"}
-                                    </span>
-                                    <span className="collection-history-text">{message.text}</span>
-                                </div>
-                            ))}
-                        </div>
-                    )}
 
                     <div className="collection-chatbox">
                         <textarea
@@ -110,16 +91,16 @@ export default function CollectionPage() {
                             value={input}
                             onChange={(event) => setInput(event.target.value)}
                             onKeyDown={handleComposerKeyDown}
-                            placeholder="Ask anything across all collections..."
+                            placeholder="Ask anything across all collections with agentic search..."
                             rows={1}
                         />
                         <button
                             type="button"
                             className="collection-chat-send"
                             onClick={handleSend}
-                            disabled={!input.trim() || isQuerying}
+                            disabled={!input.trim()}
                         >
-                            {isQuerying ? "Sending..." : "Send"}
+                            Send
                         </button>
                     </div>
                 </section>
@@ -194,7 +175,16 @@ export default function CollectionPage() {
                                     key={collection.collectionId}
                                     type="button"
                                     className="collection-card"
-                                    onClick={() => navigate(`/mainpage?collectionId=${encodeURIComponent(collection.collectionId)}`)}
+                                    onClick={() => {
+                                        saveConversationLaunch({
+                                            scope: {
+                                                type: "collection",
+                                                collectionId: collection.collectionId,
+                                                collectionName: collection.name,
+                                            },
+                                        });
+                                        navigate("/conversation");
+                                    }}
                                 >
                                     <div className="collection-card-title">{collection.name}</div>
                                     <div className="collection-card-subtitle">

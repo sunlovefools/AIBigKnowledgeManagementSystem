@@ -31,6 +31,9 @@ class ChatMessageOut(BaseModel):
     timestamp: str
     userId: str | None = None
     userEmail: str | None = None
+    searchScope: str | None = None
+    collectionId: str | None = None
+    collectionName: str | None = None
 
 
 class ConversationMetaOut(BaseModel):
@@ -158,6 +161,9 @@ def get_conversation_messages(
                 timestamp=doc.get("timestamp", ""),
                 userId=doc.get("userId"),
                 userEmail=doc.get("userEmail"),
+                searchScope=doc.get("searchScope"),
+                collectionId=doc.get("collectionId"),
+                collectionName=doc.get("collectionName"),
             )
             for doc in message_docs
         ],

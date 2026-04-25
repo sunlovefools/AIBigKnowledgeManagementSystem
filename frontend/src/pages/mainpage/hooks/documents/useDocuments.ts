@@ -126,24 +126,39 @@ export function useDocuments() {
     const [activeCollectionId, setActiveCollectionId] = useState<string | null>(
         initialCache?.activeCollectionId ?? null
     );
+    const collectionsRef = useRef(collections);
+    const collectionsRequestRef = useRef<Promise<UserCollectionSummary[]> | null>(null);
+
+    useEffect(() => {
+        collectionsRef.current = collections;
+    }, [collections]);
 
     const fetchCollections = useCallback(
         async (preferredCollectionId?: string | null, options?: { force?: boolean }) => {
-        if (!options?.force && collections.length > 0) {
-            setActiveCollectionId((previousId) => {
-                const preferred = preferredCollectionId ?? previousId;
-                if (preferred && collections.some((entry) => entry.collectionId === preferred)) {
-                    return preferred;
-                }
-                const defaultCollection = collections.find((entry) => entry.isDefault);
-                return defaultCollection?.collectionId ?? collections[0]?.collectionId ?? null;
-            });
-            return;
+        if (!options?.force) {
+            const currentCollections = collectionsRef.current;
+            if (currentCollections.length > 0) {
+                setActiveCollectionId((previousId) => {
+                    const preferred = preferredCollectionId ?? previousId;
+                    if (preferred && currentCollections.some((entry) => entry.collectionId === preferred)) {
+                        return preferred;
+                    }
+                    const defaultCollection = currentCollections.find((entry) => entry.isDefault);
+                    return defaultCollection?.collectionId ?? currentCollections[0]?.collectionId ?? null;
+                });
+                return;
+            }
         }
+
         setIsLoadingCollections(true);
         setCollectionError(null);
         try {
-            const incoming = sanitizeCollections(await getCollections());
+            if (!collectionsRequestRef.current) {
+                collectionsRequestRef.current = getCollections().finally(() => {
+                    collectionsRequestRef.current = null;
+                });
+            }
+            const incoming = sanitizeCollections(await collectionsRequestRef.current);
             setCollections(incoming);
             setActiveCollectionId((previousId) => {
                 const preferred = preferredCollectionId ?? previousId;
@@ -160,7 +175,7 @@ export function useDocuments() {
         } finally {
             setIsLoadingCollections(false);
         }
-    }, [collections]);
+    }, []);
 
     useEffect(() => {
         void fetchCollections();
@@ -241,6 +256,7 @@ export function useDocuments() {
         getContentStateById: fileDomain.getContentStateById,
         getEditorBaselineContent,
         loadFileChunks: fileDomain.loadFileChunks,
+        loadFileChunksUntilParent: fileDomain.loadFileChunksUntilParent,
         setFilesState: fileDomain.setFilesState,
     });
     clearAgentStateForFileRef.current = agentDomain.clearAgentStateForFile;

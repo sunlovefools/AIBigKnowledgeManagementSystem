@@ -8,14 +8,44 @@ All tools in this module are intentionally "thin":
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any
 
-from .config_loader import AgenticQueryConfig, read_reference_content
-from .models import EvidenceItem
+from .config_loader import AgenticQueryConfig, load_skill_content, read_reference_content
+from .models import EvidenceItem, FileMatch
 
 _MIN_TOP_K = 1
 _MAX_TOP_K = 20
 _MAX_SNIPPET_CHARS = 1400
+_MAX_SKILL_CHARS = 8000
+_MAX_FILE_MATCHES = 10
+_MAX_FILE_CONTEXT_CHUNKS = 40
+
+
+def load_skill_tool(
+    *,
+    skill_name: str,
+    config: AgenticQueryConfig,
+    loaded_skill_cache: dict[str, dict[str, Any]],
+    max_chars: int = _MAX_SKILL_CHARS,
+) -> dict[str, Any]:
+    """Load one full skill body lazily, caching it for the current run."""
+
+    normalized_skill_name = str(skill_name or "").strip().lower().replace("_", "-")
+    if not normalized_skill_name:
+        raise ValueError("load_skill skill_name must not be empty.")
+
+    cached = loaded_skill_cache.get(normalized_skill_name)
+    if isinstance(cached, dict):
+        return {**cached, "cached": True}
+
+    payload = load_skill_content(
+        config,
+        normalized_skill_name,
+        max_chars=max_chars,
+    )
+    loaded_skill_cache[normalized_skill_name] = dict(payload)
+    return {**payload, "cached": False}
 
 
 def _safe_int(raw: Any) -> int | None:
@@ -57,6 +87,62 @@ def _extract_metadata(doc: dict[str, Any]) -> tuple[str, str, int | None, str]:
     parent_chunk_number = _safe_int(parent_chunk_metadata.get("parent_chunk_number"))
     owner_id = str(metadata.get("user_id") or "").strip()
     return file_id, file_name, parent_chunk_number, owner_id
+
+
+def _included_file_ids_set(included_file_ids: list[str] | None) -> set[str] | None:
+    """Normalize optional file scope into a set."""
+
+    if included_file_ids is None:
+        return None
+    return {
+        str(file_id).strip()
+        for file_id in included_file_ids
+        if str(file_id).strip()
+    }
+
+
+def _normalize_parent_store_row(row: dict[str, Any]) -> dict[str, Any] | None:
+    """Convert a raw parent-store row into the runtime document shape."""
+
+    if not isinstance(row, dict):
+        return None
+    parent_id = str(row.get("_id") or row.get("id") or "").strip()
+    raw_doc = row.get("value") if isinstance(row.get("value"), dict) else row
+    if not isinstance(raw_doc, dict):
+        return None
+    doc = dict(raw_doc)
+    if parent_id:
+        doc["id"] = parent_id
+    if not str(doc.get("id") or "").strip():
+        return None
+    if not isinstance(doc.get("metadata"), dict):
+        doc["metadata"] = {}
+    doc["page_content"] = str(doc.get("page_content") or "")
+    doc["type"] = str(doc.get("type") or "Document")
+    return doc
+
+
+def _file_name_matches_query(file_name: str, query: str) -> bool:
+    """Return true when all meaningful query terms occur in the filename."""
+
+    normalized_name = str(file_name or "").lower()
+    terms = [
+        term
+        for term in (
+            str(query or "")
+            .lower()
+            .replace(".", " ")
+            .replace("_", " ")
+            .replace("-", " ")
+            .split()
+        )
+        if len(term) >= 2 and term not in {"file", "pdf", "doc", "docx"}
+    ]
+    if not terms:
+        return bool(normalized_name.strip())
+    return all(term in normalized_name for term in terms) or any(
+        len(term) >= 4 and term in normalized_name for term in terms
+    )
 
 
 def _compact_snippet(
@@ -125,7 +211,7 @@ def _is_doc_in_scope(
     doc: dict[str, Any],
     *,
     user_id: str,
-    included_file_ids_set: set[str],
+    included_file_ids_set: set[str] | None,
 ) -> bool:
     """Enforce ownership and collection/file scoping for one candidate document."""
 
@@ -134,9 +220,91 @@ def _is_doc_in_scope(
         return False
     if owner_id and owner_id != user_id:
         return False
-    if included_file_ids_set and file_id not in included_file_ids_set:
+    if included_file_ids_set is not None and file_id not in included_file_ids_set:
         return False
     return True
+
+
+async def _find_file_matches(
+    *,
+    query: str,
+    user_id: str,
+    included_file_ids: list[str] | None,
+    limit: int,
+) -> list[FileMatch]:
+    """Search parent-store file headers by filename within user/collection scope."""
+
+    from app.vectordb.vectordb import PARENT_STORE
+
+    normalized_query = str(query or "").strip()
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_query:
+        raise ValueError("search_files query must not be empty.")
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
+
+    included_file_ids_set = _included_file_ids_set(included_file_ids)
+    bounded_limit = max(1, min(_MAX_FILE_MATCHES, int(limit)))
+
+    def _query_rows() -> list[dict[str, Any]]:
+        collection = PARENT_STORE.collection
+        filter_doc: dict[str, Any] = {
+            "value.metadata.user_id": normalized_user_id,
+            "value.metadata.parent_chunk_metadata.parent_chunk_number": 0,
+        }
+        if included_file_ids_set:
+            filter_doc["value.metadata.file_metadata.file_id"] = {"$in": sorted(included_file_ids_set)}
+        projection_doc = {"_id": True, "value": True}
+        rows: list[dict[str, Any]] = []
+        for row in collection.find(filter_doc, projection=projection_doc):
+            if isinstance(row, dict):
+                rows.append(row)
+        return rows
+
+    rows = await asyncio.to_thread(_query_rows)
+    matches_by_file_id: dict[str, FileMatch] = {}
+    for row in rows:
+        doc = _normalize_parent_store_row(row)
+        if doc is None or not _is_doc_in_scope(
+            doc,
+            user_id=normalized_user_id,
+            included_file_ids_set=included_file_ids_set,
+        ):
+            continue
+        file_id, file_name, parent_chunk_number, _ = _extract_metadata(doc)
+        if not file_id or file_id in matches_by_file_id:
+            continue
+        if not _file_name_matches_query(file_name, normalized_query):
+            continue
+        if parent_chunk_number not in (None, 0):
+            continue
+        matches_by_file_id[file_id] = FileMatch(
+            file_id=file_id,
+            file_name=file_name,
+            first_parent_id=str(doc.get("id") or "").strip() or None,
+            preview=_compact_snippet(str(doc.get("page_content") or ""), max_chars=320),
+        )
+        if len(matches_by_file_id) >= bounded_limit:
+            break
+
+    return list(matches_by_file_id.values())
+
+
+async def search_files_tool(
+    *,
+    query: str,
+    limit: int,
+    user_id: str,
+    included_file_ids: list[str] | None,
+) -> list[FileMatch]:
+    """Find scoped files by filename, returning file IDs for file-level reads."""
+
+    return await _find_file_matches(
+        query=query,
+        user_id=user_id,
+        included_file_ids=included_file_ids,
+        limit=limit,
+    )
 
 
 async def search_context_tool(
@@ -144,7 +312,7 @@ async def search_context_tool(
     query: str,
     top_k: int,
     user_id: str,
-    included_file_ids: list[str],
+    included_file_ids: list[str] | None,
     parent_doc_cache: dict[str, dict[str, Any]],
 ) -> list[EvidenceItem]:
     """Run scoped retrieval and cache returned parent docs for future turns."""
@@ -164,9 +332,15 @@ async def search_context_tool(
     if not isinstance(docs, list):
         return []
 
-    included_file_ids_set = {
-        str(file_id).strip() for file_id in included_file_ids if str(file_id).strip()
-    }
+    included_file_ids_set = (
+        None
+        if included_file_ids is None
+        else {
+            str(file_id).strip()
+            for file_id in included_file_ids
+            if str(file_id).strip()
+        }
+    )
     evidence: list[EvidenceItem] = []
     for doc in docs:
         if not isinstance(doc, dict):
@@ -192,7 +366,7 @@ async def fetch_parent_chunk_tool(
     *,
     parent_id: str,
     user_id: str,
-    included_file_ids: list[str],
+    included_file_ids: list[str] | None,
     parent_doc_cache: dict[str, dict[str, Any]],
 ) -> EvidenceItem | None:
     """Fetch one parent chunk from cache first, then backing parent store if needed."""
@@ -202,9 +376,15 @@ async def fetch_parent_chunk_tool(
     if not normalized_parent_id:
         raise ValueError("fetch_parent_chunk parent_id must not be empty.")
 
-    included_file_ids_set = {
-        str(file_id).strip() for file_id in included_file_ids if str(file_id).strip()
-    }
+    included_file_ids_set = (
+        None
+        if included_file_ids is None
+        else {
+            str(file_id).strip()
+            for file_id in included_file_ids
+            if str(file_id).strip()
+        }
+    )
 
     cached_doc = parent_doc_cache.get(normalized_parent_id)
     if isinstance(cached_doc, dict) and _is_doc_in_scope(
@@ -240,11 +420,102 @@ async def fetch_parent_chunk_tool(
     return item
 
 
+async def fetch_file_context_tool(
+    *,
+    file_id: str | None,
+    file_name: str | None,
+    max_chunks: int,
+    user_id: str,
+    included_file_ids: list[str] | None,
+    parent_doc_cache: dict[str, dict[str, Any]],
+) -> list[EvidenceItem]:
+    """Fetch ordered parent chunks for one scoped file and cache them."""
+
+    from app.vectordb.vectordb import PARENT_STORE
+
+    normalized_file_id = str(file_id or "").strip()
+    normalized_file_name = str(file_name or "").strip()
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
+    if not normalized_file_id and not normalized_file_name:
+        raise ValueError("fetch_file_context requires file_id or file_name.")
+
+    included_file_ids_set = _included_file_ids_set(included_file_ids)
+    if (
+        included_file_ids_set is not None
+        and normalized_file_id
+        and normalized_file_id not in included_file_ids_set
+    ):
+        return []
+
+    if not normalized_file_id and normalized_file_name:
+        matches = await _find_file_matches(
+            query=normalized_file_name,
+            user_id=normalized_user_id,
+            included_file_ids=included_file_ids,
+            limit=1,
+        )
+        if not matches:
+            return []
+        normalized_file_id = matches[0].file_id
+
+    bounded_max_chunks = max(1, min(_MAX_FILE_CONTEXT_CHUNKS, int(max_chunks)))
+
+    def _query_rows() -> list[dict[str, Any]]:
+        collection = PARENT_STORE.collection
+        filter_doc: dict[str, Any] = {
+            "value.metadata.user_id": normalized_user_id,
+            "value.metadata.file_metadata.file_id": normalized_file_id,
+        }
+        projection_doc = {"_id": True, "value": True}
+        rows: list[dict[str, Any]] = []
+        for row in collection.find(filter_doc, projection=projection_doc):
+            if isinstance(row, dict):
+                rows.append(row)
+        return rows
+
+    rows = await asyncio.to_thread(_query_rows)
+    docs: list[dict[str, Any]] = []
+    for row in rows:
+        doc = _normalize_parent_store_row(row)
+        if doc is None:
+            continue
+        if not _is_doc_in_scope(
+            doc,
+            user_id=normalized_user_id,
+            included_file_ids_set=included_file_ids_set,
+        ):
+            continue
+        docs.append(doc)
+
+    docs.sort(
+        key=lambda doc: (
+            _extract_metadata(doc)[2] is None,
+            _extract_metadata(doc)[2] or 0,
+            str(doc.get("id") or ""),
+        )
+    )
+
+    evidence: list[EvidenceItem] = []
+    for doc in docs[:bounded_max_chunks]:
+        item = _build_evidence_item(doc)
+        if item is None:
+            continue
+        cached_doc = dict(doc)
+        cached_doc["_agentic_query_snippet"] = item.snippet
+        parent_doc_cache[item.parent_id] = cached_doc
+        evidence.append(item)
+
+    return evidence
+
+
 def read_reference_tool(
     *,
+    skill_name: str,
     ref_id: str,
     config: AgenticQueryConfig,
     max_chars: int = 2500,
 ) -> str:
-    """Load one optional markdown reference document by `ref_id`."""
-    return read_reference_content(config, ref_id, max_chars=max_chars)
+    """Load one optional markdown reference document by skill + `ref_id`."""
+    return read_reference_content(config, skill_name, ref_id, max_chars=max_chars)

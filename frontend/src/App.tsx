@@ -1,5 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import MainPage from "./pages/mainpage/MainPage";
+import ConversationPage from "./pages/conversation/ConversationPage";
 import CollectionPage from "./pages/collection/CollectionPage";
 import ProfilePage from "./pages/profile/ProfilePage";
 import Login from "./pages/login/Login";
@@ -17,10 +17,10 @@ function App() {
                 )}
             />
             <Route
-                path="/mainpage"
+                path="/conversation"
                 element={(
                     <RequireAuth>
-                        <MainPage />
+                        <ConversationPage />
                     </RequireAuth>
                 )}
             />
@@ -33,7 +33,7 @@ function App() {
                 )}
             />
             <Route path="/login" element={<Login />} />
-            <Route path="*" element={<Navigate to="/collections" replace />} />
+            <Route path="*" element={<Navigate to="/conversation" replace />} />
         </Routes>
     );
 }

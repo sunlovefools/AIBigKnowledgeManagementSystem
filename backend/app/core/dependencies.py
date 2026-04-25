@@ -18,7 +18,7 @@ Usage:
 """
 import os
 import logging
-from fastapi import Depends, HTTPException, status
+from fastapi import Depends, HTTPException, Request, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
 
@@ -33,7 +33,28 @@ JWT_ALGORITHM  = "HS256"
 bearer_scheme = HTTPBearer(auto_error=False)
 
 
+def _dev_auth_bypass_user(request: Request) -> dict | None:
+    enabled = str(os.getenv("DEV_AUTH_BYPASS") or "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    if not enabled:
+        return None
+
+    user_id = request.headers.get("x-dev-user-id") or os.getenv("DEV_AUTH_BYPASS_USER_ID") or "dev-user"
+    email = request.headers.get("x-dev-user-email") or os.getenv("DEV_AUTH_BYPASS_EMAIL") or "dev@example.local"
+    role = request.headers.get("x-dev-user-role") or os.getenv("DEV_AUTH_BYPASS_ROLE") or "user"
+    return {
+        "sub": str(user_id).strip(),
+        "email": str(email).strip(),
+        "role": str(role).strip() or "user",
+    }
+
+
 def get_current_user(
+    request: Request,
     credentials: HTTPAuthorizationCredentials = Depends(bearer_scheme)
 ) -> dict:
     """
@@ -55,6 +76,10 @@ def get_current_user(
     """
     # Catches missing or malformed Authorization header
     if not credentials:
+        dev_user = _dev_auth_bypass_user(request)
+        if dev_user:
+            logger.warning("DEV_AUTH_BYPASS accepted unauthenticated request")
+            return dev_user
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated — no token provided",

@@ -68,7 +68,7 @@ def _extract_usage(data: dict[str, Any]) -> dict[str, int]:
 
 async def call_action_model(
     *,
-    messages: list[dict[str, str]],
+    messages: list[dict[str, Any]],
     session: Any = None,
     max_tokens: int = 512,
     timeout_s: float = 120.0,

@@ -3,6 +3,11 @@
 */
 
 export type ChatRole = "user" | "ai";
+export type QuerySearchScope = "all_collections" | "collection";
+
+export type ChatScope =
+    | { type: "all_collections" }
+    | { type: "collection"; collectionId: string; collectionName?: string };
 
 // Normal conversational chat message.
 export type ChatTextMessage = {
@@ -13,6 +18,9 @@ export type ChatTextMessage = {
     userEmail?: string; // Email of the user who initiated the conversation
     text: string;
     timestamp?: string; // ISO timestamp when message was created
+    searchScope?: QuerySearchScope;
+    collectionId?: string | null;
+    collectionName?: string | null;
     sources?: string[]; // Array of source documents that informed the AI response
 };
 
@@ -47,9 +55,20 @@ export type ChatProgressStep = {
     step?: number;
     tool?: string;
     intent?: string;
+    successCriteria?: string;
+    fallback?: string;
     decision?: string;
     observation?: string;
     argumentsPreview?: string;
+    transcriptMessage?: ChatProgressTranscriptItem;
+};
+
+export type ChatProgressTranscriptItem = {
+    role: "system" | "assistant" | "tool";
+    title: string;
+    summary: string;
+    detail?: string;
+    status?: "running" | "completed" | "failed" | string;
 };
 
 // Progress timeline card that remains in chat history per call.
@@ -61,6 +80,7 @@ export type ChatProgressMessage = {
     scope: "agentic" | "selection" | "agentic-search";
     currentStageText: string;
     steps: ChatProgressStep[];
+    transcript: ChatProgressTranscriptItem[];
 };
 
 // Chat message exchanged between the user and AI.

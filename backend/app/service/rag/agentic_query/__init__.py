@@ -1,7 +1,4 @@
-"""Public exports for the agentic query package.
-
-Import from this package when integrating the runtime from API/router code.
-"""
+"""Public exports for the progressive agentic query runtime."""
 
 from .runtime import run_agentic_query
 

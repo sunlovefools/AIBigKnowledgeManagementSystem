@@ -73,6 +73,21 @@
     background: #eff6ff;
 }
 
+.collection-history-item.progress.running {
+    border-color: #99f6e4;
+    background: #f0fdfa;
+}
+
+.collection-history-item.progress.completed {
+    border-color: #bbf7d0;
+    background: #f0fdf4;
+}
+
+.collection-history-item.progress.failed {
+    border-color: #fecaca;
+    background: #fff1f2;
+}
+
 .collection-history-role {
     font-weight: 700;
     color: #334155;
@@ -80,8 +95,25 @@
 }
 
 .collection-history-text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
     color: #1f2937;
     word-break: break-word;
+}
+
+.collection-progress-title {
+    font-weight: 700;
+    color: #0f766e;
+}
+
+.collection-progress-current {
+    color: #334155;
+}
+
+.collection-progress-detail {
+    color: #64748b;
+    font-size: 0.82rem;
 }
 
 .collection-chatbox {

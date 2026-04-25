@@ -1,19 +1,20 @@
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import type { HighlightedSelection, PendingModificationNavItem } from "../types";
+import type { ModificationAgentMode } from "../hooks/documents/api/documentsApi";
 
 type ChatInputProps = {
     input: string;
     isQuerying: boolean;
-    isAgenticSearchEnabled: boolean;
-    isAgenticToggleDisabled?: boolean;
+    scopeControls?: ReactNode;
     isModificationPanelOpen: boolean;
     isEditMode: boolean;
+    modificationAgentMode: ModificationAgentMode;
     highlightedSelection: HighlightedSelection | null;
     pendingModificationItems?: PendingModificationNavItem[];
     onInputChange: (value: string) => void;
     onInputKeyDown: (event: KeyboardEvent<HTMLTextAreaElement>) => void;
+    onModificationAgentModeChange: (mode: ModificationAgentMode) => void;
     onToggleModificationPanel: () => void;
-    onToggleAgenticSearch: () => void;
     onClearHighlightedSelection: () => void;
     onNavigateToModification?: (fileId: string, proposalKey: string) => void;
     onSend: () => void;
@@ -22,16 +23,16 @@ type ChatInputProps = {
 export default function ChatInput({
     input,
     isQuerying,
-    isAgenticSearchEnabled,
-    isAgenticToggleDisabled = false,
+    scopeControls,
     isModificationPanelOpen,
     isEditMode,
+    modificationAgentMode,
     highlightedSelection,
     pendingModificationItems = [],
     onInputChange,
     onInputKeyDown,
+    onModificationAgentModeChange,
     onToggleModificationPanel,
-    onToggleAgenticSearch,
     onClearHighlightedSelection,
     onNavigateToModification,
     onSend,
@@ -74,18 +75,27 @@ export default function ChatInput({
     return (
         <div className="input-area-wrapper">
             <div className={`input-container ${isEditMode ? "edit-mode-active" : ""}`}>
-                <div className="input-search-mode-row">
-                    <button
-                        type="button"
-                        className={`agentic-search-toggle ${isAgenticSearchEnabled ? "active" : ""}`}
-                        onClick={onToggleAgenticSearch}
-                        disabled={isAgenticToggleDisabled}
-                        aria-pressed={isAgenticSearchEnabled}
-                        title={isAgenticSearchEnabled ? "Using /api/agent/query" : "Using /api/query"}
-                    >
-                        Agentic Search: {isAgenticSearchEnabled ? "On" : "Off"}
-                    </button>
-                </div>
+                {scopeControls && <div className="input-search-mode-row">{scopeControls}</div>}
+                {isEditMode && !highlightedSelection && (
+                    <div className="input-agent-mode-row" aria-label="Modification agent mode">
+                        <button
+                            type="button"
+                            className={`agent-mode-option ${modificationAgentMode === "workflow" ? "active" : ""}`}
+                            onClick={() => onModificationAgentModeChange("workflow")}
+                            aria-pressed={modificationAgentMode === "workflow"}
+                        >
+                            Workflow
+                        </button>
+                        <button
+                            type="button"
+                            className={`agent-mode-option ${modificationAgentMode === "skills" ? "active" : ""}`}
+                            onClick={() => onModificationAgentModeChange("skills")}
+                            aria-pressed={modificationAgentMode === "skills"}
+                        >
+                            Skills
+                        </button>
+                    </div>
+                )}
                 {showPendingTray && (
                     <div className="input-pending-tray">
                         <button
@@ -199,7 +209,7 @@ export default function ChatInput({
                 {isEditMode
                     ? highlightedSelection
                         ? "Edit mode - highlighted text will be sent directly to the editor | Enter to send"
-                        : "Edit mode - AI will modify documents | Enter to send"
+                        : `Edit mode - ${modificationAgentMode === "skills" ? "Skills agent" : "Workflow agent"} will modify documents | Enter to send`
                     : "Enter to send | Shift+Enter for a new line"}
             </div>
         </div>

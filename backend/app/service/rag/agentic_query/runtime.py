@@ -1,8 +1,8 @@
-"""Agentic query runtime using a strict JSON action protocol.
+"""Agentic query runtime with progressive skill loading.
 
-Architecture in one sentence:
-`skills.md` defines behavior policy, while this runtime enforces execution,
-validation, scoping, bounded loops, and deterministic termination.
+The runtime keeps executable policy in Python and exposes markdown skill
+content progressively: compact skill metadata is visible at startup, while full
+skill bodies and references are loaded only through tools.
 """
 
 from __future__ import annotations
@@ -20,17 +20,17 @@ from .config_loader import load_agentic_query_config
 from .models import (
     AgentAction,
     AgenticQueryRunResult,
+    FetchFileContextArguments,
     FetchParentChunkArguments,
     FinishArguments,
+    LoadSkillArguments,
     ReadReferenceArguments,
     SearchContextArguments,
+    SearchFilesArguments,
 )
 
 ProgressCallback = Callable[[dict[str, Any]], Awaitable[None]]
 
-# Optional debug logger import.
-# The runtime is intentionally resilient: if debug logger is unavailable,
-# agentic query still works with no-op logging functions.
 try:
     from backend.debug.debug_logger import (
         log_agentic_query_action,
@@ -47,6 +47,7 @@ except Exception:
             log_agentic_query_llm_response,
         )
     except Exception:
+
         def log_agentic_query_action(**_kwargs):
             return None
 
@@ -59,29 +60,21 @@ except Exception:
         def log_agentic_query_llm_response(**_kwargs):
             return None
 
+
 _DEFAULT_TIMEOUT_SECONDS = 60.0
 _DEFAULT_MAX_STEPS = 6
 _DEFAULT_SEED_TOP_K = 8
 _MAX_STEPS_CAP = 12
 _MIN_STEPS_CAP = 1
 _MAX_TOOL_SUMMARY_CHARS = 1200
-_MAX_OBSERVATIONS = 8
 _MAX_TRACE_TEXT_CHARS = 240
 _MAX_TRACE_ARGUMENTS_CHARS = 320
 _MAX_TRACE_ROWS = 6
-
-# Supports models that accidentally wrap JSON in markdown fences.
 _JSON_BLOCK_PATTERN = re.compile(r"```(?:json)?\s*(\{[\s\S]*\})\s*```", re.IGNORECASE)
 
 
 def _safe_json_object(raw_text: str) -> dict[str, Any]:
-    """Parse the first valid JSON object from raw model text.
-
-    Accepted forms:
-    - pure JSON object
-    - fenced code block containing a JSON object
-    - text containing one JSON object substring
-    """
+    """Parse the first valid JSON object from raw model text."""
 
     stripped = str(raw_text or "").strip()
     if not stripped:
@@ -112,6 +105,12 @@ def _safe_json_object(raw_text: str) -> dict[str, Any]:
     raise ValueError("Model output did not contain a valid JSON object.")
 
 
+def _json_dumps(payload: Any) -> str:
+    """Serialize compact JSON for transcript messages."""
+
+    return json.dumps(payload, ensure_ascii=False, separators=(",", ":"))
+
+
 def _normalize_citations(
     raw_citations: list[str],
     *,
@@ -134,8 +133,36 @@ def _normalize_citations(
     return normalized
 
 
+def _trim_observation(raw: str, *, max_chars: int = _MAX_TOOL_SUMMARY_CHARS) -> str:
+    """Collapse whitespace and bound observation size for prompt stability."""
+
+    compact = " ".join(str(raw or "").split())
+    return compact[:max_chars]
+
+
+def _trace_text(raw: Any, *, max_chars: int = _MAX_TRACE_TEXT_CHARS) -> str | None:
+    """Normalize optional model trace text into bounded single-line strings."""
+
+    text = " ".join(str(raw or "").split())
+    if not text:
+        return None
+    return text[:max_chars]
+
+
+def _arguments_preview(arguments: dict[str, Any], *, max_chars: int = _MAX_TRACE_ARGUMENTS_CHARS) -> str:
+    """Create a compact JSON-ish argument preview for prompts and progress UI."""
+
+    if not isinstance(arguments, dict) or not arguments:
+        return "{}"
+    try:
+        rendered = _json_dumps(arguments)
+    except Exception:
+        rendered = str(arguments)
+    return _trim_observation(rendered, max_chars=max_chars)
+
+
 def _summarize_evidence_cache(parent_doc_cache: dict[str, dict[str, Any]]) -> str:
-    """Render a compact evidence summary included in each model turn."""
+    """Render a compact evidence summary for state messages and forced finish."""
 
     lines: list[str] = []
     for index, (parent_id, doc) in enumerate(parent_doc_cache.items(), start=1):
@@ -164,36 +191,8 @@ def _summarize_evidence_cache(parent_doc_cache: dict[str, dict[str, Any]]) -> st
     return "\n".join(lines) if lines else "- (no evidence cached yet)"
 
 
-def _trim_observation(raw: str, *, max_chars: int = _MAX_TOOL_SUMMARY_CHARS) -> str:
-    """Collapse whitespace and bound observation size for prompt stability."""
-
-    compact = " ".join(str(raw or "").split())
-    return compact[:max_chars]
-
-
-def _trace_text(raw: Any, *, max_chars: int = _MAX_TRACE_TEXT_CHARS) -> str | None:
-    """Normalize optional model trace text into bounded single-line strings."""
-
-    text = " ".join(str(raw or "").split())
-    if not text:
-        return None
-    return text[:max_chars]
-
-
-def _arguments_preview(arguments: dict[str, Any], *, max_chars: int = _MAX_TRACE_ARGUMENTS_CHARS) -> str:
-    """Create a compact JSON-ish argument preview for prompts and progress UI."""
-
-    if not isinstance(arguments, dict) or not arguments:
-        return "{}"
-    try:
-        rendered = json.dumps(arguments, ensure_ascii=False, separators=(",", ":"))
-    except Exception:
-        rendered = str(arguments)
-    return _trim_observation(rendered, max_chars=max_chars)
-
-
 def _summarize_step_trace_rows(step_traces: list[dict[str, Any]]) -> str:
-    """Render recent structured step traces that the model can continue from."""
+    """Render recent structured step traces."""
 
     if not step_traces:
         return "- (none yet)"
@@ -205,15 +204,223 @@ def _summarize_step_trace_rows(step_traces: list[dict[str, Any]]) -> str:
         arguments_preview = str(trace.get("arguments_preview") or "{}")
         observation = str(trace.get("observation") or "").strip() or "(no observation)"
         intent = str(trace.get("intent") or "").strip()
-        decision = str(trace.get("decision") or "").strip()
+        fallback = str(trace.get("fallback") or trace.get("decision") or "").strip()
 
         row = f"- Step {step}: action={action}, args={arguments_preview}, observation={observation}"
         if intent:
             row += f", intent={intent}"
-        if decision:
-            row += f", decision={decision}"
+        if fallback:
+            row += f", fallback={fallback}"
         rows.append(_trim_observation(row))
     return "\n".join(rows)
+
+
+def _evidence_payload(items: list[Any]) -> list[dict[str, Any]]:
+    """Serialize EvidenceItem models for transcript/log payloads."""
+
+    payload: list[dict[str, Any]] = []
+    for item in items:
+        if hasattr(item, "model_dump"):
+            payload.append(item.model_dump())
+        elif isinstance(item, dict):
+            payload.append(dict(item))
+    return payload
+
+
+def _tool_message_content(tool_name: str, payload: dict[str, Any]) -> str:
+    """Build a compact tool result message."""
+
+    return _json_dumps({"tool": tool_name, **payload})
+
+
+def _append_tool_message(
+    messages: list[dict[str, Any]],
+    *,
+    tool_name: str,
+    payload: dict[str, Any],
+    tool_call_id: str | None = None,
+) -> None:
+    """Append a tool role message to the persistent transcript."""
+
+    message = {
+        "role": "tool",
+        "name": tool_name,
+        "content": _tool_message_content(tool_name, payload),
+    }
+    if tool_call_id:
+        message["tool_call_id"] = tool_call_id
+    messages.append(message)
+
+
+def _tool_call_id(run_id: str, step: int, action_name: str) -> str:
+    """Create a stable tool-call id for JSON-protocol transcript messages."""
+
+    safe_action = re.sub(r"[^a-zA-Z0-9_-]+", "_", str(action_name or "tool"))
+    return f"call_{run_id[:12]}_{step}_{safe_action}"
+
+
+def _attach_tool_call(
+    assistant_message: dict[str, Any],
+    *,
+    tool_call_id: str,
+    action_name: str,
+    arguments: dict[str, Any],
+) -> None:
+    """Add OpenAI-compatible tool-call metadata to an assistant action message."""
+
+    assistant_message["tool_calls"] = [
+        {
+            "id": tool_call_id,
+            "type": "function",
+            "function": {
+                "name": action_name,
+                "arguments": _json_dumps(arguments),
+            },
+        }
+    ]
+
+
+def _display_tool_name(action_name: str) -> str:
+    """Return a user-facing label for an internal tool/action name."""
+
+    labels = {
+        "load_skill": "Load skill",
+        "search_files": "Find files",
+        "search_context": "Search documents",
+        "fetch_parent_chunk": "Inspect source chunk",
+        "fetch_file_context": "Read file context",
+        "read_reference": "Read guidance",
+        "finish": "Prepare answer",
+        "forced_finish": "Prepare answer",
+        "invalid_action_payload": "Repair action",
+    }
+    return labels.get(str(action_name or "").strip(), "Work step")
+
+
+def _polished_transcript_item(
+    *,
+    role: str,
+    title: str,
+    summary: str,
+    detail: str | None = None,
+    status: str = "running",
+) -> dict[str, Any]:
+    """Build the progress transcript item shown in the frontend."""
+
+    payload: dict[str, Any] = {
+        "role": role,
+        "title": _trim_observation(title, max_chars=80),
+        "summary": _trim_observation(summary, max_chars=260),
+        "status": status,
+    }
+    normalized_detail = _trace_text(detail, max_chars=360)
+    if normalized_detail:
+        payload["detail"] = normalized_detail
+    return payload
+
+
+def _action_transcript_item(action: AgentAction, *, step: int) -> dict[str, Any]:
+    """Build a polished transcript item for an assistant action summary."""
+
+    intent = _trace_text(action.intent) or f"Run {_display_tool_name(action.action).lower()}."
+    fallback = _trace_text(action.fallback or action.decision)
+    return _polished_transcript_item(
+        role="assistant",
+        title=f"Step {step}: {_display_tool_name(action.action)}",
+        summary=intent,
+        detail="Fallback: " + fallback if fallback else None,
+        status="running",
+    )
+
+
+def _tool_transcript_item(
+    *,
+    action_name: str,
+    step: int,
+    observation: str,
+    status: str,
+) -> dict[str, Any]:
+    """Build a polished transcript item for a tool result."""
+
+    _ = step
+    return _polished_transcript_item(
+        role="tool",
+        title=f"{_display_tool_name(action_name)} result",
+        summary=observation,
+        status=status,
+    )
+
+
+def _build_registry_message(config: Any) -> str:
+    """Return compact startup skill metadata and action protocol."""
+
+    registry = [
+        metadata.as_registry_item()
+        for metadata in sorted(config.skill_registry.values(), key=lambda item: item.name)
+    ]
+    return _json_dumps(
+        {
+            "runtime": "agentic_query",
+            "progressive_disclosure": {
+                "base_prompt_loaded": True,
+                "skill_bodies_loaded": False,
+                "references_loaded": False,
+            },
+            "skill_registry": registry,
+            "action_protocol": {
+                "shape": {
+                    "intent": "short operational sentence",
+                    "action": "load_skill|search_files|search_context|fetch_parent_chunk|fetch_file_context|read_reference|finish",
+                    "arguments": {},
+                    "success_criteria": "short condition for sufficiency",
+                    "fallback": "short next step if insufficient",
+                },
+                "argument_shapes": {
+                    "load_skill": {"skill_name": "agentic-query"},
+                    "search_files": {"query": "filename terms", "limit": 5},
+                    "search_context": {"query": "string", "top_k": 8},
+                    "fetch_parent_chunk": {"parent_id": "string"},
+                    "fetch_file_context": {"file_id": "string", "file_name": "optional string", "max_chunks": 20},
+                    "read_reference": {"skill_name": "agentic-query", "ref_id": "answer_examples"},
+                    "finish": {"answer": "string", "citations": ["file_name"]},
+                },
+                "rules": [
+                    "Return only one JSON object per assistant turn.",
+                    "Load a skill before relying on its detailed procedure.",
+                    "For whole-file summaries, use fetch_file_context once a file_id is known.",
+                    "Use finish on the final step or when evidence is sufficient.",
+                ],
+            },
+        }
+    )
+
+
+def _build_state_update(
+    *,
+    user_query: str,
+    step: int,
+    max_steps: int,
+    timeout_s: float,
+    parent_doc_cache: dict[str, dict[str, Any]],
+    step_traces: list[dict[str, Any]],
+) -> str:
+    """Build a compact runtime state message for the next model turn."""
+
+    return (
+        f"Runtime step {step}/{max_steps}. Timeout seconds: {timeout_s}.\n\n"
+        f"User Query:\n{user_query}\n\n"
+        "Current Evidence Cache:\n"
+        f"{_summarize_evidence_cache(parent_doc_cache)}\n\n"
+        "Recent Structured Step Trace:\n"
+        f"{_summarize_step_trace_rows(step_traces)}\n\n"
+        "Return only the next JSON action-state object."
+    )
+
+
+def _messages_for_log(messages: list[dict[str, Any]]) -> str:
+    """Serialize transcript for existing debug logger shape."""
+
+    return json.dumps(messages, ensure_ascii=False, indent=2)
 
 
 async def _emit_progress(
@@ -245,41 +452,58 @@ async def _run_loop(
     *,
     user_query: str,
     user_id: str,
-    included_file_ids: list[str],
+    included_file_ids: list[str] | None,
     seed_top_k: int,
     max_steps: int,
     run_id: str,
     timeout_s: float,
     progress_callback: ProgressCallback | None,
 ) -> AgenticQueryRunResult:
-    """Execute the bounded agentic action loop for one query run.
+    """Execute the bounded agentic action loop for one query run."""
 
-    Stop conditions handled here:
-    - `finish` action returned by model
-    - forced final `finish` pass after max steps
-    - fallback after max steps when forced pass fails
-    """
     config = load_agentic_query_config()
     cache_info = load_agentic_query_config.cache_info()
     parent_doc_cache: dict[str, dict[str, Any]] = {}
     observed_file_names: set[str] = set()
+    loaded_skill_cache: dict[str, dict[str, Any]] = {}
+    loaded_skill_names: set[str] = set()
     used_reference_ids: set[str] = set()
-    observations: list[str] = []
     step_traces: list[dict[str, Any]] = []
     tool_call_count = 0
 
-    # Snapshot resolved markdown/runtime config once per run for observability.
+    messages: list[dict[str, Any]] = [
+        {"role": "system", "content": config.system_prompt},
+        {"role": "user", "content": _build_registry_message(config)},
+        {
+            "role": "user",
+            "content": (
+                f"User Query:\n{user_query}\n\n"
+                "Use the skill registry metadata to decide whether to call load_skill. "
+                "Do not rely on any full skill body until the load_skill tool returns it."
+            ),
+        },
+    ]
+
     log_agentic_query_config_event(
         run_id=run_id,
         event="run_config_snapshot",
         payload={
-            "skills_md_path": str(config.skills_path),
-            "skills_md_loaded": True,
-            "skills_prompt_length": len(config.system_prompt),
-            "reference_root": str(config.reference_root),
-            "available_reference_ids": sorted(config.reference_paths.keys()),
-            "references_injected_by_default": False,
-            "included_file_ids_count": len(included_file_ids),
+            "system_path": str(config.system_path),
+            "system_prompt_length": len(config.system_prompt),
+            "skill_registry_loaded": True,
+            "skill_metadata_exposed": [
+                metadata.as_registry_item()
+                for metadata in sorted(config.skill_registry.values(), key=lambda item: item.name)
+            ],
+            "skill_bodies_preloaded": False,
+            "skill_paths": {name: str(path) for name, path in config.skill_paths.items()},
+            "reference_paths": {
+                skill: {ref_id: str(path) for ref_id, path in refs.items()}
+                for skill, refs in config.reference_paths.items()
+            },
+            "deprecated_unused_paths": [str(path) for path in config.deprecated_paths],
+            "included_file_ids_count": None if included_file_ids is None else len(included_file_ids),
+            "search_scope": "all_collections" if included_file_ids is None else "collection",
             "config_cache_info": {
                 "hits": int(cache_info.hits),
                 "misses": int(cache_info.misses),
@@ -294,10 +518,33 @@ async def _run_loop(
         stage="agentic_query_pipeline",
         status="started",
         message="Agentic query run started.",
-        metadata={"runId": run_id},
+        metadata={
+            "runId": run_id,
+            "transcriptMessage": _polished_transcript_item(
+                role="system",
+                title="Skill registry ready",
+                summary="Loaded the base prompt and exposed compact skill metadata. Full skill instructions are still unloaded.",
+                status="completed",
+            ),
+        },
     )
 
-    # Seed retrieval keeps first model turn grounded without inflating prompt context.
+    seed_action = {
+        "intent": "Seed the transcript with scoped evidence for the user query.",
+        "action": "search_context",
+        "arguments": {"query": user_query, "top_k": int(seed_top_k)},
+        "success_criteria": "Initial scoped evidence is available to the assistant.",
+        "fallback": "Continue with load_skill or another scoped search if evidence is insufficient.",
+    }
+    seed_tool_call_id = _tool_call_id(run_id, 0, "search_context")
+    seed_assistant_message: dict[str, Any] = {"role": "assistant", "content": _json_dumps(seed_action)}
+    _attach_tool_call(
+        seed_assistant_message,
+        tool_call_id=seed_tool_call_id,
+        action_name="search_context",
+        arguments=seed_action["arguments"],
+    )
+    messages.append(seed_assistant_message)
     seed_evidence = await tools.search_context_tool(
         query=user_query,
         top_k=seed_top_k,
@@ -308,6 +555,17 @@ async def _run_loop(
     tool_call_count += 1
     for item in seed_evidence:
         observed_file_names.add(item.file_name)
+    seed_payload = {
+        "status": "ok",
+        "evidence_count": len(seed_evidence),
+        "evidence": _evidence_payload(seed_evidence),
+    }
+    _append_tool_message(
+        messages,
+        tool_name="search_context",
+        payload=seed_payload,
+        tool_call_id=seed_tool_call_id,
+    )
     log_agentic_query_action(
         run_id=run_id,
         step=0,
@@ -315,108 +573,84 @@ async def _run_loop(
         arguments={
             "query": user_query,
             "top_k": int(seed_top_k),
-            "included_file_ids_count": len(included_file_ids),
+            "included_file_ids_count": None if included_file_ids is None else len(included_file_ids),
+            "search_scope": "all_collections" if included_file_ids is None else "collection",
         },
-        result={
-            "evidence_count": len(seed_evidence),
-            "parent_ids": [item.parent_id for item in seed_evidence[:12]],
-            "file_names": sorted({item.file_name for item in seed_evidence}),
-            "snippets": [
-                {
-                    "parent_id": item.parent_id,
-                    "file_name": item.file_name,
-                    "snippet": item.snippet,
-                }
-                for item in seed_evidence[:5]
-            ],
-        },
+        result=seed_payload,
     )
-
     await _emit_progress(
         progress_callback,
         stage="agentic_query_seed",
         status="completed",
         message="Initial retrieval seed completed.",
-        metadata={"runId": run_id, "seedCount": len(seed_evidence)},
+        metadata={
+            "runId": run_id,
+            "seedCount": len(seed_evidence),
+            "transcriptMessage": _polished_transcript_item(
+                role="tool",
+                title="Initial document search",
+                summary=f"Found {len(seed_evidence)} scoped evidence item{'s' if len(seed_evidence) != 1 else ''} before planning the next step.",
+                status="completed",
+            ),
+        },
     )
-    if seed_evidence:
-        observations.append(
-            _trim_observation(
-                "Seed retrieval found parent_ids: "
-                + ", ".join(item.parent_id for item in seed_evidence[:8])
-            )
-        )
 
-    # Main bounded loop: each turn asks the model for exactly one tool action.
     for step in range(1, max_steps + 1):
-        evidence_summary = _summarize_evidence_cache(parent_doc_cache)
-        recent_observations = "\n".join(f"- {item}" for item in observations[-_MAX_OBSERVATIONS:])
-        if not recent_observations:
-            recent_observations = "- (none)"
-        recent_structured_trace = _summarize_step_trace_rows(step_traces)
-
-        user_prompt = (
-            f"User Query:\n{user_query}\n\n"
-            f"Step: {step}/{max_steps}\n"
-            f"Timeout (seconds): {timeout_s}\n\n"
-            "Current Evidence Cache:\n"
-            f"{evidence_summary}\n\n"
-            "Recent Tool Observations:\n"
-            f"{recent_observations}\n\n"
-            "Recent Structured Step Trace:\n"
-            f"{recent_structured_trace}\n\n"
-            "Return ONLY one JSON object with this schema:\n"
-            '{"action":"search_context|fetch_parent_chunk|read_reference|finish","arguments":{...},"intent":"optional short string","decision":"optional short string"}\n'
-            "Action argument schema:\n"
-            '- search_context: {"query":"string","top_k":int}\n'
-            '- fetch_parent_chunk: {"parent_id":"string"}\n'
-            '- read_reference: {"ref_id":"string"}\n'
-            '- finish: {"answer":"string","citations":["file_name"]}\n'
-            "Trace guidance:\n"
-            "- intent: what you are trying this step.\n"
-            "- decision: one-line summary of what to do next if this step is insufficient.\n"
-            "\nDecision rules:\n"
-            "- If the current evidence cache contains a direct answer, return finish.\n"
-            "- Do not repeat the same search_context query after it has already returned evidence.\n"
-            "- On the final step, return finish using the best available evidence.\n"
+        messages.append(
+            {
+                "role": "user",
+                "content": _build_state_update(
+                    user_query=user_query,
+                    step=step,
+                    max_steps=max_steps,
+                    timeout_s=timeout_s,
+                    parent_doc_cache=parent_doc_cache,
+                    step_traces=step_traces,
+                ),
+            }
         )
         log_agentic_query_llm_request(
             run_id=run_id,
             step=step,
             system_prompt=config.system_prompt,
-            user_prompt=user_prompt,
+            user_prompt=_messages_for_log(messages),
         )
-
-        # Runtime always calls with the markdown policy as system prompt.
         llm_response_text, _usage = await llm_client.call_action_model(
-            messages=[
-                {"role": "system", "content": config.system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            max_tokens=512,
+            messages=messages,
+            max_tokens=700,
             timeout_s=min(120.0, max(10.0, timeout_s)),
         )
+        assistant_message: dict[str, Any] = {"role": "assistant", "content": llm_response_text}
+        messages.append(assistant_message)
         log_agentic_query_llm_response(
             run_id=run_id,
             step=step,
             response_text=llm_response_text,
         )
 
-        # Parse and schema-validate model response into one action.
         try:
             action_payload = _safe_json_object(llm_response_text)
             action = AgentAction.model_validate(action_payload)
         except (ValueError, ValidationError) as error:
             invalid_observation = _trim_observation(f"Invalid action payload: {error}")
-            observations.append(invalid_observation)
+            messages.append(
+                {
+                    "role": "user",
+                    "content": _tool_message_content(
+                        "invalid_action_payload",
+                        {"status": "error", "error": invalid_observation},
+                    ),
+                }
+            )
             step_traces.append(
                 {
                     "step": step,
                     "action": "invalid_action_payload",
                     "arguments_preview": "{}",
                     "intent": "",
+                    "success_criteria": "",
+                    "fallback": "",
                     "observation": invalid_observation,
-                    "decision": "",
                 }
             )
             log_agentic_query_action(
@@ -438,16 +672,44 @@ async def _run_loop(
                     "action": "invalid_action_payload",
                     "tool": "invalid_action_payload",
                     "observation": invalid_observation,
+                    "transcriptMessage": _polished_transcript_item(
+                        role="tool",
+                        title="Action needed correction",
+                        summary="The assistant returned an action that could not be validated, so the runtime asked it to continue with a valid step.",
+                        detail=invalid_observation,
+                        status="failed",
+                    ),
                 },
             )
             continue
 
         trace_intent = _trace_text(action.intent)
-        trace_decision = _trace_text(action.decision)
+        trace_success = _trace_text(action.success_criteria)
+        trace_fallback = _trace_text(action.fallback or action.decision)
         arguments_preview = _arguments_preview(dict(action.arguments or {}))
+        current_tool_call_id = _tool_call_id(run_id, step, action.action)
+        _attach_tool_call(
+            assistant_message,
+            tool_call_id=current_tool_call_id,
+            action_name=action.action,
+            arguments=dict(action.arguments or {}),
+        )
         step_observation = ""
         step_error: str | None = None
+        tool_payload: dict[str, Any] = {"status": "ok"}
 
+        log_agentic_query_config_event(
+            run_id=run_id,
+            event="assistant_action_summary",
+            payload={
+                "step": step,
+                "intent": trace_intent,
+                "action": action.action,
+                "arguments": dict(action.arguments or {}),
+                "success_criteria": trace_success,
+                "fallback": trace_fallback,
+            },
+        )
         await _emit_progress(
             progress_callback,
             stage="agentic_query_step",
@@ -459,14 +721,69 @@ async def _run_loop(
                 "action": action.action,
                 "tool": action.action,
                 "intent": trace_intent,
-                "decision": trace_decision,
+                "successCriteria": trace_success,
+                "fallback": trace_fallback,
+                "decision": trace_fallback,
                 "argumentsPreview": arguments_preview,
+                "transcriptMessage": _action_transcript_item(action, step=step),
             },
         )
 
-        # Tool dispatch block: each action validates typed arguments before execution.
         try:
-            if action.action == "search_context":
+            if action.action == "load_skill":
+                args = LoadSkillArguments.model_validate(action.arguments)
+                payload = tools.load_skill_tool(
+                    skill_name=args.skill_name,
+                    config=config,
+                    loaded_skill_cache=loaded_skill_cache,
+                    max_chars=8000,
+                )
+                tool_call_count += 1
+                loaded_skill_names.add(str(payload.get("skill_name") or args.skill_name).strip().lower())
+                step_observation = _trim_observation(
+                    f"load_skill loaded skill_name={payload.get('skill_name')} "
+                    f"with {len(str(payload.get('body') or ''))} body chars."
+                )
+                tool_payload = {
+                    "status": "ok",
+                    "skill_name": payload.get("skill_name"),
+                    "frontmatter": payload.get("frontmatter"),
+                    "body": payload.get("body"),
+                    "references": payload.get("references"),
+                    "cached": bool(payload.get("cached")),
+                }
+                log_agentic_query_config_event(
+                    run_id=run_id,
+                    event="skill_body_loaded",
+                    payload={
+                        "step": step,
+                        "skill_name": payload.get("skill_name"),
+                        "cached": bool(payload.get("cached")),
+                        "body_length": len(str(payload.get("body") or "")),
+                        "references": payload.get("references") or [],
+                    },
+                )
+            elif action.action == "search_files":
+                args = SearchFilesArguments.model_validate(action.arguments)
+                matches = await tools.search_files_tool(
+                    query=args.query,
+                    limit=args.limit,
+                    user_id=user_id,
+                    included_file_ids=included_file_ids,
+                )
+                tool_call_count += 1
+                for match in matches:
+                    observed_file_names.add(match.file_name)
+                step_observation = _trim_observation(
+                    "search_files returned "
+                    f"{len(matches)} candidate files for query={args.query!r}."
+                )
+                tool_payload = {
+                    "status": "ok",
+                    "file_count": len(matches),
+                    "files": _evidence_payload(matches),
+                }
+            elif action.action == "search_context":
                 args = SearchContextArguments.model_validate(action.arguments)
                 evidence = await tools.search_context_tool(
                     query=args.query,
@@ -482,30 +799,11 @@ async def _run_loop(
                     "search_context returned "
                     f"{len(evidence)} items for query={args.query!r} top_k={int(args.top_k)}."
                 )
-                log_agentic_query_action(
-                    run_id=run_id,
-                    step=step,
-                    action="search_context",
-                    arguments={
-                        "query": args.query,
-                        "top_k": int(args.top_k),
-                        "intent": trace_intent,
-                        "decision": trace_decision,
-                    },
-                    result={
-                        "evidence_count": len(evidence),
-                        "parent_ids": [item.parent_id for item in evidence[:12]],
-                        "file_names": sorted({item.file_name for item in evidence}),
-                        "snippets": [
-                            {
-                                "parent_id": item.parent_id,
-                                "file_name": item.file_name,
-                                "snippet": item.snippet,
-                            }
-                            for item in evidence[:5]
-                        ],
-                    },
-                )
+                tool_payload = {
+                    "status": "ok",
+                    "evidence_count": len(evidence),
+                    "evidence": _evidence_payload(evidence),
+                }
             elif action.action == "fetch_parent_chunk":
                 args = FetchParentChunkArguments.model_validate(action.arguments)
                 item = await tools.fetch_parent_chunk_tool(
@@ -517,68 +815,70 @@ async def _run_loop(
                 tool_call_count += 1
                 if item is None:
                     step_observation = "fetch_parent_chunk returned no scoped record."
-                    log_agentic_query_action(
-                        run_id=run_id,
-                        step=step,
-                        action="fetch_parent_chunk",
-                        arguments={
-                            "parent_id": args.parent_id,
-                            "intent": trace_intent,
-                            "decision": trace_decision,
-                        },
-                        result={"found": False},
-                    )
+                    tool_payload = {"status": "ok", "found": False}
                 else:
                     observed_file_names.add(item.file_name)
                     step_observation = _trim_observation(
                         "fetch_parent_chunk returned "
                         f"parent_id={item.parent_id} in file={item.file_name}."
                     )
-                    log_agentic_query_action(
-                        run_id=run_id,
-                        step=step,
-                        action="fetch_parent_chunk",
-                        arguments={
-                            "parent_id": args.parent_id,
-                            "intent": trace_intent,
-                            "decision": trace_decision,
-                        },
-                        result={
-                            "found": True,
-                            "file_name": item.file_name,
-                            "file_id": item.file_id,
-                            "parent_chunk_number": item.parent_chunk_number,
-                        },
-                    )
+                    tool_payload = {
+                        "status": "ok",
+                        "found": True,
+                        "evidence": item.model_dump(),
+                    }
+            elif action.action == "fetch_file_context":
+                args = FetchFileContextArguments.model_validate(action.arguments)
+                evidence = await tools.fetch_file_context_tool(
+                    file_id=args.file_id,
+                    file_name=args.file_name,
+                    max_chunks=args.max_chunks,
+                    user_id=user_id,
+                    included_file_ids=included_file_ids,
+                    parent_doc_cache=parent_doc_cache,
+                )
+                tool_call_count += 1
+                for item in evidence:
+                    observed_file_names.add(item.file_name)
+                file_label = str(args.file_id or args.file_name or "").strip()
+                step_observation = _trim_observation(
+                    "fetch_file_context returned "
+                    f"{len(evidence)} parent chunks for file={file_label!r}."
+                )
+                tool_payload = {
+                    "status": "ok",
+                    "evidence_count": len(evidence),
+                    "evidence": _evidence_payload(evidence),
+                }
             elif action.action == "read_reference":
                 args = ReadReferenceArguments.model_validate(action.arguments)
                 ref_text = tools.read_reference_tool(
+                    skill_name=args.skill_name,
                     ref_id=args.ref_id,
                     config=config,
-                    max_chars=1800,
+                    max_chars=2500,
                 )
                 tool_call_count += 1
-                used_reference_ids.add(str(args.ref_id or "").strip().lower())
+                ref_key = f"{str(args.skill_name).strip().lower().replace('_', '-')}:{str(args.ref_id).strip().lower()}"
+                used_reference_ids.add(ref_key)
                 step_observation = _trim_observation(
-                    f"read_reference loaded ref_id={args.ref_id} with {len(ref_text)} chars."
+                    f"read_reference loaded skill_name={args.skill_name} ref_id={args.ref_id} "
+                    f"with {len(ref_text)} chars."
                 )
-                log_agentic_query_action(
+                tool_payload = {
+                    "status": "ok",
+                    "skill_name": args.skill_name,
+                    "ref_id": args.ref_id,
+                    "content": ref_text,
+                }
+                log_agentic_query_config_event(
                     run_id=run_id,
-                    step=step,
-                    action="read_reference",
-                    arguments={
+                    event="reference_loaded",
+                    payload={
+                        "step": step,
+                        "skill_name": args.skill_name,
                         "ref_id": args.ref_id,
-                        "intent": trace_intent,
-                        "decision": trace_decision,
-                    },
-                    result={
                         "content_length": len(ref_text),
-                        "ref_path": str(
-                            config.reference_paths.get(
-                                str(args.ref_id or "").strip().lower()
-                            )
-                            or ""
-                        ),
                     },
                 )
             elif action.action == "finish":
@@ -590,13 +890,17 @@ async def _run_loop(
                     args.citations,
                     allowed_file_names=observed_file_names,
                 )
-                # If model omits/invalidates citations, fallback to observed evidence files.
                 if not normalized_citations:
                     normalized_citations = sorted(observed_file_names)
                 step_observation = _trim_observation(
                     "finish returned final answer with "
                     f"{len(normalized_citations)} citations."
                 )
+                tool_payload = {
+                    "status": "ok",
+                    "answer_length": len(normalized_answer),
+                    "citations": normalized_citations,
+                }
                 log_agentic_query_action(
                     run_id=run_id,
                     step=step,
@@ -604,30 +908,30 @@ async def _run_loop(
                     arguments={
                         "citations_from_model": list(args.citations),
                         "intent": trace_intent,
-                        "decision": trace_decision,
+                        "success_criteria": trace_success,
+                        "fallback": trace_fallback,
                     },
                     result={
                         "final_answer_length": len(normalized_answer),
                         "final_citations": list(normalized_citations),
                     },
                 )
-
+                _append_tool_message(
+                    messages,
+                    tool_name="finish",
+                    payload=tool_payload,
+                    tool_call_id=current_tool_call_id,
+                )
                 step_traces.append(
                     {
                         "step": step,
                         "action": action.action,
                         "arguments_preview": arguments_preview,
                         "intent": trace_intent or "",
+                        "success_criteria": trace_success or "",
+                        "fallback": trace_fallback or "",
                         "observation": step_observation,
-                        "decision": trace_decision or "",
                     }
-                )
-                observations.append(
-                    _trim_observation(
-                        f"Step {step} trace: action={action.action}, args={arguments_preview}, "
-                        f"observation={step_observation}, intent={trace_intent or '(none)'}, "
-                        f"decision={trace_decision or '(none)'}"
-                    )
                 )
                 await _emit_progress(
                     progress_callback,
@@ -640,12 +944,19 @@ async def _run_loop(
                         "action": action.action,
                         "tool": action.action,
                         "intent": trace_intent,
-                        "decision": trace_decision,
+                        "successCriteria": trace_success,
+                        "fallback": trace_fallback,
+                        "decision": trace_fallback,
                         "argumentsPreview": arguments_preview,
                         "observation": step_observation,
+                        "transcriptMessage": _tool_transcript_item(
+                            action_name=action.action,
+                            step=step,
+                            observation=step_observation,
+                            status="completed",
+                        ),
                     },
                 )
-
                 await _emit_progress(
                     progress_callback,
                     stage="agentic_query_pipeline",
@@ -661,14 +972,13 @@ async def _run_loop(
                     run_id=run_id,
                     event="run_completed_config_usage",
                     payload={
-                        "skills_md_path": str(config.skills_path),
-                        "skills_md_used_as_system_prompt": True,
+                        "system_path": str(config.system_path),
+                        "skill_bodies_preloaded": False,
+                        "loaded_skill_names": sorted(loaded_skill_names),
                         "references_read_count": len(used_reference_ids),
                         "references_read_ids": sorted(used_reference_ids),
-                        "references_not_read_ids": sorted(
-                            set(config.reference_paths.keys()) - used_reference_ids
-                        ),
                         "recent_step_trace": _summarize_step_trace_rows(step_traces),
+                        "termination_reason": "finished",
                     },
                 )
                 return AgenticQueryRunResult(
@@ -678,23 +988,20 @@ async def _run_loop(
                     termination_reason="finished",
                     tool_call_count=tool_call_count,
                 )
-            else:
-                step_observation = f"Unknown action received: {action.action}"
-                log_agentic_query_action(
-                    run_id=run_id,
-                    step=step,
-                    action="unknown_action",
-                    arguments={
-                        **dict(action.arguments or {}),
-                        "intent": trace_intent,
-                        "decision": trace_decision,
-                    },
-                    result={},
-                    error=f"Unknown action: {action.action}",
-                )
         except Exception as error:
             step_error = str(error)
             step_observation = _trim_observation(f"Action execution failed: {error}")
+            tool_payload = {"status": "error", "error": step_observation}
+
+        if not step_observation:
+            step_observation = "Action completed."
+        if action.action != "finish":
+            _append_tool_message(
+                messages,
+                tool_name=action.action,
+                payload=tool_payload,
+                tool_call_id=current_tool_call_id,
+            )
             log_agentic_query_action(
                 run_id=run_id,
                 step=step,
@@ -702,63 +1009,62 @@ async def _run_loop(
                 arguments={
                     **dict(action.arguments or {}),
                     "intent": trace_intent,
-                    "decision": trace_decision,
+                    "success_criteria": trace_success,
+                    "fallback": trace_fallback,
                 },
-                result={},
-                error=str(error),
+                result=tool_payload,
+                error=step_error,
             )
-
-        if not step_observation:
-            step_observation = "Action completed."
-
-        step_traces.append(
-            {
-                "step": step,
-                "action": action.action,
-                "arguments_preview": arguments_preview,
-                "intent": trace_intent or "",
-                "observation": step_observation,
-                "decision": trace_decision or "",
-            }
-        )
-        observations.append(
-            _trim_observation(
-                f"Step {step} trace: action={action.action}, args={arguments_preview}, "
-                f"observation={step_observation}, intent={trace_intent or '(none)'}, "
-                f"decision={trace_decision or '(none)'}"
+            step_traces.append(
+                {
+                    "step": step,
+                    "action": action.action,
+                    "arguments_preview": arguments_preview,
+                    "intent": trace_intent or "",
+                    "success_criteria": trace_success or "",
+                    "fallback": trace_fallback or "",
+                    "observation": step_observation,
+                }
             )
-        )
-
-        await _emit_progress(
-            progress_callback,
-            stage="agentic_query_step",
-            status="failed" if step_error else "completed",
-            message=f"Step {step}: completed {action.action}" if not step_error else f"Step {step}: failed {action.action}",
-            metadata={
-                "runId": run_id,
-                "step": step,
-                "action": action.action,
-                "tool": action.action,
-                "intent": trace_intent,
-                "decision": trace_decision,
+            await _emit_progress(
+                progress_callback,
+                stage="agentic_query_step",
+                status="failed" if step_error else "completed",
+                message=f"Step {step}: completed {action.action}" if not step_error else f"Step {step}: failed {action.action}",
+                metadata={
+                    "runId": run_id,
+                    "step": step,
+                    "action": action.action,
+                    "tool": action.action,
+                    "intent": trace_intent,
+                    "successCriteria": trace_success,
+                    "fallback": trace_fallback,
+                    "decision": trace_fallback,
                 "argumentsPreview": arguments_preview,
                 "observation": step_observation,
                 "error": step_error,
+                "transcriptMessage": _tool_transcript_item(
+                    action_name=action.action,
+                    step=step,
+                    observation=step_observation,
+                    status="failed" if step_error else "completed",
+                ),
             },
         )
 
-    # If loop ended without `finish`, force one last synthesis turn with no tools.
     if parent_doc_cache:
         forced_step = max_steps + 1
-        evidence_summary = _summarize_evidence_cache(parent_doc_cache)
-        forced_user_prompt = (
-            f"User Query:\n{user_query}\n\n"
-            "No more tool calls are allowed. Use only the evidence below and return finish.\n\n"
-            "Current Evidence Cache:\n"
-            f"{evidence_summary}\n\n"
-            "Return ONLY this JSON object shape:\n"
-            '{"action":"finish","arguments":{"answer":"string","citations":["file_name"]},"intent":"optional short string","decision":"optional short string"}\n'
-            'If the evidence does not answer the query, use answer "No answer found in the provided context." and empty citations.\n'
+        messages.append(
+            {
+                "role": "user",
+                "content": (
+                    "No more tool calls are allowed. Use only observed evidence in this transcript "
+                    "and return a finish JSON object. If evidence does not answer the query, use "
+                    'answer "No answer found in the provided context." and empty citations.\n\n'
+                    "Current Evidence Cache:\n"
+                    f"{_summarize_evidence_cache(parent_doc_cache)}"
+                ),
+            }
         )
         await _emit_progress(
             progress_callback,
@@ -771,23 +1077,31 @@ async def _run_loop(
                 "action": "forced_finish",
                 "tool": "forced_finish",
                 "observation": "Max steps reached. No more tool calls allowed.",
+                "transcriptMessage": _polished_transcript_item(
+                    role="assistant",
+                    title="Final answer synthesis",
+                    summary="Reached the step limit, so the assistant is preparing an answer from the evidence already gathered.",
+                    status="running",
+                ),
             },
         )
         log_agentic_query_llm_request(
             run_id=run_id,
             step=forced_step,
             system_prompt=config.system_prompt,
-            user_prompt=forced_user_prompt,
+            user_prompt=_messages_for_log(messages),
         )
         try:
             llm_response_text, _usage = await llm_client.call_action_model(
-                messages=[
-                    {"role": "system", "content": config.system_prompt},
-                    {"role": "user", "content": forced_user_prompt},
-                ],
-                max_tokens=512,
+                messages=messages,
+                max_tokens=700,
                 timeout_s=min(120.0, max(10.0, timeout_s)),
             )
+            forced_assistant_message: dict[str, Any] = {
+                "role": "assistant",
+                "content": llm_response_text,
+            }
+            messages.append(forced_assistant_message)
             log_agentic_query_llm_response(
                 run_id=run_id,
                 step=forced_step,
@@ -796,6 +1110,13 @@ async def _run_loop(
             action_payload = _safe_json_object(llm_response_text)
             action = AgentAction.model_validate(action_payload)
             if action.action == "finish":
+                forced_tool_call_id = _tool_call_id(run_id, forced_step, "finish")
+                _attach_tool_call(
+                    forced_assistant_message,
+                    tool_call_id=forced_tool_call_id,
+                    action_name="finish",
+                    arguments=dict(action.arguments or {}),
+                )
                 args = FinishArguments.model_validate(action.arguments)
                 normalized_answer = str(args.answer or "").strip()
                 if not normalized_answer:
@@ -804,14 +1125,24 @@ async def _run_loop(
                     args.citations,
                     allowed_file_names=observed_file_names,
                 )
-                # Preserve empty citations only for explicit no-answer fallback text.
                 if not normalized_citations and normalized_answer != "No answer found in the provided context.":
                     normalized_citations = sorted(observed_file_names)
                 forced_intent = _trace_text(action.intent)
-                forced_decision = _trace_text(action.decision)
+                forced_success = _trace_text(action.success_criteria)
+                forced_fallback = _trace_text(action.fallback or action.decision)
                 forced_observation = _trim_observation(
                     "forced_finish produced final answer with "
                     f"{len(normalized_citations)} citations."
+                )
+                _append_tool_message(
+                    messages,
+                    tool_name="finish",
+                    payload={
+                        "status": "ok",
+                        "answer_length": len(normalized_answer),
+                        "citations": normalized_citations,
+                    },
+                    tool_call_id=forced_tool_call_id,
                 )
                 log_agentic_query_action(
                     run_id=run_id,
@@ -820,7 +1151,8 @@ async def _run_loop(
                     arguments={
                         "citations_from_model": list(args.citations),
                         "intent": forced_intent,
-                        "decision": forced_decision,
+                        "success_criteria": forced_success,
+                        "fallback": forced_fallback,
                     },
                     result={
                         "final_answer_length": len(normalized_answer),
@@ -833,8 +1165,9 @@ async def _run_loop(
                         "action": "forced_finish",
                         "arguments_preview": _arguments_preview(dict(action.arguments or {})),
                         "intent": forced_intent or "",
+                        "success_criteria": forced_success or "",
+                        "fallback": forced_fallback or "",
                         "observation": forced_observation,
-                        "decision": forced_decision or "",
                     }
                 )
                 await _emit_progress(
@@ -848,23 +1181,30 @@ async def _run_loop(
                         "action": "forced_finish",
                         "tool": "forced_finish",
                         "intent": forced_intent,
-                        "decision": forced_decision,
+                        "successCriteria": forced_success,
+                        "fallback": forced_fallback,
+                        "decision": forced_fallback,
                         "argumentsPreview": _arguments_preview(dict(action.arguments or {})),
                         "observation": forced_observation,
+                        "transcriptMessage": _tool_transcript_item(
+                            action_name="forced_finish",
+                            step=forced_step,
+                            observation=forced_observation,
+                            status="completed",
+                        ),
                     },
                 )
                 log_agentic_query_config_event(
                     run_id=run_id,
                     event="run_forced_finish_config_usage",
                     payload={
-                        "skills_md_path": str(config.skills_path),
-                        "skills_md_used_as_system_prompt": True,
+                        "system_path": str(config.system_path),
+                        "skill_bodies_preloaded": False,
+                        "loaded_skill_names": sorted(loaded_skill_names),
                         "references_read_count": len(used_reference_ids),
                         "references_read_ids": sorted(used_reference_ids),
-                        "references_not_read_ids": sorted(
-                            set(config.reference_paths.keys()) - used_reference_ids
-                        ),
                         "recent_step_trace": _summarize_step_trace_rows(step_traces),
+                        "termination_reason": "forced_finish_after_max_steps",
                     },
                 )
                 return AgenticQueryRunResult(
@@ -881,8 +1221,9 @@ async def _run_loop(
                     "action": "forced_finish_failed",
                     "arguments_preview": "{}",
                     "intent": "",
+                    "success_criteria": "",
+                    "fallback": "",
                     "observation": _trim_observation(f"forced_finish failed: {error}"),
-                    "decision": "",
                 }
             )
             await _emit_progress(
@@ -896,6 +1237,13 @@ async def _run_loop(
                     "action": "forced_finish_failed",
                     "tool": "forced_finish_failed",
                     "error": str(error),
+                    "transcriptMessage": _polished_transcript_item(
+                        role="tool",
+                        title="Final synthesis failed",
+                        summary="The forced finish step failed, so the runtime will return the safe no-answer fallback.",
+                        detail=str(error),
+                        status="failed",
+                    ),
                 },
             )
             log_agentic_query_action(
@@ -907,7 +1255,6 @@ async def _run_loop(
                 error=str(error),
             )
 
-    # Terminal fallback: reached max-steps path and could not get valid forced finish.
     fallback_answer = "No answer found in the provided context."
     await _emit_progress(
         progress_callback,
@@ -920,14 +1267,13 @@ async def _run_loop(
         run_id=run_id,
         event="run_max_steps_config_usage",
         payload={
-            "skills_md_path": str(config.skills_path),
-            "skills_md_used_as_system_prompt": True,
+            "system_path": str(config.system_path),
+            "skill_bodies_preloaded": False,
+            "loaded_skill_names": sorted(loaded_skill_names),
             "references_read_count": len(used_reference_ids),
             "references_read_ids": sorted(used_reference_ids),
-            "references_not_read_ids": sorted(
-                set(config.reference_paths.keys()) - used_reference_ids
-            ),
             "recent_step_trace": _summarize_step_trace_rows(step_traces),
+            "termination_reason": "max_steps_exceeded",
         },
     )
     return AgenticQueryRunResult(
@@ -943,17 +1289,14 @@ async def run_agentic_query(
     *,
     user_query: str,
     user_id: str,
-    included_file_ids: list[str],
+    included_file_ids: list[str] | None,
     seed_top_k: int = _DEFAULT_SEED_TOP_K,
     max_steps: int = _DEFAULT_MAX_STEPS,
     timeout_s: float = _DEFAULT_TIMEOUT_SECONDS,
     progress_callback: ProgressCallback | None = None,
 ) -> AgenticQueryRunResult:
-    """Public entry point for one agentic query run.
+    """Public entry point for one agentic query run."""
 
-    This function normalizes user inputs and applies a hard wall-clock timeout
-    around `_run_loop` so the caller always receives a bounded response time.
-    """
     normalized_query = str(user_query or "").strip()
     if not normalized_query:
         raise ValueError("user_query must be a non-empty string.")
@@ -962,10 +1305,18 @@ async def run_agentic_query(
     if not normalized_user_id:
         raise ValueError("user_id must be a non-empty string.")
 
-    # Bound user-configurable knobs to safe ranges.
     normalized_seed_top_k = max(1, min(20, int(seed_top_k)))
     normalized_max_steps = max(_MIN_STEPS_CAP, min(_MAX_STEPS_CAP, int(max_steps)))
     normalized_timeout_s = max(5.0, float(timeout_s or _DEFAULT_TIMEOUT_SECONDS))
+    normalized_file_ids = (
+        None
+        if included_file_ids is None
+        else [
+            str(file_id).strip()
+            for file_id in included_file_ids
+            if str(file_id).strip()
+        ]
+    )
 
     run_id = uuid4().hex
     try:
@@ -973,11 +1324,7 @@ async def run_agentic_query(
             _run_loop(
                 user_query=normalized_query,
                 user_id=normalized_user_id,
-                included_file_ids=[
-                    str(file_id).strip()
-                    for file_id in included_file_ids
-                    if str(file_id).strip()
-                ],
+                included_file_ids=normalized_file_ids,
                 seed_top_k=normalized_seed_top_k,
                 max_steps=normalized_max_steps,
                 run_id=run_id,
@@ -987,7 +1334,6 @@ async def run_agentic_query(
             timeout=normalized_timeout_s,
         )
     except TimeoutError:
-        # Hard timeout fallback keeps API behavior deterministic under slow model/tool calls.
         log_agentic_query_action(
             run_id=run_id,
             step=None,
@@ -1000,8 +1346,10 @@ async def run_agentic_query(
             run_id=run_id,
             event="run_timeout_config_usage",
             payload={
-                "skills_md_used_as_system_prompt": True,
+                "system_prompt_only": True,
+                "skill_bodies_preloaded": False,
                 "timeout_seconds": normalized_timeout_s,
+                "termination_reason": "timeout",
             },
         )
         await _emit_progress(

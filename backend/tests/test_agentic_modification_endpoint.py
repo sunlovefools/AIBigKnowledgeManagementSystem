@@ -222,6 +222,63 @@ def test_agentic_modify_routes_expose_canonical_and_alias_paths():
     }
     assert post_routes["/modify"] is router_agent.agentic_modify
     assert post_routes["/v2/modify"] is router_agent.agentic_modify
+    assert post_routes["/modify-skills"] is router_agent.agentic_modify_skills
+    assert post_routes["/modify-skills-stream"] is router_agent.agentic_modify_skills_stream
+
+
+def test_agentic_modify_skills_returns_compatible_response(monkeypatch):
+    class _FakeSkillResult:
+        def model_dump(self):
+            return {
+                "intention": "edit",
+                "proposals": [
+                    {
+                        "fileId": "file-a",
+                        "fileName": "policy.md",
+                        "parentId": "parent-a",
+                        "original": "Refund is 14 days.",
+                        "proposed": "Refund is 30 days.",
+                        "source": "agent",
+                    }
+                ],
+                "goal": "Change refund to 30 days.",
+                "lexical_anchors": [],
+                "semantic_anchors": [],
+                "anchors": [],
+                "constraint": "None",
+                "run_id": "skill-run-1",
+                "termination_reason": "finished",
+                "tool_call_count": 1,
+                "llm_call_count": 2,
+                "token_prompt_total": 5,
+                "token_completion_total": 6,
+                "token_total": 11,
+                "skill_runtime_result": {"summary": "done"},
+                "coverage_report": {"delegated_files": ["file-a"]},
+            }
+
+    captured: dict[str, object] = {}
+
+    async def _fake_runner(**kwargs):
+        captured.update(kwargs)
+        return _FakeSkillResult()
+
+    monkeypatch.setattr(router_agent, "log_token_usage", lambda **kwargs: None)
+    monkeypatch.setattr(router_agent, "_load_agentic_modification_skill_runner", lambda: _fake_runner)
+    _patch_collection_scope(monkeypatch, file_ids=["file-a", "file-b"])
+
+    response = asyncio.run(
+        router_agent.agentic_modify_skills(
+            _build_payload(fileIds=["file-a"]),
+            current_user={"sub": "user-1"},
+        )
+    )
+    payload = response.model_dump()
+
+    assert captured["included_file_ids"] == ["file-a"]
+    assert payload["intention"] == "edit"
+    assert payload["proposals"][0]["fileId"] == "file-a"
+    assert payload["proposals"][0]["proposed"] == "Refund is 30 days."
 
 
 def test_agentic_modify_request_rejects_legacy_instruction_payload():

@@ -511,7 +511,7 @@ export default function Sidebar({
 
             <div className="sources-section">
                 <div className="collection-section">
-                    <div className="section-title">Collection</div>
+                    <div className="section-title">Browse collection</div>
                     {isLoadingCollections ? (
                         <div className="sidebar-documents-status">Loading collections...</div>
                     ) : collectionError ? (
@@ -693,7 +693,7 @@ export default function Sidebar({
                 {/* ── Knowledge files header ── */}
                 <div className="sidebar-documents-header">
                     <div className="section-title">
-                        Files ({files.length})
+                        Sources ({files.length})
                         {isEditMode && selectedFileIds.size > 0 && (
                             <span className="sidebar-selection-badge">
                                 {selectedFileIds.size} selected
@@ -725,7 +725,7 @@ export default function Sidebar({
                 {/* ── Edit-mode hint ── */}
                 {isEditMode && (
                     <div className="sidebar-edit-mode-hint">
-                        ✏️ Check files to scope AI edits, or leave unchecked to search all
+                        Check files to scope AI edits, or leave unchecked to search all sources.
                     </div>
                 )}
 
