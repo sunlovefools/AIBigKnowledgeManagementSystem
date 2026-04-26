@@ -7,6 +7,7 @@ fastapi
 uvicorn[standard]
 python-dotenv
 pydantic
+python-jose>=3.5.0
 pandas
 astrapy
 bcrypt
@@ -26,7 +27,8 @@ langchain-core
 langchain-text-splitters
 langchain-astradb
 langchain-huggingface
-langgraph  
+langgraph
+mcp[cli]>=1,<2
 sentence-transformers
 ragas
 datasets

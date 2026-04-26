@@ -1,11 +1,24 @@
 import os
+from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
 load_dotenv() # Need to be called before the local import below
-app = FastAPI()
+
+from app.mcp.server import mcp_asgi_app, rag_mcp
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    _ = app
+    async with rag_mcp.session_manager.run():
+        yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 # Local imports
 import app.api.router_ingest as ingest_router
@@ -29,6 +42,7 @@ app.add_middleware(
     allow_credentials=True, # Allow cookies, authorization headers, etc in the requests to the backend
     allow_methods=["*"], # Allow all HTTP methods (GET, POST, PUT, DELETE, etc)
     allow_headers=["*"], # Allow all headers, including custom headers
+    expose_headers=["Mcp-Session-Id"],
     # Popular headers include Authorization, Content-Type, X-Requested-With, etc.
 )
 
@@ -88,6 +102,8 @@ app.include_router(
     prefix="/api/collections",
     tags=["Collections"],
 )
+
+app.mount("/api/mcp", mcp_asgi_app)
 
 # --- Data Models ---
 # TEST FOR SENDINGQUERY TO BACKEND
