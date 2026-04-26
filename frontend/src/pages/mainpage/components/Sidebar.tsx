@@ -143,6 +143,7 @@ type SidebarProps = {
     onDeleteCollection: (collectionId: string) => Promise<{ ok: boolean; warningText?: string; error?: string }>;
     // Optimistic creation: IDs still being committed to the DB
     pendingCreationFileIds: Set<string>;
+    pendingSaveFileIds: Set<string>;
 };
 
 export default function Sidebar({
@@ -173,6 +174,7 @@ export default function Sidebar({
     onRenameCollection,
     onDeleteCollection,
     pendingCreationFileIds,
+    pendingSaveFileIds,
 }: SidebarProps) {
     const fileRef = useRef<HTMLInputElement | null>(null);
     const collectionSwitcherRef = useRef<HTMLDivElement | null>(null);
@@ -906,7 +908,9 @@ export default function Sidebar({
                     ) : files.length === 0 ? (
                         <div className="sidebar-documents-status">No files found in vector database.</div>
                     ) : (
-                        files.map((file) => (
+                        files.map((file) => {
+                            const isFilePending = pendingCreationFileIds.has(file.fileId) || pendingSaveFileIds.has(file.fileId);
+                            return (
                             <div
                                 key={file.fileId}
                                 className={`sidebar-document-item-wrapper ${
@@ -937,6 +941,7 @@ export default function Sidebar({
                                             onKeyDown={(e) => handleRenameKeyDown(e, file.fileId)}
                                             maxLength={MAX_NAME_LENGTH}
                                             aria-label={`Rename ${file.fileName}`}
+                                            disabled={isFilePending}
                                         />
                                         {renameError && (
                                             <div className="sidebar-rename-error">{renameError}</div>
@@ -946,6 +951,7 @@ export default function Sidebar({
                                                 className="sidebar-rename-confirm-btn"
                                                 type="button"
                                                 onClick={() => submitRename(file.fileId)}
+                                                disabled={isFilePending}
                                             >
                                                 Save
                                             </button>
@@ -971,7 +977,7 @@ export default function Sidebar({
                                         >
                                             <div className="sidebar-document-title">
                                                 {file.fileName}
-                                                {pendingCreationFileIds.has(file.fileId) && (
+                                                {isFilePending && (
                                                     <span className="sidebar-creating-badge" aria-label="Saving to database">
                                                         saving…
                                                     </span>
@@ -992,7 +998,7 @@ export default function Sidebar({
                                                 aria-label={`File actions for ${file.fileName}`}
                                                 aria-haspopup="menu"
                                                 aria-expanded={openFileActionMenuId === file.fileId}
-                                                disabled={pendingCreationFileIds.has(file.fileId)}
+                                                disabled={isFilePending}
                                                 onClick={() => {
                                                     setIsCollectionSwitcherOpen(false);
                                                     setIsCollectionActionMenuOpen(false);
@@ -1014,6 +1020,7 @@ export default function Sidebar({
                                                         type="button"
                                                         role="menuitem"
                                                         className="sidebar-file-action-item"
+                                                        disabled={isFilePending}
                                                         onClick={() => startRename(file.fileId, file.fileName)}
                                                     >
                                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -1026,6 +1033,7 @@ export default function Sidebar({
                                                         type="button"
                                                         role="menuitem"
                                                         className="sidebar-file-action-item danger"
+                                                        disabled={isFilePending}
                                                         onClick={() => {
                                                             setOpenFileActionMenuId(null);
                                                             onRequestDeleteFile(file.fileId);
@@ -1046,7 +1054,8 @@ export default function Sidebar({
                                     </div>
                                 )}
                             </div>
-                        ))
+                            );
+                        })
                     )}
                 </div>
             </div>

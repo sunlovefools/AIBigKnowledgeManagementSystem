@@ -208,6 +208,63 @@ export function patchFileName(prev: FilesState, fileId: string, newFileName: str
     };
 }
 
+// Replaces visible content immediately after the backend accepts a background save job.
+export function patchFileContentOptimistically(
+    prev: FilesState,
+    fileId: string,
+    fileName: string,
+    content: string,
+    parentId: string,
+): FilesState {
+    const entry = prev.byId[fileId];
+    if (!entry) return prev;
+    return {
+        ...prev,
+        byId: {
+            ...prev.byId,
+            [fileId]: {
+                ...entry,
+                fileName,
+                previewTexts: buildPreviewText(content),
+                contentState: {
+                    chunks: [{
+                        parentId,
+                        content,
+                        size: content.length,
+                        pageNumbers: [0],
+                    }],
+                    hasMore: false,
+                    nextCursor: null,
+                },
+            },
+        },
+    };
+}
+
+// Restores the last backend-confirmed content while a failed optimistic save remains available as a draft.
+export function restoreFileContentState(
+    prev: FilesState,
+    fileId: string,
+    fileName: string,
+    contentState: FileEntry["contentState"],
+): FilesState {
+    const entry = prev.byId[fileId];
+    if (!entry) return prev;
+    const mergedContent = contentState.chunks.map((chunk) => chunk.content).join("\n\n");
+    return {
+        ...prev,
+        byId: {
+            ...prev.byId,
+            [fileId]: {
+                ...entry,
+                fileName,
+                previewTexts: buildPreviewText(mergedContent),
+                contentState,
+            },
+        },
+    };
+}
+
 // Replaces a temporary (optimistic) file ID with the real ID returned by the backend.
 // Updates every FilesState map that holds the ID, and replaces the synthetic parentId
 // inside the chunk list so that save operations find the correct DB record.

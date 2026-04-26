@@ -10,15 +10,16 @@ import {
     deleteKnowledgeFile,
     getAxiosErrorDetail,
     getCollections,
+    getSaveJobStatus,
     renameCollection,
     renameKnowledgeFile,
     type DeleteCollectionResponse,
     type DeleteFileResponse,
     type RenameFileResponse,
 } from "./api/documentsApi";
-import { removeFileFromState, closeTabState, openTabState, swapTempFileId, patchFileName } from "./state/transitions";
+import { removeFileFromState, closeTabState, openTabState, swapTempFileId, patchFileName, restoreFileContentState } from "./state/transitions";
 import { useDocumentAgent } from "./subhooks/useDocumentAgent";
-import { useDocumentEditing } from "./subhooks/useDocumentEditing";
+import { useDocumentEditing, type PendingSaveJobRegistration } from "./subhooks/useDocumentEditing";
 import { useDocumentFiles } from "./subhooks/useDocumentFiles";
 
 // Result contract returned by deleteFile so callers can render user-facing status.
@@ -232,18 +233,26 @@ export function useDocuments() {
     // useDocumentEditing needs a callback to clear agent state, but the agent hook
     // is initialized afterwards. This ref breaks the setup cycle safely.
     const clearAgentStateForFileRef = useRef<(fileId: string) => void>(() => undefined);
+    const [pendingSaveJobsByFileId, setPendingSaveJobsByFileId] = useState<Record<string, PendingSaveJobRegistration>>({});
+    const registerPendingSaveJob = useCallback((job: PendingSaveJobRegistration) => {
+        setPendingSaveJobsByFileId((prev) => ({ ...prev, [job.fileId]: job }));
+    }, []);
+
+    useEffect(() => {
+        setPendingSaveJobsByFileId({});
+    }, [activeCollectionId]);
+
     const editingDomain = useDocumentEditing({
         activeTab: fileDomain.activeTab,
         activeTabData: fileDomain.activeTabData,
         savingGuard: null,
         setFilesState: fileDomain.setFilesState,
         setChunkAsyncByFileId: fileDomain.setChunkAsyncByFileId,
-        fetchFiles: fileDomain.fetchFiles,
-        loadFileChunks: fileDomain.loadFileChunks,
         getFileNameById: fileDomain.getFileNameById,
         getContentStateById: fileDomain.getContentStateById,
         getEditorBaselineContent,
         clearAgentStateForFile: (fileId: string) => clearAgentStateForFileRef.current(fileId),
+        registerPendingSaveJob,
     });
 
     const agentDomain = useDocumentAgent({
@@ -260,6 +269,104 @@ export function useDocuments() {
         setFilesState: fileDomain.setFilesState,
     });
     clearAgentStateForFileRef.current = agentDomain.clearAgentStateForFile;
+
+    const {
+        setEditingDraftByFileId: setPendingSaveRetryDraft,
+        setEditingFileId: setPendingSaveEditingFileId,
+        setSaveError: setPendingSaveError,
+    } = editingDomain;
+    const {
+        activeTab: activeTabForPendingSave,
+        fetchFiles: fetchFilesForPendingSave,
+        invalidateCachedFileChunks: invalidateCachedFileChunksForPendingSave,
+        loadFileChunks: loadFileChunksForPendingSave,
+        setFilesState: setFilesStateForPendingSave,
+    } = fileDomain;
+
+    useEffect(() => {
+        const pendingJobs = Object.values(pendingSaveJobsByFileId);
+        if (pendingJobs.length === 0) return;
+
+        let isCancelled = false;
+
+        const removePendingJob = (job: PendingSaveJobRegistration) => {
+            setPendingSaveJobsByFileId((prev) => {
+                if (prev[job.fileId]?.jobId !== job.jobId) return prev;
+                const next = { ...prev };
+                delete next[job.fileId];
+                return next;
+            });
+        };
+
+        const handleFailure = (job: PendingSaveJobRegistration, message?: string | null) => {
+            removePendingJob(job);
+            setFilesStateForPendingSave((prev) =>
+                restoreFileContentState(
+                    job.previousFileName !== job.fileName
+                        ? patchFileName(prev, job.fileId, job.previousFileName)
+                        : prev,
+                    job.fileId,
+                    job.previousFileName,
+                    job.previousContentState,
+                )
+            );
+            setPendingSaveRetryDraft((prev) => ({
+                ...prev,
+                [job.fileId]: job.submittedContent,
+            }));
+            if (activeTabForPendingSave === job.fileId) {
+                setPendingSaveEditingFileId(job.fileId);
+            }
+            setPendingSaveError(
+                message || "Background save failed. Your submitted content is still available to retry."
+            );
+        };
+
+        const pollJobs = async () => {
+            for (const job of pendingJobs) {
+                try {
+                    const status = await getSaveJobStatus(job.jobId);
+                    if (isCancelled) return;
+
+                    if (status.status === "succeeded") {
+                        removePendingJob(job);
+                        invalidateCachedFileChunksForPendingSave(job.fileId);
+                        void (async () => {
+                            await fetchFilesForPendingSave();
+                            await loadFileChunksForPendingSave(job.fileId, true);
+                        })();
+                    } else if (status.status === "failed") {
+                        handleFailure(job, status.error);
+                    }
+                } catch (error) {
+                    const detail = getAxiosErrorDetail(error);
+                    if (detail?.toLowerCase().includes("not found")) {
+                        handleFailure(job, "Background save status was lost. Your submitted content is available to retry.");
+                    }
+                }
+            }
+        };
+
+        void pollJobs();
+        const intervalId = window.setInterval(() => {
+            void pollJobs();
+        }, 1500);
+
+        return () => {
+            isCancelled = true;
+            window.clearInterval(intervalId);
+        };
+    }, [
+        activeTabForPendingSave,
+        fetchFilesForPendingSave,
+        invalidateCachedFileChunksForPendingSave,
+        loadFileChunksForPendingSave,
+        pendingSaveJobsByFileId,
+        setFilesStateForPendingSave,
+        setPendingSaveEditingFileId,
+        setPendingSaveError,
+        setPendingSaveRetryDraft,
+    ]);
 
     // Tab switches are guarded so users do not accidentally lose unsaved edits.
     const openDocumentTab = useCallback(
@@ -345,6 +452,9 @@ export function useDocuments() {
     const deleteFile = useCallback(
         async (fileId: string): Promise<DeleteFileResult> => {
             if (!fileId) return { ok: false, error: "Missing file ID." };
+            if (pendingSaveJobsByFileId[fileId]) {
+                return { ok: false, error: "File is still saving. Please wait for the background save to finish." };
+            }
             if (fileDomain.deletingFileId) return { ok: false, error: "Another delete is already in progress." };
 
             // Clear local state first after a successful delete to keep UI consistent
@@ -376,7 +486,7 @@ export function useDocuments() {
                 fileDomain.setDeletingFileId(null);
             }
         },
-        [agentDomain, editingDomain, fileDomain]
+        [agentDomain, editingDomain, fileDomain, pendingSaveJobsByFileId]
     );
 
     // Tracks fileIds that are still being written to the DB (temp IDs in flight).
@@ -489,10 +599,14 @@ export function useDocuments() {
 
     // Wraps saveEditingActiveDocument so that if the user somehow saves before the
     // background creation commits, we surface a clear message instead of a DB error.
-    const saveEditingActiveDocumentGuarded = useCallback(async (): Promise<boolean> => {
+    const saveEditingActiveDocumentGuarded = useCallback(async (options?: { newFileName?: string }): Promise<boolean> => {
         const tab = fileDomain.activeTab;
         if (tab && pendingCreationFileIds.has(tab)) {
             editingDomain.setSaveError("File is still being created — please wait a moment, then save again.");
+            return false;
+        }
+        if (tab && pendingSaveJobsByFileId[tab]) {
+            editingDomain.setSaveError("File is still saving. Please wait a moment, then try again.");
             return false;
         }
         // Secondary guard: if local state still has a synthetic/fake parentId
@@ -501,19 +615,22 @@ export function useDocuments() {
         if (tab) {
             const chunks = fileDomain.getContentStateById(tab).chunks;
             const hasFakeId = chunks.some(
-                (c) => c.parentId.startsWith("tmp-") || c.parentId.startsWith("local-")
+                (c) => c.parentId.startsWith("tmp-") || c.parentId.startsWith("local-") || c.parentId.startsWith("pending-save-")
             );
             if (hasFakeId) {
                 editingDomain.setSaveError("File is still syncing — please wait a moment, then save again.");
                 return false;
             }
         }
-        return editingDomain.saveEditingActiveDocument();
-    }, [editingDomain, fileDomain, pendingCreationFileIds]);
+        return editingDomain.saveEditingActiveDocument(options);
+    }, [editingDomain, fileDomain, pendingCreationFileIds, pendingSaveJobsByFileId]);
 
     const renameFile = useCallback(
         async (fileId: string, newFileName: string): Promise<RenameFileResult> => {
             if (!fileId) return { ok: false, error: "Missing file ID." };
+            if (pendingSaveJobsByFileId[fileId]) {
+                return { ok: false, error: "File is still saving. Please wait for the background save to finish." };
+            }
             const trimmed = newFileName.trim();
             if (!trimmed) return { ok: false, error: "File name must not be empty." };
 
@@ -534,7 +651,7 @@ export function useDocuments() {
                 return { ok: false, error: detail ?? "Failed to rename file." };
             }
         },
-        [fileDomain]
+        [fileDomain, pendingSaveJobsByFileId]
     );
 
     const createNewCollection = useCallback(
@@ -630,6 +747,7 @@ export function useDocuments() {
         cancelEditingActiveDocument: editingDomain.cancelEditingActiveDocument,
         saveEditingActiveDocument: saveEditingActiveDocumentGuarded,
         pendingCreationFileIds,
+        pendingSaveJobsByFileId,
         getFileNameById: fileDomain.getFileNameById,
         getFileIdByName: fileDomain.getFileIdByName,
         isAgentGenerating: agentDomain.isAgentGenerating,

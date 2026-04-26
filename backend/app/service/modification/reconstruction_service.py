@@ -6,6 +6,7 @@ from their stored chunks via the Parent-Child RAG pattern.
 
 import asyncio
 import difflib
+import re
 import traceback
 from typing import Any, Literal
 
@@ -1362,6 +1363,341 @@ class ReconstructionService:
                 setattr(child_chunk, "collection_metadata", current)
 
     @staticmethod
+    def _starts_markdown_section(content: str) -> bool:
+        """Return true when a chunk begins with a markdown heading."""
+        for line in str(content or "").splitlines():
+            stripped = line.strip()
+            if not stripped:
+                continue
+            return bool(re.match(r"^#{1,6}\s+\S", stripped))
+        return False
+
+    @staticmethod
+    def _build_content_ranges_from_rows(
+        sortable_rows: list[dict[str, Any]]
+    ) -> tuple[str, list[dict[str, Any]]]:
+        cursor = 0
+        ranges: list[dict[str, Any]] = []
+        contents = [str(item.get("normalizedContent") or "") for item in sortable_rows]
+        for index, content in enumerate(contents):
+            start = cursor
+            end = start + len(content)
+            ranges.append(
+                {
+                    "index": index,
+                    "parentId": str(sortable_rows[index].get("parentId") or ""),
+                    "start": start,
+                    "end": end,
+                    "content": content,
+                }
+            )
+            cursor = end + (2 if index < len(contents) - 1 else 0)
+        return "\n\n".join(contents), ranges
+
+    @staticmethod
+    def _compute_single_replace_window(
+        old_text: str,
+        new_text: str,
+    ) -> dict[str, Any] | None:
+        if old_text == new_text:
+            return None
+
+        left = 0
+        while left < len(old_text) and left < len(new_text) and old_text[left] == new_text[left]:
+            left += 1
+
+        right = 0
+        while (
+            right < len(old_text) - left
+            and right < len(new_text) - left
+            and old_text[len(old_text) - 1 - right] == new_text[len(new_text) - 1 - right]
+        ):
+            right += 1
+
+        return {
+            "start": left,
+            "end": len(old_text) - right,
+            "replacement": new_text[left:len(new_text) - right],
+        }
+
+    @staticmethod
+    def _map_old_offset_to_new(
+        old_offset: int,
+        edit_start: int,
+        edit_end: int,
+        replacement_length: int,
+    ) -> int:
+        if old_offset <= edit_start:
+            return old_offset
+        if old_offset >= edit_end:
+            return old_offset + replacement_length - (edit_end - edit_start)
+        return edit_start + min(old_offset - edit_start, replacement_length)
+
+    @staticmethod
+    def _collect_boundary_window_candidate_indices(
+        ranges: list[dict[str, Any]],
+        touched_parent_ids: list[str],
+        edit: dict[str, Any],
+    ) -> set[int]:
+        touched_parent_id_set = set(touched_parent_ids)
+        indices = {
+            int(item["index"])
+            for item in ranges
+            if str(item.get("parentId") or "") in touched_parent_id_set
+        }
+
+        edit_start = int(edit["start"])
+        edit_end = int(edit["end"])
+        is_insertion = edit_start == edit_end
+        for item in ranges:
+            item_start = int(item["start"])
+            item_end = int(item["end"])
+            item_index = int(item["index"])
+            if item_start < edit_end and edit_start < item_end:
+                indices.add(item_index)
+                continue
+            if is_insertion and (item_end == edit_start or item_start == edit_start):
+                indices.add(item_index)
+            elif not is_insertion and (item_end == edit_start or item_start == edit_end):
+                indices.add(item_index)
+
+        if not indices and ranges:
+            previous_index: int | None = None
+            next_index: int | None = None
+            for item in ranges:
+                if int(item["end"]) <= edit_start:
+                    previous_index = int(item["index"])
+                if next_index is None and int(item["start"]) >= edit_end:
+                    next_index = int(item["index"])
+            if previous_index is not None:
+                indices.add(previous_index)
+            if next_index is not None:
+                indices.add(next_index)
+
+        return indices
+
+    @staticmethod
+    def _resolve_markdown_section_window(
+        sortable_rows: list[dict[str, Any]],
+        candidate_indices: set[int],
+    ) -> tuple[int, int] | None:
+        if not candidate_indices:
+            return None
+
+        section_starts = [
+            index
+            for index, item in enumerate(sortable_rows)
+            if ReconstructionService._starts_markdown_section(
+                str(item.get("normalizedContent") or item.get("content") or "")
+            )
+        ]
+        if not section_starts:
+            return None
+
+        first_candidate = min(candidate_indices)
+        last_candidate = max(candidate_indices)
+        window_start = 0
+        for section_start in section_starts:
+            if section_start <= first_candidate:
+                window_start = section_start
+            else:
+                break
+
+        window_end = len(sortable_rows)
+        for section_start in section_starts:
+            if section_start > last_candidate:
+                window_end = section_start
+                break
+
+        if window_end <= window_start:
+            return None
+        return window_start, window_end
+
+    @staticmethod
+    async def _update_parent_chunks_batch_boundary_window(
+        *,
+        file_id: str,
+        file_name: str,
+        normalized_full_content: str,
+        sortable_rows: list[dict[str, Any]],
+        touched_parent_ids: list[str],
+        user_id: str,
+        resolved_collection_metadata: dict[str, str],
+    ) -> dict[str, Any] | None:
+        existing_content, ranges = ReconstructionService._build_content_ranges_from_rows(sortable_rows)
+        edit = ReconstructionService._compute_single_replace_window(existing_content, normalized_full_content)
+        if not edit:
+            return None
+
+        candidate_indices = ReconstructionService._collect_boundary_window_candidate_indices(
+            ranges,
+            touched_parent_ids,
+            edit,
+        )
+        section_window = ReconstructionService._resolve_markdown_section_window(sortable_rows, candidate_indices)
+        if not section_window:
+            return None
+
+        window_start_index, window_end_index = section_window
+        if window_start_index == 0 and window_end_index == len(sortable_rows):
+            return None
+
+        old_window_start_offset = int(ranges[window_start_index]["start"])
+        old_window_end_offset = int(ranges[window_end_index - 1]["end"])
+        replacement_length = len(str(edit["replacement"]))
+        new_window_start_offset = ReconstructionService._map_old_offset_to_new(
+            old_window_start_offset,
+            int(edit["start"]),
+            int(edit["end"]),
+            replacement_length,
+        )
+        new_window_end_offset = ReconstructionService._map_old_offset_to_new(
+            old_window_end_offset,
+            int(edit["start"]),
+            int(edit["end"]),
+            replacement_length,
+        )
+        if new_window_end_offset < new_window_start_offset:
+            return None
+
+        new_window_content = normalize_markdown_for_modification(
+            normalized_full_content[new_window_start_offset:new_window_end_offset]
+        )
+
+        new_parent_models: list[Any] = []
+        new_child_models: list[Any] = []
+        if new_window_content.strip():
+            new_parent_models, new_child_models = split_parent_child_chunks_from_markdown(
+                new_window_content,
+                file_name=file_name,
+                file_id=file_id,
+                parent_max_words=500,
+                child_max_words=80,
+                min_child_words=20,
+            )
+            if not new_parent_models:
+                raise ValueError("boundary window produced no parent chunks")
+
+        for parent_chunk in new_parent_models:
+            if isinstance(parent_chunk.file_metadata, dict):
+                parent_chunk.file_metadata["file_id"] = file_id
+        for child_chunk in new_child_models:
+            if isinstance(child_chunk.file_metadata, dict):
+                child_chunk.file_metadata["file_id"] = file_id
+        ReconstructionService._apply_collection_metadata_to_chunk_models(
+            new_parent_models,
+            new_child_models,
+            resolved_collection_metadata,
+        )
+
+        for local_index, parent_chunk in enumerate(new_parent_models):
+            if isinstance(parent_chunk.parent_chunk_metadata, dict):
+                parent_chunk.parent_chunk_metadata["parent_chunk_number"] = (
+                    window_start_index + local_index
+                )
+
+        child_models_by_parent: dict[str, list[Any]] = {}
+        for child_model in new_child_models:
+            parent_id = str((child_model.child_chunk_metadata or {}).get("parent_id") or "").strip()
+            if parent_id:
+                child_models_by_parent.setdefault(parent_id, []).append(child_model)
+
+        deleted_parent_ids: list[str] = []
+        deleted_child_chunks_count = 0
+        for old_index in range(window_start_index, window_end_index):
+            old_parent_id = str(sortable_rows[old_index]["parentId"])
+            deleted_children = await delete_children_by_parent_id(old_parent_id, user_id)
+            deleted_child_chunks_count += ReconstructionService._to_int(deleted_children) or 0
+            await delete_parent_document(old_parent_id, user_id)
+            deleted_parent_ids.append(old_parent_id)
+
+        parent_dicts_to_upsert: list[dict[str, Any]] = []
+        child_dicts_to_upsert: list[dict[str, Any]] = []
+        new_parent_ids_by_offset: dict[int, str] = {}
+        for local_index, parent_model in enumerate(new_parent_models):
+            parent_payload = parent_model.model_dump(by_alias=True)
+            parent_id = str(parent_payload.get("parent_chunk_id") or "").strip()
+            if not parent_id:
+                continue
+            new_parent_ids_by_offset[local_index] = parent_id
+            parent_dicts_to_upsert.append(parent_payload)
+            for child_model in child_models_by_parent.get(parent_id, []):
+                child_dicts_to_upsert.append(child_model.model_dump(by_alias=False))
+
+        polished_children = polish_chunks(child_dicts_to_upsert) if child_dicts_to_upsert else []
+        if parent_dicts_to_upsert or polished_children:
+            await upsert_documents(
+                parent_chunks=parent_dicts_to_upsert,
+                child_chunks=polished_children,
+                user_id=user_id,
+            )
+
+        old_window_count = window_end_index - window_start_index
+        new_window_count = len(new_parent_models)
+        parent_chunk_number_only_updates = 0
+        existing_parent_pairs: list[tuple[str, dict]] = []
+        for old_index, item in enumerate(sortable_rows):
+            if window_start_index <= old_index < window_end_index:
+                continue
+
+            next_chunk_number = old_index
+            if old_index >= window_end_index:
+                next_chunk_number = old_index + new_window_count - old_window_count
+
+            row = item["row"]
+            parent_id = str(row.get("_id") or "").strip()
+            parent_value = row.get("value")
+            if not parent_id or not isinstance(parent_value, dict):
+                continue
+
+            metadata = parent_value.get("metadata") if isinstance(parent_value.get("metadata"), dict) else {}
+            parent_meta = metadata.get("parent_chunk_metadata") if isinstance(metadata.get("parent_chunk_metadata"), dict) else {}
+            previous_chunk_number = ReconstructionService._to_int(parent_meta.get("parent_chunk_number"))
+            if previous_chunk_number is not None and previous_chunk_number != next_chunk_number:
+                parent_chunk_number_only_updates += 1
+            parent_meta["parent_chunk_number"] = next_chunk_number
+            metadata["parent_chunk_metadata"] = parent_meta
+            parent_value["metadata"] = metadata
+            existing_parent_pairs.append((parent_id, parent_value))
+
+        if existing_parent_pairs:
+            await PARENT_STORE.amset(existing_parent_pairs)
+
+        results: list[dict[str, Any]] = []
+        for local_index in range(min(old_window_count, new_window_count)):
+            new_parent_id = new_parent_ids_by_offset.get(local_index)
+            if not new_parent_id:
+                continue
+            parent_content = str(new_parent_models[local_index].content or "")
+            results.append(
+                {
+                    "parentId": new_parent_id,
+                    "previousParentId": str(sortable_rows[window_start_index + local_index]["parentId"]),
+                    "fileName": file_name,
+                    "content": parent_content,
+                    "size": len(parent_content),
+                    "chunks": len(child_models_by_parent.get(new_parent_id, [])),
+                }
+            )
+
+        print(
+            "  â†’ Boundary window re-chunk stats: "
+            f"window={window_start_index}:{window_end_index} "
+            f"deleted_parents={len(deleted_parent_ids)} "
+            f"deleted_children={deleted_child_chunks_count} "
+            f"inserted_parents={len(parent_dicts_to_upsert)} "
+            f"inserted_children={len(polished_children)} "
+            f"parent_chunk_number_only_updates={parent_chunk_number_only_updates}"
+        )
+        return {
+            "fileId": file_id,
+            "fileName": file_name,
+            "updatedCount": max(len(deleted_parent_ids), len(parent_dicts_to_upsert)),
+            "results": results,
+            "requiresReload": True,
+        }
+
+    @staticmethod
     async def _update_parent_chunks_batch_fast(
         *,
         file_id: str,
@@ -1610,6 +1946,18 @@ class ReconstructionService:
                 "results": [],
                 "requiresReload": True,
             }
+
+        window_result = await ReconstructionService._update_parent_chunks_batch_boundary_window(
+            file_id=file_id,
+            file_name=file_name,
+            normalized_full_content=normalized_full_content,
+            sortable_rows=sortable_rows,
+            touched_parent_ids=cleaned_touched_parent_ids,
+            user_id=user_id,
+            resolved_collection_metadata=resolved_collection_metadata,
+        )
+        if window_result is not None:
+            return window_result
 
         # 1) Build the canonical post-edit chunk sequence from full content.
         new_parent_models, new_child_models = split_parent_child_chunks_from_markdown(

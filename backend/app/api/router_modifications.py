@@ -22,6 +22,11 @@ from app.service.collection.collection_service import (
 )
 from app.service.modification.reconstruction_service import ReconstructionService
 from app.service.modification.llm_editor_service import LlmEditorService
+from app.service.modification.save_job_service import (
+    SaveJobConflictError,
+    SaveJobService,
+    SaveJobValidationError,
+)
 
 # Setup the API router
 router = APIRouter()
@@ -78,6 +83,37 @@ class UpdateFileResponse(BaseModel):
     size: int
     parentChunks: int
     chunks: int
+
+
+class SaveDocumentJobRequest(BaseModel):
+    """Payload for an optimistic background document save."""
+    fileId: str
+    fileName: str
+    content: str
+    mode: Literal["fast_updates", "boundary_rechunk", "full_file"]
+    updates: list[BatchUpdateParentChunkItem] | None = None
+    touchedParentIds: list[str] | None = None
+    newFileName: str | None = None
+    expectedContentHash: str | None = None
+
+
+class SaveDocumentJobAcceptedResponse(BaseModel):
+    """Response returned immediately after a save job is accepted."""
+    jobId: str
+    status: Literal["queued"]
+    fileId: str
+
+
+class SaveDocumentJobStatusResponse(BaseModel):
+    """Current state for a background save job."""
+    jobId: str
+    status: Literal["queued", "running", "succeeded", "failed"]
+    fileId: str
+    result: dict[str, Any] | None = None
+    error: str | None = None
+    submittedAt: str
+    startedAt: str | None = None
+    finishedAt: str | None = None
 
 
 class DeleteFileResponse(BaseModel):
@@ -419,6 +455,65 @@ def _format_sse(event_name: str, data: dict[str, Any]) -> str:
 def modifications_health():
     """Health check endpoint for modifications module."""
     return {"modifications": "ok"}
+
+
+@router.post(
+    "/save-jobs",
+    status_code=status.HTTP_202_ACCEPTED,
+    response_model=SaveDocumentJobAcceptedResponse,
+)
+async def create_save_job(
+    payload: SaveDocumentJobRequest,
+    current_user: dict = Depends(get_current_user),
+):
+    """Accept a document save and run chunk updates in the background."""
+    user_id = str(current_user.get("sub") or "").strip()
+    try:
+        accepted = await SaveJobService.submit_save_job(
+            user_id=user_id,
+            file_id=payload.fileId,
+            file_name=payload.fileName,
+            content=payload.content,
+            mode=payload.mode,
+            updates=[
+                {"parentId": item.parentId, "content": item.content}
+                for item in (payload.updates or [])
+            ],
+            touched_parent_ids=payload.touchedParentIds or [],
+            new_file_name=payload.newFileName,
+            expected_content_hash=payload.expectedContentHash,
+        )
+        return SaveDocumentJobAcceptedResponse(
+            jobId=accepted["jobId"],
+            status="queued",
+            fileId=accepted["fileId"],
+        )
+    except SaveJobConflictError as error:
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail=str(error))
+    except SaveJobValidationError as error:
+        raise HTTPException(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, detail=str(error))
+    except Exception as error:
+        traceback.print_exc()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to queue save job: {str(error)}",
+        )
+
+
+@router.get("/save-jobs/{job_id}", response_model=SaveDocumentJobStatusResponse)
+async def get_save_job_status(
+    job_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """Return status/result/error for a background document save."""
+    user_id = str(current_user.get("sub") or "").strip()
+    job = await SaveJobService.get_save_job(job_id=job_id, user_id=user_id)
+    if not job:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Save job '{job_id}' not found",
+        )
+    return SaveDocumentJobStatusResponse(**job)
 
 
 @router.post("/llm-edit-preview", response_model=LlmEditPreviewResponse)

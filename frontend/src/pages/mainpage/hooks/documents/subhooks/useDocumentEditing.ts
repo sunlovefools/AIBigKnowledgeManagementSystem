@@ -1,12 +1,11 @@
 import { useCallback, useMemo, useState, type Dispatch, type SetStateAction } from "react";
-import type { FileContentAsyncState, FileContentState, FilesState, ParentChunkContent } from "../../../types";
+import type { FileContentAsyncState, FileContentState, FilesState } from "../../../types";
 import {
-    batchUpdateParentChunks,
-    updateFileContent,
-    type UpdateFileResponse,
+    submitSaveJob,
+    type SubmitSaveJobPayload,
 } from "../api/documentsApi";
-import { remapAfterFullFileUpdate } from "../state/transitions";
-import { buildChunkRanges, buildPreviewText } from "../utils/chunkText";
+import { patchFileContentOptimistically } from "../state/transitions";
+import { buildChunkRanges } from "../utils/chunkText";
 import {
     collectBoundaryTouchedParentIds,
     computeSingleReplaceEdit,
@@ -17,19 +16,35 @@ import {
 import { createEmptyContentAsyncState } from "../state/factories";
 import { normalizeMarkdownForEditor } from "../../../utils/markdownEditor";
 
+export type PendingSaveJobRegistration = {
+    jobId: string;
+    fileId: string;
+    fileName: string;
+    previousFileName: string;
+    submittedContent: string;
+    previousContentState: FileContentState;
+};
+
 type UseDocumentEditingParams = {
     activeTab: string | null;
     activeTabData: FileContentState | null;
     savingGuard: string | null;
     setFilesState: Dispatch<SetStateAction<FilesState>>;
     setChunkAsyncByFileId: Dispatch<SetStateAction<Record<string, FileContentAsyncState>>>;
-    fetchFiles: () => Promise<void>;
-    loadFileChunks: (fileId: string, reset?: boolean) => Promise<ParentChunkContent[]>;
     getFileNameById: (fileId: string) => string;
     getContentStateById: (fileId: string) => FileContentState;
     getEditorBaselineContent: (fileId: string | null) => string;
     clearAgentStateForFile: (fileId: string) => void;
+    registerPendingSaveJob: (job: PendingSaveJobRegistration) => void;
 };
+
+async function sha256Hex(text: string): Promise<string> {
+    const encoded = new TextEncoder().encode(text);
+    const digest = await crypto.subtle.digest("SHA-256", encoded);
+    return Array.from(new Uint8Array(digest))
+        .map((byte) => byte.toString(16).padStart(2, "0"))
+        .join("");
+}
 
 // Manages local edit sessions and persists changes using the most efficient backend path.
 export function useDocumentEditing({
@@ -38,37 +53,16 @@ export function useDocumentEditing({
     savingGuard,
     setFilesState,
     setChunkAsyncByFileId,
-    fetchFiles,
-    loadFileChunks,
     getFileNameById,
     getContentStateById,
     getEditorBaselineContent,
     clearAgentStateForFile,
+    registerPendingSaveJob,
 }: UseDocumentEditingParams) {
     const [editingFileId, setEditingFileId] = useState<string | null>(null);
     const [editingDraftByFileId, setEditingDraftByFileId] = useState<Record<string, string>>({}); // Store the draft content for each file being edited
     const [savingFileId, setSavingFileId] = useState<string | null>(null);
     const [saveError, setSaveError] = useState<string | null>(null);
-
-    // Applies backend full-file save response and remaps local IDs/chunk async metadata.
-    const applyFullFileUpdate = useCallback((updated: UpdateFileResponse) => {
-        const previousContentState = getContentStateById(updated.previousFileId);
-        setFilesState((prev) =>
-            remapAfterFullFileUpdate(prev, updated, previousContentState.chunks)
-        );
-        setChunkAsyncByFileId((prev) => {
-            const next = { ...prev };
-            const previousAsync = prev[updated.previousFileId] ?? createEmptyContentAsyncState();
-            delete next[updated.previousFileId];
-            next[updated.fileId] = {
-                ...previousAsync,
-                isLoading: false,
-                isInitialized: true,
-                error: null,
-            };
-            return next;
-        });
-    }, [getContentStateById, setChunkAsyncByFileId, setFilesState]);
 
     const editingDocumentContent = useMemo(() => {
         if (!editingFileId) return "";
@@ -137,10 +131,11 @@ export function useDocumentEditing({
         setSaveError(null);
     }, [clearAgentStateForFile, clearDraftForFile, editingFileId]);
 
-    const saveEditingActiveDocument = useCallback(async () => {
+    const saveEditingActiveDocument = useCallback(async (options?: { newFileName?: string }) => {
         if (!activeTab || !editingFileId || activeTab !== editingFileId || savingFileId || savingGuard) return false;
         const fileName = getFileNameById(activeTab);
         if (!fileName) { setSaveError("Missing file name for this tab. Please refresh."); return false; }
+        const nextFileName = options?.newFileName?.trim() || fileName;
 
         // Build a normalized baseline from chunk content so diff math is stable.
         const state = getContentStateById(activeTab);
@@ -161,6 +156,14 @@ export function useDocumentEditing({
             const shouldForceFullFileUpdate =
                 containsRawHtmlMarkup(original) ||
                 containsRawHtmlMarkup(draft);
+            const jobPayload: SubmitSaveJobPayload = {
+                fileId: activeTab,
+                fileName,
+                content: normalizedDraft,
+                mode: "full_file",
+                expectedContentHash: await sha256Hex(original),
+                ...(nextFileName !== fileName ? { newFileName: nextFileName } : {}),
+            };
 
             // Raw HTML can invalidate chunk-boundary assumptions, so fall back to full save.
             if (!shouldForceFullFileUpdate) {
@@ -182,17 +185,8 @@ export function useDocumentEditing({
 
                     // Cross-boundary edits are rechunked server-side from full document text.
                     if (shouldUseBoundaryRechunk) {
-                        const batchResp = await batchUpdateParentChunks({
-                            fileId: activeTab,
-                            fileName,
-                            mode: "boundary_rechunk",
-                            fullContent: normalizedDraft,
-                            touchedParentIds: boundaryParentsForRequest,
-                        });
-                        if (batchResp.requiresReload) {
-                            await fetchFiles();
-                            await loadFileChunks(activeTab, true);
-                        }
+                        jobPayload.mode = "boundary_rechunk";
+                        jobPayload.touchedParentIds = boundaryParentsForRequest;
                     } else if (touchedRanges.length > 0) {
                         // Single-region edits can be mapped to touched chunks for fast updates.
                         const firstTouchedChunk = touchedRanges[0];
@@ -218,78 +212,49 @@ export function useDocumentEditing({
                         }
 
                         if (canBatchUpdate) {
-                            const batchResp = await batchUpdateParentChunks({
-                                fileId: activeTab,
-                                fileName,
-                                mode: "fast_updates",
-                                updates,
-                            });
-
-                            const updatedRows = batchResp.results ?? [];
-                            if (!batchResp.requiresReload && updatedRows.length > 0) {
-                                const replacementByPreviousId = new Map(
-                                    updatedRows.map((row) => [row.previousParentId, row])
-                                );
-
-                                setFilesState((prev) => {
-                                    const activeEntry = prev.byId[activeTab];
-                                    if (!activeEntry) return prev;
-
-                                    // Remap in-memory chunk IDs/content so UI updates immediately.
-                                    const remappedChunks = activeEntry.contentState.chunks.map((chunk) => {
-                                        const replacement = replacementByPreviousId.get(chunk.parentId);
-                                        if (!replacement) return chunk;
-                                        return {
-                                            ...chunk,
-                                            parentId: replacement.parentId,
-                                            content: replacement.content,
-                                            size: replacement.size,
-                                        };
-                                    });
-                                    const dedupedChunks = Array.from(
-                                        new Map(remappedChunks.map((chunk) => [chunk.parentId, chunk])).values()
-                                    );
-                                    const remappedContent = dedupedChunks.map((chunk) => chunk.content).join("\n\n");
-
-                                    return {
-                                        ...prev,
-                                        byId: {
-                                            ...prev.byId,
-                                            [activeTab]: {
-                                                ...activeEntry,
-                                                previewTexts: buildPreviewText(remappedContent),
-                                                contentState: {
-                                                    ...activeEntry.contentState,
-                                                    chunks: dedupedChunks,
-                                                },
-                                            },
-                                        },
-                                    };
-                                });
-                            }
-
-                            await fetchFiles();
-                            await loadFileChunks(activeTab, true);
+                            jobPayload.mode = "fast_updates";
+                            jobPayload.updates = updates;
                         } else {
                             // Empty segment or ambiguous mapping: use full-file fallback.
-                            const updated = await updateFileContent(activeTab, fileName, normalizedDraft);
-                            applyFullFileUpdate(updated);
+                            jobPayload.mode = "full_file";
                         }
                     } else {
                         // No clear touched ranges: use conservative full-file save.
-                        const updated = await updateFileContent(activeTab, fileName, normalizedDraft);
-                        applyFullFileUpdate(updated);
+                        jobPayload.mode = "full_file";
                     }
                 } else {
                     // Could not compute a single replace window: use full-file save.
-                    const updated = await updateFileContent(activeTab, fileName, normalizedDraft);
-                    applyFullFileUpdate(updated);
+                    jobPayload.mode = "full_file";
                 }
-            } else {
-                const updated = await updateFileContent(activeTab, fileName, normalizedDraft);
-                applyFullFileUpdate(updated);
             }
 
+            const accepted = await submitSaveJob(jobPayload);
+            setFilesState((prev) =>
+                patchFileContentOptimistically(
+                    prev,
+                    activeTab,
+                    nextFileName,
+                    normalizedDraft,
+                    `pending-save-${accepted.jobId}`,
+                )
+            );
+            setChunkAsyncByFileId((prev) => ({
+                ...prev,
+                [activeTab]: {
+                    ...(prev[activeTab] ?? createEmptyContentAsyncState()),
+                    isLoading: false,
+                    isInitialized: true,
+                    error: null,
+                },
+            }));
+            registerPendingSaveJob({
+                jobId: accepted.jobId,
+                fileId: activeTab,
+                fileName: nextFileName,
+                previousFileName: fileName,
+                submittedContent: normalizedDraft,
+                previousContentState: state,
+            });
             clearAgentStateForFile(activeTab);
             setEditingFileId(null);
             clearDraftForFile(activeTab);
@@ -302,18 +267,17 @@ export function useDocumentEditing({
         }
     }, [
         activeTab,
-        applyFullFileUpdate,
         clearAgentStateForFile,
         clearDraftForFile,
         editingDraftByFileId,
         editingFileId,
-        fetchFiles,
         getContentStateById,
         getEditorBaselineContent,
         getFileNameById,
-        loadFileChunks,
+        registerPendingSaveJob,
         savingFileId,
         savingGuard,
+        setChunkAsyncByFileId,
         setFilesState,
     ]);
 

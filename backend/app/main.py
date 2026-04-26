@@ -1,4 +1,5 @@
 import os
+import logging
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -9,6 +10,21 @@ from pydantic import BaseModel
 load_dotenv() # Need to be called before the local import below
 
 from app.mcp.server import mcp_asgi_app, rag_mcp
+
+
+def configure_third_party_logging() -> None:
+    """Reduce noisy INFO logs from SDK internals."""
+    noisy_loggers = (
+        "astrapy",
+        "astrapy.data.cursors.cursor",
+        "httpx",
+        "httpcore",
+    )
+    for logger_name in noisy_loggers:
+        logging.getLogger(logger_name).setLevel(logging.WARNING)
+
+
+configure_third_party_logging()
 
 
 @asynccontextmanager

@@ -122,6 +122,7 @@ export default function ConversationPage() {
         createNewBlankFile,
         renameFile,
         pendingCreationFileIds,
+        pendingSaveJobsByFileId,
         editingDocumentContent,
         isEditingActiveDocument,
         isSavingActiveDocument,
@@ -301,9 +302,13 @@ export default function ConversationPage() {
     }, [appendMessage, deleteFile, pendingDeleteFile]);
 
     const handleRequestDeleteFile = useCallback((fileId: string) => {
+        if (pendingSaveJobsByFileId[fileId]) {
+            appendMessage({ role: "ai", text: "That file is still saving. Please wait for the background save to finish before deleting it." });
+            return;
+        }
         const fileName = files.find((file) => file.fileId === fileId)?.fileName ?? fileId;
         setPendingDeleteFile({ fileId, fileName });
-    }, [files]);
+    }, [appendMessage, files, pendingSaveJobsByFileId]);
 
     const handleCancelDeleteFile = useCallback(() => {
         if (deletingFileId) return;
@@ -357,6 +362,11 @@ export default function ConversationPage() {
         ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
         : "No file selected";
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
+    const isPendingSaveActiveFile = Boolean(activeTab && pendingSaveJobsByFileId[activeTab]);
+    const pendingSaveFileIds = useMemo(
+        () => new Set(Object.keys(pendingSaveJobsByFileId)),
+        [pendingSaveJobsByFileId]
+    );
     const trimmedDesktopFileNameDraft = desktopFileNameDraft.trim();
     const isDesktopFileNameDirty = Boolean(
         activeTab
@@ -366,6 +376,7 @@ export default function ConversationPage() {
     const isDesktopSaveDisabled =
         isSavingActiveDocument
         || isSavingDesktopFileName
+        || isPendingSaveActiveFile
         || (!isActiveDocumentDirty && !isDesktopFileNameDirty);
 
     const pendingModificationItems = useMemo<PendingModificationNavItem[]>(() => {
@@ -438,10 +449,11 @@ export default function ConversationPage() {
     }, [activeTab, desktopFileNameDraft, files]);
 
     const handleStartEditingActiveDocument = useCallback(() => {
+        if (isPendingSaveActiveFile) return;
         setDesktopFileNameDraft(activeFileName);
         setDesktopFileNameError(null);
         startEditingActiveDocument();
-    }, [activeFileName, startEditingActiveDocument]);
+    }, [activeFileName, isPendingSaveActiveFile, startEditingActiveDocument]);
 
     const handleCancelDesktopEditing = useCallback(() => {
         setDesktopFileNameDraft(activeFileName);
@@ -458,8 +470,12 @@ export default function ConversationPage() {
         }
 
         if (isActiveDocumentDirty) {
-            const didSaveContent = await saveEditingActiveDocument();
+            const didSaveContent = await saveEditingActiveDocument(
+                isDesktopFileNameDirty ? { newFileName: trimmedDesktopFileNameDraft } : undefined
+            );
             if (!didSaveContent) return;
+            setDesktopFileNameError(null);
+            return;
         }
 
         if (isDesktopFileNameDirty) {
@@ -942,7 +958,7 @@ export default function ConversationPage() {
             deletingFileId={deletingFileId}
             editingContent={editingDocumentContent}
             isEditing={isEditingActiveDocument}
-            isSaving={isSavingActiveDocument}
+            isSaving={isSavingActiveDocument || isPendingSaveActiveFile}
             isDirty={isActiveDocumentDirty}
             saveError={saveError}
             isEditMode={isEditMode}
@@ -991,7 +1007,7 @@ export default function ConversationPage() {
             deletingFileId={deletingFileId}
             editingContent={editingDocumentContent}
             isEditing={isEditingActiveDocument}
-            isSaving={isSavingActiveDocument}
+            isSaving={isSavingActiveDocument || isPendingSaveActiveFile}
             isDirty={isActiveDocumentDirty}
             saveError={saveError}
             isEditMode={isEditMode}
@@ -1143,6 +1159,7 @@ export default function ConversationPage() {
                     }}
                     onRequestDeleteFile={handleRequestDeleteFile}
                     pendingCreationFileIds={pendingCreationFileIds}
+                    pendingSaveFileIds={pendingSaveFileIds}
                 />
             </div>
 
@@ -1252,7 +1269,7 @@ export default function ConversationPage() {
                                                 className="edit-btn"
                                                 type="button"
                                                 onClick={handleStartEditingActiveDocument}
-                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading) || hasUnresolvedActiveFileSuggestions}
+                                                disabled={isSavingActiveDocument || isPendingSaveActiveFile || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading) || hasUnresolvedActiveFileSuggestions}
                                             >
                                                 Edit
                                             </button>
@@ -1260,7 +1277,7 @@ export default function ConversationPage() {
                                                 className="delete-btn"
                                                 type="button"
                                                 onClick={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
-                                                disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
+                                                disabled={isSavingActiveDocument || isPendingSaveActiveFile || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading)}
                                             >
                                                 {isDeletingActiveFile ? "Deleting..." : "Delete"}
                                             </button>

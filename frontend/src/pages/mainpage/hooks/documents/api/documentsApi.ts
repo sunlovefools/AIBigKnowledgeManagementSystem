@@ -25,6 +25,36 @@ export type BatchUpdateParentChunksResponse = {
     requiresReload: boolean;
 };
 
+export type SaveJobMode = "fast_updates" | "boundary_rechunk" | "full_file";
+
+export type SubmitSaveJobPayload = {
+    fileId: string;
+    fileName: string;
+    content: string;
+    mode: SaveJobMode;
+    updates?: Array<{ parentId: string; content: string }>;
+    touchedParentIds?: string[];
+    newFileName?: string;
+    expectedContentHash?: string;
+};
+
+export type SaveJobAcceptedResponse = {
+    jobId: string;
+    status: "queued";
+    fileId: string;
+};
+
+export type SaveJobStatusResponse = {
+    jobId: string;
+    status: "queued" | "running" | "succeeded" | "failed";
+    fileId: string;
+    result?: Record<string, unknown> | null;
+    error?: string | null;
+    submittedAt: string;
+    startedAt?: string | null;
+    finishedAt?: string | null;
+};
+
 export type UpdateFileResponse = {
     fileId: string;
     previousFileId: string;
@@ -286,6 +316,21 @@ export async function batchUpdateParentChunks(payload: {
     const response = await apiClient.post<BatchUpdateParentChunksResponse>(
         `${API_BASE}/api/modifications/parent-chunks/batch-update`,
         payload
+    );
+    return response.data;
+}
+
+export async function submitSaveJob(payload: SubmitSaveJobPayload): Promise<SaveJobAcceptedResponse> {
+    const response = await apiClient.post<SaveJobAcceptedResponse>(
+        `${API_BASE}/api/modifications/save-jobs`,
+        payload
+    );
+    return response.data;
+}
+
+export async function getSaveJobStatus(jobId: string): Promise<SaveJobStatusResponse> {
+    const response = await apiClient.get<SaveJobStatusResponse>(
+        `${API_BASE}/api/modifications/save-jobs/${jobId}`
     );
     return response.data;
 }
