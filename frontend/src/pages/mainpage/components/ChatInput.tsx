@@ -6,6 +6,7 @@ type ChatInputProps = {
     input: string;
     isQuerying: boolean;
     scopeControls?: ReactNode;
+    searchScopeLabel?: string;
     isModificationPanelOpen: boolean;
     isEditMode: boolean;
     modificationAgentMode: ModificationAgentMode;
@@ -24,6 +25,7 @@ export default function ChatInput({
     input,
     isQuerying,
     scopeControls,
+    searchScopeLabel = "all collections",
     isModificationPanelOpen,
     isEditMode,
     modificationAgentMode,
@@ -64,7 +66,9 @@ export default function ChatInput({
         ? highlightedSelection
             ? "Describe how to modify the selected text..."
             : "Enter edit instruction (e.g. Change X to Y)..."
-        : "Ask something about your files...";
+        : searchScopeLabel === "All collections"
+            ? "Ask across all collections..."
+            : `Ask in ${searchScopeLabel}...`;
 
     const selectionPreview = highlightedSelection?.selectedText.replace(/\s+/g, " ").trim() ?? "";
     const compactSelectionPreview =

@@ -8,6 +8,7 @@ import type {
     ResolvedProposalMarker,
     SidebarFileSummary,
 } from "../types";
+import type { ModificationAgentMode } from "../hooks/documents/api/documentsApi";
 import { buildChunkRanges } from "../hooks/documents/utils/chunkText";
 import { buildInlineDiffTokens, buildProposalHunks } from "../hooks/documents/utils/inlineDiff";
 
@@ -26,6 +27,8 @@ type ModificationPanelProps = {
     saveError: string | null;
     isEditMode: boolean;
     selectedFileIds: Set<string>;
+    activeCollectionName: string;
+    modificationAgentMode: ModificationAgentMode;
     highlightedSelection: HighlightedSelection | null;
     selectionError: string | null;
     isAgentGenerating: boolean;
@@ -148,6 +151,8 @@ export default function ModificationPanel({
     saveError,
     isEditMode,
     selectedFileIds,
+    activeCollectionName,
+    modificationAgentMode,
     highlightedSelection,
     selectionError,
     isAgentGenerating,
@@ -356,6 +361,10 @@ export default function ModificationPanel({
     const editScopeLabel = selectedFileIds.size > 0 ? `${selectedFileIds.size} file(s) selected` : "All files";
     const activeFileName = activeTab ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab : "No file selected";
     const hasUnresolvedSuggestions = pendingCount > 0;
+    const totalPendingCount = agentProposals.filter((proposal) => !agentRejectedIds.has(proposal.parentId) && !agentAcceptedMap.has(proposal.parentId)).length;
+    const totalAcceptedCount = agentAcceptedMap.size;
+    const selectedFileScopeLabel = selectedFileIds.size > 0 ? `${selectedFileIds.size} selected file(s)` : "All files in collection";
+    const agentModeLabel = modificationAgentMode === "skills" ? "Skills" : "Workflow";
 
     return (
         <aside className="modification-panel">
@@ -386,26 +395,55 @@ export default function ModificationPanel({
             <div className="mod-panel-content" ref={contentRef} onScroll={handleContentScroll}>
                 {showAgentSection && (
                     <section className="mod-panel-agent-section">
-                        <div className="preview-header">
-                            <h4>AI Proposals{agentIntention && <span className="agent-intention-badge">{agentIntention}</span>}</h4>
-                            {agentProposals.length > 0 && <button className="cancel-btn" type="button" onClick={onClearAgentProposals}>Clear all</button>}
-                        </div>
-                        {isAgentGenerating && <div className="mod-panel-loading">Agent is searching and generating proposals...</div>}
-                        {agentError && <div className="mod-panel-save-error">{agentError}</div>}
-                        {!isAgentGenerating && agentProposals.length === 0 && !agentError && (
-                            <div className="mod-panel-empty">Type an instruction in the chat to modify documents.<br /><em>{selectedFileIds.size > 0 ? `Will search ${selectedFileIds.size} selected file(s).` : "Will search all files - or check files in sidebar to narrow scope."}</em></div>
-                        )}
-                        {!isAgentGenerating && activeFileProposals.length > 0 && activeTab && (
-                            <div className="inline-review-summary">
-                                {pendingCount > 0 && <span>{pendingCount} pending</span>}
-                                {acceptedCount > 0 && <span>{acceptedCount} accepted</span>}
-                                <span>Review changes inline below.</span>
-                                <div className="inline-review-bulk-actions">
-                                    <button className="inline-review-bulk-btn accept" type="button" onClick={() => { void onAcceptActiveFileProposals(activeTab); }} disabled={pendingCount === 0}>Accept all in this file</button>
-                                    <button className="inline-review-bulk-btn reject" type="button" onClick={() => onRejectActiveFileProposals(activeTab)} disabled={pendingCount === 0}>Reject all in this file</button>
+                        <div className="mod-panel-agent-card">
+                            <div className="mod-panel-agent-header">
+                                <div className="mod-panel-agent-title-group">
+                                    <h4>AI review</h4>
+                                    <p>
+                                        {agentProposals.length > 0
+                                            ? "Review suggested changes inline before saving."
+                                            : "Use the composer to describe the change you want."}
+                                    </p>
                                 </div>
+                                {agentProposals.length > 0 && (
+                                    <button className="mod-panel-agent-clear-btn" type="button" onClick={onClearAgentProposals}>
+                                        Dismiss
+                                    </button>
+                                )}
                             </div>
-                        )}
+                            <div className="mod-panel-agent-scope-row" aria-label="Modification scope">
+                                <span>{agentModeLabel}</span>
+                                <span>{activeCollectionName}</span>
+                                <span>{selectedFileScopeLabel}</span>
+                                {agentIntention && <span className="agent-intention-badge">{agentIntention}</span>}
+                            </div>
+                            {(totalPendingCount > 0 || totalAcceptedCount > 0) && (
+                                <div className="mod-panel-agent-count-row">
+                                    {totalPendingCount > 0 && <span>{totalPendingCount} pending</span>}
+                                    {totalAcceptedCount > 0 && <span>{totalAcceptedCount} accepted</span>}
+                                </div>
+                            )}
+                            {isAgentGenerating && <div className="mod-panel-loading">Agent is searching and generating proposals...</div>}
+                            {agentError && <div className="mod-panel-save-error">{agentError}</div>}
+                            {!isAgentGenerating && agentProposals.length === 0 && !agentError && (
+                                <div className="mod-panel-agent-empty">
+                                    The agent will work in <strong>{activeCollectionName}</strong>. Use the collection control in the composer to switch collections.
+                                </div>
+                            )}
+                            {!isAgentGenerating && activeFileProposals.length > 0 && activeTab && (
+                                <div className="inline-review-summary">
+                                    <div className="inline-review-summary-main">
+                                        {pendingCount > 0 && <span>{pendingCount} pending in this file</span>}
+                                        {acceptedCount > 0 && <span>{acceptedCount} accepted in this file</span>}
+                                        <span>Resolve inline suggestions below.</span>
+                                    </div>
+                                    <div className="inline-review-bulk-actions">
+                                        <button className="inline-review-bulk-btn accept" type="button" onClick={() => { void onAcceptActiveFileProposals(activeTab); }} disabled={pendingCount === 0}>Accept all in this file</button>
+                                        <button className="inline-review-bulk-btn reject" type="button" onClick={() => onRejectActiveFileProposals(activeTab)} disabled={pendingCount === 0}>Reject all in this file</button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
                     </section>
                 )}
                 {!activeTab ? (!isEditMode && <div className="mod-panel-empty">No file tab selected.</div>) : activeTabAsync?.error ? (

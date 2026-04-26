@@ -9,7 +9,7 @@ const DEFAULT_MODIFICATION_PANEL_WIDTH = 400;
 
 const SIDEBAR_MIN_WIDTH = 240;
 const SIDEBAR_MAX_WIDTH = 420;
-const MODIFICATION_PANEL_MIN_WIDTH = 280;
+const MODIFICATION_PANEL_MIN_WIDTH = 360;
 const MODIFICATION_PANEL_MAX_WIDTH = 1000;
 const DESKTOP_PRIMARY_STAGE_MIN_WIDTH = 320;
 const RESIZE_HANDLE_WIDTH = 8;
@@ -45,11 +45,18 @@ const readStoredNumber = (key: string, fallback: number) => {
     return Number.isFinite(parsed) ? parsed : fallback;
 };
 
+type ResizableLayoutOptions = {
+    defaultSidebarOpen?: boolean;
+    restoreSidebarOpen?: boolean;
+};
+
 // Custom hook to manage the the resizable layout of sidebar and modification panel
-export function useResizableLayout() {
+export function useResizableLayout(options: ResizableLayoutOptions = {}) {
+    const defaultSidebarOpen = options.defaultSidebarOpen ?? true;
+    const restoreSidebarOpen = options.restoreSidebarOpen ?? true;
     const [sidebarWidth, setSidebarWidth] = useState(DEFAULT_SIDEBAR_WIDTH);
     const [modPanelWidth, setModPanelWidth] = useState(DEFAULT_MODIFICATION_PANEL_WIDTH);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(defaultSidebarOpen);
     const [isMobile, setIsMobile] = useState(false);
     const [dragState, setDragState] = useState<DragState | null>(null); // State to track the current drag operation for resizing
     const [isSidebarToggling, setIsSidebarToggling] = useState(false);
@@ -81,7 +88,9 @@ export function useResizableLayout() {
             SIDEBAR_MAX_WIDTH,
         );
         const storedSidebarOpen = localStorage.getItem(SIDEBAR_OPEN_KEY);
-        const initialSidebarOpen = storedSidebarOpen !== null ? storedSidebarOpen === "true" : true;
+        const initialSidebarOpen = restoreSidebarOpen && storedSidebarOpen !== null
+            ? storedSidebarOpen === "true"
+            : defaultSidebarOpen;
 
         setSidebarWidth(initialSidebarWidth);
         setModPanelWidth(
@@ -91,10 +100,10 @@ export function useResizableLayout() {
                 getMaxModificationPanelWidth(initialSidebarOpen, initialSidebarWidth),
             ),
         );
-        if (storedSidebarOpen !== null) {
+        if (restoreSidebarOpen && storedSidebarOpen !== null) {
             setIsSidebarOpen(initialSidebarOpen);
         }
-    }, []);
+    }, [defaultSidebarOpen, restoreSidebarOpen]);
 
     // Effects to store the sidebar width onto the localStorage whenever it changes, to prevent reset the width after page refresh
     useEffect(() => {
@@ -215,6 +224,10 @@ export function useResizableLayout() {
         setIsSidebarOpen(false);
     };
 
+    const openSidebar = () => {
+        setIsSidebarOpen(true);
+    };
+
     return {
         sidebarWidth,
         modPanelWidth,
@@ -224,6 +237,7 @@ export function useResizableLayout() {
         isSidebarToggling,
         toggleSidebar,
         closeSidebar,
+        openSidebar,
         startSidebarResize,
         startModPanelResize,
     };

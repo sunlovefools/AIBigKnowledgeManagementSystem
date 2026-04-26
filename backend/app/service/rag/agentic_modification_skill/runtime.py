@@ -265,6 +265,7 @@ async def _run_loop(
     usage_total = {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0}
     llm_call_count = 0
 
+    # Build the initial system and user messages
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": config.system_prompt},
         {"role": "system", "content": _build_registry_message(config)},
@@ -281,6 +282,7 @@ async def _run_loop(
     ]
 
     try:
+        # Initial seeding of candidate files based on user instruction
         seeded_matches = await tools.search_files_tool(
             query=user_instruction,
             limit=10,

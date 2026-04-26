@@ -64,9 +64,10 @@ function getProgressTitle(
 }
 
 function getScopeLabel(message: ChatMessage): string | null {
-    if (message.kind !== "text" || message.role !== "ai" || !message.searchScope) return null;
-    if (message.searchScope === "all_collections") return "Searched all collections";
-    return `Searched ${message.collectionName || "selected collection"}`;
+    if (message.kind !== "text" || !message.searchScope) return null;
+    const verb = message.role === "user" ? "Asking" : "Searched";
+    if (message.searchScope === "all_collections") return `${verb} all collections`;
+    return `${verb} ${message.collectionName || "selected collection"}`;
 }
 
 export default function ChatArea({
@@ -93,7 +94,7 @@ export default function ChatArea({
     }, [messages]);
 
     return (
-        <div className="chat-scroll-area">
+        <div className={`chat-scroll-area ${hasMessages ? "has-messages" : "empty"}`}>
             {!hasMessages ? (
                 <div className="welcome-screen">
                     {emptyStateMode === "no-document" ? (
@@ -108,7 +109,7 @@ export default function ChatArea({
                                 <span className="welcome-icon-core" />
                             </div>
                             <h2>Start the conversation</h2>
-                            <p>Ask across your knowledge base, or narrow the search scope before sending.</p>
+                            <p>Ask across all collections first, or narrow the next question with the search scope.</p>
                         </>
                     )}
                 </div>

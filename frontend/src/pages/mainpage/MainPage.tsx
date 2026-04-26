@@ -7,6 +7,7 @@ import Sidebar from "./components/Sidebar";
 import ChatArea from "./components/ChatArea";
 import ChatInput from "./components/ChatInput";
 import ModificationPanel from "./components/ModificationPanel";
+import ScopePicker from "./components/ScopePicker";
 import { useChat } from "./hooks/useChat";
 import { useDocuments } from "./hooks/documents/useDocuments";
 import { useFileUpload } from "./hooks/useFileUpload";
@@ -31,6 +32,7 @@ function loadModificationAgentMode(): ModificationAgentMode {
 
 export default function ConversationPage() {
     const [isModificationPanelOpen, setIsModificationPanelOpen] = useState(false);
+    const [isModificationPanelClosing, setIsModificationPanelClosing] = useState(false);
     const [mobileWorkspace, setMobileWorkspace] = useState<MobileWorkspace>("chat");
     // Controls the collapsible "current chat title" menu shown inside chat-stage-shell.
     const [isConversationMenuOpen, setIsConversationMenuOpen] = useState(false);
@@ -38,6 +40,9 @@ export default function ConversationPage() {
     const [renameTitle, setRenameTitle] = useState("");
     const [isRenamingConversation, setIsRenamingConversation] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
+    const [desktopFileNameDraft, setDesktopFileNameDraft] = useState("");
+    const [desktopFileNameError, setDesktopFileNameError] = useState<string | null>(null);
+    const [isSavingDesktopFileName, setIsSavingDesktopFileName] = useState(false);
     const [selectedFileIds, setSelectedFileIds] = useState<Set<string>>(new Set());
     const [highlightedSelection, setHighlightedSelection] = useState<HighlightedSelection | null>(null);
     const [selectionError, setSelectionError] = useState<string | null>(null);
@@ -49,6 +54,8 @@ export default function ConversationPage() {
     const bottomRef = useRef<HTMLDivElement | null>(null);
     const conversationMenuRef = useRef<HTMLDivElement | null>(null);
     const hasConsumedLaunchRef = useRef(false);
+    const syncedConversationScopeRef = useRef<string | null>(null);
+    const modificationCloseTimeoutRef = useRef<number | null>(null);
 
     const {
         sidebarWidth,
@@ -58,9 +65,10 @@ export default function ConversationPage() {
         isResizing,
         isSidebarToggling,
         toggleSidebar,
+        openSidebar,
         startSidebarResize,
         startModPanelResize,
-    } = useResizableLayout(); // Run the useResizableLayout hook to get layout-related state and handlers
+    } = useResizableLayout({ defaultSidebarOpen: false, restoreSidebarOpen: false }); // Run the useResizableLayout hook to get layout-related state and handlers
 
     const {
         messages,
@@ -90,6 +98,7 @@ export default function ConversationPage() {
         isLoadingCollections,
         collectionError,
         activeCollectionId,
+        activeCollection,
         setActiveCollectionId,
         createNewCollection,
         renameExistingCollection,
@@ -150,6 +159,7 @@ export default function ConversationPage() {
             // Browsing sources and query scope can diverge later, but launches
             // from a collection should open that collection's files initially.
             setActiveCollectionId(launch.scope.collectionId);
+            openSidebar();
         }
         if (launch.prompt?.trim()) {
             setInput(launch.prompt);
@@ -163,7 +173,7 @@ export default function ConversationPage() {
                 maxSteps: 10,
             });
         }
-    }, [handleQuery, setActiveCollectionId, setInput]);
+    }, [handleQuery, openSidebar, setActiveCollectionId, setInput]);
 
     useEffect(() => {
         setSelectedFileIds(new Set());
@@ -175,6 +185,14 @@ export default function ConversationPage() {
     useEffect(() => {
         window.localStorage.setItem(MODIFICATION_AGENT_MODE_STORAGE_KEY, modificationAgentMode);
     }, [modificationAgentMode]);
+
+    useEffect(() => {
+        return () => {
+            if (modificationCloseTimeoutRef.current !== null) {
+                window.clearTimeout(modificationCloseTimeoutRef.current);
+            }
+        };
+    }, []);
 
     const handleToggleFileSelection = useCallback((fileId: string) => {
         setSelectedFileIds((prev) => {
@@ -319,6 +337,16 @@ export default function ConversationPage() {
             || collections.find((collection) => collection.collectionId === chatScope.collectionId)?.name
             || "Selected collection";
     }, [chatScope, collections]);
+    const activeCollectionName = activeCollection?.name
+        ?? collections.find((collection) => collection.collectionId === activeCollectionId)?.name
+        ?? "Selected collection";
+    const modificationCollectionScope: ChatScope = activeCollectionId
+        ? {
+            type: "collection",
+            collectionId: activeCollectionId,
+            collectionName: activeCollectionName,
+        }
+        : { type: "all_collections" };
     const currentChatTitle = activeConversationSummary?.title?.trim() || "New AI chat";
     const previousConversations = useMemo(
         () => conversations.filter((conversation) => conversation.conversationId !== conversationId),
@@ -329,6 +357,16 @@ export default function ConversationPage() {
         ? files.find((file) => file.fileId === activeTab)?.fileName ?? activeTab
         : "No file selected";
     const isDeletingActiveFile = Boolean(activeTab && deletingFileId === activeTab);
+    const trimmedDesktopFileNameDraft = desktopFileNameDraft.trim();
+    const isDesktopFileNameDirty = Boolean(
+        activeTab
+        && trimmedDesktopFileNameDraft
+        && trimmedDesktopFileNameDraft !== activeFileName
+    );
+    const isDesktopSaveDisabled =
+        isSavingActiveDocument
+        || isSavingDesktopFileName
+        || (!isActiveDocumentDirty && !isDesktopFileNameDirty);
 
     const pendingModificationItems = useMemo<PendingModificationNavItem[]>(() => {
         const grouped = new Map<string, PendingModificationNavItem>();
@@ -386,9 +424,74 @@ export default function ConversationPage() {
         setIsModificationPanelOpen(true);
     }, [isMobile]);
 
+    const validateDesktopFileNameDraft = useCallback((): string | null => {
+        const trimmed = desktopFileNameDraft.trim();
+        if (!activeTab) return "No file selected.";
+        if (!trimmed) return "File name must not be empty.";
+        const duplicate = files.find(
+            (file) =>
+                file.fileId !== activeTab
+                && file.fileName.trim().toLowerCase() === trimmed.toLowerCase()
+        );
+        if (duplicate) return `A file named "${duplicate.fileName}" already exists.`;
+        return null;
+    }, [activeTab, desktopFileNameDraft, files]);
+
+    const handleStartEditingActiveDocument = useCallback(() => {
+        setDesktopFileNameDraft(activeFileName);
+        setDesktopFileNameError(null);
+        startEditingActiveDocument();
+    }, [activeFileName, startEditingActiveDocument]);
+
+    const handleCancelDesktopEditing = useCallback(() => {
+        setDesktopFileNameDraft(activeFileName);
+        setDesktopFileNameError(null);
+        cancelEditingActiveDocument();
+    }, [activeFileName, cancelEditingActiveDocument]);
+
+    const handleSaveDesktopEditing = useCallback(async () => {
+        if (!activeTab) return;
+        const validationError = validateDesktopFileNameDraft();
+        if (validationError) {
+            setDesktopFileNameError(validationError);
+            return;
+        }
+
+        if (isActiveDocumentDirty) {
+            const didSaveContent = await saveEditingActiveDocument();
+            if (!didSaveContent) return;
+        }
+
+        if (isDesktopFileNameDirty) {
+            setIsSavingDesktopFileName(true);
+            const result = await renameFile(activeTab, trimmedDesktopFileNameDraft);
+            setIsSavingDesktopFileName(false);
+            if (!result.ok) {
+                setDesktopFileNameError(result.error ?? "Failed to rename file.");
+                return;
+            }
+            setDesktopFileNameError(null);
+        }
+
+        if (!isActiveDocumentDirty && isDesktopFileNameDirty) {
+            cancelEditingActiveDocument();
+        }
+    }, [
+        activeTab,
+        cancelEditingActiveDocument,
+        isActiveDocumentDirty,
+        isDesktopFileNameDirty,
+        renameFile,
+        saveEditingActiveDocument,
+        trimmedDesktopFileNameDraft,
+        validateDesktopFileNameDraft,
+    ]);
+
     // Creates a fresh chat and resets menu/rename UI state.
     const handleStartNewConversationFromHeader = useCallback(() => {
         startNewConversation();
+        syncedConversationScopeRef.current = null;
+        setChatScope({ type: "all_collections" });
         setRenamingConversationId(null);
         setRenameTitle("");
         setIsConversationMenuOpen(false);
@@ -401,39 +504,31 @@ export default function ConversationPage() {
         void loadConversationMessages(targetConversationId);
     }, [loadConversationMessages]);
 
-    const handleChatScopeChange = useCallback((value: string) => {
-        if (value === "__all_collections__") {
-            setChatScope({ type: "all_collections" });
-            return;
-        }
-
-        const selectedCollection = collections.find((collection) => collection.collectionId === value);
-        if (!selectedCollection) return;
-        setChatScope({
-            type: "collection",
-            collectionId: selectedCollection.collectionId,
-            collectionName: selectedCollection.name,
-        });
-    }, [collections]);
-
     const chatScopeControls = (
-        <label className="chat-scope-selector">
-            <span>Search scope</span>
-            <select
-                value={chatScope.type === "all_collections" ? "__all_collections__" : chatScope.collectionId}
-                onChange={(event) => handleChatScopeChange(event.target.value)}
-                disabled={isQuerying || isAgentGenerating || isEditMode}
-                aria-label="Select search scope"
-            >
-                <option value="__all_collections__">All collections</option>
-                {collections.map((collection) => (
-                    <option key={collection.collectionId} value={collection.collectionId}>
-                        {collection.name}
-                    </option>
-                ))}
-            </select>
-            <span className="chat-scope-current">Searching {chatScopeLabel}</span>
-        </label>
+        <ScopePicker
+            scope={chatScope}
+            collections={collections}
+            disabled={isQuerying || isAgentGenerating || isEditMode}
+            isLoadingCollections={isLoadingCollections}
+            collectionError={collectionError}
+            onScopeChange={setChatScope}
+        />
+    );
+    const modificationCollectionControls = (
+        <ScopePicker
+            scope={modificationCollectionScope}
+            collections={collections}
+            disabled={isQuerying || isAgentGenerating || isEditingActiveDocument}
+            isLoadingCollections={isLoadingCollections}
+            collectionError={collectionError}
+            onScopeChange={(scope) => {
+                if (scope.type !== "collection") return;
+                setActiveCollectionId(scope.collectionId);
+            }}
+            triggerPrefix="Modify"
+            instruction="Select the collection the agent should modify"
+            includeAllCollections={false}
+        />
     );
 
     const renderChatWorkspace = (emptyStateMode: "welcome" | "no-document") => (
@@ -615,7 +710,8 @@ export default function ConversationPage() {
             <ChatInput
                 input={input}
                 isQuerying={isQuerying || isAgentGenerating}
-                scopeControls={chatScopeControls}
+                scopeControls={isEditMode ? modificationCollectionControls : chatScopeControls}
+                searchScopeLabel={chatScopeLabel}
                 isModificationPanelOpen={isModificationPanelOpen}
                 isEditMode={isEditMode}
                 modificationAgentMode={modificationAgentMode}
@@ -676,9 +772,42 @@ export default function ConversationPage() {
     }, [isEditMode, isEditingActiveDocument]);
 
     useEffect(() => {
+        if (!conversationId || syncedConversationScopeRef.current === conversationId || messages.length === 0) {
+            return;
+        }
+        const latestScopedMessage = [...messages]
+            .reverse()
+            .find((message) => message.kind === "text" && message.searchScope);
+        if (!latestScopedMessage || latestScopedMessage.kind !== "text") {
+            syncedConversationScopeRef.current = conversationId;
+            return;
+        }
+
+        if (latestScopedMessage.searchScope === "collection" && latestScopedMessage.collectionId) {
+            setChatScope({
+                type: "collection",
+                collectionId: latestScopedMessage.collectionId,
+                collectionName: latestScopedMessage.collectionName ?? undefined,
+            });
+            syncedConversationScopeRef.current = conversationId;
+            return;
+        }
+
+        if (latestScopedMessage.searchScope === "all_collections") {
+            setChatScope({ type: "all_collections" });
+        }
+        syncedConversationScopeRef.current = conversationId;
+    }, [conversationId, messages]);
+
+    useEffect(() => {
         setHighlightedSelection(null);
         setSelectionError(null);
     }, [activeTab]);
+
+    useEffect(() => {
+        setDesktopFileNameDraft(activeFileName);
+        setDesktopFileNameError(null);
+    }, [activeFileName, activeTab]);
 
     useEffect(() => {
         setHighlightedSelection(null);
@@ -710,6 +839,12 @@ export default function ConversationPage() {
     // - Panel open, view mode  → switch to edit mode (don't close panel)
     // - Panel open, edit mode  → exit edit mode back to view mode
     const handleToggleModificationPanel = () => {
+        if (modificationCloseTimeoutRef.current !== null) {
+            window.clearTimeout(modificationCloseTimeoutRef.current);
+            modificationCloseTimeoutRef.current = null;
+        }
+        setIsModificationPanelClosing(false);
+
         if (isMobile) {
             if (!isModificationPanelOpen || mobileWorkspace !== "document") {
                 setIsModificationPanelOpen(true);
@@ -744,6 +879,23 @@ export default function ConversationPage() {
     };
 
     const handleCloseModificationPanel = () => {
+        if (!isMobile && isModificationPanelOpen) {
+            if (modificationCloseTimeoutRef.current !== null) {
+                window.clearTimeout(modificationCloseTimeoutRef.current);
+            }
+            setIsModificationPanelClosing(true);
+            setIsEditMode(false);
+            setSelectedFileIds(new Set());
+            clearHighlightedSelection();
+            setFocusedProposalKey(null);
+            modificationCloseTimeoutRef.current = window.setTimeout(() => {
+                setIsModificationPanelOpen(false);
+                setIsModificationPanelClosing(false);
+                modificationCloseTimeoutRef.current = null;
+            }, 220);
+            return;
+        }
+
         setIsModificationPanelOpen(false);
         if (isMobile) {
             setMobileWorkspace("chat");
@@ -795,6 +947,8 @@ export default function ConversationPage() {
             saveError={saveError}
             isEditMode={isEditMode}
             selectedFileIds={selectedFileIds}
+            activeCollectionName={activeCollectionName}
+            modificationAgentMode={modificationAgentMode}
             highlightedSelection={highlightedSelection}
             selectionError={selectionError}
             onRefreshDocuments={handleRefreshDocuments}
@@ -842,6 +996,8 @@ export default function ConversationPage() {
             saveError={saveError}
             isEditMode={isEditMode}
             selectedFileIds={selectedFileIds}
+            activeCollectionName={activeCollectionName}
+            modificationAgentMode={modificationAgentMode}
             highlightedSelection={highlightedSelection}
             selectionError={selectionError}
             hideTabs
@@ -1004,7 +1160,7 @@ export default function ConversationPage() {
                 {isMobile ? (
                     renderChatWorkspace(chatEmptyStateMode)
                 ) : isDesktopWorkspaceActive ? (
-                    <div className="desktop-edit-workspace" aria-live="polite">
+                    <div className={`desktop-edit-workspace ${isModificationPanelClosing ? "closing" : ""}`} aria-live="polite">
                         <section className="desktop-modification-stage">
                             <div className="desktop-stage-tabs" role="tablist" aria-label="Opened documents">
                                 {openTabs.length === 0 ? (
@@ -1037,7 +1193,29 @@ export default function ConversationPage() {
 
                             <div className="desktop-stage-header">
                                 <div className="desktop-stage-header-main">
-                                    <h3 className="desktop-stage-file-name">{activeFileName}</h3>
+                                    {isEditingActiveDocument ? (
+                                        <label className="desktop-stage-file-name-editor">
+                                            <span className="desktop-stage-file-name-label">File name</span>
+                                            <input
+                                                className="desktop-stage-file-name-input"
+                                                type="text"
+                                                value={desktopFileNameDraft}
+                                                onChange={(event) => {
+                                                    setDesktopFileNameDraft(event.target.value);
+                                                    if (desktopFileNameError) {
+                                                        setDesktopFileNameError(null);
+                                                    }
+                                                }}
+                                                disabled={isSavingActiveDocument || isSavingDesktopFileName}
+                                                aria-invalid={desktopFileNameError ? "true" : "false"}
+                                            />
+                                            {desktopFileNameError && (
+                                                <span className="desktop-stage-file-name-error">{desktopFileNameError}</span>
+                                            )}
+                                        </label>
+                                    ) : (
+                                        <h3 className="desktop-stage-file-name">{activeFileName}</h3>
+                                    )}
                                     {isEditMode && (
                                         <span className="mod-panel-edit-mode-badge">
                                             Edit - {selectedFileIds.size > 0 ? `${selectedFileIds.size} file(s) selected` : "All files"}
@@ -1053,16 +1231,16 @@ export default function ConversationPage() {
                                                 <button
                                                     className="save-btn"
                                                     type="button"
-                                                    onClick={() => { void saveEditingActiveDocument(); }}
-                                                    disabled={isSavingActiveDocument || !isActiveDocumentDirty}
+                                                    onClick={() => { void handleSaveDesktopEditing(); }}
+                                                    disabled={isDesktopSaveDisabled}
                                                 >
-                                                    {isSavingActiveDocument ? "Saving..." : "Save"}
+                                                    {isSavingActiveDocument || isSavingDesktopFileName ? "Saving..." : "Save"}
                                                 </button>
                                                 <button
                                                     className="cancel-btn"
                                                     type="button"
-                                                    onClick={cancelEditingActiveDocument}
-                                                    disabled={isSavingActiveDocument}
+                                                    onClick={handleCancelDesktopEditing}
+                                                    disabled={isSavingActiveDocument || isSavingDesktopFileName}
                                                 >
                                                     Cancel
                                                 </button>
@@ -1073,7 +1251,7 @@ export default function ConversationPage() {
                                             <button
                                                 className="edit-btn"
                                                 type="button"
-                                                onClick={startEditingActiveDocument}
+                                                onClick={handleStartEditingActiveDocument}
                                                 disabled={isSavingActiveDocument || isDeletingActiveFile || Boolean(activeTabAsync?.isLoading) || hasUnresolvedActiveFileSuggestions}
                                             >
                                                 Edit
@@ -1089,19 +1267,6 @@ export default function ConversationPage() {
                                         </div>
                                     )}
 
-                                    <button
-                                        className="mod-panel-refresh-btn"
-                                        onClick={handleRefreshDocuments}
-                                        disabled={isLoadingFiles}
-                                        aria-label="Refresh documents"
-                                        title="Refresh from database"
-                                    >
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                            <polyline points="23 4 23 10 17 10"></polyline>
-                                            <polyline points="1 20 1 14 7 14"></polyline>
-                                            <path d="M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36"></path>
-                                        </svg>
-                                    </button>
                                     <button className="mod-panel-close-btn" onClick={handleCloseModificationPanel} aria-label="Close modifications panel">
                                         x
                                     </button>

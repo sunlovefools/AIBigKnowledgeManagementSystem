@@ -175,8 +175,13 @@ export default function Sidebar({
     pendingCreationFileIds,
 }: SidebarProps) {
     const fileRef = useRef<HTMLInputElement | null>(null);
+    const collectionSwitcherRef = useRef<HTMLDivElement | null>(null);
+    const collectionActionMenuRef = useRef<HTMLDivElement | null>(null);
     const activeCollection = collections.find((collection) => collection.collectionId === activeCollectionId) ?? null;
 
+    const [isCollectionSwitcherOpen, setIsCollectionSwitcherOpen] = useState(false);
+    const [collectionFilter, setCollectionFilter] = useState("");
+    const [isCollectionActionMenuOpen, setIsCollectionActionMenuOpen] = useState(false);
     const [isCreatingCollection, setIsCreatingCollection] = useState(false);
     const [newCollectionName, setNewCollectionName] = useState("");
     const [isSubmittingCollectionCreate, setIsSubmittingCollectionCreate] = useState(false);
@@ -243,6 +248,35 @@ export default function Sidebar({
     }, [files, openFileActionMenuId]);
 
     useEffect(() => {
+        if (!isCollectionSwitcherOpen && !isCollectionActionMenuOpen && !openFileActionMenuId) return;
+
+        const handlePointerDown = (event: MouseEvent) => {
+            const target = event.target as HTMLElement | null;
+            if (!target) return;
+            if (collectionSwitcherRef.current?.contains(target)) return;
+            if (collectionActionMenuRef.current?.contains(target)) return;
+            if (target.closest(".sidebar-document-actions")) return;
+            setIsCollectionSwitcherOpen(false);
+            setIsCollectionActionMenuOpen(false);
+            setOpenFileActionMenuId(null);
+        };
+
+        const handleEscape = (event: globalThis.KeyboardEvent) => {
+            if (event.key !== "Escape") return;
+            setIsCollectionSwitcherOpen(false);
+            setIsCollectionActionMenuOpen(false);
+            setOpenFileActionMenuId(null);
+        };
+
+        window.addEventListener("mousedown", handlePointerDown);
+        window.addEventListener("keydown", handleEscape);
+        return () => {
+            window.removeEventListener("mousedown", handlePointerDown);
+            window.removeEventListener("keydown", handleEscape);
+        };
+    }, [isCollectionActionMenuOpen, isCollectionSwitcherOpen, openFileActionMenuId]);
+
+    useEffect(() => {
         if (!openFileActionMenuId) return;
 
         const handleEscape = (event: globalThis.KeyboardEvent) => {
@@ -264,6 +298,8 @@ export default function Sidebar({
     };
 
     const openCreateCollectionForm = () => {
+        setIsCollectionSwitcherOpen(false);
+        setIsCollectionActionMenuOpen(false);
         setIsCreatingCollection(true);
         setNewCollectionName("");
         setCollectionActionError(null);
@@ -304,6 +340,7 @@ export default function Sidebar({
 
     const startRenameCollection = () => {
         if (!activeCollection) return;
+        setIsCollectionActionMenuOpen(false);
         setIsRenamingCollection(true);
         setCollectionRenameValue(activeCollection.name);
         setCollectionActionError(null);
@@ -354,6 +391,7 @@ export default function Sidebar({
 
     const handleDeleteCollection = async () => {
         if (!activeCollection || activeCollection.isDefault || isDeletingCollection) return;
+        setIsCollectionActionMenuOpen(false);
 
         const confirmed = window.confirm(
             `Delete collection "${activeCollection.name}"?\n\n` +
@@ -484,6 +522,12 @@ export default function Sidebar({
         }
     };
 
+    const filteredCollections = collectionFilter.trim()
+        ? collections.filter((collection) =>
+            collection.name.toLowerCase().includes(collectionFilter.trim().toLowerCase())
+        )
+        : collections;
+
     return (
         <aside className="sidebar" onClick={() => setOpenFileActionMenuId(null)}>
             <div className="sidebar-header">
@@ -511,7 +555,7 @@ export default function Sidebar({
 
             <div className="sources-section">
                 <div className="collection-section">
-                    <div className="section-title">Browse collection</div>
+                    <div className="section-title">Sources browser</div>
                     {isLoadingCollections ? (
                         <div className="sidebar-documents-status">Loading collections...</div>
                     ) : collectionError ? (
@@ -520,53 +564,130 @@ export default function Sidebar({
                         <div className="sidebar-documents-status">No collections available.</div>
                     ) : (
                         <>
-                            <div className="collection-controls-row">
-                                <select
-                                    className="collection-select"
-                                    value={activeCollectionId ?? ""}
-                                    onChange={(event) => onSelectCollection(event.target.value)}
-                                    aria-label="Select collection"
-                                >
-                                    {collections.map((collection) => (
-                                        <option key={collection.collectionId} value={collection.collectionId}>
-                                            {collection.name}
-                                        </option>
-                                    ))}
-                                </select>
-                                <button
-                                    className="collection-action-btn"
-                                    type="button"
-                                    onClick={openCreateCollectionForm}
-                                    disabled={isCreatingCollection || isSubmittingCollectionCreate}
-                                    title="Create collection"
-                                >
-                                    New
-                                </button>
-                                <button
-                                    className="collection-action-btn"
-                                    type="button"
-                                    onClick={startRenameCollection}
-                                    disabled={!activeCollection || isRenamingCollection || isSubmittingCollectionRename}
-                                    title="Rename collection"
-                                >
-                                    Rename
-                                </button>
-                                <button
-                                    className="collection-action-btn danger"
-                                    type="button"
-                                    onClick={() => { void handleDeleteCollection(); }}
-                                    disabled={!activeCollection || activeCollection.isDefault || isDeletingCollection}
-                                    title={activeCollection?.isDefault ? "Default collection cannot be deleted" : "Delete collection and all files in it"}
-                                >
-                                    {isDeletingCollection ? "Deleting..." : "Delete"}
-                                </button>
-                            </div>
+                            <div className="collection-browser-header">
+                                <div className="collection-switcher" ref={collectionSwitcherRef}>
+                                    <button
+                                        className={`collection-switcher-trigger ${isCollectionSwitcherOpen ? "open" : ""}`}
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setIsCollectionSwitcherOpen((current) => !current);
+                                            setIsCollectionActionMenuOpen(false);
+                                            setOpenFileActionMenuId(null);
+                                        }}
+                                        aria-haspopup="dialog"
+                                        aria-expanded={isCollectionSwitcherOpen}
+                                    >
+                                        <span className="collection-switcher-label">
+                                            {activeCollection?.name ?? "Choose collection"}
+                                        </span>
+                                        <span className="collection-switcher-meta">
+                                            {activeCollection ? `${activeCollection.fileCount} file(s)` : "No source selected"}
+                                        </span>
+                                        <span className="collection-switcher-chevron" aria-hidden="true">
+                                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                                <polyline points="6 9 12 15 18 9" />
+                                            </svg>
+                                        </span>
+                                    </button>
 
-                            {activeCollection && (
-                                <div className="collection-meta">
-                                    {activeCollection.fileCount} file(s)
+                                    {isCollectionSwitcherOpen && (
+                                        <div className="collection-switcher-popover" role="dialog" aria-label="Switch source collection">
+                                            <input
+                                                className="collection-switcher-search"
+                                                type="text"
+                                                value={collectionFilter}
+                                                onChange={(event) => setCollectionFilter(event.target.value)}
+                                                placeholder="Find collection..."
+                                            />
+                                            <div className="collection-switcher-list">
+                                                {filteredCollections.length === 0 ? (
+                                                    <div className="collection-switcher-status">No matching collections.</div>
+                                                ) : (
+                                                    filteredCollections.map((collection) => (
+                                                        <button
+                                                            key={collection.collectionId}
+                                                            className={`collection-switcher-row ${collection.collectionId === activeCollectionId ? "active" : ""}`}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                onSelectCollection(collection.collectionId);
+                                                                setIsCollectionSwitcherOpen(false);
+                                                            }}
+                                                        >
+                                                            <span className="collection-switcher-row-title">{collection.name}</span>
+                                                            <span className="collection-switcher-row-meta">{collection.fileCount} file(s)</span>
+                                                        </button>
+                                                    ))
+                                                )}
+                                            </div>
+                                            <button
+                                                className="collection-switcher-new"
+                                                type="button"
+                                                onClick={openCreateCollectionForm}
+                                                disabled={isCreatingCollection || isSubmittingCollectionCreate}
+                                            >
+                                                <span aria-hidden="true">+</span>
+                                                New collection
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
-                            )}
+
+                                <div className="collection-action-menu" ref={collectionActionMenuRef}>
+                                    <button
+                                        className={`collection-action-menu-trigger ${isCollectionActionMenuOpen ? "open" : ""}`}
+                                        type="button"
+                                        onClick={(event) => {
+                                            event.stopPropagation();
+                                            setIsCollectionActionMenuOpen((current) => !current);
+                                            setIsCollectionSwitcherOpen(false);
+                                            setOpenFileActionMenuId(null);
+                                        }}
+                                        aria-haspopup="menu"
+                                        aria-expanded={isCollectionActionMenuOpen}
+                                        aria-label="Collection actions"
+                                    >
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                                            <circle cx="12" cy="5" r="1.9" />
+                                            <circle cx="12" cy="12" r="1.9" />
+                                            <circle cx="12" cy="19" r="1.9" />
+                                        </svg>
+                                    </button>
+
+                                    {isCollectionActionMenuOpen && (
+                                        <div className="collection-action-dropdown" role="menu">
+                                            <button
+                                                className="collection-action-dropdown-item"
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={openCreateCollectionForm}
+                                                disabled={isCreatingCollection || isSubmittingCollectionCreate}
+                                            >
+                                                New collection
+                                            </button>
+                                            <button
+                                                className="collection-action-dropdown-item"
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={startRenameCollection}
+                                                disabled={!activeCollection || isRenamingCollection || isSubmittingCollectionRename}
+                                            >
+                                                Rename
+                                            </button>
+                                            <button
+                                                className="collection-action-dropdown-item danger"
+                                                type="button"
+                                                role="menuitem"
+                                                onClick={() => { void handleDeleteCollection(); }}
+                                                disabled={!activeCollection || activeCollection.isDefault || isDeletingCollection}
+                                                title={activeCollection?.isDefault ? "Default collection cannot be deleted" : "Delete collection and all files in it"}
+                                            >
+                                                {isDeletingCollection ? "Deleting..." : "Delete"}
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </>
                     )}
 
@@ -654,18 +775,6 @@ export default function Sidebar({
                     accept={FILE_INPUT_ACCEPT}
                 />
 
-                {!selectedFile && (
-                    <button className="add-source-btn" onClick={handleFileSelectClick}>
-                        <span className="plus-icon" aria-hidden>
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                                <path d="M12 5v14" />
-                                <path d="M5 12h14" />
-                            </svg>
-                        </span>
-                        Upload file
-                    </button>
-                )}
-
                 {selectedFile && (
                     <div className="source-card active">
                         <div className="file-info">
@@ -701,6 +810,16 @@ export default function Sidebar({
                         )}
                     </div>
                     <div className="sidebar-header-actions">
+                        <button
+                            className="sidebar-upload-btn"
+                            onClick={handleFileSelectClick}
+                            disabled={isUploading}
+                            type="button"
+                            title={selectedFile ? "Choose a different file" : "Upload a file"}
+                            aria-label={selectedFile ? "Choose a different file" : "Upload file"}
+                        >
+                            Upload
+                        </button>
                         <button
                             className="sidebar-new-file-btn"
                             onClick={openCreateForm}
@@ -875,6 +994,8 @@ export default function Sidebar({
                                                 aria-expanded={openFileActionMenuId === file.fileId}
                                                 disabled={pendingCreationFileIds.has(file.fileId)}
                                                 onClick={() => {
+                                                    setIsCollectionSwitcherOpen(false);
+                                                    setIsCollectionActionMenuOpen(false);
                                                     setOpenFileActionMenuId((current) =>
                                                         current === file.fileId ? null : file.fileId
                                                     );
