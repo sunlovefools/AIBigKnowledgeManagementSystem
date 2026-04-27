@@ -10,9 +10,9 @@ import ModificationPanel from "./components/ModificationPanel";
 import ScopePicker from "./components/ScopePicker";
 import { useChat } from "./hooks/useChat";
 import { useDocuments } from "./hooks/documents/useDocuments";
-import { useFileUpload } from "./hooks/useFileUpload";
 import { useResizableLayout } from "./hooks/useResizableLayout";
 import { consumeConversationLaunch } from "./conversationLaunch";
+import { useUploadQueue } from "../../upload/uploadQueueState";
 import type { AgentProposal, ChatScope, HighlightedSelection, PendingModificationNavItem } from "./types";
 import type { ModificationAgentMode, ModificationProgressEvent } from "./hooks/documents/api/documentsApi";
 
@@ -100,12 +100,14 @@ export default function ConversationPage() {
         activeCollectionId,
         activeCollection,
         setActiveCollectionId,
+        refreshCollections,
         createNewCollection,
         renameExistingCollection,
         deleteExistingCollection,
         files,
         isLoadingFiles,
         fileListError,
+        fetchFiles,
         deletingFileId,
         openTabs,
         activeTab,
@@ -147,6 +149,13 @@ export default function ConversationPage() {
         rejectActiveFileProposals,
         clearAgentState,
     } = useDocuments();
+
+    const {
+        enqueueFiles: enqueueUploadFiles,
+        openModal: openUploadModal,
+        subscribeToCompletions: subscribeToUploadCompletions,
+        hasActiveUploads,
+    } = useUploadQueue();
 
     useEffect(() => {
         if (hasConsumedLaunchRef.current) return;
@@ -315,15 +324,6 @@ export default function ConversationPage() {
         setPendingDeleteFile(null);
     }, [deletingFileId]);
 
-    const { selectedFile, isUploading, handleFileSelect, handleUpload, clearFile } = useFileUpload({
-        onUploadMessage: (message) => appendMessage({ role: "ai", text: message }),
-        onUploadSuccess: async () => {
-            invalidateDocumentCache();
-            await handleRefreshDocuments();
-        },
-        collectionId: activeCollectionId,
-    });
-
     const activeChunkSignature = activeTabData?.chunks
         .map((chunk) => `${chunk.parentId}:${chunk.size}`)
         .join("|") ?? "";
@@ -345,6 +345,19 @@ export default function ConversationPage() {
     const activeCollectionName = activeCollection?.name
         ?? collections.find((collection) => collection.collectionId === activeCollectionId)?.name
         ?? "Selected collection";
+    const uploadTarget = useMemo(
+        () => ({
+            collectionId: activeCollectionId,
+            collectionName: activeCollectionId ? activeCollectionName : null,
+        }),
+        [activeCollectionId, activeCollectionName]
+    );
+    const handleOpenUploadPicker = useCallback(() => {
+        openUploadModal(uploadTarget);
+    }, [openUploadModal, uploadTarget]);
+    const handleUploadFiles = useCallback((incomingFiles: FileList | File[]) => {
+        enqueueUploadFiles(incomingFiles, uploadTarget);
+    }, [enqueueUploadFiles, uploadTarget]);
     const modificationCollectionScope: ChatScope = activeCollectionId
         ? {
             type: "collection",
@@ -718,7 +731,6 @@ export default function ConversationPage() {
 
             <ChatArea
                 messages={messages}
-                isUploading={isUploading}
                 bottomRef={bottomRef}
                 emptyStateMode={emptyStateMode}
             />
@@ -744,9 +756,27 @@ export default function ConversationPage() {
         </div>
     );
 
+    useEffect(() => subscribeToUploadCompletions((event) => {
+        if (!event.ok) return;
+
+        void refreshCollections(activeCollectionId, { force: true });
+        const uploadedToVisibleCollection =
+            !event.item.collectionId || event.item.collectionId === activeCollectionId;
+        if (uploadedToVisibleCollection) {
+            invalidateDocumentCache();
+            void fetchFiles();
+        }
+    }), [
+        activeCollectionId,
+        fetchFiles,
+        invalidateDocumentCache,
+        refreshCollections,
+        subscribeToUploadCompletions,
+    ]);
+
     useEffect(() => {
         bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [messages, isQuerying, isUploading]);
+    }, [messages, isQuerying]);
 
     useEffect(() => {
         void refreshConversations();
@@ -1078,8 +1108,6 @@ export default function ConversationPage() {
                     activeCollectionId={activeCollectionId}
                     isLoadingCollections={isLoadingCollections}
                     collectionError={collectionError}
-                    selectedFile={selectedFile}
-                    isUploading={isUploading}
                     files={files}
                     isLoadingFiles={isLoadingFiles}
                     fileListError={fileListError}
@@ -1088,9 +1116,9 @@ export default function ConversationPage() {
                     selectedFileIds={selectedFileIds}
                     onToggleFileSelection={handleToggleFileSelection}
                     onCollapseSources={!isMobile ? toggleSidebar : undefined}
-                    onFileSelect={handleFileSelect}
-                    onUpload={handleUpload}
-                    onClearFile={clearFile}
+                    onOpenUploadPicker={handleOpenUploadPicker}
+                    onUploadFiles={handleUploadFiles}
+                    isUploadQueueActive={hasActiveUploads}
                     onSelectCollection={(collectionId) => setActiveCollectionId(collectionId)}
                     onCreateCollection={async (name) => {
                         const result = await createNewCollection(name);

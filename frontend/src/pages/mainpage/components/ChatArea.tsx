@@ -6,7 +6,6 @@ import type { ChatMessage, ChatProgressStep, ChatProgressTranscriptItem } from "
 
 type ChatAreaProps = {
     messages: ChatMessage[];
-    isUploading: boolean;
     bottomRef: RefObject<HTMLDivElement | null>;
     emptyStateMode?: "welcome" | "no-document";
 };
@@ -72,7 +71,6 @@ function getScopeLabel(message: ChatMessage): string | null {
 
 export default function ChatArea({
     messages,
-    isUploading,
     bottomRef,
     emptyStateMode = "welcome",
 }: ChatAreaProps) {
@@ -218,14 +216,6 @@ export default function ChatArea({
                         );
                     })}
 
-                    {isUploading && (
-                        <div className="message ai">
-                            <div className="message-avatar">AI</div>
-                            <div className="message-content">
-                                <span className="typing-indicator">Reading document...</span>
-                            </div>
-                        </div>
-                    )}
                     <div ref={bottomRef} />
                 </div>
             )}

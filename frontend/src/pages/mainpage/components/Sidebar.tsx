@@ -1,6 +1,5 @@
-import { useRef, useState, useEffect, type ChangeEventHandler, type KeyboardEvent } from "react";
+import { useRef, useState, useEffect, type DragEvent, type KeyboardEvent } from "react";
 import type { SidebarFileSummary, UserCollectionSummary } from "../types";
-import { FILE_INPUT_ACCEPT } from "../utils/uploadFormats";
 
 // ── Client-side file-name validation ──────────────────────────────────────────
 // Mirrors the backend rules so the user gets instant feedback without a round-trip.
@@ -115,8 +114,6 @@ type SidebarProps = {
     activeCollectionId: string | null;
     isLoadingCollections: boolean;
     collectionError: string | null;
-    selectedFile: File | null;
-    isUploading: boolean;
     files: SidebarFileSummary[];
     isLoadingFiles: boolean;
     fileListError: string | null;
@@ -127,9 +124,8 @@ type SidebarProps = {
     onToggleFileSelection: (fileId: string) => void;
     onCollapseSources?: () => void;
     // Handlers
-    onFileSelect: ChangeEventHandler<HTMLInputElement>;
-    onUpload: () => void;
-    onClearFile: () => void;
+    onOpenUploadPicker: () => void;
+    onUploadFiles: (files: FileList | File[]) => void;
     onOpenFile: (fileId: string) => void;
     onRefreshFiles: () => void;
     // New file / rename
@@ -144,6 +140,7 @@ type SidebarProps = {
     // Optimistic creation: IDs still being committed to the DB
     pendingCreationFileIds: Set<string>;
     pendingSaveFileIds: Set<string>;
+    isUploadQueueActive: boolean;
 };
 
 export default function Sidebar({
@@ -151,8 +148,6 @@ export default function Sidebar({
     activeCollectionId,
     isLoadingCollections,
     collectionError,
-    selectedFile,
-    isUploading,
     files,
     isLoadingFiles,
     fileListError,
@@ -161,9 +156,8 @@ export default function Sidebar({
     selectedFileIds,
     onToggleFileSelection,
     onCollapseSources,
-    onFileSelect,
-    onUpload,
-    onClearFile,
+    onOpenUploadPicker,
+    onUploadFiles,
     onOpenFile,
     onRefreshFiles,
     onCreateBlankFile,
@@ -175,8 +169,8 @@ export default function Sidebar({
     onDeleteCollection,
     pendingCreationFileIds,
     pendingSaveFileIds,
+    isUploadQueueActive,
 }: SidebarProps) {
-    const fileRef = useRef<HTMLInputElement | null>(null);
     const collectionSwitcherRef = useRef<HTMLDivElement | null>(null);
     const collectionActionMenuRef = useRef<HTMLDivElement | null>(null);
     const activeCollection = collections.find((collection) => collection.collectionId === activeCollectionId) ?? null;
@@ -208,6 +202,7 @@ export default function Sidebar({
     const [renameValue, setRenameValue] = useState("");
     const [renameError, setRenameError] = useState<string | null>(null);
     const [openFileActionMenuId, setOpenFileActionMenuId] = useState<string | null>(null);
+    const [isSidebarDragActive, setIsSidebarDragActive] = useState(false);
     const renameInputRef = useRef<HTMLInputElement | null>(null);
 
     // Focus the new-file input whenever it becomes visible
@@ -290,14 +285,6 @@ export default function Sidebar({
         window.addEventListener("keydown", handleEscape);
         return () => window.removeEventListener("keydown", handleEscape);
     }, [openFileActionMenuId]);
-
-    // ── Upload helpers ───────────────────────────────────────────────
-    const handleFileSelectClick = () => fileRef.current?.click();
-
-    const handleClear = () => {
-        onClearFile();
-        if (fileRef.current) fileRef.current.value = "";
-    };
 
     const openCreateCollectionForm = () => {
         setIsCollectionSwitcherOpen(false);
@@ -530,8 +517,42 @@ export default function Sidebar({
         )
         : collections;
 
+    const handleSidebarDragOver = (event: DragEvent<HTMLElement>) => {
+        if (!Array.from(event.dataTransfer.types).includes("Files")) return;
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "copy";
+        setIsSidebarDragActive(true);
+    };
+
+    const handleSidebarDragLeave = (event: DragEvent<HTMLElement>) => {
+        const nextTarget = event.relatedTarget as Node | null;
+        if (!nextTarget || !event.currentTarget.contains(nextTarget)) {
+            setIsSidebarDragActive(false);
+        }
+    };
+
+    const handleSidebarDrop = (event: DragEvent<HTMLElement>) => {
+        if (!Array.from(event.dataTransfer.types).includes("Files")) return;
+        event.preventDefault();
+        setIsSidebarDragActive(false);
+        if (event.dataTransfer.files.length > 0) {
+            onUploadFiles(event.dataTransfer.files);
+        }
+    };
+
     return (
-        <aside className="sidebar" onClick={() => setOpenFileActionMenuId(null)}>
+        <aside
+            className={`sidebar ${isSidebarDragActive ? "sidebar-drag-active" : ""}`}
+            onClick={() => setOpenFileActionMenuId(null)}
+            onDragOver={handleSidebarDragOver}
+            onDragLeave={handleSidebarDragLeave}
+            onDrop={handleSidebarDrop}
+        >
+            {isSidebarDragActive && (
+                <div className="sidebar-drop-overlay" aria-hidden="true">
+                    Drop files to upload
+                </div>
+            )}
             <div className="sidebar-header">
                 <div className="sidebar-header-main">
                     <div className="logo-mark">KB</div>
@@ -768,39 +789,6 @@ export default function Sidebar({
                     )}
                 </div>
 
-                <input
-                    ref={fileRef}
-                    type="file"
-                    className="hidden-file-input"
-                    style={{ display: "none" }}
-                    onChange={onFileSelect}
-                    accept={FILE_INPUT_ACCEPT}
-                />
-
-                {selectedFile && (
-                    <div className="source-card active">
-                        <div className="file-info">
-                            <span className="file-name">{selectedFile.name}</span>
-                        </div>
-                        <div className="file-actions">
-                            <button
-                                className="action-btn upload-confirm-btn"
-                                onClick={onUpload}
-                                disabled={isUploading}
-                            >
-                                {isUploading ? "Uploading..." : "Upload"}
-                            </button>
-                            <button
-                                className="action-btn remove-btn"
-                                onClick={handleClear}
-                                disabled={isUploading}
-                            >
-                                Remove
-                            </button>
-                        </div>
-                    </div>
-                )}
-
                 {/* ── Knowledge files header ── */}
                 <div className="sidebar-documents-header">
                     <div className="section-title">
@@ -814,13 +802,12 @@ export default function Sidebar({
                     <div className="sidebar-header-actions">
                         <button
                             className="sidebar-upload-btn"
-                            onClick={handleFileSelectClick}
-                            disabled={isUploading}
+                            onClick={onOpenUploadPicker}
                             type="button"
-                            title={selectedFile ? "Choose a different file" : "Upload a file"}
-                            aria-label={selectedFile ? "Choose a different file" : "Upload file"}
+                            title="Upload files"
+                            aria-label="Upload files"
                         >
-                            Upload
+                            {isUploadQueueActive ? "Uploads" : "Upload"}
                         </button>
                         <button
                             className="sidebar-new-file-btn"
