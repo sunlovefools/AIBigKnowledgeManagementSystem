@@ -39,6 +39,7 @@ export default function ConversationPage() {
     const [renamingConversationId, setRenamingConversationId] = useState<string | null>(null);
     const [renameTitle, setRenameTitle] = useState("");
     const [isRenamingConversation, setIsRenamingConversation] = useState(false);
+    const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
     const [isEditMode, setIsEditMode] = useState(false);
     const [desktopFileNameDraft, setDesktopFileNameDraft] = useState("");
     const [desktopFileNameError, setDesktopFileNameError] = useState<string | null>(null);
@@ -80,7 +81,9 @@ export default function ConversationPage() {
         conversationsError,
         conversationMessagesError,
         conversationId,
+        isAgenticSearchEnabled,
         setInput,
+        toggleAgenticSearch,
         appendMessage,
         startProgressMessage,
         pushProgressStep,
@@ -88,6 +91,7 @@ export default function ConversationPage() {
         refreshConversations,
         loadConversationMessages,
         renameConversation,
+        deleteConversation,
         startNewConversation,
         handleQuery,
     } =
@@ -175,7 +179,6 @@ export default function ConversationPage() {
             setInput(launch.prompt);
             void handleQuery({
                 query: launch.prompt,
-                forceAgenticSearch: true,
                 searchScope: launch.scope.type,
                 collectionId: launch.scope.type === "collection" ? launch.scope.collectionId : null,
                 collectionName: launch.scope.type === "collection" ? launch.scope.collectionName ?? null : null,
@@ -264,7 +267,6 @@ export default function ConversationPage() {
         }
 
         await handleQuery({
-            forceAgenticSearch: true,
             searchScope: chatScope.type,
             collectionId: chatScope.type === "collection" ? chatScope.collectionId : null,
             collectionName: chatScope.type === "collection" ? chatScope.collectionName ?? null : null,
@@ -523,6 +525,7 @@ export default function ConversationPage() {
         setChatScope({ type: "all_collections" });
         setRenamingConversationId(null);
         setRenameTitle("");
+        setDeletingConversationId(null);
         setIsConversationMenuOpen(false);
     }, [startNewConversation]);
 
@@ -530,18 +533,48 @@ export default function ConversationPage() {
         setIsConversationMenuOpen(false);
         setRenamingConversationId(null);
         setRenameTitle("");
+        setDeletingConversationId(null);
         void loadConversationMessages(targetConversationId);
     }, [loadConversationMessages]);
 
+    const chatControlsDisabled = isQuerying || isAgentGenerating || isEditMode;
     const chatScopeControls = (
-        <ScopePicker
-            scope={chatScope}
-            collections={collections}
-            disabled={isQuerying || isAgentGenerating || isEditMode}
-            isLoadingCollections={isLoadingCollections}
-            collectionError={collectionError}
-            onScopeChange={setChatScope}
-        />
+        <>
+            <ScopePicker
+                scope={chatScope}
+                collections={collections}
+                disabled={chatControlsDisabled}
+                isLoadingCollections={isLoadingCollections}
+                collectionError={collectionError}
+                onScopeChange={setChatScope}
+            />
+            <div className="search-mode-toggle-group" role="group" aria-label="Search mode">
+                <button
+                    type="button"
+                    className={`search-mode-option ${!isAgenticSearchEnabled ? "active" : ""}`}
+                    onClick={() => {
+                        if (isAgenticSearchEnabled) toggleAgenticSearch();
+                    }}
+                    disabled={chatControlsDisabled}
+                    aria-pressed={!isAgenticSearchEnabled}
+                    title="Use standard retrieve-and-answer search"
+                >
+                    Standard
+                </button>
+                <button
+                    type="button"
+                    className={`search-mode-option ${isAgenticSearchEnabled ? "active" : ""}`}
+                    onClick={() => {
+                        if (!isAgenticSearchEnabled) toggleAgenticSearch();
+                    }}
+                    disabled={chatControlsDisabled}
+                    aria-pressed={isAgenticSearchEnabled}
+                    title="Use agentic multi-step search"
+                >
+                    Agentic
+                </button>
+            </div>
+        </>
     );
     const modificationCollectionControls = (
         <ScopePicker
@@ -709,6 +742,42 @@ export default function ConversationPage() {
                                                     >
                                                         <path d="M12 20h9" />
                                                         <path d="M16.5 3.5a2.121 2.121 0 1 1 3 3L7 19l-4 1 1-4Z" />
+                                                    </svg>
+                                                </button>
+                                                <button
+                                                    className="chat-stage-conversation-row-delete-trigger"
+                                                    type="button"
+                                                    onClick={(event) => {
+                                                        event.preventDefault();
+                                                        event.stopPropagation();
+                                                        void handleDeleteConversation(
+                                                            conversation.conversationId,
+                                                            conversation.title?.trim() || "New AI chat"
+                                                        );
+                                                    }}
+                                                    disabled={
+                                                        isLoadingConversationMessages
+                                                        || deletingConversationId === conversation.conversationId
+                                                    }
+                                                    title="Delete conversation"
+                                                    aria-label="Delete conversation"
+                                                >
+                                                    <svg
+                                                        width="13"
+                                                        height="13"
+                                                        viewBox="0 0 24 24"
+                                                        fill="none"
+                                                        stroke="currentColor"
+                                                        strokeWidth="2"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        aria-hidden
+                                                    >
+                                                        <path d="M3 6h18" />
+                                                        <path d="M8 6V4h8v2" />
+                                                        <path d="M19 6l-1 14H6L5 6" />
+                                                        <path d="M10 11v5" />
+                                                        <path d="M14 11v5" />
                                                     </svg>
                                                 </button>
                                             </>
@@ -977,6 +1046,21 @@ export default function ConversationPage() {
         }
     };
 
+    const handleDeleteConversation = async (targetConversationId: string, title: string) => {
+        if (deletingConversationId) return;
+        const confirmed = window.confirm(`Delete "${title}"? This removes the conversation history.`);
+        if (!confirmed) return;
+
+        setDeletingConversationId(targetConversationId);
+        const success = await deleteConversation(targetConversationId);
+        setDeletingConversationId(null);
+
+        if (success) {
+            setRenamingConversationId(null);
+            setRenameTitle("");
+        }
+    };
+
     const modificationPanel = (
         <ModificationPanel
             files={files}
@@ -1006,7 +1090,10 @@ export default function ConversationPage() {
             onDeleteActiveFile={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
             onEditingContentChange={setActiveEditingDocumentContent}
             onCancelEditing={cancelEditingActiveDocument}
-            onSaveEditing={() => { void saveEditingActiveDocument(); }}
+            onSaveEditing={() => {
+                if (!isActiveDocumentDirty) return;
+                void saveEditingActiveDocument();
+            }}
             onHighlightedSelectionChange={handleSelectionChange}
             onSelectionErrorChange={handleSelectionErrorChange}
             isAgentGenerating={isAgentGenerating}
@@ -1058,7 +1145,10 @@ export default function ConversationPage() {
             onDeleteActiveFile={() => { if (activeTab) handleRequestDeleteFile(activeTab); }}
             onEditingContentChange={setActiveEditingDocumentContent}
             onCancelEditing={cancelEditingActiveDocument}
-            onSaveEditing={() => { void saveEditingActiveDocument(); }}
+            onSaveEditing={() => {
+                if (!isActiveDocumentDirty) return;
+                void saveEditingActiveDocument();
+            }}
             onHighlightedSelectionChange={handleSelectionChange}
             onSelectionErrorChange={handleSelectionErrorChange}
             isAgentGenerating={isAgentGenerating}

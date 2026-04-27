@@ -81,7 +81,7 @@ export default function CollectionPage() {
                         <div className="collection-chat-eyebrow">Global scope</div>
                         <h1 className="collection-chat-title">Ask across your knowledge</h1>
                         <p className="collection-chat-subtitle">
-                            Agentic search checks all collections you own, then you can enter a specific collection below.
+                            Standard search checks all collections you own, then you can enter a specific collection below.
                         </p>
                     </div>
 
@@ -91,7 +91,7 @@ export default function CollectionPage() {
                             value={input}
                             onChange={(event) => setInput(event.target.value)}
                             onKeyDown={handleComposerKeyDown}
-                            placeholder="Ask anything across all collections with agentic search..."
+                            placeholder="Ask anything across all collections..."
                             rows={1}
                         />
                         <button

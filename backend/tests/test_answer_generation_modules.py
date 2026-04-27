@@ -225,6 +225,12 @@ def test_citations_append_or_replace_suffix():
     replaced = append_or_replace_sources_suffix("Result text\n(Sources: old.pdf)", ["new.pdf"])
     assert replaced.endswith("(Sources: new.pdf)")
 
+    no_answer = append_or_replace_sources_suffix(
+        "No answer found in the provided context.\n(Sources: old.pdf)",
+        ["new.pdf"],
+    )
+    assert no_answer == "No answer found in the provided context."
+
 
 def test_collect_source_file_names_dedup_order():
     docs = [

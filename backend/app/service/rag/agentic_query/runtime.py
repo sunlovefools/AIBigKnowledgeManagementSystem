@@ -280,6 +280,21 @@ def _attach_tool_call(
     ]
 
 
+def _assistant_message_from_model_result(
+    content: str,
+    model_result: Any,
+) -> dict[str, Any]:
+    """Build transcript assistant message while preserving provider thinking fields."""
+
+    raw_message = getattr(model_result, "assistant_message", None)
+    if isinstance(raw_message, dict):
+        assistant_message = dict(raw_message)
+        assistant_message["role"] = "assistant"
+        assistant_message["content"] = content
+        return assistant_message
+    return {"role": "assistant", "content": content}
+
+
 def _display_tool_name(action_name: str) -> str:
     """Return a user-facing label for an internal tool/action name."""
 
@@ -615,12 +630,16 @@ async def _run_loop(
             system_prompt=config.system_prompt,
             user_prompt=_messages_for_log(messages),
         )
-        llm_response_text, _usage = await llm_client.call_action_model(
+        model_result = await llm_client.call_action_model(
             messages=messages,
             max_tokens=700,
             timeout_s=min(120.0, max(10.0, timeout_s)),
         )
-        assistant_message: dict[str, Any] = {"role": "assistant", "content": llm_response_text}
+        llm_response_text, _usage = model_result
+        assistant_message = _assistant_message_from_model_result(
+            llm_response_text,
+            model_result,
+        )
         messages.append(assistant_message)
         log_agentic_query_llm_response(
             run_id=run_id,
@@ -1092,15 +1111,16 @@ async def _run_loop(
             user_prompt=_messages_for_log(messages),
         )
         try:
-            llm_response_text, _usage = await llm_client.call_action_model(
+            model_result = await llm_client.call_action_model(
                 messages=messages,
                 max_tokens=700,
                 timeout_s=min(120.0, max(10.0, timeout_s)),
             )
-            forced_assistant_message: dict[str, Any] = {
-                "role": "assistant",
-                "content": llm_response_text,
-            }
+            llm_response_text, _usage = model_result
+            forced_assistant_message = _assistant_message_from_model_result(
+                llm_response_text,
+                model_result,
+            )
             messages.append(forced_assistant_message)
             log_agentic_query_llm_response(
                 run_id=run_id,

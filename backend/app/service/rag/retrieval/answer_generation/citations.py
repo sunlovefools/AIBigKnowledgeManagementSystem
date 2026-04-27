@@ -71,6 +71,9 @@ def append_or_replace_sources_suffix(answer_text: str, source_names: list[str]) 
 
     # Strip an existing trailing sources marker (plain or markdown italic style).
     base = re.sub(r"\s*\*?\(Sources:\s*[^)]*\)\*?\s*$", "", base, flags=re.IGNORECASE).strip()
+    if base in {NO_ANSWER_FALLBACK, "No answer found in the provided context."}:
+        return base
+
     sources_suffix = format_sources_suffix(source_names)
 
     # Keep suffix on a new line to match prompt-level citation formatting intent.

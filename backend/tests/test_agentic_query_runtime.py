@@ -5,7 +5,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from app.service.rag.agentic_query import runtime, tools
+from app.service.rag.agentic_query import llm_client, runtime, tools
 from app.service.rag.agentic_query.config_loader import load_agentic_query_config
 from app.service.rag.agentic_query.models import EvidenceItem
 
@@ -73,6 +73,17 @@ def _llm_sequence(responses: list[str]):
         return responses[index], {}
 
     return _fake_call_action_model
+
+
+class _FakeActionModelResult:
+    def __init__(self, content: str, assistant_message: dict | None = None):
+        self.content = content
+        self.usage = {}
+        self.assistant_message = assistant_message or {"role": "assistant", "content": content}
+
+    def __iter__(self):
+        yield self.content
+        yield self.usage
 
 
 def test_runtime_rejects_unknown_action_and_recovers_with_finish(monkeypatch):
@@ -248,6 +259,115 @@ def test_runtime_preserves_none_scope_for_all_collections_seed(monkeypatch):
 
     assert result.termination_reason == "finished"
     assert captured_scopes == [None]
+
+
+def test_runtime_preserves_provider_reasoning_content_in_transcript(monkeypatch):
+    captured_message_batches: list[list[dict]] = []
+
+    async def _fake_call_action_model(**kwargs):
+        captured_message_batches.append([dict(message) for message in kwargs["messages"]])
+        if len(captured_message_batches) == 1:
+            content = '{"action":"search_context","arguments":{"query":"refund","top_k":2}}'
+            return _FakeActionModelResult(
+                content,
+                {
+                    "role": "assistant",
+                    "content": content,
+                    "reasoning_content": "thinking from provider",
+                },
+            )
+        return _FakeActionModelResult(
+            '{"action":"finish","arguments":{"answer":"Done","citations":[]}}'
+        )
+
+    async def _fake_search_context_tool(**_kwargs):
+        return []
+
+    monkeypatch.setattr(runtime.llm_client, "call_action_model", _fake_call_action_model)
+    monkeypatch.setattr(runtime.tools, "search_context_tool", _fake_search_context_tool)
+
+    result = asyncio.run(
+        runtime.run_agentic_query(
+            user_query="Q1",
+            user_id="user-1",
+            included_file_ids=["file-a"],
+            max_steps=2,
+        )
+    )
+
+    assert result.termination_reason == "finished"
+    assert len(captured_message_batches) == 2
+    assert any(
+        message.get("role") == "assistant"
+        and message.get("reasoning_content") == "thinking from provider"
+        for message in captured_message_batches[1]
+    )
+
+
+def test_agentic_query_llm_client_disables_deepseek_thinking_and_preserves_reasoning(monkeypatch):
+    captured_payload: dict[str, object] = {}
+
+    class _FakeResponse:
+        status = 200
+
+        async def __aenter__(self):
+            return self
+
+        async def __aexit__(self, _exc_type, _exc, _tb):
+            return False
+
+        async def text(self):
+            return ""
+
+        async def json(self):
+            return {
+                "choices": [
+                    {
+                        "message": {
+                            "content": '{"action":"finish","arguments":{"answer":"Done","citations":[]}}',
+                            "reasoning_content": "reasoning that provider requires in follow-up turns",
+                        }
+                    }
+                ],
+                "usage": {"prompt_tokens": 1, "completion_tokens": 2, "total_tokens": 3},
+            }
+
+    class _FakeSession:
+        def post(self, url, json, headers, timeout):
+            _ = url, headers, timeout
+            captured_payload.update(json)
+            return _FakeResponse()
+
+    monkeypatch.setenv("AGENTIC_QUERY_LLM_KEY", "test-key")
+    monkeypatch.delenv("AGENTIC_QUERY_LLM_THINKING", raising=False)
+    monkeypatch.delenv("MOD_AGENT_LLM_THINKING", raising=False)
+    monkeypatch.delenv("AGENTIC_QUERY_LLM_URL", raising=False)
+    monkeypatch.delenv("MOD_AGENT_LLM_URL", raising=False)
+    monkeypatch.delenv("AGENTIC_QUERY_LLM_MODEL", raising=False)
+    monkeypatch.delenv("MOD_AGENT_LLM_MODEL", raising=False)
+    if "aiohttp" in sys.modules:
+        monkeypatch.setattr(
+            sys.modules["aiohttp"],
+            "ClientTimeout",
+            lambda total: {"total": total},
+            raising=False,
+        )
+
+    result = asyncio.run(
+        llm_client.call_action_model(
+            messages=[{"role": "user", "content": "Return finish JSON."}],
+            session=_FakeSession(),
+        )
+    )
+
+    assert captured_payload["thinking"] == {"type": "disabled"}
+    assert captured_payload["temperature"] == 0
+    assert result.content.startswith('{"action":"finish"')
+    assert result.usage == {"prompt_tokens": 1, "completion_tokens": 2, "total_tokens": 3}
+    assert (
+        result.assistant_message["reasoning_content"]
+        == "reasoning that provider requires in follow-up turns"
+    )
 
 
 def test_runtime_enforces_max_steps(monkeypatch):

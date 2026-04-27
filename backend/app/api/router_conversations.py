@@ -60,6 +60,11 @@ class RenameConversationResponse(BaseModel):
     title: str
     updatedAt: str
 
+
+class DeleteConversationResponse(BaseModel):
+    conversationId: str
+    deletedMessages: int = 0
+
 # -- Helper functions --
 def _owner_filter(user_id: str) -> dict[str, Any]:
     """Returns a MongoDB filter dict for documents owned by the userId."""
@@ -205,4 +210,32 @@ def rename_conversation(
         conversationId=conversation_id,
         title=request.title.strip(),
         updatedAt=timestamp,
+    )
+
+
+@router.delete("/conversations/{conversation_id}", response_model=DeleteConversationResponse)
+def delete_conversation(
+    conversation_id: str,
+    current_user: dict = Depends(get_current_user),
+    conversations_collection: Any = Depends(get_conversations_collection),
+    chat_collection: Any = Depends(get_chat_messages_collection),
+):
+    user_id = str(current_user.get("sub") or "").strip()
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+
+    if conversations_collection is None or chat_collection is None:
+        raise HTTPException(status_code=500, detail="Conversation stores are unavailable")
+
+    owner_filter = _conversation_owner_filter(conversation_id, user_id)
+    conversation = conversations_collection.find_one(owner_filter)
+    if conversation is None:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+
+    delete_messages_result = chat_collection.delete_many(owner_filter)
+    conversations_collection.delete_one(owner_filter)
+
+    return DeleteConversationResponse(
+        conversationId=conversation_id,
+        deletedMessages=int(getattr(delete_messages_result, "deleted_count", 0) or 0),
     )

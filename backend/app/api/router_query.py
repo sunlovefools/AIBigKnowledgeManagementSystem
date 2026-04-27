@@ -1,5 +1,5 @@
 from datetime import datetime, timezone
-from typing import Any
+from typing import Any, Literal
 from uuid import uuid4
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -347,6 +347,8 @@ class QueryRequest(BaseModel):
     top_k: int = 20
     conversation_id: str | None = None
     collectionId: str | None = None
+    collectionName: str | None = None
+    searchScope: Literal["collection", "all_collections"] = "collection"
 
 
 class QueryResponse(BaseModel):
@@ -373,19 +375,27 @@ async def query_documents(
 
     user_email = _normalized_email(str(current_user.get("email") or ""))
     conversation_id = request.conversation_id or str(uuid4())
-    try:
-        active_collection = await CollectionService.resolve_active_collection(
-            user_id=user_id,
-            requested_collection_id=request.collectionId,
-        )
-        scoped_file_ids = await CollectionService.list_file_ids_for_collection(
-            user_id=user_id,
-            collection_id=str(active_collection.get("collection_id") or ""),
-        )
-    except CollectionNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except CollectionServiceError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+    scoped_file_ids: list[str] | None = None
+    scope_collection_id: str | None = None
+    scope_collection_name: str | None = None
+    if request.searchScope == "collection":
+        try:
+            active_collection = await CollectionService.resolve_active_collection(
+                user_id=user_id,
+                requested_collection_id=request.collectionId,
+            )
+            scope_collection_id = str(active_collection.get("collection_id") or "").strip() or None
+            scope_collection_name = str(
+                active_collection.get("name") or request.collectionName or ""
+            ).strip() or None
+            scoped_file_ids = await CollectionService.list_file_ids_for_collection(
+                user_id=user_id,
+                collection_id=scope_collection_id or "",
+            )
+        except CollectionNotFoundError as e:
+            raise HTTPException(status_code=404, detail=str(e))
+        except CollectionServiceError as e:
+            raise HTTPException(status_code=503, detail=str(e))
 
     # A full query turn usually persists both a user message and an AI message.
     # Reject early when there is not enough capacity left in an existing thread.
@@ -414,9 +424,9 @@ async def query_documents(
             text=request.query,
             chat_collection=chat_collection,
             conversations_collection=conversations_collection,
-            search_scope="collection",
-            collection_id=str(active_collection.get("collection_id") or "") or None,
-            collection_name=str(active_collection.get("name") or "") or None,
+            search_scope=request.searchScope,
+            collection_id=scope_collection_id,
+            collection_name=scope_collection_name,
         )
         if saved_user_message is not None:
             saved_messages.append(saved_user_message)
@@ -447,9 +457,9 @@ async def query_documents(
                     text=no_docs_answer,
                     chat_collection=chat_collection,
                     conversations_collection=conversations_collection,
-                    search_scope="collection",
-                    collection_id=str(active_collection.get("collection_id") or "") or None,
-                    collection_name=str(active_collection.get("name") or "") or None,
+                    search_scope=request.searchScope,
+                    collection_id=scope_collection_id,
+                    collection_name=scope_collection_name,
                 )
                 if saved_ai_message is not None:
                     saved_messages.append(saved_ai_message)
@@ -490,9 +500,9 @@ async def query_documents(
             text=answer,
             chat_collection=chat_collection,
             conversations_collection=conversations_collection,
-            search_scope="collection",
-            collection_id=str(active_collection.get("collection_id") or "") or None,
-            collection_name=str(active_collection.get("name") or "") or None,
+            search_scope=request.searchScope,
+            collection_id=scope_collection_id,
+            collection_name=scope_collection_name,
         )
         if saved_ai_message is not None:
             saved_messages.append(saved_ai_message)

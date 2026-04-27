@@ -300,7 +300,7 @@ export function useChat() {
     }, [buildTextMessage]);
 
     const startProgressMessage = useCallback(
-        (scope: "agentic" | "selection" | "agentic-search", initialStageText: string): string => {
+        (scope: "agentic" | "selection" | "agentic-search" | "standard-search", initialStageText: string): string => {
             const id = nextMessageId();
             const initialStep: ChatProgressStep = {
                 stage: "started",
@@ -524,6 +524,24 @@ export function useChat() {
         }
     }, [refreshConversations]);
 
+    const deleteConversation = useCallback(async (targetConversationId: string) => {
+        const normalizedConversationId = targetConversationId.trim();
+        if (!normalizedConversationId) return false;
+
+        try {
+            await apiClient.delete(`${API_BASE}/api/conversations/${normalizedConversationId}`);
+            if (conversationId === normalizedConversationId) {
+                setConversationId(null);
+                setMessages([]);
+            }
+            void refreshConversations();
+            return true;
+        } catch {
+            setConversationsError("Failed to delete conversation.");
+            return false;
+        }
+    }, [conversationId, refreshConversations]);
+
     const finishProgressMessage = useCallback(
         (
             messageId: string,
@@ -559,6 +577,28 @@ export function useChat() {
         []
     );
 
+    const scheduleStandardSearchLifecycle = useCallback(
+        (messageId: string): number[] => {
+            const lifecycle = [
+                { delayMs: 120, stage: "retrieving", message: "Retrieving relevant document context." },
+                { delayMs: 700, stage: "reranking", message: "Reranking the strongest evidence." },
+                { delayMs: 1300, stage: "thinking", message: "Thinking through the retrieved context." },
+                { delayMs: 1900, stage: "answering", message: "Writing the answer." },
+            ];
+
+            return lifecycle.map(({ delayMs, stage, message }) =>
+                window.setTimeout(() => {
+                    pushProgressStep(messageId, {
+                        stage,
+                        status: "running",
+                        message,
+                    });
+                }, delayMs)
+            );
+        },
+        [pushProgressStep]
+    );
+
     const handleQuery = useCallback(async (options?: HandleQueryOptions) => {
         const textInput = (options?.query ?? input).trim();
         if (!textInput || isQuerying) {
@@ -571,6 +611,8 @@ export function useChat() {
         const shouldUseAgenticSearch = options?.forceAgenticSearch ?? isAgenticSearchEnabled;
         setIsQuerying(true);
         let agenticProgressMessageId: string | null = null;
+        let standardProgressMessageId: string | null = null;
+        let standardLifecycleTimers: number[] = [];
         const userMessage = buildTextMessage({
             role: "user",
             text: textInput,
@@ -581,8 +623,12 @@ export function useChat() {
         if (shouldUseAgenticSearch) {
             setMessages((previousMessages) => [...previousMessages, userMessage]);
         } else {
-            const placeholderMessage = buildTextMessage({ role: "ai", text: "Processing..." });
-            setMessages((previousMessages) => [...previousMessages, userMessage, placeholderMessage]);
+            setMessages((previousMessages) => [...previousMessages, userMessage]);
+            standardProgressMessageId = startProgressMessage(
+                "standard-search",
+                "Retrieving relevant document context."
+            );
+            standardLifecycleTimers = scheduleStandardSearchLifecycle(standardProgressMessageId);
         }
         setInput("");
 
@@ -648,22 +694,24 @@ export function useChat() {
                 query: textInput,
                 conversation_id: conversationId,
                 collectionId: scopedCollectionId,
+                collectionName: scopedCollectionName,
+                searchScope,
             });
 
             if (typeof response.data?.conversation_id === "string") {
                 setConversationId(response.data.conversation_id);
             }
 
-            setMessages((previousMessages) => [
-                ...previousMessages.slice(0, -1),
-                buildTextMessage({
-                    role: "ai",
-                    text: response.data.answer || "(no response)",
-                    searchScope,
-                    collectionId: scopedCollectionId,
-                    collectionName: scopedCollectionName,
-                }),
-            ]);
+            if (standardProgressMessageId) {
+                finishProgressMessage(standardProgressMessageId, "completed", "Answer ready.");
+            }
+            appendMessage({
+                role: "ai",
+                text: response.data.answer || "(no response)",
+                searchScope,
+                collectionId: scopedCollectionId,
+                collectionName: scopedCollectionName,
+            });
             void refreshConversations();
         } catch (error) {
             const fallbackError =
@@ -683,18 +731,19 @@ export function useChat() {
                     collectionName: scopedCollectionName,
                 });
             } else {
-                setMessages((previousMessages) => [
-                    ...previousMessages.slice(0, -1),
-                    buildTextMessage({
-                        role: "ai",
-                        text: fallbackError,
-                        searchScope,
-                        collectionId: scopedCollectionId,
-                        collectionName: scopedCollectionName,
-                    }),
-                ]);
+                if (standardProgressMessageId) {
+                    finishProgressMessage(standardProgressMessageId, "failed", fallbackError);
+                }
+                appendMessage({
+                    role: "ai",
+                    text: fallbackError,
+                    searchScope,
+                    collectionId: scopedCollectionId,
+                    collectionName: scopedCollectionName,
+                });
             }
         } finally {
+            standardLifecycleTimers.forEach((timerId) => window.clearTimeout(timerId));
             setIsQuerying(false);
         }
     }, [
@@ -707,6 +756,7 @@ export function useChat() {
         isQuerying,
         pushProgressStep,
         refreshConversations,
+        scheduleStandardSearchLifecycle,
         startProgressMessage,
     ]);
 
@@ -743,6 +793,7 @@ export function useChat() {
         refreshConversations,
         loadConversationMessages,
         renameConversation,
+        deleteConversation,
         startNewConversation,
         handleQuery,
         handleKeyDown,

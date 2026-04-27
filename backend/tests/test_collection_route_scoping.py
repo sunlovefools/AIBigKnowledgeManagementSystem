@@ -88,6 +88,41 @@ def test_query_route_threads_collection_scoped_file_ids(monkeypatch):
     assert response.answer.startswith("No relevant documents found")
 
 
+def test_query_route_all_collections_skips_collection_scope(monkeypatch):
+    captured: dict[str, object] = {}
+
+    async def _unexpected_resolve_active_collection(**_kwargs):
+        raise AssertionError("all_collections scope must not resolve an active collection")
+
+    async def _unexpected_list_file_ids_for_collection(**_kwargs):
+        raise AssertionError("all_collections scope must not list collection file IDs")
+
+    async def _search_and_retrieve_context(**kwargs):
+        captured.update(kwargs)
+        return []
+
+    monkeypatch.setattr(router_query.CollectionService, "resolve_active_collection", _unexpected_resolve_active_collection)
+    monkeypatch.setattr(router_query.CollectionService, "list_file_ids_for_collection", _unexpected_list_file_ids_for_collection)
+    monkeypatch.setattr(router_query, "search_and_retrieve_context", _search_and_retrieve_context)
+
+    response = asyncio.run(
+        router_query.query_documents(
+            router_query.QueryRequest(
+                query="hello",
+                collectionId="ignored-collection",
+                searchScope="all_collections",
+            ),
+            current_user={"sub": "user-1"},
+            chat_collection=None,
+            conversations_collection=None,
+        )
+    )
+
+    assert captured["included_file_ids"] is None
+    assert captured["user_id"] == "user-1"
+    assert response.answer.startswith("No relevant documents found")
+
+
 def test_agent_route_intersects_selected_ids_with_collection_scope(monkeypatch):
     captured_state: dict[str, object] = {}
 

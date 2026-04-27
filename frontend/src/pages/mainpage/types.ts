@@ -77,7 +77,7 @@ export type ChatProgressMessage = {
     kind: "progress";
     role: "ai";
     status: "running" | "completed" | "failed";
-    scope: "agentic" | "selection" | "agentic-search";
+    scope: "agentic" | "selection" | "agentic-search" | "standard-search";
     currentStageText: string;
     steps: ChatProgressStep[];
     transcript: ChatProgressTranscriptItem[];

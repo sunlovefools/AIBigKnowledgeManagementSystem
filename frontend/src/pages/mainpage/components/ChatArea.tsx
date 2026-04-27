@@ -18,7 +18,7 @@ function renderStepLabel(step: ChatProgressStep): string {
     return `${batchPrefix}${stepPrefix}${toolPrefix}${detail}`;
 }
 
-function renderStepDetails(step: ChatProgressStep, scope: "agentic" | "selection" | "agentic-search"): string[] {
+function renderStepDetails(step: ChatProgressStep, scope: "agentic" | "selection" | "agentic-search" | "standard-search"): string[] {
     const details: string[] = [];
     if (step.intent) {
         details.push(`Intent: ${step.intent}`);
@@ -53,11 +53,12 @@ function getTranscriptTitle(message: ChatProgressTranscriptItem): string {
 }
 
 function getProgressTitle(
-    scope: "agentic" | "selection" | "agentic-search",
+    scope: "agentic" | "selection" | "agentic-search" | "standard-search",
     status: "running" | "completed" | "failed"
 ): string {
     if (status === "completed") return "Completed";
     if (status === "failed") return "Failed";
+    if (scope === "standard-search") return "Standard search in progress";
     if (scope === "agentic-search") return "Agentic search in progress";
     return scope === "selection" ? "Selection edit in progress" : "Agent is working";
 }
