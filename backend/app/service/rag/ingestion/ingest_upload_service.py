@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import base64
 import binascii
 from typing import Any
@@ -372,7 +373,7 @@ async def upsert_chunks(
         raise UpsertChunksFailedError("upsert to vector store failed") from exc
 
 
-async def run_ingest_upload(
+def run_ingest_upload_sync(
     *,
     file_name: str,
     content_type: str,
@@ -446,3 +447,20 @@ async def run_ingest_upload(
         "child_chunks": child_chunks_dicts,
         "warnings": warnings,
     }
+
+
+async def run_ingest_upload(
+    *,
+    file_name: str,
+    content_type: str,
+    data: str,
+) -> dict[str, Any]:
+    """
+    Async wrapper that moves CPU/blocking parsing and chunking work off the event loop.
+    """
+    return await asyncio.to_thread(
+        run_ingest_upload_sync,
+        file_name=file_name,
+        content_type=content_type,
+        data=data,
+    )

@@ -16,6 +16,8 @@ import {
 import {
     UploadQueueContext,
     type IngestUploadResponse,
+    type IngestUploadJobAcceptedResponse,
+    type IngestUploadJobStatusResponse,
     type UploadCompletionEvent,
     type UploadQueueContextValue,
     type UploadQueueItem,
@@ -25,6 +27,7 @@ import {
 import "./UploadQueue.css";
 
 const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:8000").replace(/\/$/, "");
+const INGEST_JOB_POLL_INTERVAL_MS = 1200;
 
 function createUploadId(): string {
     if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
@@ -64,6 +67,12 @@ function getUploadErrorMessage(error: unknown): string {
         return error.message.trim();
     }
     return "Upload failed.";
+}
+
+function waitForPollDelay(): Promise<void> {
+    return new Promise((resolve) => {
+        window.setTimeout(resolve, INGEST_JOB_POLL_INTERVAL_MS);
+    });
 }
 
 function isFileDrag(event: DragEvent<HTMLElement>): boolean {
@@ -159,6 +168,43 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
         [commitItems]
     );
 
+    const pollIngestJob = useCallback(
+        async (item: UploadQueueItem, jobId: string): Promise<IngestUploadResponse> => {
+            while (true) {
+                const response = await apiClient.get<IngestUploadJobStatusResponse>(
+                    `${API_BASE}/ingest/upload-jobs/${jobId}`
+                );
+                const job = response.data;
+
+                if (job.status === "succeeded") {
+                    if (!job.result) {
+                        throw new Error("Upload completed without a result payload.");
+                    }
+                    return job.result;
+                }
+
+                if (job.status === "failed") {
+                    throw new Error(job.error || "Upload processing failed.");
+                }
+
+                commitItems((current) =>
+                    current.map((entry) =>
+                        entry.id === item.id
+                            ? {
+                                ...entry,
+                                status: "processing",
+                                progress: Math.max(entry.progress, 88),
+                                phaseLabel: job.status === "queued" ? "Queued for processing" : "Processing",
+                            }
+                            : entry
+                    )
+                );
+                await waitForPollDelay();
+            }
+        },
+        [commitItems]
+    );
+
     const processItem = useCallback(
         async (item: UploadQueueItem) => {
             if (!isSupportedUploadFile(item.fileName)) {
@@ -184,8 +230,8 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                     )
                 );
 
-                const response = await apiClient.post<IngestUploadResponse>(
-                    `${API_BASE}/ingest/upload`,
+                const acceptedResponse = await apiClient.post<IngestUploadJobAcceptedResponse>(
+                    `${API_BASE}/ingest/upload-jobs`,
                     {
                         fileName: item.fileName,
                         contentType: resolveUploadContentType(item.file),
@@ -227,6 +273,20 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                         },
                     }
                 );
+                commitItems((current) =>
+                    current.map((entry) =>
+                        entry.id === item.id
+                            ? {
+                                ...entry,
+                                status: "processing",
+                                progress: Math.max(entry.progress, 88),
+                                phaseLabel: "Queued for processing",
+                            }
+                            : entry
+                    )
+                );
+
+                const ingestResult = await pollIngestJob(item, acceptedResponse.data.jobId);
 
                 const completedItem: UploadQueueItem = {
                     ...item,
@@ -234,7 +294,7 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                     progress: 100,
                     phaseLabel: "Uploaded",
                     error: null,
-                    response: response.data,
+                    response: ingestResult,
                 };
                 commitItems((current) => current.map((entry) => (entry.id === item.id ? completedItem : entry)));
                 notifyCompletion({ item: completedItem, ok: true });
@@ -250,7 +310,7 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                 notifyCompletion({ item: failedItem, ok: false });
             }
         },
-        [commitItems, notifyCompletion, readFileAsBase64]
+        [commitItems, notifyCompletion, pollIngestJob, readFileAsBase64]
     );
 
     const processQueue = useCallback(async () => {

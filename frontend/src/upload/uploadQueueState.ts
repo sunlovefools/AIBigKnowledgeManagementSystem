@@ -16,6 +16,26 @@ export type IngestUploadResponse = {
     warnings: string[];
 };
 
+export type IngestUploadJobAcceptedResponse = {
+    jobId: string;
+    status: "queued";
+    fileName: string;
+    collectionId: string;
+};
+
+export type IngestUploadJobStatusResponse = {
+    jobId: string;
+    status: "queued" | "running" | "succeeded" | "failed" | string;
+    fileName: string;
+    collectionId: string;
+    collectionName?: string | null;
+    result?: IngestUploadResponse | null;
+    error?: string | null;
+    submittedAt: string;
+    startedAt?: string | null;
+    finishedAt?: string | null;
+};
+
 export type UploadQueueItem = {
     id: string;
     file: File;
