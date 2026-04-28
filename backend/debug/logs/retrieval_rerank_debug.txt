@@ -12110,3 +12110,1093 @@ Content: The average distance between each main station and the next is approxim
 Content: Additionally, PET imaging is utilized to determine the suitability of patients for targeted therapies based on specific molecular characteristics, enabling personalized treatment approaches.
 
 --------------------------------------------------
+==================================================
+DEBUG: Child chunk with query of: 把所有日期改成2026年三月九日
+Timestamp: 2026-03-09T12:50:28.573392+00:00
+Top-K Requested: 59
+--------------------------------------------------
+[Child Chunk 1 | Linked to Parent ID: N/A | Score: 0.665315]
+Content: ## ExamSys Test
+
+## Individual 30%
+
+| Description        | Focuses on theories covered in the lectures and practical exercises   |
+|--------------------|-----------------------------------------------------------------------|
+| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |
+
+[Child Chunk 2 | Linked to Parent ID: N/A | Score: 0.647053]
+Content: <!-- image-uuid: 1f11733d-8e23-691f-a92a-34cc56d32737 -->
+
+Module Assessment Sheet for 2025-2026
+
+[Child Chunk 3 | Linked to Parent ID: N/A | Score: 0.640776]
+Content: See also Weather of 2023 == References == 2023 (MMXXIII) is the current year, and is a common year starting on Sunday of the Gregorian calendar, the 2023rd year of the Common Era (CE) and Anno Domini (AD) designations, the 23rd year of the 3rd millennium and the 21st century, and the 4th year of the 2020s decade.
+
+[Child Chunk 4 | Linked to Parent ID: N/A | Score: 0.637086]
+Content: ## Description and Deliverable(s)
+
+| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |
+|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |
+| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |
+| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using
+
+[Child Chunk 5 | Linked to Parent ID: N/A | Score: 0.631255]
+Content: ## Per group submission:
+
+3. Results 2026 IIP - Group XXX (submitted as a ZIP folder and please change XXX to your group number (e.g., 001, 007, 011)
+
+4. -001 - Input Images
+
+5. -002 - Image Processing Pipeline
+
+6. -003 - Output Images
+
+[Child Chunk 6 | Linked to Parent ID: N/A | Score: 0.628285]
+Content: ## 2.6 Open Day
+
+Open day takes place in the Summer term, usually in the first half of May. All teams demo their work in a "trade fair style event", taking place in A32. This involve preparing an (interactive) demonstration of your software, a poster, and a nice display/stand.
+
+[Child Chunk 7 | Linked to Parent ID: N/A | Score: 0.624386]
+Content: ## Graduation implications (finalists)
+
+Final-year students taking first sits in August will not graduate in July; graduation is delayed to the next ava ceremony (e.g., December) or an inter-ceremony (remote) graduation.
+
+[Child Chunk 8 | Linked to Parent ID: N/A | Score: 0.624386]
+Content: ## Graduation implications (finalists)
+
+Final-year students taking first sits in August will not graduate in July; graduation is delayed to the next ava ceremony (e.g., December) or an inter-ceremony (remote) graduation.
+
+[Child Chunk 9 | Linked to Parent ID: N/A | Score: 0.622088]
+Content: The 80th annual Venice International Film Festival will be held from 30 August to 9 September 2023.
+
+[Child Chunk 10 | Linked to Parent ID: N/A | Score: 0.621523]
+Content: Module Assessment Sheet for 2025-2026
+
+Module Assessment Sheet for 2025-2026
+
+| Module             | Introduction to Image Processing (IIP) / COMP 2005 / Semester 2   |
+|--------------------|-------------------------------------------------------------------|
+| Assessment         | Coursework (100%)                                                 |
+| Module Convenor(s) | Magan Moemeni                                                     |
+
+Module Assessment Sheet for 2025-2026
+
+| Programming and Conference Paper   | Group   |
+|------------------------------------|---------|
+
+[Child Chunk 11 | Linked to Parent ID: N/A | Score: 0.617516]
+Content: PSLV-C56是印度空间研究组织（ISRO）极地卫星运载火箭（PSLV）的第58次任务，也是PSLV-CA型号的第17次飞行，将从萨迪什·达万航天中心第一发射台（FLP）发射。 计划于2023年7月30日星期日印度标准时间06:30 / 协调世界时01:00从印度安得拉邦斯里赫里戈达的萨迪什·达万航天中心发射。印度空间研究组织（ISRO）是印度政府的航天机构。它成立于1969年，旨在发展空间技术和进行空间研究。ISRO负责该国的空间计划，包括卫星发射、空间探索和空间相关技术的开发。多年来，ISRO取得了多项重要里程碑。它在1975年成功发射了第一颗卫星“Aryabhata”。
+
+[Child Chunk 12 | Linked to Parent ID: N/A | Score: 0.614233]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Child Chunk 13 | Linked to Parent ID: N/A | Score: 0.613582]
+Content: ## 2.6 Open Day
+
+Prizes  (goodies  and/or  financial  rewards)  will  be  given  out  by  industry  sponsors  for 'the overall project ' , 'the runner up ' , 'the best demo' during demo day . Prizes are independent of the marks you get from the staff markers.
+
+[Child Chunk 14 | Linked to Parent ID: N/A | Score: 0.612817]
+Content: Sss
+
+[Child Chunk 15 | Linked to Parent ID: N/A | Score: 0.612817]
+Content: Sss
+
+[Child Chunk 16 | Linked to Parent ID: N/A | Score: 0.610791]
+Content: Until 2023 there had only been hints of active volcanism; announced in March 2023 scientists imaged a vent expanding in Magellan images which is the proof needed to announce active volcanism
+
+[Child Chunk 17 | Linked to Parent ID: N/A | Score: 0.609481]
+Content: ## Your ACTION as a Group
+
+For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+[Child Chunk 18 | Linked to Parent ID: N/A | Score: 0.609102]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Child Chunk 19 | Linked to Parent ID: N/A | Score: 0.608342]
+Content: ## Individual submission:
+
+1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.
+
+2. A compressed Dataset folder.
+
+3. A compressed Ground Truth folder.
+
+Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.
+
+[Child Chunk 20 | Linked to Parent ID: N/A | Score: 0.607290]
+Content: ## Note:
+
+Please ensure that targets for next sprint become gradually more realistic (e.g. time scales) and inform your supervisor/sponsor when other class activities (coursework for other modules, for example), exams, and holidays are planned.
+
+[Child Chunk 21 | Linked to Parent ID: N/A | Score: 0.607221]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Child Chunk 22 | Linked to Parent ID: N/A | Score: 0.607221]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Child Chunk 23 | Linked to Parent ID: N/A | Score: 0.606495]
+Content: Interplanetary Transport System In 2016, Musk changed the name of the Mars Colonial Transporter system to the Interplanetary Transport System (ITS), as he intended for the system to be capable of traveling beyond Mars. That same year he provided more details about the space mission architecture, launch vehicle, spacecraft, and Raptor engines. The first test firing of a Raptor engine on a test stand took place in September 2016. In October 2016, Musk indicated that the initial tank test article, made out of carbon-fiber pre-preg, and built with no sealing liner, had performed well in cryogenic fluid testing
+
+[Child Chunk 24 | Linked to Parent ID: N/A | Score: 0.606070]
+Content: He was succeeded by Francis on 13 March 2013 and moved into the newly renovated Mater Ecclesiae Monastery in Vatican City for his retirement.
+
+[Child Chunk 25 | Linked to Parent ID: N/A | Score: 0.603170]
+Content: The chromosome number of M. angustata is unknown. Flowering and fruiting in January.
+
+[Child Chunk 26 | Linked to Parent ID: N/A | Score: 0.602665]
+Content: In March, the Manipur Cabinet decided to withdraw from the Suspension of Operation agreements with three Kuki militant groups including the Kuki National Army and the Zomi Revolutionary Army, though the central government did not support such a withdrawal. Several Manipuri organisations also demonstrated in New Delhi to press for a National Register of Citizens (NRC) to be created with 1951 as the base year, complaining of abnormal population growth in hill areas
+
+[Child Chunk 27 | Linked to Parent ID: N/A | Score: 0.602551]
+Content: Trajectory Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include: Interplanetary transfer (Earth, Venus, Earth, Earth) Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists
+
+[Child Chunk 28 | Linked to Parent ID: N/A | Score: 0.602022]
+Content: Background History and development of reconnaissance balloons
+
+[Child Chunk 29 | Linked to Parent ID: N/A | Score: 0.600398]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+<!-- image-uuid: 1f11733d-8f36-6d3c-aa9b-770b8721cdf8 -->
+
+[Child Chunk 30 | Linked to Parent ID: N/A | Score: 0.599321]
+Content: ## Assessment regulations (selected key points)
+
+## Assessed coursework
+
+- Coursework must be submitted electronically except where physically impossible due to format.
+
+- Standard deadline is 15:00 local time; recommended deadlines Mon-Thu.
+
+[Child Chunk 31 | Linked to Parent ID: N/A | Score: 0.597688]
+Content: ## 5.5 Re-assessment
+
+All  code  changes  should  be  pushed  to  Git,  and  the  report  should  be  submitted  to  the  relevant submission system on Moodle.
+
+[Child Chunk 32 | Linked to Parent ID: N/A | Score: 0.596223]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+To maximise the chances of teams getting at least one of their preferred choices, the sign-up process is spread across three consecutive days. That is, you register to bid for the first project on day 1, the second project on day 2, and the third project on day 3. The different registration systems will open automatically at 09:00 on each day (the exact dates are announced in Moodle).
+
+[Child Chunk 33 | Linked to Parent ID: N/A | Score: 0.596177]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+[Child Chunk 34 | Linked to Parent ID: N/A | Score: 0.595094]
+Content: Later on 2 March, Russian artillery targeted a densely populated neighborhood of Mariupol, shelling it
+
+[Child Chunk 35 | Linked to Parent ID: N/A | Score: 0.593417]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Child Chunk 36 | Linked to Parent ID: N/A | Score: 0.591948]
+Content: Starship vehicles in low Earth orbit are planned to be refilled with propellant launched in tanker Starships to enable transit to higher energy destinations such as geosynchronous orbit, the Moon, and Mars.Plans for a heavy-lift vehicle at SpaceX date to 2005, with the earliest concept resembling the modern vehicle announced in 2016. SpaceX's Starship development follows an iterative and incremental approach involving frequent, and often destructive, test flights of prototype vehicles
+
+[Child Chunk 37 | Linked to Parent ID: N/A | Score: 0.591916]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Child Chunk 38 | Linked to Parent ID: N/A | Score: 0.590176]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Child Chunk 39 | Linked to Parent ID: N/A | Score: 0.590059]
+Content: Monkeypox On 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk.
+
+[Child Chunk 40 | Linked to Parent ID: N/A | Score: 0.589993]
+Content: ## 1.3 Ethics
+
+Groups must not start work with human participants, personal data that is not in the public domain, or  biological  materials  before  the  ethics review  process  has  been completed.  You  are  therefore advised to start the ethics process as soon as possible (i.e. immediately after you have been assigned your project or as soon as it becomes apparent that you need ethics clearance).
+
+[Child Chunk 41 | Linked to Parent ID: N/A | Score: 0.588926]
+Content: ## 2.1.6 Claims across multiple assessments or timeframes
+
+EC claims are limited to the semester in which circumstances occur. A claim can include multiple affected assessments. Ongoing issues spanning semesters should be handled via the relevant long-term/ability-to-study regulation; repeat claims for the same assessment may be rejected.
+
+[Child Chunk 42 | Linked to Parent ID: N/A | Score: 0.588926]
+Content: ## 2.1.6 Claims across multiple assessments or timeframes
+
+EC claims are limited to the semester in which circumstances occur. A claim can include multiple affected assessments. Ongoing issues spanning semesters should be handled via the relevant long-term/ability-to-study regulation; repeat claims for the same assessment may be rejected.
+
+[Child Chunk 43 | Linked to Parent ID: N/A | Score: 0.588678]
+Content: More distant spatially resolved observations will also be carried out for several minor irregular satellites and the volcanically active moon Io.
+
+[Child Chunk 44 | Linked to Parent ID: N/A | Score: 0.588671]
+Content: FoodFutureCo is a scale-up accelerator for purpose-driven food businesses. FoodFutureCo was founded by Shen Tong, American social activist and investor in 2016 to support post-revenue food companies who are primed to expand from early adoption to early majority. The accelerator program works with companies in agtech, agriculture, consumer packaged goods, local & plant-based foods, sustainable seafood, restaurant concepts, and food waste. The handful of companies within each cohort are established yet small companies with massive skill potential.
+
+[Child Chunk 45 | Linked to Parent ID: N/A | Score: 0.588097]
+Content: Arrival at the Jovian system When it arrives in Jupiter's system in July 2031, JUICE will first perform a flyby of Ganymede in preparation for Jupiter orbital insertion about 7.5 hours later. The first orbit will be elongated, with subsequent orbits gradually lowered over time, resulting in a circular orbit around Jupiter.The first Europa flyby will take place in July 2032. JUICE will enter a high inclination orbit to allow exploration of Jupiter's polar regions and to study Jupiter's magnetosphere.
+
+[Child Chunk 46 | Linked to Parent ID: N/A | Score: 0.588012]
+Content: ## 1.5 Workload
+
+The module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).
+
+[Child Chunk 47 | Linked to Parent ID: N/A | Score: 0.587452]
+Content: ## 2.1.7 EC claim deadlines
+
+Late claims are only accepted in limited circumstances: (1) compelling evidence of inability to submit on time (e.g., severe incapacitation), (2) new evidence after an EC decision that could not reasonably have been known earlier, or (3) late diagnosis of a disability/long-term condition within the current academic year (Equality Ac 2010) where reasonable adjustments were not in place.
+
+[Child Chunk 48 | Linked to Parent ID: N/A | Score: 0.587452]
+Content: ## 2.1.7 EC claim deadlines
+
+Late claims are only accepted in limited circumstances: (1) compelling evidence of inability to submit on time (e.g., severe incapacitation), (2) new evidence after an EC decision that could not reasonably have been known earlier, or (3) late diagnosis of a disability/long-term condition within the current academic year (Equality Ac 2010) where reasonable adjustments were not in place.
+
+[Child Chunk 49 | Linked to Parent ID: N/A | Score: 0.586825]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+[Child Chunk 50 | Linked to Parent ID: N/A | Score: 0.586795]
+Content: Given the rise in mean global temperatures, the human population is projected to experience climate conditions beyond the human climate niche. Some projections show that considering temperature and demographic changes, 2.0 and 3.7 billion people will live in out of the niche by 2030 and 2090, respectively.
+
+[Child Chunk 51 | Linked to Parent ID: N/A | Score: 0.585652]
+Content: Orbital insertion on Ganymede In December 2034, JUICE will enter an elliptical orbit around Ganymede. The first orbit will be at a distance of 5,000 km (3,100 mi). In 2035, JUICE will enter a circular orbit 500 km (310 mi) above the surface of Ganymede. JUICE will study Ganymede's composition and magnetosphere among other things. Planned deorbit on Ganymede When the spacecraft consumes its remaining propellant, JUICE is planned to be deorbited and impact Ganymede at the end of 2035.
+
+[Child Chunk 52 | Linked to Parent ID: N/A | Score: 0.585348]
+Content: Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+[Child Chunk 53 | Linked to Parent ID: N/A | Score: 0.584868]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Child Chunk 54 | Linked to Parent ID: N/A | Score: 0.584745]
+Content: ## 1.9 Expenses
+
+## 1.9.1 Travel
+
+Expenses  to  travel  to  the  industry  sponsor  of  your  project  will  be  reimbursed  by  the  university. However, you are expected to use common sense and be responsible in this. That is, travel as much as possible (and practical) with public transport, or if going by taxi, share a taxi whenever possible. If traveling by car, please ensure that your insurance covers you for 'work / business' related trips.
+
+[Child Chunk 55 | Linked to Parent ID: N/A | Score: 0.584490]
+Content: ## Note that:
+
+- The main computer science lab (A32) is booked for 2 hours every week (see timetable for the exact time), and no other activities are scheduled during this time (all team members should therefore be able to attend).
+
+[Child Chunk 56 | Linked to Parent ID: N/A | Score: 0.584169]
+Content: In April 2023, Microsoft and Epic Systems announced that they will provide healthcare providers with GPT-4 powered systems for assisting in responding to questions from patients and analysing medical records.
+
+[Child Chunk 57 | Linked to Parent ID: N/A | Score: 0.584017]
+Content: Pope Benedict XVI (Latin: Benedictus PP. XVI; Italian: Benedetto XVI; German: Benedikt XVI; born Joseph Aloisius Ratzinger; 16 April 1927 – 31 December 2022) was the head of the Catholic Church and sovereign of the Vatican City State from 19 April 2005 until his resignation on 28 February 2013. Benedict's election as pope occurred in the 2005 papal conclave that followed the death of Pope John Paul II. Benedict chose to be known as "Pope emeritus" upon his resignation, and he retained this title until his death in December 2022
+
+[Child Chunk 58 | Linked to Parent ID: N/A | Score: 0.584009]
+Content: 64 Concluding remarks ▪Take-home exercise (see Moodle): ▪Design of components for solving Examination Timetabling – discuss your solutions on the forum. ▪Module activities: ▪Formative self-assessment quiz on Moodle. ▪Computing Session (COMP2001): Friday 6th February CS-A32 4pm – Hill-Climbing. ▪Next lecture: ▪Warren will take over for 2-weeks. ▪10th February 4pm – Metaheuristics. Thank you 65 Any questions?
+
+[Child Chunk 59 | Linked to Parent ID: N/A | Score: 0.584009]
+Content: 64 Concluding remarks ▪Take-home exercise (see Moodle): ▪Design of components for solving Examination Timetabling – discuss your solutions on the forum. ▪Module activities: ▪Formative self-assessment quiz on Moodle. ▪Computing Session (COMP2001): Friday 6th February CS-A32 4pm – Hill-Climbing. ▪Next lecture: ▪Warren will take over for 2-weeks. ▪10th February 4pm – Metaheuristics. Thank you 65 Any questions?
+
+[Child Chunk 60 | Linked to Parent ID: N/A | Score: 0.583399]
+Content: History Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+[Child Chunk 61 | Linked to Parent ID: N/A | Score: 0.583246]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Child Chunk 62 | Linked to Parent ID: N/A | Score: 0.582886]
+Content: ## 1.9 Expenses
+
+## 1.9.1 Travel
+
+Approval must be obtained from the project coordinator (Dr. Geert De Maere) prior to booking any travel. Make sure you keep any receipts to claim back expenses. The expense reclaim form can be downloaded from the COMP2002 Moodle page.
+
+[Child Chunk 63 | Linked to Parent ID: N/A | Score: 0.582702]
+Content: On 8 March 2021, the International Women's Day, the Turkish Football Federation signed a sponsorship agreement with the Turkish mobile phone operator Turkcell. Accordingly, the First Women's Football League was named Turkcell Women's Super League (Turkish: Turkcell Kadın Süper Ligi) beginning with the 2021–22 season.
+
+[Child Chunk 64 | Linked to Parent ID: N/A | Score: 0.581941]
+Content: The project was announced in September 2021 after Universal Pictures won a bidding war for Nolan's screenplay. Murphy signed on to portray Oppenheimer in October, with others in the main cast joining between November 2021 and April 2022.
+
+[Child Chunk 65 | Linked to Parent ID: N/A | Score: 0.581821]
+Content: ## Per group submission:
+
+1. Python codes: .py files (submitted as a ZIP folder)
+
+2. A 6-page conference paper in PDF format ( note: additional pages will result in a deduction of 5% for every additional page for the entire group ).
+
+[Child Chunk 66 | Linked to Parent ID: N/A | Score: 0.581133]
+Content: U.S. officials have proposed a range of reforms to international health regulations and global institutions for global health security. The "entire architecture of the response to epidemics" may need to get adapted, evolving "from crisis response during discrete outbreaks to an integrated cycle of preparation, response and recovery" (see also #International coordination).
+
+[Child Chunk 67 | Linked to Parent ID: N/A | Score: 0.580687]
+Content: On 17 March 2014, the United States, the European Union, and Canada introduced specifically targeted sanctions, the day after the disputed Crimean referendum and a few hours before Russian president Vladimir Putin signed a decree recognizing Crimea as an independent state, laying the groundwork for its annexation of Crimea by Russia. The principal EU sanction aimed to "prevent the entry into... their territories of the natural persons responsible for actions which undermine... the territorial integrity... of Ukraine, and of natural persons associated with them, as listed in the Annex"
+
+[Child Chunk 68 | Linked to Parent ID: N/A | Score: 0.580124]
+Content: MERS-CoV/NeoCoV alert In January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35%
+
+[Child Chunk 69 | Linked to Parent ID: N/A | Score: 0.580074]
+Content: == References ==
+
+[Child Chunk 70 | Linked to Parent ID: N/A | Score: 0.579892]
+Content: ## 3.1 Submission Format
+
+All reports must be submitted in PDF Format to the appropriate submission system on Moodle . The file name must be "teamX-groupReport.pdf" (replacing the X with your team number).
+
+[Child Chunk 71 | Linked to Parent ID: N/A | Score: 0.579785]
+Content: Mars Colonial Transporter In October 2012, Musk made the first public articulation of plans to develop a fully reusable rocket system with substantially greater capabilities than SpaceX's existing Falcon 9. This new launch vehicle was intended to be part of the company's Mars system architecture, then known as the Mars Colonial Transporter/Mass Cargo Transport (MCT). According to SpaceX, the MCT system would include reusable rocket engines, launch vehicles and space capsules that would enable transportation of humans to Mars and back to Earth
+
+[Child Chunk 72 | Linked to Parent ID: N/A | Score: 0.579581]
+Content: Delayed disclosure of data breaches On February 27, 2015, Uber admitted that it had suffered a data breach more than nine months prior. Names and license plate information from approximately 50,000 drivers were inadvertently disclosed. Uber discovered this leak in September 2014, but waited more than five months to notify the affected individuals.An announcement in November 2017 revealed that in 2016, a separate data breach had disclosed the personal information of 600,000 drivers and 57 million customers. This data included names, email addresses, phone numbers, and drivers' license information
+
+[Child Chunk 73 | Linked to Parent ID: N/A | Score: 0.579130]
+Content: In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No
+
+[Child Chunk 74 | Linked to Parent ID: N/A | Score: 0.579116]
+Content: ## 5.5 Re-assessment
+
+- Consider  the  code  and  documentation  (report,  manual,  etc.)  that  have  been  submitted already, and the initial and adopted requirements.
+
+- Add a useful fix or addition to the code
+
+- Update the documentation appropriately
+
+- Provide a brief (1-3 page) report summarising what you changed, why it was changed, what effect it had
+
+[Child Chunk 75 | Linked to Parent ID: N/A | Score: 0.578816]
+Content: Species Dasypoda albimana Pérez, 1905 Dasypoda albipila Spinola, 1838 Dasypoda altercator (Harris 1780) Dasypoda argentata Panzer 1809 Dasypoda aurata Rudow, 1881 Dasypoda braccata Eversmann 1852 Dasypoda brevicornis Pérez, 1895 Dasypoda chinensis Wu, 1978 Dasypoda cingulata Erichson 1835 Dasypoda cockerelli Yasumatsu, 1935 Dasypoda comberi Cockerell 1911 Dasypoda crassicornis Friese, 1896 Dasypoda delectabilis Ghisbain & Michez, 2023 Dasypoda
+
+[Child Chunk 76 | Linked to Parent ID: N/A | Score: 0.578658]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Child Chunk 77 | Linked to Parent ID: N/A | Score: 0.577939]
+Content: ## 2.6 Open Day
+
+The open day will help you to develop your communication skills and is attended by numerous industry visitors, academics, and other CS students. It is an opportunity to show off the results of your efforts and hard work during the year. It is also a perfect opportunity to make connections with industry partners for future graduate opportunities, internships, etc. Open day is often seen as the highlight of the year.
+
+[Child Chunk 78 | Linked to Parent ID: N/A | Score: 0.577763]
+Content: Generative Pre-trained Transformer 4 (GPT-4) is a multimodal large language model created by OpenAI, and the fourth in its numbered "GPT-n" series of GPT foundation models. It was released on March 14, 2023, and has been made publicly available in a limited form via the chatbot product ChatGPT Plus (a premium version of ChatGPT), and with access to the GPT-4 based version of OpenAI's API being provided via a waitlist
+
+[Child Chunk 79 | Linked to Parent ID: N/A | Score: 0.577716]
+Content: ## Important:
+
+- Late submissions, be it of printed copies or electronic copies of reports and software, will be penalised at the standard university guidelines of 5 % per working day.
+
+[Child Chunk 80 | Linked to Parent ID: N/A | Score: 0.577488]
+Content: 2004: Shanghai SWB5105KGP-3 and Xianfei HZGWG100K trolleybuses introduced, operating alongside Daewoo and Volvo diesel buses. 2014: Newer Youngman trolleybuses entered service; these were retired in September 2022 when the retro-style Sunwin trolleybuses entered service.
+
+[Child Chunk 81 | Linked to Parent ID: N/A | Score: 0.577285]
+Content: In February 2022, several balloons were detected off the coast of Taiwan, which their Ministry of National Defense said were likely for meteorological observations for the PLA's Eastern Theater Command. Another crashed near Taiwan in February 2023, carrying an antenna, a transmitter, temperature and humidity sensors, and was likely from China as well.
+
+[Child Chunk 82 | Linked to Parent ID: N/A | Score: 0.576925]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Child Chunk 83 | Linked to Parent ID: N/A | Score: 0.576576]
+Content: ## Room bookings
+
+If working on an industry project, and when meeting with industry supervisors on campus, teams can book meeting rooms. This can be done by contacting the staff at the reception desk in the school of Computer Science (Gemma Singleton -gemma.singleton@nottingham.ac.uk, and Lindsay Norman -lindsay.norman@nottingham.ac.uk). Please state explicitly that the booking is required to meet with your industry sponsor, and specify the date, time, and equipment that you require.
+
+Note that all other (regular) meetings should take place in the labs or in other publicly accessible rooms.
+
+[Child Chunk 84 | Linked to Parent ID: N/A | Score: 0.576091]
+Content: In response the U.S. changed the sensitivity of its radar detection systems, which enabled it to detect additional UFOs.The U.S. Department of State said that a fleet of Chinese balloons have flown over more than forty countries and linked the surveillance activity to the Chinese military. In 2020 and 2021, similar balloons were sighted in Sendai and Hachinohe, Japan respectively, but they were not identified as of Chinese origin at the time. A similar aircraft was sighted in January 2022 over India's strategically important Andaman and Nicobar islands
+
+[Child Chunk 85 | Linked to Parent ID: N/A | Score: 0.574893]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+Figure 1 : An example of a mask created for one PMY.
+
+<!-- image-uuid: 1f11733d-8f20-6e00-b68b-1f84a07f2493 -->
+
+[Child Chunk 86 | Linked to Parent ID: N/A | Score: 0.574013]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Child Chunk 87 | Linked to Parent ID: N/A | Score: 0.573614]
+Content: History Chimnabai Clock Tower was built in 1896. The tower was named after Chimnabai I (1864–1885), a queen and the first wife of Sayajirao Gaekwad III of Baroda State. It was constructed from the funds raised by the citizens of Baroda State.The premises of the tower were rented by the Vadodara Municipal Corporation for the last three decades. In 2017, the municipal commissioner, Vinod Rao, ordered to vacate the tower to conserve it as a heritage monument. The mechanical system of the tower clock was replaced by DC motor. The tower is lit up in the evening.
+
+[Child Chunk 88 | Linked to Parent ID: N/A | Score: 0.573054]
+Content: ## 3.2.5 Referencing
+
+- Ensure appropriate and consistent in text referencing to technical resources and the scientific literature. Use a consistent referencing format, both in the text and for the full references at the end of your reports.
+
+[Child Chunk 89 | Linked to Parent ID: N/A | Score: 0.572836]
+Content: ## Industry Sponsor
+
+Industry sponsors offer support to the team between the middle of October and the end of May. The amount of contact can vary but, as a guideline, you should expect to meet your industry sponsor for about an hour every two weeks , in addition to pitch day and showcase day.  These meetings can take place  at  the  sponsor's  premises,  on  campus,  or  remotely -  e.g.  using  Skype  or  MS  Teams.  A combination of these often works well.
+
+[Child Chunk 90 | Linked to Parent ID: N/A | Score: 0.572527]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Child Chunk 91 | Linked to Parent ID: N/A | Score: 0.572405]
+Content: Fleet As of May 2023, the route runs on a fleet of 22 Sunwin SWB5129BEV77G trolleybuses. These buses bear a blue retro livery, commemorating the heritage of trams and trolleybuses in Shanghai. Unlike other trolleybuses of the same type, those on Route 20 have a line of text saying "Since 1928", alluding to the year the route was introduced. These buses were piloted in July 2022 and entered service in September.
+
+[Child Chunk 92 | Linked to Parent ID: N/A | Score: 0.572199]
+Content: The money consists of three separate $25,000 rewards, offered by the State of North Carolina, Duke Energy, and Moore County.
+
+[Child Chunk 93 | Linked to Parent ID: N/A | Score: 0.572062]
+Content: 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries.
+
+[Child Chunk 94 | Linked to Parent ID: N/A | Score: 0.571807]
+Content: Chimes During the Gaekwad rule, the mechanical system was used to play tunes every 15 minutes, which later changed to every hour.
+
+[Child Chunk 95 | Linked to Parent ID: N/A | Score: 0.571357]
+Content: ## 2.8 Golden Rules
+
+Below are some tips based upon the reflective comments in the final reports from previous years.
+
+- Work consistently throughout the project. Start work on your project quickly, and don't leave all the real work until just before the deadlines. The agile process with bi-weekly sprints aiming to deliver a demonstratable result at the end of every sprint is designed to encourage you to do so.
+
+[Child Chunk 96 | Linked to Parent ID: N/A | Score: 0.571299]
+Content: Miss Grand Dominican Republic (Spanish: Miss Grand República Dominicana) is a female national beauty pageant in the Dominican Republic, founded in 2016 by a Dominican American business person, Chantel Martinez, with the aim of selecting a country representative to participate in its parent pageant, Miss Grand International. After Chantel Martinez ended the partnership with the Miss Grand International in 2019, the competition franchise was taken over by different local organizers, such as the Iconic Model Search Inc
+
+[Child Chunk 97 | Linked to Parent ID: N/A | Score: 0.571293]
+Content: ## 1.7 Teams
+
+Note that you are not allowed to form your own groups, and that you are not allowed to swap places with someone from another group.
+
+[Child Chunk 98 | Linked to Parent ID: N/A | Score: 0.571255]
+Content: ## Ground Truth
+
+You will also be provided with a Ground Truth folder which contins images that will be used to fulfil the pipeline evaluation of your coursework. Your image processing pipeline should automatically generate mask of the PMY as shown in Figure 1, below. To ease the process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+[Child Chunk 99 | Linked to Parent ID: N/A | Score: 0.570830]
+Content: Limiting research on highly contagious biological agents to only trained researchers in well-protected environments and advanced biological safety systems and disposal of biohazards. improving physical security and educating scientists about the misuse potentials
+
+[Child Chunk 100 | Linked to Parent ID: N/A | Score: 0.570814]
+Content: Technology-centric measures Biosafety technologies and biotechnology regulation Potential policies that support global biosafety could make use of various technologies, including but not limited to laboratory containment technologies – for example, tools could promote compliance with existing and novel biosecurity norms and standards. Proposals to increase biosafety in terms of laboratories, scientific field work and research and development-related activities include:
+
+[Child Chunk 101 | Linked to Parent ID: N/A | Score: 0.570765]
+Content: The MAT Access and Quality Improvement Act seeks to address this issue by eliminating the X-waiver requirement for healthcare providers who meet certain qualifications. The bill would also increase the number of patients that healthcare providers can treat with MAT, allowing them to reach more individuals struggling with opioid addiction.
+
+[Child Chunk 102 | Linked to Parent ID: N/A | Score: 0.570443]
+Content: Some biosafety and public health researchers contend that certain pandemic prevention efforts themselves carry risk of triggering pandemics (e.g. wildlife virus sampling), though not engaging in any form of sampling also carries the risk of being unprepared for future spillover events and being unaware of future pandemic pathogens.
+
+[Child Chunk 103 | Linked to Parent ID: N/A | Score: 0.570261]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Child Chunk 104 | Linked to Parent ID: N/A | Score: 0.570112]
+Content: Several weeks prior to the actual event, U.S. intelligence started foreseeing a significant Wagner insurrection and obtained solid evidence of the imminent rebellion before 21 June. Prigozhin seemed to have set the plan in motion following the MoD decision on 10 June, which would effectively integrate Wagner forces into the regular military. The foreign intelligence findings indicate that the revolt was planned in advance, contradicting Prigozhin's claim that the decision to rebel was made on 23 June.Anonymous U.S
+
+[Child Chunk 105 | Linked to Parent ID: N/A | Score: 0.569901]
+Content: ## Missed assessments and late penalties
+
+Late submission penalty (Regulation 8): coursework marks are reduced by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.
+
+[Child Chunk 106 | Linked to Parent ID: N/A | Score: 0.569795]
+Content: History The Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund
+
+[Child Chunk 107 | Linked to Parent ID: N/A | Score: 0.569697]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Child Chunk 108 | Linked to Parent ID: N/A | Score: 0.569525]
+Content: ## 3.5.4 Demonstration Video
+
+- Display the team number and the different team members on the first video frame, together with the title of your project, supervisors, and sponsor.
+
+- Prepare the narrative for the demo video before the recording.
+
+- You can edit pieces of narrative to produce the final demo video.
+
+- Speak clearly and be creative.
+
+- Use audio-visual aids as appropriate illustrating crucial features of your work.
+
+[Child Chunk 109 | Linked to Parent ID: N/A | Score: 0.569426]
+Content: ## Declaration of AI Use
+
+REMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.
+
+[Child Chunk 110 | Linked to Parent ID: N/A | Score: 0.569342]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The demo  day (circumstances  permitting),  a  "trade  fair  style  event"  where  you  will demonstrate your work to both internal and external visitors.
+
+[Child Chunk 111 | Linked to Parent ID: N/A | Score: 0.568680]
+Content: The 2022 Hormozgan earthquakes were a pair of doublet earthquakes that struck southern Iran on 1 July, 2022. The earthquakes, which occurred around two hours apart, killed seven people and injured dozens more.
+
+[Child Chunk 112 | Linked to Parent ID: N/A | Score: 0.568590]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+When the registration process closes on the third day, every project will have three teams against it, and every team will be signed up to bid for three projects.
+
+[Child Chunk 113 | Linked to Parent ID: N/A | Score: 0.568514]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Child Chunk 114 | Linked to Parent ID: N/A | Score: 0.568221]
+Content: Early design proposals In 2007, Elon Musk publicly stated that he hopes to enable the exploration and settlement of Mars through SpaceX. SpaceX began developing the Raptor rocket engine before 2014. From 2011 to 2014, Musk made various statements expressing his hope that SpaceX would send humans to Mars in the 2020s to 2030s.
+
+[Child Chunk 115 | Linked to Parent ID: N/A | Score: 0.567996]
+Content: A Brayton power conversion system would convert reactor heat into electricity. Providing a thousand times the electrical output of conventional solar- or radioisotope thermoelectric generator (RTG)-based power systems, the reactor was expected to open up opportunities like flying a full scale ice-penetrating radar system and providing a strong, high-bandwidth data t
+
+[Child Chunk 116 | Linked to Parent ID: N/A | Score: 0.567956]
+Content: ## E-exams (upload time rules)
+
+E-exam upload time allowances depend on format (e.g., ExamSys/ROGO invigilated on campus: exam duration plus any technical time; ExamSys remote: exam duration plus 10 minutes; Moodle up to 3 hours: exam duration plus 30 minutes upload/IT buffer; 24-hour Moodle exams: no extra time). Late submissions are not accepted and receive 0% unless approved EC applies.
+
+[Child Chunk 117 | Linked to Parent ID: N/A | Score: 0.567857]
+Content: In January 2022, the EU announced the latest extension of sanctions until 31 July 2022. Following Russia's invasion of Ukraine in February 2022, the United States, the EU, and other countries introduced or significantly expanded sanctions to include Vladimir Putin and other government officials. They also cut off selected Russian banks from SWIFT. The 2022 boycott of Russia and Belarus triggered the 2022 Russian financial crisis.
+
+[Child Chunk 118 | Linked to Parent ID: N/A | Score: 0.567619]
+Content: Japan also announced sanctions against Russia, which included the suspension of talks regarding military matters, space, investment, and visa requirements. A few days later, the US government expanded the sanctions.On 19 March, Australia imposed sanctions against Russia after its annexation of Crimea. These sanctions targeted financial dealings and travel bans on those who have been instrumental in the Russian threat to Ukraine's sovereignty. Australian sanctions were expanded on 21 May
+
+--------------------------------------------------
+--------------------------------------------------
+⚖️  RERANKER RESULTS (Top 59 Selected)
+--------------------------------------------------
+[Rank 1 | BGE Score: 0.011010]
+Content: Pope Benedict XVI (Latin: Benedictus PP. XVI; Italian: Benedetto XVI; German: Benedikt XVI; born Joseph Aloisius Ratzinger; 16 April 1927 – 31 December 2022) was the head of the Catholic Church and sovereign of the Vatican City State from 19 April 2005 until his resignation on 28 February 2013. Benedict's election as pope occurred in the 2005 papal conclave that followed the death of Pope John Paul II. Benedict chose to be known as "Pope emeritus" upon his resignation, and he retained this title until his death in December 2022
+
+[Rank 2 | BGE Score: 0.002665]
+Content: ## ExamSys Test
+
+## Individual 30%
+
+| Description        | Focuses on theories covered in the lectures and practical exercises   |
+|--------------------|-----------------------------------------------------------------------|
+| Date, Time & Venue | 30 April 2026 &#124; Time and Venue TBC                               |
+
+[Rank 3 | BGE Score: 0.002551]
+Content: ## Description and Deliverable(s)
+
+| Release Date                                                        | Friday, 27 February 2026                                                                                                                                   |
+|---------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| Submission Date                                                     | Friday, 06 May 2026 by 16:00pm via UoN's Moodle                                                                                                            |
+| Late Policy (University of Nottingham default will apply, if blank) | Work submitted after the deadline will be subject to a penalty of 5 marks (the standard 5% absolute) for each late working day out of the total 100 marks. |
+| Feedback Mechanism and Date                                         | Marks and written feedback will be returned via Moodle on the w/c 2 June 2026                                                                              |
+
+The coursework (details below) requires you to work in groups of maximums of 4 to develop a software solution, using
+
+[Rank 4 | BGE Score: 0.000564]
+Content: Timeline Launch JUICE was launched into space on 14 April 2023 from the Guiana Space Centre on an Ariane 5 rocket. This was the final launch of an ESA science mission using the Ariane 5 vehicle, and was the second to last launch of the rocket overall.The launch was originally scheduled for 13 April 2023, but due to poor weather the launch was postponed. The next day a second launch attempt succeeded, with liftoff occurring at 12:14:36 UTC. After the spacecraft separated from the rocket, it established a successful radio signal connection with the ground at 13:04 UTC
+
+[Rank 5 | BGE Score: 0.000548]
+Content: See also Weather of 2023 == References == 2023 (MMXXIII) is the current year, and is a common year starting on Sunday of the Gregorian calendar, the 2023rd year of the Common Era (CE) and Anno Domini (AD) designations, the 23rd year of the 3rd millennium and the 21st century, and the 4th year of the 2020s decade.
+
+[Rank 6 | BGE Score: 0.000544]
+Content: ## Per group submission:
+
+3. Results 2026 IIP - Group XXX (submitted as a ZIP folder and please change XXX to your group number (e.g., 001, 007, 011)
+
+4. -001 - Input Images
+
+5. -002 - Image Processing Pipeline
+
+6. -003 - Output Images
+
+[Rank 7 | BGE Score: 0.000470]
+Content: Several weeks prior to the actual event, U.S. intelligence started foreseeing a significant Wagner insurrection and obtained solid evidence of the imminent rebellion before 21 June. Prigozhin seemed to have set the plan in motion following the MoD decision on 10 June, which would effectively integrate Wagner forces into the regular military. The foreign intelligence findings indicate that the revolt was planned in advance, contradicting Prigozhin's claim that the decision to rebel was made on 23 June.Anonymous U.S
+
+[Rank 8 | BGE Score: 0.000450]
+Content: PSLV-C56是印度空间研究组织（ISRO）极地卫星运载火箭（PSLV）的第58次任务，也是PSLV-CA型号的第17次飞行，将从萨迪什·达万航天中心第一发射台（FLP）发射。 计划于2023年7月30日星期日印度标准时间06:30 / 协调世界时01:00从印度安得拉邦斯里赫里戈达的萨迪什·达万航天中心发射。印度空间研究组织（ISRO）是印度政府的航天机构。它成立于1969年，旨在发展空间技术和进行空间研究。ISRO负责该国的空间计划，包括卫星发射、空间探索和空间相关技术的开发。多年来，ISRO取得了多项重要里程碑。它在1975年成功发射了第一颗卫星“Aryabhata”。
+
+[Rank 9 | BGE Score: 0.000381]
+Content: ## Your ACTION as a Group
+
+For everyone convenience, I have provided empty folders/subfolders (e.g., Results 2026 IIP - Group XXX , where XXX refers to your group number 001, 007, 011), following the above-mentioned naming convention. All you have to do is fill it up with your desired 15 input images, image processing pipeline images and corresponding output images.
+
+NOTE : A readme file is recommended to be produced alongside the source code.
+
+[Rank 10 | BGE Score: 0.000342]
+Content: The JUpiter ICy moons Explorer (Juice, formerly JUICE) is an interplanetary spacecraft that was launched on 14 April 2023 from Guiana Space Centre in the French Guiana by the European Space Agency (ESA) with Airbus Defence and Space as the main contractor. The mission is planned to study Ganymede, Callisto, and Europa, three of Jupiter's Galilean moons. They are thought to have significant bodies of liquid water beneath their icy surfaces which would make them potentially habitable environments
+
+[Rank 11 | BGE Score: 0.000196]
+Content: Sss
+
+[Rank 12 | BGE Score: 0.000196]
+Content: Sss
+
+[Rank 13 | BGE Score: 0.000187]
+Content: The 80th annual Venice International Film Festival will be held from 30 August to 9 September 2023.
+
+[Rank 14 | BGE Score: 0.000159]
+Content: ## Individual submission:
+
+1. COMP2005-CW-GroupXXX.docx : this is your conference paper template. Please change XXX to your group number (e.g., 001, 007, 011). Also, please do not change the formatting and headers. Marks will be deducted if submitted document does not follow the original formatting style. The provided table as well as text coloured red and blue, respectively are to be replaced by your own written words.
+
+2. A compressed Dataset folder.
+
+3. A compressed Ground Truth folder.
+
+Note: COMP2005-CW-GroupXXX.docx is to be converted to PDF prior to submission and all text should be coloured in black.
+
+[Rank 15 | BGE Score: 0.000121]
+Content: Trajectory Following the launch, there will be multiple planned gravity assists to put JUICE on a trajectory to Jupiter: a flyby of the Earth–Moon system in August 2024, Venus in August 2025, second flyby of Earth in September 2026, and a third and final flyby of Earth in January 2029.JUICE will pass through the asteroid belt twice. A flyby of the asteroid 223 Rosa has been proposed, and could occur in October 2029.Gravity assists include: Interplanetary transfer (Earth, Venus, Earth, Earth) Jupiter orbit insertion and apocentre reduction with multiple Ganymede gravity assists
+
+[Rank 16 | BGE Score: 0.000119]
+Content: From January 28 to February 4, 2023, a high-altitude balloon owned by China was spotted in North American airspace, including Alaska, western Canada, and the contiguous United States. On February 4, the U.S. Air Force shot down the balloon over U.S. territorial waters off the coast of South Carolina. Debris from the wreckage was recovered and sent to the FBI Laboratory in Quantico, Virginia, for analysis. Following a preliminary analysis of the debris in June, U.S
+
+[Rank 17 | BGE Score: 0.000115]
+Content: 64 Concluding remarks ▪Take-home exercise (see Moodle): ▪Design of components for solving Examination Timetabling – discuss your solutions on the forum. ▪Module activities: ▪Formative self-assessment quiz on Moodle. ▪Computing Session (COMP2001): Friday 6th February CS-A32 4pm – Hill-Climbing. ▪Next lecture: ▪Warren will take over for 2-weeks. ▪10th February 4pm – Metaheuristics. Thank you 65 Any questions?
+
+[Rank 18 | BGE Score: 0.000115]
+Content: 64 Concluding remarks ▪Take-home exercise (see Moodle): ▪Design of components for solving Examination Timetabling – discuss your solutions on the forum. ▪Module activities: ▪Formative self-assessment quiz on Moodle. ▪Computing Session (COMP2001): Friday 6th February CS-A32 4pm – Hill-Climbing. ▪Next lecture: ▪Warren will take over for 2-weeks. ▪10th February 4pm – Metaheuristics. Thank you 65 Any questions?
+
+[Rank 19 | BGE Score: 0.000110]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+<!-- image-uuid: 1f11733d-8f36-6d3c-aa9b-770b8721cdf8 -->
+
+[Rank 20 | BGE Score: 0.000107]
+Content: ## 1.5 Workload
+
+The module runs from the end of September until the middle of May - with Christmas, Easter and assessment  breaks  in  between  (term  times  are  listed  here  -  https://www.nottingham.ac.uk/ about/keydates/index.aspx).
+
+[Rank 21 | BGE Score: 0.000098]
+Content: The spacecraft was launched on 14 April 2023 at 12:14:36 UTC and is expected to reach Jupiter in July 2031 after four gravity assists and eight years of travel. In December 2034, the spacecraft will enter orbit around Ganymede for its close-up science mission. Its period of operations will overlap with NASA's Europa Clipper mission, launching in 2024.
+
+[Rank 22 | BGE Score: 0.000097]
+Content: ## 5.5 Re-assessment
+
+- Consider  the  code  and  documentation  (report,  manual,  etc.)  that  have  been  submitted already, and the initial and adopted requirements.
+
+- Add a useful fix or addition to the code
+
+- Update the documentation appropriately
+
+- Provide a brief (1-3 page) report summarising what you changed, why it was changed, what effect it had
+
+[Rank 23 | BGE Score: 0.000086]
+Content: Generative Pre-trained Transformer 4 (GPT-4) is a multimodal large language model created by OpenAI, and the fourth in its numbered "GPT-n" series of GPT foundation models. It was released on March 14, 2023, and has been made publicly available in a limited form via the chatbot product ChatGPT Plus (a premium version of ChatGPT), and with access to the GPT-4 based version of OpenAI's API being provided via a waitlist
+
+[Rank 24 | BGE Score: 0.000066]
+Content: Monkeypox On 21 May 2022, the WHO reported on the international 2022 monkeypox outbreak in non-endemic countries which involved an unprecedented number of cases detected outside of Africa. The first of these cases was detected on 6 May 2022. The main method used for early containment (see below) is 'ring vaccination' – vaccinating close contacts of positive cases via already-existing vaccines alongside pre-exposure vaccination of members of the public at higher risk.
+
+[Rank 25 | BGE Score: 0.000064]
+Content: The 2022 Hormozgan earthquakes were a pair of doublet earthquakes that struck southern Iran on 1 July, 2022. The earthquakes, which occurred around two hours apart, killed seven people and injured dozens more.
+
+[Rank 26 | BGE Score: 0.000063]
+Content: Interplanetary Transport System In 2016, Musk changed the name of the Mars Colonial Transporter system to the Interplanetary Transport System (ITS), as he intended for the system to be capable of traveling beyond Mars. That same year he provided more details about the space mission architecture, launch vehicle, spacecraft, and Raptor engines. The first test firing of a Raptor engine on a test stand took place in September 2016. In October 2016, Musk indicated that the initial tank test article, made out of carbon-fiber pre-preg, and built with no sealing liner, had performed well in cryogenic fluid testing
+
+[Rank 27 | BGE Score: 0.000056]
+Content: ## 2.1.7 EC claim deadlines
+
+Late claims are only accepted in limited circumstances: (1) compelling evidence of inability to submit on time (e.g., severe incapacitation), (2) new evidence after an EC decision that could not reasonably have been known earlier, or (3) late diagnosis of a disability/long-term condition within the current academic year (Equality Ac 2010) where reasonable adjustments were not in place.
+
+[Rank 28 | BGE Score: 0.000056]
+Content: ## 2.1.7 EC claim deadlines
+
+Late claims are only accepted in limited circumstances: (1) compelling evidence of inability to submit on time (e.g., severe incapacitation), (2) new evidence after an EC decision that could not reasonably have been known earlier, or (3) late diagnosis of a disability/long-term condition within the current academic year (Equality Ac 2010) where reasonable adjustments were not in place.
+
+[Rank 29 | BGE Score: 0.000053]
+Content: <!-- image-uuid: 1f11733d-8e23-691f-a92a-34cc56d32737 -->
+
+Module Assessment Sheet for 2025-2026
+
+[Rank 30 | BGE Score: 0.000050]
+Content: On 8 March 2021, the International Women's Day, the Turkish Football Federation signed a sponsorship agreement with the Turkish mobile phone operator Turkcell. Accordingly, the First Women's Football League was named Turkcell Women's Super League (Turkish: Turkcell Kadın Süper Ligi) beginning with the 2021–22 season.
+
+[Rank 31 | BGE Score: 0.000050]
+Content: Orbital insertion on Ganymede In December 2034, JUICE will enter an elliptical orbit around Ganymede. The first orbit will be at a distance of 5,000 km (3,100 mi). In 2035, JUICE will enter a circular orbit 500 km (310 mi) above the surface of Ganymede. JUICE will study Ganymede's composition and magnetosphere among other things. Planned deorbit on Ganymede When the spacecraft consumes its remaining propellant, JUICE is planned to be deorbited and impact Ganymede at the end of 2035.
+
+[Rank 32 | BGE Score: 0.000049]
+Content: Japan also announced sanctions against Russia, which included the suspension of talks regarding military matters, space, investment, and visa requirements. A few days later, the US government expanded the sanctions.On 19 March, Australia imposed sanctions against Russia after its annexation of Crimea. These sanctions targeted financial dealings and travel bans on those who have been instrumental in the Russian threat to Ukraine's sovereignty. Australian sanctions were expanded on 21 May
+
+[Rank 33 | BGE Score: 0.000045]
+Content: Until 2023 there had only been hints of active volcanism; announced in March 2023 scientists imaged a vent expanding in Magellan images which is the proof needed to announce active volcanism
+
+[Rank 34 | BGE Score: 0.000044]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 35 | BGE Score: 0.000044]
+Content: ## 2.1.7 EC claim deadlines
+
+- Coursework: submit before the original coursework deadline.
+
+- Exams: ideally before the exam begins; no later than 5 working days after the exam (and before the mark is released).
+
+[Rank 36 | BGE Score: 0.000043]
+Content: ## Ground Truth
+
+process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+Figure 1 : An example of a mask created for one PMY.
+
+<!-- image-uuid: 1f11733d-8f20-6e00-b68b-1f84a07f2493 -->
+
+[Rank 37 | BGE Score: 0.000041]
+Content: Arrival at the Jovian system When it arrives in Jupiter's system in July 2031, JUICE will first perform a flyby of Ganymede in preparation for Jupiter orbital insertion about 7.5 hours later. The first orbit will be elongated, with subsequent orbits gradually lowered over time, resulting in a circular orbit around Jupiter.The first Europa flyby will take place in July 2032. JUICE will enter a high inclination orbit to allow exploration of Jupiter's polar regions and to study Jupiter's magnetosphere.
+
+[Rank 38 | BGE Score: 0.000040]
+Content: ## 5.5 Re-assessment
+
+All  code  changes  should  be  pushed  to  Git,  and  the  report  should  be  submitted  to  the  relevant submission system on Moodle.
+
+[Rank 39 | BGE Score: 0.000040]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+To maximise the chances of teams getting at least one of their preferred choices, the sign-up process is spread across three consecutive days. That is, you register to bid for the first project on day 1, the second project on day 2, and the third project on day 3. The different registration systems will open automatically at 09:00 on each day (the exact dates are announced in Moodle).
+
+[Rank 40 | BGE Score: 0.000037]
+Content: ## Graduation implications (finalists)
+
+Final-year students taking first sits in August will not graduate in July; graduation is delayed to the next ava ceremony (e.g., December) or an inter-ceremony (remote) graduation.
+
+[Rank 41 | BGE Score: 0.000037]
+Content: ## Graduation implications (finalists)
+
+Final-year students taking first sits in August will not graduate in July; graduation is delayed to the next ava ceremony (e.g., December) or an inter-ceremony (remote) graduation.
+
+[Rank 42 | BGE Score: 0.000036]
+Content: Species Dasypoda albimana Pérez, 1905 Dasypoda albipila Spinola, 1838 Dasypoda altercator (Harris 1780) Dasypoda argentata Panzer 1809 Dasypoda aurata Rudow, 1881 Dasypoda braccata Eversmann 1852 Dasypoda brevicornis Pérez, 1895 Dasypoda chinensis Wu, 1978 Dasypoda cingulata Erichson 1835 Dasypoda cockerelli Yasumatsu, 1935 Dasypoda comberi Cockerell 1911 Dasypoda crassicornis Friese, 1896 Dasypoda delectabilis Ghisbain & Michez, 2023 Dasypoda
+
+[Rank 43 | BGE Score: 0.000035]
+Content: On 17 March 2014, the United States, the European Union, and Canada introduced specifically targeted sanctions, the day after the disputed Crimean referendum and a few hours before Russian president Vladimir Putin signed a decree recognizing Crimea as an independent state, laying the groundwork for its annexation of Crimea by Russia. The principal EU sanction aimed to "prevent the entry into... their territories of the natural persons responsible for actions which undermine... the territorial integrity... of Ukraine, and of natural persons associated with them, as listed in the Annex"
+
+[Rank 44 | BGE Score: 0.000033]
+Content: ## Missed assessments and late penalties
+
+Late submission penalty (Regulation 8): coursework marks are reduced by 5% for each normal working day after the deadline until reaching 0%. Schools may specify a cut-off for 0% provided it does not exceed the regulation's effect and is stated in writing at the start of the module.
+
+[Rank 45 | BGE Score: 0.000033]
+Content: Miss Grand Dominican Republic (Spanish: Miss Grand República Dominicana) is a female national beauty pageant in the Dominican Republic, founded in 2016 by a Dominican American business person, Chantel Martinez, with the aim of selecting a country representative to participate in its parent pageant, Miss Grand International. After Chantel Martinez ended the partnership with the Miss Grand International in 2019, the competition franchise was taken over by different local organizers, such as the Iconic Model Search Inc
+
+[Rank 46 | BGE Score: 0.000032]
+Content: MERS-CoV/NeoCoV alert In January 2022, Chinese scientists at the Wuhan University and other institutions reported in a preprint the detection of the closest MERS-CoV relative in bats to date, NeoCoV, and another virus, PDF-2180-CoV, that can efficiently use bats' ACE2 for cell entry. The study, now published in Nature found that one mutation could result in a theoretical 'MERS-CoV-2' that, like SARS-CoV-2, can use humans' ACE2 receptor. The theoretical virus could also have a high mortality burden, since MERS-CoV had a case fatality rate of around 35%
+
+[Rank 47 | BGE Score: 0.000032]
+Content: ## 2 The Project
+
+## 2.1 The Bidding Process
+
+## 2.1.1 Project Sign-Up
+
+When the registration process closes on the third day, every project will have three teams against it, and every team will be signed up to bid for three projects.
+
+[Rank 48 | BGE Score: 0.000032]
+Content: ## 2.6 Open Day
+
+Open day takes place in the Summer term, usually in the first half of May. All teams demo their work in a "trade fair style event", taking place in A32. This involve preparing an (interactive) demonstration of your software, a poster, and a nice display/stand.
+
+[Rank 49 | BGE Score: 0.000030]
+Content: ## Note that:
+
+- The main computer science lab (A32) is booked for 2 hours every week (see timetable for the exact time), and no other activities are scheduled during this time (all team members should therefore be able to attend).
+
+[Rank 50 | BGE Score: 0.000030]
+Content: In January 2022, the EU announced the latest extension of sanctions until 31 July 2022. Following Russia's invasion of Ukraine in February 2022, the United States, the EU, and other countries introduced or significantly expanded sanctions to include Vladimir Putin and other government officials. They also cut off selected Russian banks from SWIFT. The 2022 boycott of Russia and Belarus triggered the 2022 Russian financial crisis.
+
+[Rank 51 | BGE Score: 0.000028]
+Content: History Starting with a 2012 announcement of plans to develop a rocket with substantially greater capabilities than SpaceX's existing Falcon 9—underpinned by the ambition to enable human exploration and settlement of Mars—the company created a succession of preliminary designs for such a vehicle, under various names (Mars Colonial Transporter, Interplanetary Transport System, BFR) leading up to a 2019 adoption of a stainless-steel body design, which is also when the name changed to the current Starship
+
+[Rank 52 | BGE Score: 0.000025]
+Content: ## Note:
+
+Please ensure that targets for next sprint become gradually more realistic (e.g. time scales) and inform your supervisor/sponsor when other class activities (coursework for other modules, for example), exams, and holidays are planned.
+
+[Rank 53 | BGE Score: 0.000025]
+Content: ## Assessment regulations (selected key points)
+
+## Assessed coursework
+
+- Coursework must be submitted electronically except where physically impossible due to format.
+
+- Standard deadline is 15:00 local time; recommended deadlines Mon-Thu.
+
+[Rank 54 | BGE Score: 0.000025]
+Content: ## 2.8 Golden Rules
+
+Below are some tips based upon the reflective comments in the final reports from previous years.
+
+- Work consistently throughout the project. Start work on your project quickly, and don't leave all the real work until just before the deadlines. The agile process with bi-weekly sprints aiming to deliver a demonstratable result at the end of every sprint is designed to encourage you to do so.
+
+[Rank 55 | BGE Score: 0.000023]
+Content: ## 2.6 Open Day
+
+The open day will help you to develop your communication skills and is attended by numerous industry visitors, academics, and other CS students. It is an opportunity to show off the results of your efforts and hard work during the year. It is also a perfect opportunity to make connections with industry partners for future graduate opportunities, internships, etc. Open day is often seen as the highlight of the year.
+
+[Rank 56 | BGE Score: 0.000023]
+Content: Module Assessment Sheet for 2025-2026
+
+Module Assessment Sheet for 2025-2026
+
+| Module             | Introduction to Image Processing (IIP) / COMP 2005 / Semester 2   |
+|--------------------|-------------------------------------------------------------------|
+| Assessment         | Coursework (100%)                                                 |
+| Module Convenor(s) | Magan Moemeni                                                     |
+
+Module Assessment Sheet for 2025-2026
+
+| Programming and Conference Paper   | Group   |
+|------------------------------------|---------|
+
+[Rank 57 | BGE Score: 0.000022]
+Content: ## 2.6 Open Day
+
+Prizes  (goodies  and/or  financial  rewards)  will  be  given  out  by  industry  sponsors  for 'the overall project ' , 'the runner up ' , 'the best demo' during demo day . Prizes are independent of the marks you get from the staff markers.
+
+[Rank 58 | BGE Score: 0.000021]
+Content: ## Room bookings
+
+If working on an industry project, and when meeting with industry supervisors on campus, teams can book meeting rooms. This can be done by contacting the staff at the reception desk in the school of Computer Science (Gemma Singleton -gemma.singleton@nottingham.ac.uk, and Lindsay Norman -lindsay.norman@nottingham.ac.uk). Please state explicitly that the booking is required to meet with your industry sponsor, and specify the date, time, and equipment that you require.
+
+Note that all other (regular) meetings should take place in the labs or in other publicly accessible rooms.
+
+[Rank 59 | BGE Score: 0.000021]
+Content: History The Yingshang No. 1 tram route, a predecessor to Trolleybus Route 20, was opened by the British Shanghai Tramways on 21 January 1908 and ran between the Jing'an Temple and The Bund.Trolleybus Route 20 opened on 27 September 1928, initially operating between Zhongshan Park and the Jing'an Temple. After the removal of tram tracks along Nanjing Road in 1963, Yingshang No. 1 was merged into Route 20, forming a single trolleybus route that ran between Zhongshan Park and The Bund
+
+[Rank 60 | BGE Score: 0.000021]
+Content: Mars Colonial Transporter In October 2012, Musk made the first public articulation of plans to develop a fully reusable rocket system with substantially greater capabilities than SpaceX's existing Falcon 9. This new launch vehicle was intended to be part of the company's Mars system architecture, then known as the Mars Colonial Transporter/Mass Cargo Transport (MCT). According to SpaceX, the MCT system would include reusable rocket engines, launch vehicles and space capsules that would enable transportation of humans to Mars and back to Earth
+
+[Rank 61 | BGE Score: 0.000021]
+Content: ## Dataset
+
+Empty Folders of Easy, Medium and Hard are provided to save 5 images from PM, EO and ERB in each folder.
+
+[Rank 62 | BGE Score: 0.000020]
+Content: ## 1 Introduction
+
+## 1.1 Overview
+
+- The demo  day (circumstances  permitting),  a  "trade  fair  style  event"  where  you  will demonstrate your work to both internal and external visitors.
+
+[Rank 63 | BGE Score: 0.000019]
+Content: ## 1.7 Teams
+
+Note that you are not allowed to form your own groups, and that you are not allowed to swap places with someone from another group.
+
+[Rank 64 | BGE Score: 0.000019]
+Content: Fleet As of May 2023, the route runs on a fleet of 22 Sunwin SWB5129BEV77G trolleybuses. These buses bear a blue retro livery, commemorating the heritage of trams and trolleybuses in Shanghai. Unlike other trolleybuses of the same type, those on Route 20 have a line of text saying "Since 1928", alluding to the year the route was introduced. These buses were piloted in July 2022 and entered service in September.
+
+[Rank 65 | BGE Score: 0.000019]
+Content: In response the U.S. changed the sensitivity of its radar detection systems, which enabled it to detect additional UFOs.The U.S. Department of State said that a fleet of Chinese balloons have flown over more than forty countries and linked the surveillance activity to the Chinese military. In 2020 and 2021, similar balloons were sighted in Sendai and Hachinohe, Japan respectively, but they were not identified as of Chinese origin at the time. A similar aircraft was sighted in January 2022 over India's strategically important Andaman and Nicobar islands
+
+[Rank 66 | BGE Score: 0.000018]
+Content: ## E-exams (upload time rules)
+
+E-exam upload time allowances depend on format (e.g., ExamSys/ROGO invigilated on campus: exam duration plus any technical time; ExamSys remote: exam duration plus 10 minutes; Moodle up to 3 hours: exam duration plus 30 minutes upload/IT buffer; 24-hour Moodle exams: no extra time). Late submissions are not accepted and receive 0% unless approved EC applies.
+
+[Rank 67 | BGE Score: 0.000018]
+Content: Starship vehicles in low Earth orbit are planned to be refilled with propellant launched in tanker Starships to enable transit to higher energy destinations such as geosynchronous orbit, the Moon, and Mars.Plans for a heavy-lift vehicle at SpaceX date to 2005, with the earliest concept resembling the modern vehicle announced in 2016. SpaceX's Starship development follows an iterative and incremental approach involving frequent, and often destructive, test flights of prototype vehicles
+
+[Rank 68 | BGE Score: 0.000018]
+Content: History Chimnabai Clock Tower was built in 1896. The tower was named after Chimnabai I (1864–1885), a queen and the first wife of Sayajirao Gaekwad III of Baroda State. It was constructed from the funds raised by the citizens of Baroda State.The premises of the tower were rented by the Vadodara Municipal Corporation for the last three decades. In 2017, the municipal commissioner, Vinod Rao, ordered to vacate the tower to conserve it as a heritage monument. The mechanical system of the tower clock was replaced by DC motor. The tower is lit up in the evening.
+
+[Rank 69 | BGE Score: 0.000018]
+Content: ## Ground Truth
+
+You will also be provided with a Ground Truth folder which contins images that will be used to fulfil the pipeline evaluation of your coursework. Your image processing pipeline should automatically generate mask of the PMY as shown in Figure 1, below. To ease the process, please add ' \_mymask ' at the end of each name of the image such as ' image\_1\_mymask.png '.
+
+[Rank 70 | BGE Score: 0.000018]
+Content: The project was announced in September 2021 after Universal Pictures won a bidding war for Nolan's screenplay. Murphy signed on to portray Oppenheimer in October, with others in the main cast joining between November 2021 and April 2022.
+
+[Rank 71 | BGE Score: 0.000018]
+Content: ## Your ACTION as a Group
+
+You should seek a solution that is as automatic as possible (try to minimise the number of user-supplied parameters) and operates on all the provided images without user intervention (one parameter set for all).
+
+[Rank 72 | BGE Score: 0.000018]
+Content: ## Important:
+
+- Late submissions, be it of printed copies or electronic copies of reports and software, will be penalised at the standard university guidelines of 5 % per working day.
+
+[Rank 73 | BGE Score: 0.000017]
+Content: 2004: Shanghai SWB5105KGP-3 and Xianfei HZGWG100K trolleybuses introduced, operating alongside Daewoo and Volvo diesel buses. 2014: Newer Youngman trolleybuses entered service; these were retired in September 2022 when the retro-style Sunwin trolleybuses entered service.
+
+[Rank 74 | BGE Score: 0.000017]
+Content: ## 3.1 Submission Format
+
+All reports must be submitted in PDF Format to the appropriate submission system on Moodle . The file name must be "teamX-groupReport.pdf" (replacing the X with your team number).
+
+[Rank 75 | BGE Score: 0.000017]
+Content: He was succeeded by Francis on 13 March 2013 and moved into the newly renovated Mater Ecclesiae Monastery in Vatican City for his retirement.
+
+[Rank 76 | BGE Score: 0.000017]
+Content: ## 1.9 Expenses
+
+## 1.9.1 Travel
+
+Approval must be obtained from the project coordinator (Dr. Geert De Maere) prior to booking any travel. Make sure you keep any receipts to claim back expenses. The expense reclaim form can be downloaded from the COMP2002 Moodle page.
+
+[Rank 77 | BGE Score: 0.000017]
+Content: Delayed disclosure of data breaches On February 27, 2015, Uber admitted that it had suffered a data breach more than nine months prior. Names and license plate information from approximately 50,000 drivers were inadvertently disclosed. Uber discovered this leak in September 2014, but waited more than five months to notify the affected individuals.An announcement in November 2017 revealed that in 2016, a separate data breach had disclosed the personal information of 600,000 drivers and 57 million customers. This data included names, email addresses, phone numbers, and drivers' license information
+
+[Rank 78 | BGE Score: 0.000017]
+Content: ## Your ACTION as a Group
+
+As for your code, you are required to make your code easy to be executed by the marker. In other words, the marker can run your code and reproduce your given outputs.
+
+[Rank 79 | BGE Score: 0.000017]
+Content: ## 2.1.6 Claims across multiple assessments or timeframes
+
+EC claims are limited to the semester in which circumstances occur. A claim can include multiple affected assessments. Ongoing issues spanning semesters should be handled via the relevant long-term/ability-to-study regulation; repeat claims for the same assessment may be rejected.
+
+[Rank 80 | BGE Score: 0.000017]
+Content: ## 2.1.6 Claims across multiple assessments or timeframes
+
+EC claims are limited to the semester in which circumstances occur. A claim can include multiple affected assessments. Ongoing issues spanning semesters should be handled via the relevant long-term/ability-to-study regulation; repeat claims for the same assessment may be rejected.
+
+[Rank 81 | BGE Score: 0.000017]
+Content: ## Software Engineering Group Project
+
+COMP2002: Project Handbook 2024-2025
+
+[Rank 82 | BGE Score: 0.000017]
+Content: ## 2.2 Project Management
+
+There must be evidence of the project management process you have used. Deliverables should be planned on a two week cycle through term time and results of demo days and retrospectives (see below) should be recorded. Note that the project management process used is part of the assessment criteria.
+
+[Rank 83 | BGE Score: 0.000017]
+Content: ## 3.2.5 Referencing
+
+- Ensure appropriate and consistent in text referencing to technical resources and the scientific literature. Use a consistent referencing format, both in the text and for the full references at the end of your reports.
+
+[Rank 84 | BGE Score: 0.000017]
+Content: ## Industry Sponsor
+
+Industry sponsors offer support to the team between the middle of October and the end of May. The amount of contact can vary but, as a guideline, you should expect to meet your industry sponsor for about an hour every two weeks , in addition to pitch day and showcase day.  These meetings can take place  at  the  sponsor's  premises,  on  campus,  or  remotely -  e.g.  using  Skype  or  MS  Teams.  A combination of these often works well.
+
+[Rank 85 | BGE Score: 0.000017]
+Content: The MAT Access and Quality Improvement Act seeks to address this issue by eliminating the X-waiver requirement for healthcare providers who meet certain qualifications. The bill would also increase the number of patients that healthcare providers can treat with MAT, allowing them to reach more individuals struggling with opioid addiction.
+
+[Rank 86 | BGE Score: 0.000017]
+Content: ## Declaration of AI Use
+
+REMEMBER : Undeclared or inappropriate use of AI tools may constitute academic misconduct, in line with University of Nottingham (UoN) regulations.
+
+[Rank 87 | BGE Score: 0.000017]
+Content: U.S. officials have proposed a range of reforms to international health regulations and global institutions for global health security. The "entire architecture of the response to epidemics" may need to get adapted, evolving "from crisis response during discrete outbreaks to an integrated cycle of preparation, response and recovery" (see also #International coordination).
+
+[Rank 88 | BGE Score: 0.000017]
+Content: Chimes During the Gaekwad rule, the mechanical system was used to play tunes every 15 minutes, which later changed to every hour.
+
+[Rank 89 | BGE Score: 0.000017]
+Content: ## 5.5 Re-assessment
+
+If you are required to take re-assessment for the module (either due to ECs or for progression), you will be asked to:
+
+[Rank 90 | BGE Score: 0.000017]
+Content: ## 3.5.4 Demonstration Video
+
+- Display the team number and the different team members on the first video frame, together with the title of your project, supervisors, and sponsor.
+
+- Prepare the narrative for the demo video before the recording.
+
+- You can edit pieces of narrative to produce the final demo video.
+
+- Speak clearly and be creative.
+
+- Use audio-visual aids as appropriate illustrating crucial features of your work.
+
+[Rank 91 | BGE Score: 0.000017]
+Content: Early design proposals In 2007, Elon Musk publicly stated that he hopes to enable the exploration and settlement of Mars through SpaceX. SpaceX began developing the Raptor rocket engine before 2014. From 2011 to 2014, Musk made various statements expressing his hope that SpaceX would send humans to Mars in the 2020s to 2030s.
+
+[Rank 92 | BGE Score: 0.000017]
+Content: Given the rise in mean global temperatures, the human population is projected to experience climate conditions beyond the human climate niche. Some projections show that considering temperature and demographic changes, 2.0 and 3.7 billion people will live in out of the niche by 2030 and 2090, respectively.
+
+[Rank 93 | BGE Score: 0.000017]
+Content: FoodFutureCo is a scale-up accelerator for purpose-driven food businesses. FoodFutureCo was founded by Shen Tong, American social activist and investor in 2016 to support post-revenue food companies who are primed to expand from early adoption to early majority. The accelerator program works with companies in agtech, agriculture, consumer packaged goods, local & plant-based foods, sustainable seafood, restaurant concepts, and food waste. The handful of companies within each cohort are established yet small companies with massive skill potential.
+
+[Rank 94 | BGE Score: 0.000016]
+Content: == References ==
+
+[Rank 95 | BGE Score: 0.000016]
+Content: In 1999, after part of East Nanjing Road was converted to a pedestrian-only shopping street, Route 20 was rerouted to skip the segment via Jiujiang Road.In 2019, to celebrate the 70th anniversary of the founding of the People's Republic of China, all 25 trolleybuses running along the route were decorated with pictures depicting the history of the route. That year, it was estimated that as many as 9 out of 10 Shanghai residents had ridden on the route.In the same year, after the entire East Nanjing Road was made pedestrian-only, the terminus was shifted from Jiujiang Road & East No
+
+[Rank 96 | BGE Score: 0.000016]
+Content: In April 2023, Microsoft and Epic Systems announced that they will provide healthcare providers with GPT-4 powered systems for assisting in responding to questions from patients and analysing medical records.
+
+[Rank 97 | BGE Score: 0.000016]
+Content: 18 individuals were originally affected by the Act. In December 2016, Congress enacted the Global Magnitsky Act to allow the US Government to sanction foreign government officials implicated in human rights abuses anywhere in the world. On 21 December 2017, 13 additional names were added to the list of sanctioned individuals, not just Russians. Other countries passed similar laws to ban foreigners deemed guilty of human rights abuses from entering their countries.
+
+[Rank 98 | BGE Score: 0.000016]
+Content: ## 1.9 Expenses
+
+## 1.9.1 Travel
+
+Expenses  to  travel  to  the  industry  sponsor  of  your  project  will  be  reimbursed  by  the  university. However, you are expected to use common sense and be responsible in this. That is, travel as much as possible (and practical) with public transport, or if going by taxi, share a taxi whenever possible. If traveling by car, please ensure that your insurance covers you for 'work / business' related trips.
+
+[Rank 99 | BGE Score: 0.000016]
+Content: In February 2022, several balloons were detected off the coast of Taiwan, which their Ministry of National Defense said were likely for meteorological observations for the PLA's Eastern Theater Command. Another crashed near Taiwan in February 2023, carrying an antenna, a transmitter, temperature and humidity sensors, and was likely from China as well.
+
+[Rank 100 | BGE Score: 0.000016]
+Content: ## 1.3 Ethics
+
+Groups must not start work with human participants, personal data that is not in the public domain, or  biological  materials  before  the  ethics review  process  has  been completed.  You  are  therefore advised to start the ethics process as soon as possible (i.e. immediately after you have been assigned your project or as soon as it becomes apparent that you need ethics clearance).
+
+[Rank 101 | BGE Score: 0.000016]
+Content: The money consists of three separate $25,000 rewards, offered by the State of North Carolina, Duke Energy, and Moore County.
+
+[Rank 102 | BGE Score: 0.000016]
+Content: 1 Zhongshan Road to Hankou Road & Middle Sichuan Road.
+
+[Rank 103 | BGE Score: 0.000016]
+Content: Technology-centric measures Biosafety technologies and biotechnology regulation Potential policies that support global biosafety could make use of various technologies, including but not limited to laboratory containment technologies – for example, tools could promote compliance with existing and novel biosecurity norms and standards. Proposals to increase biosafety in terms of laboratories, scientific field work and research and development-related activities include:
+
+[Rank 104 | BGE Score: 0.000016]
+Content: A Brayton power conversion system would convert reactor heat into electricity. Providing a thousand times the electrical output of conventional solar- or radioisotope thermoelectric generator (RTG)-based power systems, the reactor was expected to open up opportunities like flying a full scale ice-penetrating radar system and providing a strong, high-bandwidth data t
+
+[Rank 105 | BGE Score: 0.000016]
+Content: Background History and development of reconnaissance balloons
+
+[Rank 106 | BGE Score: 0.000016]
+Content: Later on 2 March, Russian artillery targeted a densely populated neighborhood of Mariupol, shelling it
+
+[Rank 107 | BGE Score: 0.000016]
+Content: Sanctions against Russian and Ukrainian individuals, companies and officials First round: March/April 2014
+
+[Rank 108 | BGE Score: 0.000016]
+Content: Sexual harassment allegations and management shakeup (2017)
+
+[Rank 109 | BGE Score: 0.000016]
+Content: ## Per group submission:
+
+1. Python codes: .py files (submitted as a ZIP folder)
+
+2. A 6-page conference paper in PDF format ( note: additional pages will result in a deduction of 5% for every additional page for the entire group ).
+
+[Rank 110 | BGE Score: 0.000016]
+Content: Originally named the Tsarigradsko shose Metro Station, it was renamed to bear the convention center's name less than two months later.The congress halls were renovated in 2019, which was considered the biggest update to the center since its last expansion.
+
+[Rank 111 | BGE Score: 0.000016]
+Content: This has raised concerns about the country's ability to meet its financial obligations and maintain its economic stability.
+
+[Rank 112 | BGE Score: 0.000016]
+Content: In March, the Manipur Cabinet decided to withdraw from the Suspension of Operation agreements with three Kuki militant groups including the Kuki National Army and the Zomi Revolutionary Army, though the central government did not support such a withdrawal. Several Manipuri organisations also demonstrated in New Delhi to press for a National Register of Citizens (NRC) to be created with 1951 as the base year, complaining of abnormal population growth in hill areas
+
+[Rank 113 | BGE Score: 0.000016]
+Content: Some biosafety and public health researchers contend that certain pandemic prevention efforts themselves carry risk of triggering pandemics (e.g. wildlife virus sampling), though not engaging in any form of sampling also carries the risk of being unprepared for future spillover events and being unaware of future pandemic pathogens.
+
+[Rank 114 | BGE Score: 0.000016]
+Content: More distant spatially resolved observations will also be carried out for several minor irregular satellites and the volcanically active moon Io.
+
+[Rank 115 | BGE Score: 0.000016]
+Content: ## Image Selection Guide :
+
+While you can make your own judgment (provide explanation on why you selected those sets of images in each folder), here is a guideline based for each folder : PMY for Easy ; EO for Medium ; ERB for Hard
+
+[Rank 116 | BGE Score: 0.000016]
+Content: The chromosome number of M. angustata is unknown. Flowering and fruiting in January.
+
+[Rank 117 | BGE Score: 0.000016]
+Content: Limiting research on highly contagious biological agents to only trained researchers in well-protected environments and advanced biological safety systems and disposal of biohazards. improving physical security and educating scientists about the misuse potentials
+
+[Rank 118 | BGE Score: 0.000016]
+Content: Reduction of velocity with Ganymede–Callisto assists Increase inclination with 10–12 Callisto gravity assists
+
+--------------------------------------------------
