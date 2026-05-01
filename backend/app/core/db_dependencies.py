@@ -10,12 +10,33 @@ from typing import Any
 from astrapy import DataAPIClient
 
 
+def _optional_env(name: str) -> str | None:
+    """
+    Return a normalized optional env value.
+
+    Values that are empty or comment placeholders are treated as missing.
+    """
+    raw = os.getenv(name)
+    if raw is None:
+        return None
+    value = raw.strip()
+    if not value:
+        return None
+    if value.startswith("#"):
+        return None
+    return value
+
+
 @lru_cache(maxsize=1)
 def get_chat_database() -> Any | None:
     """Initializes and returns the Astra DB database client using environment variables for configuration."""
-    astra_db_url = os.getenv("ASTRA_CHAT_DB_URL") or os.getenv("ASTRA_DB_URL")
-    astra_db_token = os.getenv("ASTRA_CHAT_DB_TOKEN") or os.getenv("ASTRA_DB_TOKEN")
-    astra_db_keyspace = os.getenv("ASTRA_CHAT_KEYSPACE") or os.getenv("ASTRA_DB_KEYSPACE")
+    astra_db_url = _optional_env("ASTRA_CHAT_DB_URL") or _optional_env("ASTRA_DB_URL")
+    astra_db_token = _optional_env("ASTRA_CHAT_DB_TOKEN") or _optional_env("ASTRA_DB_TOKEN")
+    # Conversation/chat collections should live in the dedicated history keyspace.
+    astra_db_keyspace = (
+        _optional_env("ASTRA_CHAT_KEYSPACE")
+        or "conversation_history"
+    )
 
     if not astra_db_url or not astra_db_token:
         return None

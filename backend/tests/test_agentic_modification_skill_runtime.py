@@ -150,6 +150,23 @@ def test_reasoning_content_is_not_used_as_action_payload():
     assert content == '{"action":"finish","arguments":{"summary":"from content"}}'
 
 
+def test_modification_skill_prefers_canonical_llm_envs(monkeypatch):
+    monkeypatch.setenv("LLM_API_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("LLM_API_KEY", "canonical-key")
+    monkeypatch.setenv("LLM_MODEL", "deepseek-v4-flash")
+    monkeypatch.setenv("LLM_THINKING", "disabled")
+    monkeypatch.setenv("AGENTIC_MODIFICATION_SKILL_LLM_URL", "https://legacy-mod.example/v1/chat/completions")
+    monkeypatch.setenv("AGENTIC_MODIFICATION_SKILL_LLM_KEY", "legacy-mod-key")
+    monkeypatch.setenv("AGENTIC_MODIFICATION_SKILL_LLM_MODEL", "legacy-mod-model")
+
+    url, api_key, model, thinking = llm_client._resolve_runtime_config()
+
+    assert url == "https://api.deepseek.com/chat/completions"
+    assert api_key == "canonical-key"
+    assert model == "deepseek-v4-flash"
+    assert thinking == "disabled"
+
+
 def test_fetch_file_outline_and_window_are_scoped_and_ordered(monkeypatch):
     rows = [
         _parent_row(parent_id="p2", file_id="file-a", file_name="policy.md", chunk_number=1, content="# Later\nRefund is 14 days."),

@@ -2863,3 +2863,84 @@ Answer:
 The speed of light in a vacuum is exactly 0 meters per second.
 (Sources: Random Facts.pdf, dnd_04_classes_barbarian_bard_cleric.pdf)
 ==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-04-28T13:58:15.600550+00:00
+Provider: OPENROUTER
+Model: model
+Context Length: 40
+
+<QUERY>
+q
+</QUERY>
+
+<CONTEXT>
+[1]
+file_name: x.pdf
+page_content: "ctx"
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-04-28T13:58:15.600550+00:00
+Answer Length: 28
+Answer:
+Core answer
+(Sources: x.pdf)
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-04-28T13:58:42.514079+00:00
+Provider: OPENROUTER
+Model: model
+Context Length: 40
+
+<QUERY>
+q
+</QUERY>
+
+<CONTEXT>
+[1]
+file_name: x.pdf
+page_content: "ctx"
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-04-28T13:58:42.514079+00:00
+Answer Length: 28
+Answer:
+Core answer
+(Sources: x.pdf)
+==================================================
+==================================================
+DEBUG: ANSWER GENERATION REQUEST
+--------------------------------------------------
+Timestamp: 2026-04-28T13:59:05.511221+00:00
+Provider: OPENROUTER
+Model: model
+Context Length: 40
+
+<QUERY>
+q
+</QUERY>
+
+<CONTEXT>
+[1]
+file_name: x.pdf
+page_content: "ctx"
+</CONTEXT>
+--------------------------------------------------
+--------------------------------------------------
+DEBUG: ANSWER GENERATION RESPONSE
+--------------------------------------------------
+Timestamp: 2026-04-28T13:59:05.511221+00:00
+Answer Length: 28
+Answer:
+Core answer
+(Sources: x.pdf)
+==================================================

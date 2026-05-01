@@ -12,6 +12,7 @@ from .vectordb_init import (
     init_vector_db,
     ASTRA_DB_URL,
     ASTRA_DB_TOKEN,
+    ASTRA_DB_KEYSPACE,
     CHILD_COLLECTION_NAME,
 )
 from app.service.rag.retrieval.reranker import ZeRankerService
@@ -580,7 +581,14 @@ def _get_raw_child_collection() -> Any:
         raise RuntimeError("Astra DB credentials are missing for lexical child-chunk search.")
 
     client = DataAPIClient()
-    database = client.get_database(ASTRA_DB_URL, token=ASTRA_DB_TOKEN)
+    if ASTRA_DB_KEYSPACE:
+        database = client.get_database(
+            ASTRA_DB_URL,
+            token=ASTRA_DB_TOKEN,
+            keyspace=ASTRA_DB_KEYSPACE,
+        )
+    else:
+        database = client.get_database(ASTRA_DB_URL, token=ASTRA_DB_TOKEN)
     return database.get_collection(CHILD_COLLECTION_NAME)
 
 

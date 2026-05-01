@@ -4,6 +4,13 @@ from __future__ import annotations
 import os
 from typing import Any
 
+from app.service.llm_env import (
+    resolve_llm_api_key,
+    resolve_llm_api_url,
+    resolve_llm_model,
+    resolve_llm_thinking,
+)
+
 
 def _normalize_url(raw: str) -> str:
     url = str(raw or "").strip().rstrip("/")
@@ -15,26 +22,27 @@ def _normalize_url(raw: str) -> str:
 
 
 def _resolve_runtime_config() -> tuple[str, str | None, str, str]:
-    url = _normalize_url(
-        os.getenv("AGENTIC_MODIFICATION_SKILL_LLM_URL")
-        or os.getenv("MOD_AGENT_LLM_URL")
-        or os.getenv("AGENTIC_QUERY_LLM_URL")
-        or "https://api.deepseek.com/v1/chat/completions"
+    url = resolve_llm_api_url(
+        os.getenv("AGENTIC_MODIFICATION_SKILL_LLM_URL"),
+        os.getenv("MOD_AGENT_LLM_URL"),
+        os.getenv("AGENTIC_QUERY_LLM_URL"),
     )
-    api_key = (
+    api_key = resolve_llm_api_key(
         os.getenv("AGENTIC_MODIFICATION_SKILL_LLM_KEY")
         or os.getenv("MOD_AGENT_LLM_KEY")
         or os.getenv("AGENTIC_QUERY_LLM_KEY")
     )
-    model = (
+    model = resolve_llm_model(
         os.getenv("AGENTIC_MODIFICATION_SKILL_LLM_MODEL")
         or os.getenv("MOD_AGENT_LLM_MODEL")
         or os.getenv("AGENTIC_QUERY_LLM_MODEL")
-        or "deepseek-v4-flash"
     )
-    thinking = os.getenv("AGENTIC_MODIFICATION_SKILL_THINKING") or os.getenv("MOD_AGENT_LLM_THINKING")
-    if thinking is None and ("deepseek" in url.casefold() or "deepseek" in model.casefold()):
-        thinking = "disabled"
+    thinking = resolve_llm_thinking(
+        os.getenv("AGENTIC_MODIFICATION_SKILL_THINKING"),
+        os.getenv("MOD_AGENT_LLM_THINKING"),
+        url=url,
+        model=model,
+    )
     return url, api_key, model, str(thinking).strip().lower()
 
 
@@ -121,7 +129,8 @@ async def call_action_model(
     url, api_key, model, thinking = _resolve_runtime_config()
     if not api_key:
         raise RuntimeError(
-            "AGENTIC_MODIFICATION_SKILL_LLM_KEY, AGENTIC_QUERY_LLM_KEY, or MOD_AGENT_LLM_KEY is not set."
+            "LLM_API_KEY (or AGENTIC_MODIFICATION_SKILL_LLM_KEY / AGENTIC_QUERY_LLM_KEY / "
+            "MOD_AGENT_LLM_KEY fallback) is not set."
         )
 
     payload = {

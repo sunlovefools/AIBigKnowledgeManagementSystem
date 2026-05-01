@@ -25,7 +25,6 @@ def finalize_table_image_jobs(
     markdown_parts: list[str],
     warnings: list[str],
     resolved_file_id: str,
-    file_name: str,
 ) -> None:
     """
     Flush and finalize queued table-image VLM jobs in a fixed order.
@@ -58,7 +57,6 @@ def finalize_table_image_jobs(
         artifact_dir=artifact_dir,
         table_image_vlm_jobs=table_image_vlm_jobs,
         resolved_file_id=resolved_file_id,
-        file_name=file_name,
         warnings=warnings,
     )
     table_image_vlm_executor.shutdown(wait=True)

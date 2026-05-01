@@ -6,6 +6,13 @@ from __future__ import annotations
 
 import os
 
+from app.service.llm_env import (
+    DEFAULT_LLM_MODEL,
+    resolve_llm_api_key,
+    resolve_llm_api_url,
+    resolve_llm_model,
+)
+
 
 def _parse_bool_env(name: str, *, default: bool) -> bool:
     raw = os.getenv(name)
@@ -55,26 +62,32 @@ def get_table_semantic_llm_url() -> str:
     OpenAI-compatible chat completions endpoint.
     """
 
-    return (
-        os.getenv("TABLE_SEMANTIC_LLM_URL")
-        or "https://api.deepseek.com/v1/chat/completions" #TODO: Make it where if none then fail
-    ).strip()
+    return resolve_llm_api_url(os.getenv("TABLE_SEMANTIC_LLM_URL"))
 
 
 def get_table_semantic_llm_api_key() -> str:
-    return (os.getenv("TABLE_SEMANTIC_LLM_API_KEY") or "").strip()
+    return resolve_llm_api_key(os.getenv("TABLE_SEMANTIC_LLM_API_KEY")) or ""
 
 
 def get_classifier_model() -> str:
-    return (os.getenv("TABLE_SEMANTIC_CLASSIFIER_MODEL") or "deepseek-chat").strip()
+    return resolve_llm_model(
+        os.getenv("TABLE_SEMANTIC_CLASSIFIER_MODEL"),
+        default=DEFAULT_LLM_MODEL,
+    )
 
 
 def get_global_model() -> str:
-    return (os.getenv("TABLE_SEMANTIC_GLOBAL_MODEL") or "deepseek-chat").strip()
+    return resolve_llm_model(
+        os.getenv("TABLE_SEMANTIC_GLOBAL_MODEL"),
+        default=DEFAULT_LLM_MODEL,
+    )
 
 
 def get_row_model() -> str:
-    return (os.getenv("TABLE_SEMANTIC_ROW_MODEL") or "deepseek-chat").strip()
+    return resolve_llm_model(
+        os.getenv("TABLE_SEMANTIC_ROW_MODEL"),
+        default=DEFAULT_LLM_MODEL,
+    )
 
 
 def get_timeout_seconds() -> float:
@@ -83,4 +96,3 @@ def get_timeout_seconds() -> float:
 
 def get_max_sample_rows() -> int:
     return _parse_positive_int_env("TABLE_SEMANTIC_MAX_SAMPLE_ROWS", default=8)
-

@@ -395,7 +395,7 @@ def parse_pptexcel_with_docling(
 
         print(
             "[docling-office] file=%s run_id=%s chunks=%s pictures=%s "
-            "table_fallbacks=%s partial_failures=%s s3_uploaded=%s s3_failed=%s s3_skipped=%s"
+            "table_fallbacks=%s partial_failures=%s"
             % (
                 file_name,
                 resolved_run_id,
@@ -403,9 +403,6 @@ def parse_pptexcel_with_docling(
                 outputs["stats"].pictures_extracted,
                 outputs["stats"].table_fallback_images_extracted,
                 outputs["stats"].partial_failure_chunks,
-                outputs["s3_upload_uploaded_count"],
-                outputs["s3_upload_failed_count"],
-                outputs["s3_upload_skipped_count"],
             )
         )
 

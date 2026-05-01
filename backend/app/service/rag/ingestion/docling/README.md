@@ -27,7 +27,7 @@ This package contains the Docling-based PDF extraction flow used by preview and 
   - Shared layout-processing package used by both PDF and Office extraction paths.
   - `orchestrator.py`: `process_docling_layout(...)` main loop and control flow.
   - `classification.py`: element-to-block-type classification helpers.
-  - `image_export.py`: image extraction/crop + S3 upload accounting helpers.
+  - `image_export.py`: image extraction/crop helpers for local artifact files.
   - `lifecycle.py`: VLM finalization order, markdown canonicalization, output payload assembly.
 
 - `clients/beam_client.py`
@@ -43,10 +43,6 @@ This package contains the Docling-based PDF extraction flow used by preview and 
 - `storage/local_artifacts_store.py`
   - Local artifact directory management and file path builders.
   - Writes `document.md`, `manifest.json`, and table-data JSON files.
-
-- `storage/s3_upload.py`
-  - S3 upload helpers for extracted images and table-data JSON artifacts.
-  - Handles TOON payload wrapping for table-data export.
 
 - `utils/pdf_utils.py`
   - PDF helpers used by the pipeline (page extraction, table-shape coercion, bbox crop).
@@ -65,9 +61,4 @@ When `DOCLING_ARTIFACTS_ENABLED=true`, each run writes to:
 - `backend/_local_uploads/docling_artifacts/<run_id>/manifest.json`
 - `backend/_local_uploads/docling_artifacts/<run_id>/images/*.png`
 - `backend/_local_uploads/docling_artifacts/<run_id>/table_data/*.json` (when table-image VLM JSON exists)
-
-## S3 Uploads
-
-- Toggle: `AWS_S3_UPLOAD_ENABLED` (`true`/`false`).
-- Upload helpers are best-effort; failures are recorded in warnings and image artifact status.
 

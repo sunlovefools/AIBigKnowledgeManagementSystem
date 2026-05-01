@@ -11,6 +11,13 @@ from uuid import uuid4
 
 import aiohttp
 
+from app.service.llm_env import (
+    DEFAULT_LLM_MODEL,
+    resolve_llm_api_key,
+    resolve_llm_api_url,
+    resolve_llm_model,
+)
+
 try:
     from backend.debug.debug_logger import log_token_usage
 except Exception:
@@ -20,7 +27,6 @@ except Exception:
         def log_token_usage(**_kwargs):
             return None
 
-_OPENROUTER_DEFAULT_URL = "https://openrouter.ai/api/v1/chat/completions"
 _DEFAULT_TIMEOUT_S = 500.0
 
 _SYSTEM_PROMPT = (
@@ -73,21 +79,7 @@ class _LlmEditorConfig:
 
 def _normalize_chat_completions_url(raw_url: str) -> str:
     """Normalize provider URL to a Chat Completions endpoint."""
-    url = (raw_url or "").strip()
-    if not url:
-        return _OPENROUTER_DEFAULT_URL
-
-    normalized = url.rstrip("/")
-    lowered = normalized.lower()
-
-    if lowered.endswith("/chat/completions"):
-        return normalized
-    if lowered.endswith("/v1"):
-        return f"{normalized}/chat/completions"
-    if lowered.endswith("/api"):
-        return f"{normalized}/v1/chat/completions"
-
-    return f"{normalized}/chat/completions"
+    return resolve_llm_api_url(raw_url)
 
 
 def _load_config() -> _LlmEditorConfig:
@@ -105,11 +97,13 @@ def _load_config() -> _LlmEditorConfig:
     beam_url = os.getenv("LLM_EDITOR_BEAM_URL") or os.getenv("BEAM_LLM_URL")
     beam_key = os.getenv("LLM_EDITOR_BEAM_KEY") or os.getenv("BEAM_LLM_KEY")
 
-    openrouter_url_raw = (os.getenv("OPENROUTER_URL") or "").strip() or _OPENROUTER_DEFAULT_URL
-    openrouter_url = _normalize_chat_completions_url(openrouter_url_raw)
-    openrouter_api_key = os.getenv("OPENROUTER_API_KEY")
-    openrouter_model = os.getenv("LLM_EDITOR_OPENROUTER_MODEL") or os.getenv("OPENROUTER_MODEL") or "deepseek/deepseek-r1:free"
-    openrouter_model = openrouter_model.strip()
+    openrouter_url = _normalize_chat_completions_url(os.getenv("OPENROUTER_URL"))
+    openrouter_api_key = resolve_llm_api_key(os.getenv("OPENROUTER_API_KEY"))
+    openrouter_model = resolve_llm_model(
+        os.getenv("LLM_EDITOR_OPENROUTER_MODEL"),
+        os.getenv("OPENROUTER_MODEL"),
+        default=DEFAULT_LLM_MODEL,
+    )
 
     return _LlmEditorConfig(
         provider=provider,
@@ -307,7 +301,10 @@ async def _generate_via_openrouter(
     run_id: str,
 ) -> dict[str, Any]:
     if not cfg.openrouter_api_key:
-        raise RuntimeError("OPENROUTER_API_KEY is required when LLM_EDITOR_PROVIDER=OPENROUTER.")
+        raise RuntimeError(
+            "LLM_API_KEY (or OPENROUTER_API_KEY fallback) is required when "
+            "LLM_EDITOR_PROVIDER=OPENROUTER."
+        )
 
     payload = {
         "model": cfg.openrouter_model,
@@ -360,7 +357,10 @@ async def _generate_selection_via_openrouter(
     Generate an edit preview for a highlighted text selection based on the user's instruction.
     """
     if not cfg.openrouter_api_key:
-        raise RuntimeError("OPENROUTER_API_KEY is required when LLM_EDITOR_PROVIDER=OPENROUTER.")
+        raise RuntimeError(
+            "LLM_API_KEY (or OPENROUTER_API_KEY fallback) is required when "
+            "LLM_EDITOR_PROVIDER=OPENROUTER."
+        )
 
     payload = {
         "model": cfg.openrouter_model,

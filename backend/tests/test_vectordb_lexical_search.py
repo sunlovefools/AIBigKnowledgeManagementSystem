@@ -21,6 +21,7 @@ stub_vectordb_init.init_vector_db = lambda: {
 }
 stub_vectordb_init.ASTRA_DB_URL = "https://example-astra"
 stub_vectordb_init.ASTRA_DB_TOKEN = "test-token"
+stub_vectordb_init.ASTRA_DB_KEYSPACE = None
 stub_vectordb_init.CHILD_COLLECTION_NAME = "child_collection"
 sys.modules["app.vectordb.vectordb_init"] = stub_vectordb_init
 

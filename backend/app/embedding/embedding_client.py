@@ -52,8 +52,10 @@ class BeamGemmaEmbeddings(Embeddings):
             return embeddings
             
         except aiohttp.ClientError as e:
-            print(f"❌ Async Error calling Beam endpoint for batch of {len(texts)} texts: {e}")
-            return [[]] * len(texts) 
+            raise RuntimeError(
+                "Beam embedding request failed for "
+                f"{len(texts)} text(s): {e}"
+            ) from e
 
     async def aembed_documents(self, texts: List[str]) -> List[List[float]]:
         """Async method called by VECTOR_STORE.aadd_documents()."""

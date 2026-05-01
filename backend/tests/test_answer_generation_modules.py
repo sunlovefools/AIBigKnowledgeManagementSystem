@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import sys
+import types
 from pathlib import Path
 from types import SimpleNamespace
 
@@ -11,6 +12,12 @@ import pytest
 
 BACKEND_DIR = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(BACKEND_DIR))
+
+fake_aiohttp = types.ModuleType("aiohttp")
+fake_aiohttp.ClientError = Exception
+fake_aiohttp.ClientTimeout = lambda total: {"total": total}
+fake_aiohttp.ClientSession = object
+sys.modules.setdefault("aiohttp", fake_aiohttp)
 
 from app.service.rag.retrieval import answer_generator as answer_generator_facade
 from app.service.rag.retrieval.answer_generation.citations import (
@@ -136,6 +143,24 @@ def test_load_config_beam_api_key_required(monkeypatch):
 
     with pytest.raises(RuntimeError, match="BEAM_ANSWER_GENERATOR_LLM_KEY is required"):
         load_answer_generator_config()
+
+
+def test_load_config_openrouter_prefers_canonical_llm_envs(monkeypatch):
+    monkeypatch.setenv("ANSWER_GENERATOR_LLM_PROVIDER", "OPENROUTER")
+    monkeypatch.setenv("ANSWER_GENERATOR_TIMEOUT_S", "30")
+    monkeypatch.setenv("LLM_API_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("LLM_API_KEY", "deepseek-key")
+    monkeypatch.setenv("LLM_MODEL", "deepseek-v4-flash")
+    monkeypatch.setenv("OPENROUTER_URL", "https://openrouter.ai/api/v1/chat/completions")
+    monkeypatch.setenv("OPENROUTER_API_KEY", "openrouter-key")
+    monkeypatch.setenv("OPENROUTER_MODEL", "openrouter-model")
+
+    cfg = load_answer_generator_config()
+
+    assert cfg.provider == "OPENROUTER"
+    assert cfg.url == "https://api.deepseek.com/chat/completions"
+    assert cfg.api_key == "deepseek-key"
+    assert cfg.model == "deepseek-v4-flash"
 
 
 def test_normalize_rag_docs_dict_input():
@@ -291,11 +316,11 @@ def test_generate_via_openrouter_missing_key_raises():
     cfg = AnswerGeneratorConfig(
         provider="OPENROUTER",
         timeout_s=10,
-        url="https://openrouter.ai/api/v1/chat/completions",
+        url="https://api.deepseek.com/chat/completions",
         model="model",
         api_key=None,
     )
-    with pytest.raises(RuntimeError, match="OPENROUTER_API_KEY"):
+    with pytest.raises(RuntimeError, match="LLM_API_KEY"):
         asyncio.run(generate_via_openrouter(_FakeSession(_FakeResponse(200, {})), cfg, [], "hi"))
 
 
@@ -303,7 +328,7 @@ def test_generate_via_openrouter_parses_and_appends_sources(monkeypatch):
     cfg = AnswerGeneratorConfig(
         provider="OPENROUTER",
         timeout_s=10,
-        url="https://openrouter.ai/api/v1/chat/completions",
+        url="https://api.deepseek.com/chat/completions",
         model="model",
         api_key="token",
     )

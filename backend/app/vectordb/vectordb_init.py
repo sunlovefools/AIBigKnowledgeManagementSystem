@@ -1,8 +1,18 @@
-import os
 import asyncio
-from typing import Dict, Any
-from langchain_astradb import AstraDBVectorStore
+import os
+from typing import Any, Dict
+
 from astrapy import DataAPIClient
+from astrapy.constants import DefaultIdType, VectorMetric
+from astrapy.info import (
+    CollectionDefaultIDOptions,
+    CollectionDefinition,
+    CollectionLexicalOptions,
+    CollectionVectorOptions,
+)
+from langchain_astradb import AstraDBVectorStore
+from langchain_astradb.utils.astradb import SetupMode
+
 from app.embedding.embedding_client import BeamGemmaEmbeddings
 from app.embedding.local_embedding_client import LocalGemmaEmbeddings
 
@@ -18,6 +28,22 @@ def _parse_bool_env(name: str, *, default: bool) -> bool:
     if value in {"0", "false", "no", "n", "off"}:
         return False
     return default
+
+
+def _parse_optional_env(name: str) -> str | None:
+    """
+    Read an optional env var and treat comment/placeholder values as unset.
+    """
+    raw = os.getenv(name)
+    if raw is None:
+        return None
+
+    value = raw.strip()
+    if not value:
+        return None
+    if value.startswith("#"):
+        return None
+    return value
 
 
 def _build_embeddings_instance():
@@ -49,43 +75,132 @@ def _build_embeddings_instance():
     )
 
 
-# Initialize the embedding model instance
+def _build_local_embeddings_instance():
+    """Create a LOCAL embedding client using env-backed defaults."""
+    model_name = (
+        os.getenv("LOCAL_EMBEDDING_MODEL") or "google/embeddinggemma-300m"
+    ).strip()
+    swap_to_ram = _parse_bool_env("EMBEDDING_SWAP_TO_RAM", default=False)
+    gpu_ingest_only = _parse_bool_env("EMBEDDING_GPU_INGEST_ONLY", default=True)
+    print(
+        "Using LOCAL embedding provider "
+        f"(model={model_name}, swap_to_ram={swap_to_ram}, "
+        f"gpu_ingest_only={gpu_ingest_only})."
+    )
+    return LocalGemmaEmbeddings(
+        model_name=model_name,
+        swap_to_ram=swap_to_ram,
+        gpu_ingest_only=gpu_ingest_only,
+    )
+
+
 try:
     EMBEDDINGS_INSTANCE = _build_embeddings_instance()
 except ValueError as error:
     print(f"Configuration Warning: {error}. Attempting database initialization.")
     EMBEDDINGS_INSTANCE = None
 
-# Load Astra credentials from .env files
+
 ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
 ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
+# For ingestion/vector RAG data, default to Astra's standard keyspace unless overridden.
+ASTRA_DB_KEYSPACE = _parse_optional_env("ASTRA_DB_KEYSPACE") or "default_keyspace"
 
-# Collection names
 CHILD_COLLECTION_NAME = os.getenv("CHILD_COLLECTION_NAME") or "Default_Child_Collection"
 PARENT_COLLECTION_NAME = os.getenv("PARENT_COLLECTION_NAME") or "Default_Parent_Collection"
 
+
+def _get_vector_database():
+    """Return the configured Astra database, honoring optional keyspace."""
+
+    client = DataAPIClient()
+    return client.get_database(
+        ASTRA_DB_URL,
+        token=ASTRA_DB_TOKEN,
+        keyspace=ASTRA_DB_KEYSPACE,
+    )
+
+
+def _child_collection_definition() -> CollectionDefinition:
+    """Return the vector collection definition expected by the app."""
+
+    english_lexical_options = CollectionLexicalOptions(
+        enabled=True,
+        analyzer={
+            "tokenizer": {"name": "standard"},
+            "filters": [
+                {"name": "lowercase"},
+                {"name": "porterstem"},
+                {"name": "asciifolding"},
+                {"name": "stop"},
+            ],
+        },
+    )
+    return CollectionDefinition(
+        lexical=english_lexical_options,
+        vector=CollectionVectorOptions(
+            dimension=768,
+            metric=VectorMetric.COSINE,
+        ),
+        indexing={
+            "allow": [
+                "metadata.user_id",
+                "metadata.file_metadata.file_name",
+                "metadata.file_metadata.file_id",
+                "metadata.collection_metadata.collection_id",
+                "metadata.collection_metadata.collection_name",
+                "metadata.child_chunk_metadata.parent_id",
+                "metadata.child_chunk_metadata.child_chunk_number",
+            ]
+        },
+        default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
+    )
+
+
+def _parent_collection_definition() -> CollectionDefinition:
+    """Return the parent document collection definition expected by the app."""
+
+    return CollectionDefinition(
+        indexing={
+            "allow": [
+                "value.metadata.user_id",
+                "value.metadata.file_metadata.file_name",
+                "value.metadata.file_metadata.file_id",
+                "value.metadata.collection_metadata.collection_id",
+                "value.metadata.collection_metadata.collection_name",
+                "value.metadata.parent_chunk_metadata.parent_chunk_number",
+            ]
+        },
+        default_id=CollectionDefaultIDOptions(default_id_type=DefaultIdType.UUIDV6),
+    )
+
+
+def _ensure_collection(
+    database: Any,
+    name: str,
+    definition: CollectionDefinition | None = None,
+) -> Any:
+    """Create the collection only when it does not already exist."""
+
+    existing_names = set(database.list_collection_names())
+    if name in existing_names:
+        return database.get_collection(name)
+    if definition is None:
+        return database.create_collection(name)
+    return database.create_collection(name, definition=definition)
+
+
 class AstraParentDocumentStore:
-    """A custom wrapper around an Astra DB collection for storing Parent Documents in a key-value format."""
+    """A custom wrapper around an Astra DB collection for storing parent documents."""
 
     def __init__(self, *, collection_name: str, api_endpoint: str, token: str) -> None:
-        """
-        Initializes the AstraParentDocumentStore.
-        """
-        client = DataAPIClient()
-
-        # Storing the collection object for later use
-        self.collection = client.get_database(api_endpoint, token=token).get_collection(collection_name)
+        _ = api_endpoint, token
+        self.collection = _get_vector_database().get_collection(collection_name)
 
     async def amset(self, key_value_pairs: list[tuple[str, dict]]) -> None:
-        """
-        Upsert multiple key-value pairs into the collection.
-        """
         await asyncio.to_thread(self._mset, key_value_pairs)
 
     def _mset(self, key_value_pairs: list[tuple[str, dict]]) -> None:
-        """
-        Synchronous helper for amset to perform the upsert operations.
-        """
         for key, value in key_value_pairs:
             self.collection.replace_one(
                 filter={"_id": key},
@@ -94,15 +209,9 @@ class AstraParentDocumentStore:
             )
 
     async def amget(self, keys: list[str]) -> list[dict | None]:
-        """
-        Retrieve multiple values by their keys. Returns a list of values corresponding to the input keys.
-        """
         return await asyncio.to_thread(self._mget, keys)
 
     def _mget(self, keys: list[str]) -> list[dict | None]:
-        """
-        Synchronous helper for amget to perform the retrieval operations.
-        """
         if not keys:
             return []
 
@@ -119,9 +228,6 @@ class AstraParentDocumentStore:
         return [values_by_id.get(key) for key in keys]
 
     async def aget(self, key: str) -> dict | None:
-        """
-        Retrieve a single value by its key. Returns the value or None if not found.
-        """
         return await asyncio.to_thread(self._get, key)
 
     def _get(self, key: str) -> dict | None:
@@ -139,7 +245,6 @@ class AstraParentDocumentStore:
             yield key
 
     async def get_all_files(self) -> list[dict]:
-        """Retrieve all parent-store rows from the collection."""
         return await asyncio.to_thread(self._get_all_files)
 
     def _get_all_files(self) -> list[dict]:
@@ -164,51 +269,69 @@ class AstraParentDocumentStore:
 
 def init_vector_db():
     """
-    Initializes the Astra DB collections for both Parent Documents and Child Chunks,
-    and returns a dictionary containing the instantiated LangChain store objects.
+    Initialize Astra DB collections for both parent documents and child chunks.
     """
+
     if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
         raise ValueError("ERROR:Missing Astra DB credentials in .env file")
-        
-    # Initialize a collections to hold the LangChain store objects
+
+    if EMBEDDINGS_INSTANCE is None:
+        raise RuntimeError("Embedding provider failed to initialize.")
+
     collections: Dict[str, Any] = {}
-    
-    # 1. Initialize Vector Store (Child Chunks) using AstraDBVectorStore
+    database = _get_vector_database()
+
+    print(f"Ensuring Astra collections exist in keyspace={ASTRA_DB_KEYSPACE or '<default>'}...")
+    _ensure_collection(database, CHILD_COLLECTION_NAME, _child_collection_definition())
+    _ensure_collection(database, PARENT_COLLECTION_NAME, _parent_collection_definition())
+
     print(f"Initializing vector store collection '{CHILD_COLLECTION_NAME}' with LangChain...")
-    
     try:
-        if EMBEDDINGS_INSTANCE is None:
-            raise RuntimeError("Embedding provider failed to initialize.")
+        def _create_vector_store(embedding_instance: Any) -> AstraDBVectorStore:
+            # Avoid autodetect mode because the installed langchain_astradb version
+            # surveys collections through a deprecated Data API command.
+            return AstraDBVectorStore(
+                embedding=embedding_instance,
+                collection_name=CHILD_COLLECTION_NAME,
+                token=ASTRA_DB_TOKEN,
+                api_endpoint=ASTRA_DB_URL,
+                namespace=ASTRA_DB_KEYSPACE,
+                setup_mode=SetupMode.OFF,
+                content_field="content",
+            )
 
-        # Instantiating the LangChain class ensures the collection exists with vector configuration.
-        vector_store = AstraDBVectorStore(
-            embedding=EMBEDDINGS_INSTANCE,
-            collection_name=CHILD_COLLECTION_NAME,
-            token=ASTRA_DB_TOKEN,
-            api_endpoint=ASTRA_DB_URL,
-            autodetect_collection=True, # Reuses the exisiting collection 
-            content_field="content",
-        )
-        collections['vector_store'] = vector_store
-        print(f"✅ LangChain AstraDBVectorStore initialized for '{CHILD_COLLECTION_NAME}'.")
-    except Exception as e:
-        print(f"❌ Failed to initialize AstraDBVectorStore: {e}")
-        raise
+        vector_store = _create_vector_store(EMBEDDINGS_INSTANCE)
+        collections["vector_store"] = vector_store
+        print(f"Vector store initialized for '{CHILD_COLLECTION_NAME}'.")
+    except Exception as exc:
+        provider = (os.getenv("EMBEDDING_PROVIDER", "LOCAL") or "").strip().upper()
+        if provider == "BEAM":
+            print(
+                "Failed to initialize AstraDBVectorStore with BEAM embeddings. "
+                "Retrying with LOCAL embeddings."
+            )
+            fallback_embeddings = _build_local_embeddings_instance()
+            vector_store = _create_vector_store(fallback_embeddings)
+            collections["vector_store"] = vector_store
+            print(
+                f"Vector store initialized for '{CHILD_COLLECTION_NAME}' "
+                "using LOCAL fallback embeddings."
+            )
+        else:
+            print(f"Failed to initialize AstraDBVectorStore: {exc}")
+            raise
 
-    # 2. Initialize Document Store (Parent Documents) using AstraDBStore
-    print(f"Initializing document store collection '{PARENT_COLLECTION_NAME}' with LangChain...")
-    
+    print(f"Initializing document store collection '{PARENT_COLLECTION_NAME}'...")
     try:
         parent_store = AstraParentDocumentStore(
             collection_name=PARENT_COLLECTION_NAME,
             token=ASTRA_DB_TOKEN,
             api_endpoint=ASTRA_DB_URL,
         )
-        collections['parent_store'] = parent_store
-        print(f"✅ Astra parent document store initialized for '{PARENT_COLLECTION_NAME}'.")
-    except Exception as e:
-        print(f"❌ Failed to initialize AstraDBStore: {e}")
+        collections["parent_store"] = parent_store
+        print(f"Parent document store initialized for '{PARENT_COLLECTION_NAME}'.")
+    except Exception as exc:
+        print(f"Failed to initialize Astra parent document store: {exc}")
         raise
 
-    # Return the instantiated LangChain store objects.
     return collections

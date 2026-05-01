@@ -106,17 +106,6 @@ TABLE_SEMANTIC_ROW_MODEL=deepseek-chat
 TABLE_SEMANTIC_TIMEOUT_S=60
 TABLE_SEMANTIC_MAX_SAMPLE_ROWS=8
 
-# (Optional) AWS S3 image uploads for Docling preview artifacts (required toggle)
-AWS_S3_UPLOAD_ENABLED=false
-AWS_S3_BUCKET=<bucket-name>
-AWS_REGION=<aws-region>
-AWS_ACCESS_KEY_ID=<access-key>
-AWS_SECRET_ACCESS_KEY=<secret-key>
-
-# Optional S3 settings
-AWS_SESSION_TOKEN=
-AWS_S3_PREFIX=docling-previews
-AWS_S3_PRESIGN_TTL_SECONDS=3600
 ```
 
 Load them via `python-dotenv` (already invoked inside modules) or export them in the hosting environment.

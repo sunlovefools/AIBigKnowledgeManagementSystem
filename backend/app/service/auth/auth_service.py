@@ -21,6 +21,21 @@ logger = logging.getLogger(__name__)
 ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
 ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
 
+
+def _optional_env(name: str) -> str | None:
+    raw = os.getenv(name)
+    if raw is None:
+        return None
+    value = raw.strip()
+    if not value:
+        return None
+    if value.startswith("#"):
+        return None
+    return value
+
+
+ASTRA_DB_KEYSPACE = _optional_env("ASTRA_DB_KEYSPACE") or "default_keyspace"
+
 AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
 AUTH0_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
 AUTH0_ALGORITHMS = ["RS256"]
@@ -38,7 +53,11 @@ if not ASTRA_DB_URL or not ASTRA_DB_TOKEN:
     )
 
 client = DataAPIClient()
-database = client.get_database(ASTRA_DB_URL, token=ASTRA_DB_TOKEN)
+database = client.get_database(
+    ASTRA_DB_URL,
+    token=ASTRA_DB_TOKEN,
+    keyspace=ASTRA_DB_KEYSPACE,
+)
 logger.info(f"Connected to database {database.info().name}")
 
 

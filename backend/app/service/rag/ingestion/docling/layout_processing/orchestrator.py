@@ -354,7 +354,6 @@ def process_docling_layout(
             markdown_parts=markdown_parts,
             warnings=warnings,
             resolved_file_id=resolved_file_id,
-            file_name=file_name,
         )
 
     if not markdown_parts:

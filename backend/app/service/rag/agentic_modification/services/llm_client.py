@@ -7,6 +7,12 @@ from typing import Any
 
 import aiohttp
 
+from app.service.llm_env import (
+    resolve_llm_api_key,
+    resolve_llm_api_url,
+    resolve_llm_model,
+)
+
 from ..shared.logging import (
     log_modification_agent_llm_request,
     log_modification_agent_llm_response,
@@ -25,11 +31,14 @@ def _normalize_url(raw: str) -> str:
     return f"{url}/chat/completions"
 
 
-_DEEPSEEK_URL = _normalize_url(
-    os.getenv("MOD_AGENT_LLM_URL", "https://api.deepseek.com/v1/chat/completions")
-)
-_DEEPSEEK_KEY = os.getenv("MOD_AGENT_LLM_KEY")
-_DEEPSEEK_MODEL = os.getenv("MOD_AGENT_LLM_MODEL", "deepseek-chat")
+def _resolve_runtime_config() -> tuple[str, str | None, str]:
+    """Resolve endpoint/key/model from canonical env vars with legacy fallbacks."""
+
+    return (
+        resolve_llm_api_url(os.getenv("MOD_AGENT_LLM_URL")),
+        resolve_llm_api_key(os.getenv("MOD_AGENT_LLM_KEY")),
+        resolve_llm_model(os.getenv("MOD_AGENT_LLM_MODEL")),
+    )
 
 
 def calculate_total_cost(
@@ -60,8 +69,9 @@ async def _call_llm(
     max_tokens: int = 512,
 ) -> tuple[str, dict[str, int]]:
     """Call OpenAI-compatible chat completions endpoint and return text plus usage."""
-    if not _DEEPSEEK_KEY:
-        raise RuntimeError("MOD_AGENT_LLM_KEY is not set.")
+    llm_url, llm_api_key, llm_model = _resolve_runtime_config()
+    if not llm_api_key:
+        raise RuntimeError("LLM_API_KEY (or MOD_AGENT_LLM_KEY fallback) is not set.")
 
     normalized_messages: list[dict[str, str]] = []
     if isinstance(messages, list):
@@ -86,13 +96,13 @@ async def _call_llm(
         ]
 
     payload = {
-        "model": _DEEPSEEK_MODEL,
+        "model": llm_model,
         "messages": normalized_messages,
         "temperature": 0,
         "max_tokens": max_tokens,
     }
     headers = {
-        "Authorization": f"Bearer {_DEEPSEEK_KEY}",
+        "Authorization": f"Bearer {llm_api_key}",
         "Content-Type": "application/json",
     }
     timeout = aiohttp.ClientTimeout(total=120.0)
@@ -106,7 +116,7 @@ async def _call_llm(
     # Log the LLM request details for observability before making the API call
     log_modification_agent_llm_request(
         provider="MOD_AGENT_LLM",
-        model=_DEEPSEEK_MODEL,
+        model=llm_model,
         step=step,
         run_id=run_id,
         system_prompt=system_prompt_for_log,
@@ -116,7 +126,7 @@ async def _call_llm(
     async def _do_request(http_session: aiohttp.ClientSession) -> dict:
         """Internal async function for making the llm API request."""
         async with http_session.post(
-            _DEEPSEEK_URL, json=payload, headers=headers, timeout=timeout
+            llm_url, json=payload, headers=headers, timeout=timeout
         ) as resp:
             if resp.status != 200:
                 text = await resp.text()
@@ -148,7 +158,7 @@ async def _call_llm(
 
     log_token_usage(
         provider="MOD_AGENT_LLM",
-        model=_DEEPSEEK_MODEL,
+        model=llm_model,
         prompt_tokens=prompt_tokens,
         completion_tokens=completion_tokens,
         total_tokens=total_tokens,
@@ -167,7 +177,7 @@ async def _call_llm(
         raise RuntimeError("DeepSeek returned empty content.")
     log_modification_agent_llm_response(
         provider="MOD_AGENT_LLM",
-        model=_DEEPSEEK_MODEL,
+        model=llm_model,
         step=step,
         run_id=run_id,
         response_text=content,

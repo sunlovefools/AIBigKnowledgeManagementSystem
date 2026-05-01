@@ -13,7 +13,7 @@ from uuid6 import uuid6
 
 from app.service.rag.ingestion.docling.clients import local_client
 from app.service.rag.ingestion.docling.models import ExtractedImageArtifact
-from app.service.rag.ingestion.docling.storage import local_artifacts_store, s3_upload
+from app.service.rag.ingestion.docling.storage import local_artifacts_store
 from app.service.rag.ingestion.docling.utils import pdf_utils
 
 
@@ -56,31 +56,17 @@ def upload_extracted_image_artifact(
     counters: S3UploadCounters,
 ) -> ExtractedImageArtifact:
     """
-    Upload one extracted image artifact to S3 and update upload counters/warnings.
+    Mark one extracted image artifact as local-only and update upload counters.
     """
-
-    uploaded_artifact = s3_upload.upload_image_artifact_to_s3(
-        image_artifact,
-        source_file_name=source_file_name,
-        file_id=file_id,
-    )
-
-    if uploaded_artifact.s3_upload_status == "failed":
-        counters.failed_count += 1
-        warnings.append(
-            "Failed to upload %s image_uuid=%s to S3: %s"
-            % (
-                uploaded_artifact.kind.replace("_", " "),
-                uploaded_artifact.image_uuid,
-                uploaded_artifact.s3_error,
-            )
-        )
-    elif uploaded_artifact.s3_upload_status == "uploaded":
-        counters.uploaded_count += 1
-    elif uploaded_artifact.s3_upload_status == "skipped":
-        counters.skipped_count += 1
-
-    return uploaded_artifact
+    # S3 upload support has been removed for ingestion artifacts.
+    # Keep status fields for backward compatibility with existing manifests/tests.
+    _ = source_file_name
+    _ = file_id
+    _ = warnings
+    image_artifact.s3_upload_status = "skipped"
+    image_artifact.s3_error = "S3 upload removed; artifact is stored locally only."
+    counters.skipped_count += 1
+    return image_artifact
 
 
 def prepare_picture_artifact_paths(
@@ -96,4 +82,3 @@ def prepare_picture_artifact_paths(
         image_uuid,
     )
     return image_uuid, picture_name, picture_path
-

@@ -5,6 +5,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+fake_aiohttp = types.ModuleType("aiohttp")
+fake_aiohttp.ClientError = Exception
+fake_aiohttp.ClientTimeout = lambda total: {"total": total}
+fake_aiohttp.ClientSession = object
+sys.modules.setdefault("aiohttp", fake_aiohttp)
+
 from app.service.rag.agentic_query import llm_client, runtime, tools
 from app.service.rag.agentic_query.config_loader import load_agentic_query_config
 from app.service.rag.agentic_query.models import EvidenceItem
@@ -368,6 +374,23 @@ def test_agentic_query_llm_client_disables_deepseek_thinking_and_preserves_reaso
         result.assistant_message["reasoning_content"]
         == "reasoning that provider requires in follow-up turns"
     )
+
+
+def test_agentic_query_llm_client_prefers_canonical_llm_envs(monkeypatch):
+    monkeypatch.setenv("LLM_API_URL", "https://api.deepseek.com")
+    monkeypatch.setenv("LLM_API_KEY", "canonical-key")
+    monkeypatch.setenv("LLM_MODEL", "deepseek-v4-flash")
+    monkeypatch.setenv("LLM_THINKING", "disabled")
+    monkeypatch.setenv("AGENTIC_QUERY_LLM_URL", "https://legacy-query.example/v1/chat/completions")
+    monkeypatch.setenv("AGENTIC_QUERY_LLM_KEY", "legacy-query-key")
+    monkeypatch.setenv("AGENTIC_QUERY_LLM_MODEL", "legacy-query-model")
+
+    url, api_key, model, thinking = llm_client._resolve_runtime_config()
+
+    assert url == "https://api.deepseek.com/chat/completions"
+    assert api_key == "canonical-key"
+    assert model == "deepseek-v4-flash"
+    assert thinking == "disabled"
 
 
 def test_runtime_enforces_max_steps(monkeypatch):

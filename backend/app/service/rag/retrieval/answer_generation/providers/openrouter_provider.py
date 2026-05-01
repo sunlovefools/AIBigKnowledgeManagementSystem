@@ -44,9 +44,15 @@ async def generate_via_openrouter(
         RuntimeError: If API key is missing or API call fails.
     """
     if not cfg.api_key:
-        raise RuntimeError("OPENROUTER_API_KEY is required when ANSWER_GENERATOR_LLM_PROVIDER=OPENROUTER.")
+        raise RuntimeError(
+            "LLM_API_KEY (or OPENROUTER_API_KEY fallback) is required when "
+            "ANSWER_GENERATOR_LLM_PROVIDER=OPENROUTER."
+        )
     if not cfg.url:
-        raise RuntimeError("OPENROUTER_URL is missing when ANSWER_GENERATOR_LLM_PROVIDER=OPENROUTER.")
+        raise RuntimeError(
+            "LLM_API_URL (or OPENROUTER_URL fallback) is missing when "
+            "ANSWER_GENERATOR_LLM_PROVIDER=OPENROUTER."
+        )
 
     rag_context_payload = build_llm_context_payload(rag_docs)
     log_llm_request(

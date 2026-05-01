@@ -10,6 +10,13 @@ from __future__ import annotations
 import os
 from urllib.parse import urlparse
 
+from app.service.llm_env import (
+    DEFAULT_LLM_MODEL,
+    resolve_llm_api_key,
+    resolve_llm_api_url,
+    resolve_llm_model,
+)
+
 from .models import (
     AnswerGeneratorConfig,
     DEFAULT_TIMEOUT_S,
@@ -88,12 +95,16 @@ def load_answer_generator_config() -> AnswerGeneratorConfig:
 
     # If the provider is OPENROUTER, then we will get the API key and the URL for OPENROUTER
     if provider == "OPENROUTER":
-        url = os.getenv("OPENROUTER_URL", OPENROUTER_URL_DEFAULT).strip() or OPENROUTER_URL_DEFAULT
-        model = os.getenv("OPENROUTER_MODEL", "=qwen/qwen3-235b-a22b-thinking-2507").strip()
-        api_key = os.getenv("OPENROUTER_API_KEY")
+        url = resolve_llm_api_url(os.getenv("OPENROUTER_URL", OPENROUTER_URL_DEFAULT))
+        model = resolve_llm_model(
+            os.getenv("OPENROUTER_MODEL"),
+            default=DEFAULT_LLM_MODEL,
+        )
+        api_key = resolve_llm_api_key(os.getenv("OPENROUTER_API_KEY"))
         if not isinstance(api_key, str) or not api_key.strip():
             raise RuntimeError(
-                "OPENROUTER_API_KEY is required when ANSWER_GENERATOR_LLM_PROVIDER=OPENROUTER."
+                "LLM_API_KEY (or OPENROUTER_API_KEY fallback) is required when "
+                "ANSWER_GENERATOR_LLM_PROVIDER=OPENROUTER."
             )
         api_key = api_key.strip()
     
@@ -122,9 +133,8 @@ def load_answer_generator_config() -> AnswerGeneratorConfig:
         url_raw = os.getenv("OLLAMA_ANSWER_GENERATOR_LLM_URL")
         url = url_raw.strip() if isinstance(url_raw, str) and url_raw.strip() else None
         api_key = None
-        model = (
-            os.getenv("OLLAMA_ANSWER_GENERATOR_LLM_MODEL")
-        ).strip() or None
+        model_raw = os.getenv("OLLAMA_ANSWER_GENERATOR_LLM_MODEL")
+        model = model_raw.strip() if isinstance(model_raw, str) and model_raw.strip() else None
 
     return AnswerGeneratorConfig(
         provider=provider,
