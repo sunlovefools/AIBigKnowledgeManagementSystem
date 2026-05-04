@@ -2,6 +2,7 @@ import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 import GlobalSidebar from "../../components/GlobalSidebar";
 import { clearAuthSession, getAuthProvider } from "../../auth/session";
+import { AUTH0_LOGOUT_RETURN_TO } from "../../config/env";
 import "./ProfilePage.css";
 
 export default function ProfilePage() {
@@ -10,6 +11,7 @@ export default function ProfilePage() {
 
     const userEmail = localStorage.getItem("userEmail")?.trim() || "Unknown";
     const provider = getAuthProvider() || "local";
+    const logoutReturnTo = AUTH0_LOGOUT_RETURN_TO || window.location.origin;
 
     const handleLogout = () => {
         const authProvider = getAuthProvider();
@@ -18,7 +20,7 @@ export default function ProfilePage() {
         if (authProvider === "auth0") {
             logout({
                 logoutParams: {
-                    returnTo: `${window.location.origin}/login`,
+                    returnTo: logoutReturnTo,
                 },
             });
             return;

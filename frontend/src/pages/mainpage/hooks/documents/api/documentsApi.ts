@@ -1,9 +1,7 @@
 import axios from "axios";
 import type { HighlightedSelection, ParentChunkContent, SidebarFileSummary, UserCollectionSummary } from "../../../types";
 import { apiClient, authenticatedFetch } from "../../../../../auth/apiClient";
-
-// Normalize trailing slash so endpoint concatenation is predictable.
-const API_BASE = import.meta.env.VITE_API_BASE.replace(/\/$/, "");
+import { API_BASE } from "../../../../../config/env";
 
 // Shared chunk pagination size used by the document panel.
 export const PAGE_SIZE = 7;

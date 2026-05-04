@@ -24,9 +24,8 @@ import {
     type UploadQueueStatus,
     type UploadQueueTarget,
 } from "./uploadQueueState";
+import { API_BASE } from "../config/env";
 import "./UploadQueue.css";
-
-const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:8000").replace(/\/$/, "");
 const INGEST_JOB_POLL_INTERVAL_MS = 1200;
 
 function createUploadId(): string {

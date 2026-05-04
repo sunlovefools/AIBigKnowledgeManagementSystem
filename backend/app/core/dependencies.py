@@ -24,9 +24,23 @@ from jose import jwt, JWTError
 
 logger = logging.getLogger(__name__)
 
-# Must match the values used in auth_service.py → create_access_token()
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
-JWT_ALGORITHM  = "HS256"
+
+def _optional_env(name: str) -> str | None:
+    raw = os.getenv(name)
+    if raw is None:
+        return None
+    value = raw.strip()
+    if not value:
+        return None
+    if value.startswith("#"):
+        return None
+    # Support .env values with inline comments: VALUE # comment
+    return value.split(" #", 1)[0].strip()
+
+
+# Must match the values used in auth_service.py -> create_access_token()
+JWT_SECRET_KEY = _optional_env("JWT_SECRET_KEY")
+JWT_ALGORITHM = "HS256"
 
 # HTTPBearer extracts the token from the Authorization: Bearer <token> header.
 # auto_error=False lets us return a cleaner 401 instead of FastAPI's default 403.

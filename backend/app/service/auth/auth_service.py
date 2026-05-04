@@ -18,9 +18,6 @@ from app.core.validation import sanitize_email
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-ASTRA_DB_URL = os.getenv("ASTRA_DB_URL")
-ASTRA_DB_TOKEN = os.getenv("ASTRA_DB_TOKEN")
-
 
 def _optional_env(name: str) -> str | None:
     raw = os.getenv(name)
@@ -31,16 +28,19 @@ def _optional_env(name: str) -> str | None:
         return None
     if value.startswith("#"):
         return None
-    return value
+    # Support .env values with inline comments: VALUE # comment
+    return value.split(" #", 1)[0].strip()
 
 
+ASTRA_DB_URL = _optional_env("ASTRA_DB_URL")
+ASTRA_DB_TOKEN = _optional_env("ASTRA_DB_TOKEN")
 ASTRA_DB_KEYSPACE = _optional_env("ASTRA_DB_KEYSPACE") or "default_keyspace"
 
-AUTH0_DOMAIN = os.getenv("AUTH0_DOMAIN")
-AUTH0_AUDIENCE = os.getenv("AUTH0_AUDIENCE")
+AUTH0_DOMAIN = _optional_env("AUTH0_DOMAIN")
+AUTH0_AUDIENCE = _optional_env("AUTH0_AUDIENCE")
 AUTH0_ALGORITHMS = ["RS256"]
 
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY")
+JWT_SECRET_KEY = _optional_env("JWT_SECRET_KEY")
 JWT_ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -64,6 +64,8 @@ logger.info(f"Connected to database {database.info().name}")
 @lru_cache(maxsize=1)
 def _get_jwks() -> dict:
     """Fetch and cache Auth0 JWKS."""
+    if not AUTH0_DOMAIN:
+        raise AuthenticationError("AUTH0_DOMAIN is not configured")
     jwks_url = f"https://{AUTH0_DOMAIN}/.well-known/jwks.json"
     response = requests.get(jwks_url, timeout=5)
     response.raise_for_status()
@@ -72,6 +74,8 @@ def _get_jwks() -> dict:
 
 def create_access_token(user_id: str, email: str, role: str) -> str:
     """Issue a signed internal JWT for authenticated user sessions."""
+    if not JWT_SECRET_KEY:
+        raise AuthenticationError("JWT_SECRET_KEY is not configured")
     payload = {
         "sub": str(user_id),
         "email": email,
@@ -102,6 +106,8 @@ def _get_signing_rsa_key(jwks: Dict[str, Any], kid: str | None) -> Dict[str, Any
 
 def verify_auth0_token(token: str) -> Dict[str, Any]:
     """Verify an Auth0 access token and return decoded claims."""
+    if not AUTH0_DOMAIN or not AUTH0_AUDIENCE:
+        raise AuthenticationError("AUTH0_DOMAIN or AUTH0_AUDIENCE is not configured")
     try:
         jwks = _get_jwks()
         unverified_header = jwt.get_unverified_header(token)

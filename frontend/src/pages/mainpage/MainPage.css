@@ -2570,9 +2570,9 @@ html,
 }
 
 .delete-confirm-overlay {
-    position: absolute;
+    position: fixed;
     inset: 0;
-    z-index: 20;
+    z-index: 12000;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2642,20 +2642,35 @@ html,
 }
 
 .delete-confirm-submit {
-    background: #111827;
-    border: 1px solid #111827;
+    background: var(--danger-color);
+    border: 1px solid var(--danger-color);
     color: white;
 }
 
+.mainpage-shell .delete-confirm-submit,
+.mainpage-shell .delete-confirm-submit:hover:not(:disabled),
+.mainpage-shell .delete-confirm-submit:disabled {
+    color: #ffffff;
+}
+
 .delete-confirm-submit:hover:not(:disabled) {
-    background: #1f2937;
-    border-color: #1f2937;
+    background: #b42318;
+    border-color: #b42318;
 }
 
 .delete-confirm-cancel:disabled,
 .delete-confirm-submit:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+}
+
+.app-root.delete-modal-open .workspace-sidebar-expand-tab,
+.app-root.delete-modal-open .sidebar-container,
+.app-root.delete-modal-open .resize-handle,
+.app-root.delete-modal-open .main-content,
+.app-root.delete-modal-open .mod-panel-container,
+.app-root.delete-modal-open .mobile-workspace-switcher {
+    pointer-events: none;
 }
 
 @media (max-width: 1024px) {

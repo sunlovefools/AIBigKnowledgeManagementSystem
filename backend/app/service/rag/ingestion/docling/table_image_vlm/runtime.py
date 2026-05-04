@@ -55,10 +55,10 @@ def _parse_positive_int_env(
 
 def _load_table_image_vlm_helper_module() -> Any:
     """
-    Return a module-like helper object exposing the embedded OpenRouter helper functions.
+    Return a module-like helper object exposing the embedded table-image helper functions.
 
-    We return the OpenRouter helper module so worker/runtime code can use
-    `helper_module.MODEL`, `helper_module.OPENROUTER_URL`,
+    We return the helper module so worker/runtime code can use
+    `helper_module.MODEL`, `helper_module.GEMINI_API_BASE_URL`,
     `helper_module.extract_table_json_from_image`, and
     `helper_module.extract_table_semantic_summary_from_image`.
     """
@@ -77,42 +77,59 @@ def build_table_image_vlm_runtime(
     Returns None when the feature is disabled or required config/imports are unavailable.
     """
 
-    # Enable by default only when an API key exists, but still allow explicit override.
-    api_key = (os.getenv("OPENROUTER_API_KEY") or "").strip()
+    # Prefer Gemini key vars, keep legacy OPENROUTER_API_KEY as last-resort fallback.
+    api_key = (
+        (os.getenv("TABLE_IMAGE_VLM_API_KEY") or "").strip()
+        or (os.getenv("GOOGLE_GEMINI_API_KEY") or "").strip()
+        or (os.getenv("GEMINI_API_KEY") or "").strip()
+        or (os.getenv("TABLE_SEMANTIC_LLM_API_KEY") or "").strip()
+        or (os.getenv("OPENROUTER_API_KEY") or "").strip()
+    )
     table_image_vlm_enabled = os.getenv("TABLE_IMAGE_VLM_ENABLED")
 
     print("Table-image VLM enabled:", table_image_vlm_enabled)
     if not table_image_vlm_enabled or table_image_vlm_enabled.lower() != "true":
         return None
     if not api_key:
-        warnings.append("Table-image VLM skipped: OPENROUTER_API_KEY is not configured.")
+        warnings.append(
+            "Table-image VLM skipped: Gemini API key is not configured "
+            "(TABLE_IMAGE_VLM_API_KEY / GOOGLE_GEMINI_API_KEY / GEMINI_API_KEY)."
+        )
         return None
 
     try:
         helper_module = _load_table_image_vlm_helper_module()
     except Exception as exc:
         warnings.append(
-            "Table-image VLM skipped: failed to initialize embedded OpenRouter helper "
+            "Table-image VLM skipped: failed to initialize embedded table-image helper "
             f"({exc})."
         )
         return None
 
     resolved_model = (
-        (os.getenv("VISION_LM_MODEL") or "").strip()
+        (os.getenv("TABLE_IMAGE_VLM_MODEL") or "").strip()
+        or (os.getenv("VISION_LM_MODEL") or "").strip()
         or getattr(helper_module, "MODEL", None)
         or constants.TABLE_IMAGE_VLM_DEFAULT_MODEL
     )
-    resolved_openrouter_url = (
-        (os.getenv("OPENROUTER_URL") or "").strip()
+    resolved_gemini_api_base_url = (
+        (os.getenv("TABLE_IMAGE_VLM_GEMINI_API_BASE_URL") or "").strip()
+        or (os.getenv("GOOGLE_GEMINI_API_BASE_URL") or "").strip()
+        or (os.getenv("OPENROUTER_URL") or "").strip()
+        or getattr(helper_module, "GEMINI_API_BASE_URL", None)
         or getattr(helper_module, "OPENROUTER_URL", None)
-        or constants.TABLE_IMAGE_VLM_DEFAULT_OPENROUTER_URL
+        or constants.TABLE_IMAGE_VLM_DEFAULT_GEMINI_API_BASE_URL
     )
 
     # Push env-driven model/endpoint settings into both the helper module and constants module.
     helper_module.MODEL = resolved_model
-    helper_module.OPENROUTER_URL = resolved_openrouter_url
+    helper_module.GEMINI_API_BASE_URL = resolved_gemini_api_base_url
     constants.MODEL = resolved_model
-    constants.OPENROUTER_URL = resolved_openrouter_url
+    constants.GEMINI_API_BASE_URL = resolved_gemini_api_base_url
+
+    # Legacy alias retained for compatibility with older helper references/tests.
+    helper_module.OPENROUTER_URL = resolved_gemini_api_base_url
+    constants.OPENROUTER_URL = resolved_gemini_api_base_url
 
     context_blocks = _parse_positive_int_env(
         "TABLE_IMAGE_VLM_CONTEXT_BLOCKS",

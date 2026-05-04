@@ -13,6 +13,18 @@ JWT_ALGORITHM = "HS256"
 RAG_READ_SCOPE = "rag:read"
 
 
+def _optional_env(name: str) -> str | None:
+    raw = os.getenv(name)
+    if raw is None:
+        return None
+    value = raw.strip()
+    if not value:
+        return None
+    if value.startswith("#"):
+        return None
+    return value.split(" #", 1)[0].strip()
+
+
 class AppAccessToken(AccessToken):
     """MCP access token enriched with the application user identity."""
 
@@ -33,7 +45,7 @@ class AppJwtTokenVerifier(TokenVerifier):
     """Validate existing application JWTs for MCP Streamable HTTP requests."""
 
     async def verify_token(self, token: str) -> AppAccessToken | None:
-        secret = os.getenv("JWT_SECRET_KEY")
+        secret = _optional_env("JWT_SECRET_KEY")
         if not secret:
             return None
 

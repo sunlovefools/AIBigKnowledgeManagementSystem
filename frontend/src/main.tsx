@@ -5,19 +5,23 @@ import "./index.css";
 import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { UploadQueueProvider } from "./upload/UploadQueueContext";
+import {
+    AUTH0_AUDIENCE,
+    AUTH0_CLIENT_ID,
+    AUTH0_DOMAIN,
+    AUTH0_REDIRECT_URI,
+} from "./config/env";
 
-const auth0Domain = import.meta.env.VITE_AUTH0_DOMAIN || "";
-const auth0ClientId = import.meta.env.VITE_AUTH0_CLIENT_ID || "";
-const auth0Audience = import.meta.env.VITE_AUTH0_AUDIENCE || "";
+const auth0RedirectUri = AUTH0_REDIRECT_URI || `${window.location.origin}/login`;
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
         <Auth0Provider
-            domain={auth0Domain}
-            clientId={auth0ClientId}
+            domain={AUTH0_DOMAIN}
+            clientId={AUTH0_CLIENT_ID}
             authorizationParams={{
-                redirect_uri: `${window.location.origin}/login`,
-                audience: auth0Audience,
+                redirect_uri: auth0RedirectUri,
+                audience: AUTH0_AUDIENCE,
                 scope: "openid profile email",
             }}
             cacheLocation="localstorage"

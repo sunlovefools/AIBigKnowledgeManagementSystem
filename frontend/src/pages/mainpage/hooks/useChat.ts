@@ -1,5 +1,6 @@
 import { useCallback, useRef, useState, type KeyboardEvent } from "react";
 import { apiClient, authenticatedFetch } from "../../../auth/apiClient";
+import { API_BASE, CHAT_TEST_USER_EMAIL } from "../../../config/env";
 import type {
     ChatMessage,
     ChatProgressMessage,
@@ -10,8 +11,6 @@ import type {
     ConversationSummary,
     QuerySearchScope,
 } from "../types";
-
-const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:8000").replace(/\/$/, "");
 const CHAT_TEST_USER_EMAIL_STORAGE_KEY = "chatTestUserEmail";
 const AGENTIC_SEARCH_ENABLED_STORAGE_KEY = "agenticSearchEnabled";
 
@@ -180,7 +179,7 @@ function getResolvedUserEmail() {
     const authUserEmail = localStorage.getItem("userEmail")?.trim();
     if (authUserEmail) return authUserEmail;
 
-    const envUserEmail = import.meta.env.VITE_CHAT_TEST_USER_EMAIL?.trim();
+    const envUserEmail = CHAT_TEST_USER_EMAIL?.trim();
     if (envUserEmail) return envUserEmail;
 
     return undefined;

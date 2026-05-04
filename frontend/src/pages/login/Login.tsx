@@ -3,17 +3,17 @@ import axios from "axios";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { saveAuthSession } from "../../auth/session";
+import {
+    API_BASE,
+    AUTH0_AUDIENCE,
+    AUTH0_CLIENT_ID,
+    AUTH0_DOMAIN,
+    AUTH0_REDIRECT_URI,
+    hasConfiguredValue,
+} from "../../config/env";
 import "./Login.css";
 
-const API_BASE = (import.meta.env.VITE_API_BASE || "http://localhost:8000").replace(/\/$/, "");
-const AUTH0_AUDIENCE = import.meta.env.VITE_AUTH0_AUDIENCE || "";
-const AUTH0_DOMAIN = import.meta.env.VITE_AUTH0_DOMAIN || "";
-const AUTH0_CLIENT_ID = import.meta.env.VITE_AUTH0_CLIENT_ID || "";
-
-function hasConfiguredValue(value: string): boolean {
-    const normalized = value.trim();
-    return normalized.length > 0 && !normalized.startsWith("your-");
-}
+const auth0RedirectUri = AUTH0_REDIRECT_URI || `${window.location.origin}/login`;
 
 export default function Login() {
     const navigate = useNavigate();
@@ -101,7 +101,7 @@ export default function Login() {
             authorizationParams: {
                 audience: AUTH0_AUDIENCE,
                 scope: "openid profile email",
-                redirect_uri: `${window.location.origin}/login`,
+                redirect_uri: auth0RedirectUri,
             },
         });
     };

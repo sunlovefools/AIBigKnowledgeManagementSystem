@@ -57,6 +57,9 @@ export default function ConversationPage() {
     const hasConsumedLaunchRef = useRef(false);
     const syncedConversationScopeRef = useRef<string | null>(null);
     const modificationCloseTimeoutRef = useRef<number | null>(null);
+    const deleteConfirmDialogRef = useRef<HTMLDivElement | null>(null);
+    const deleteConfirmCancelRef = useRef<HTMLButtonElement | null>(null);
+    const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
 
     const {
         sidebarWidth,
@@ -325,6 +328,71 @@ export default function ConversationPage() {
         if (deletingFileId) return;
         setPendingDeleteFile(null);
     }, [deletingFileId]);
+
+    useEffect(() => {
+        if (!pendingDeleteFile) return;
+
+        previouslyFocusedElementRef.current = document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+
+        const dialog = deleteConfirmDialogRef.current;
+        const initialFocusTarget = deleteConfirmCancelRef.current
+            ?? dialog?.querySelector<HTMLElement>("button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])")
+            ?? dialog;
+        initialFocusTarget?.focus();
+
+        const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+            if (event.key === "Escape") {
+                event.preventDefault();
+                if (!deletingFileId) {
+                    handleCancelDeleteFile();
+                }
+                return;
+            }
+            if (event.key !== "Tab") return;
+            const activeDialog = deleteConfirmDialogRef.current;
+            if (!activeDialog) return;
+
+            const focusable = Array.from(
+                activeDialog.querySelectorAll<HTMLElement>(
+                    "button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])"
+                )
+            ).filter((element) => !element.hasAttribute("disabled"));
+            if (focusable.length === 0) {
+                event.preventDefault();
+                activeDialog.focus();
+                return;
+            }
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const activeElement = document.activeElement as HTMLElement | null;
+
+            if (event.shiftKey) {
+                if (activeElement === first || !activeDialog.contains(activeElement)) {
+                    event.preventDefault();
+                    last.focus();
+                }
+                return;
+            }
+
+            if (activeElement === last || !activeDialog.contains(activeElement)) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            const previouslyFocused = previouslyFocusedElementRef.current;
+            if (previouslyFocused && previouslyFocused.isConnected) {
+                previouslyFocused.focus();
+            }
+            previouslyFocusedElementRef.current = null;
+        };
+    }, [deletingFileId, handleCancelDeleteFile, pendingDeleteFile]);
 
     const activeChunkSignature = activeTabData?.chunks
         .map((chunk) => `${chunk.parentId}:${chunk.size}`)
@@ -1172,7 +1240,7 @@ export default function ConversationPage() {
         <div className="mainpage-shell">
             <GlobalSidebar mode="conversation" />
             <div
-                className={`app-root ${isMobile ? "mobile-layout" : ""} mobile-workspace-${activeMobileWorkspace} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""}`}
+                className={`app-root ${isMobile ? "mobile-layout" : ""} mobile-workspace-${activeMobileWorkspace} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""} ${pendingDeleteFile ? "delete-modal-open" : ""}`}
                 style={{
                     "--sidebar-width": `${sidebarWidth}px`,
                     "--mod-panel-width": `${modPanelWidth}px`,
@@ -1472,6 +1540,8 @@ export default function ConversationPage() {
                     <div
                         className="delete-confirm-dialog"
                         onClick={(event) => event.stopPropagation()}
+                        ref={deleteConfirmDialogRef}
+                        tabIndex={-1}
                         role="dialog"
                         aria-modal="true"
                         aria-labelledby="delete-confirm-title"
@@ -1486,6 +1556,7 @@ export default function ConversationPage() {
                         <div className="delete-confirm-actions">
                             <button
                                 className="delete-confirm-cancel"
+                                ref={deleteConfirmCancelRef}
                                 type="button"
                                 onClick={handleCancelDeleteFile}
                                 disabled={Boolean(deletingFileId)}
