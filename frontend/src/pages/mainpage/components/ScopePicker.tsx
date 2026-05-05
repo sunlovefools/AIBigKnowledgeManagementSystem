@@ -57,23 +57,29 @@ export default function ScopePicker({
 
         const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        const measuredHeight = popoverRef.current
-            ? Math.max(popoverRef.current.scrollHeight, popoverRef.current.offsetHeight)
-            : 0;
         const estimatedRows = collections.length + (includeAllCollections ? 1 : 0);
-        const estimatedHeight = Math.min(320, 82 + Math.min(estimatedRows, 5) * 56);
-        const naturalHeight = measuredHeight > 0 ? measuredHeight : estimatedHeight;
-        const width = Math.min(360, Math.max(240, Math.min(viewportWidth - 24, Math.max(rect.width, 280))));
+        const minimumUsableHeight = 220;
+        const estimatedHeight = Math.min(420, 88 + Math.max(1, estimatedRows) * 58);
+        const naturalHeight = Math.max(minimumUsableHeight, estimatedHeight);
+        const width = Math.min(400, Math.max(280, Math.min(viewportWidth - 24, Math.max(rect.width, 320))));
         const left = Math.min(Math.max(12, rect.left), Math.max(12, viewportWidth - width - 12));
         const spaceAbove = rect.top - 12;
         const spaceBelow = viewportHeight - rect.bottom - 12;
-        const shouldOpenAbove = spaceAbove >= naturalHeight + 8 || spaceAbove > spaceBelow;
-        const availableSpace = Math.max(120, Math.min(shouldOpenAbove ? spaceAbove - 8 : spaceBelow - 8, viewportHeight - 24));
+        const shouldOpenAbove = spaceAbove >= minimumUsableHeight && (spaceAbove >= naturalHeight + 8 || spaceAbove > spaceBelow);
+        const sideSpace = shouldOpenAbove ? spaceAbove : spaceBelow;
+        const fallbackSpace = Math.max(spaceAbove, spaceBelow);
+        const availableSpace = Math.min(
+            viewportHeight - 24,
+            Math.max(minimumUsableHeight, sideSpace - 8, fallbackSpace - 8)
+        );
         const availableHeight = Math.min(naturalHeight, availableSpace);
-        const isHeightConstrained = naturalHeight > availableHeight;
-        const top = shouldOpenAbove
-            ? Math.max(12, rect.top - availableHeight - 8)
-            : Math.min(rect.bottom + 8, viewportHeight - availableHeight - 12);
+        const top = Math.min(
+            Math.max(
+                12,
+                shouldOpenAbove ? rect.top - availableHeight - 8 : rect.bottom + 8
+            ),
+            Math.max(12, viewportHeight - availableHeight - 12)
+        );
 
         setPopoverStyle({
             position: "fixed",
@@ -81,7 +87,7 @@ export default function ScopePicker({
             top,
             width,
             maxHeight: availableHeight,
-            height: isHeightConstrained ? availableHeight : undefined,
+            height: availableHeight,
         });
         setHasPopoverPosition(true);
     }, [collections.length, includeAllCollections]);
@@ -192,7 +198,7 @@ export default function ScopePicker({
                             </button>
                         )}
 
-                        {isLoadingCollections ? (
+                        {isLoadingCollections && collections.length === 0 ? (
                             <div className="scope-picker-status">Loading collections...</div>
                         ) : collections.length === 0 ? (
                             <div className="scope-picker-status">No collections yet.</div>

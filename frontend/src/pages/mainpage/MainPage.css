@@ -330,6 +330,7 @@ html,
 .collection-action-menu-trigger {
     width: 42px;
     height: 50px;
+    padding: 0;
     border: 1px solid #cbd5e1;
     border-radius: 12px;
     background: #ffffff;
@@ -342,6 +343,7 @@ html,
 
 .collection-action-menu-trigger svg {
     display: block;
+    flex: 0 0 auto;
     color: currentColor;
 }
 
@@ -1205,6 +1207,7 @@ html,
     border-radius: 10px;
     width: 36px;
     height: 36px;
+    padding: 0;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -1227,6 +1230,7 @@ html,
 
 .chat-stage-new-chat-btn svg {
     display: block;
+    flex: 0 0 auto;
     stroke: currentColor;
 }
 
@@ -2247,11 +2251,14 @@ html,
 
 .scope-picker-popover {
     z-index: 10000;
-    padding: 10px;
-    border: 1px solid #cbd5e1;
-    border-radius: 16px;
-    background: #ffffff;
-    box-shadow: 0 22px 48px rgba(15, 23, 42, 0.18);
+    padding: 12px;
+    border: 1px solid rgba(169, 213, 255, 0.82);
+    border-radius: 18px;
+    background:
+        linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
+    box-shadow:
+        0 24px 56px rgba(18, 68, 121, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.95);
     box-sizing: border-box;
     display: flex;
     flex-direction: column;
@@ -2259,43 +2266,49 @@ html,
 }
 
 .scope-picker-heading {
-    padding: 4px 6px 8px;
-    color: #315b7f;
+    flex: 0 0 auto;
+    padding: 4px 8px 10px;
+    border-bottom: 1px solid rgba(216, 234, 253, 0.9);
+    color: #0b3f8a;
     font-size: 0.78rem;
     font-weight: 850;
     line-height: 1.35;
 }
 
 .scope-picker-list {
-    margin-top: 8px;
-    min-height: 0;
+    margin-top: 10px;
+    padding: 2px 2px 8px;
+    min-height: 116px;
     flex: 1 1 auto;
-    max-height: 260px;
+    max-height: none;
     overflow-y: auto;
     overscroll-behavior: contain;
     scrollbar-gutter: stable;
+    scroll-padding-block: 10px;
     display: flex;
     flex-direction: column;
     gap: 6px;
 }
 
 .scope-picker-row {
+    flex: 0 0 auto;
     min-width: 0;
     width: 100%;
-    min-height: 46px;
-    border: 1px solid transparent;
-    border-radius: 12px;
-    background: transparent;
-    color: #334155;
-    padding: 8px 10px;
+    min-height: 50px;
+    border: 1px solid rgba(216, 234, 253, 0.72);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.72);
+    color: #12344d;
+    padding: 9px 11px;
     text-align: left;
     cursor: pointer;
+    box-shadow: 0 8px 18px rgba(18, 68, 121, 0.05);
 }
 
 .scope-picker-row:hover,
 .scope-picker-row.active {
-    border-color: #cbd5e1;
-    background: #f8fafc;
+    border-color: #a9d5ff;
+    background: #eef8ff;
     color: #0f172a;
 }
 
@@ -2462,8 +2475,9 @@ html,
 }
 
 .modification-toggle {
-    background: #9ca3af;
-    border: none;
+    background:
+        linear-gradient(180deg, #f6fbff 0%, #e7f4ff 100%);
+    border: 1px solid #b9dcff;
     cursor: pointer;
     width: 36px;
     height: 36px;
@@ -2472,20 +2486,29 @@ html,
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s;
-    color: white;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s, color 0.2s;
+    color: #0b63ce;
+    box-shadow: 0 8px 18px rgba(18, 68, 121, 0.08);
 }
 
 .modification-toggle:hover:not(:disabled) {
-    background-color: #6b7280;
+    border-color: #83c5ff;
+    background:
+        linear-gradient(180deg, #eef8ff 0%, #d9efff 100%);
+    color: #0b3f8a;
+    box-shadow: 0 10px 22px rgba(18, 68, 121, 0.12);
 }
 
 .modification-toggle.active {
-    background: var(--accent-color);
+    border-color: #2388ff;
+    background:
+        linear-gradient(180deg, #41a4ff 0%, #0b63ce 100%);
+    color: #ffffff;
 }
 
 .modification-toggle.active:hover {
-    background-color: var(--accent-hover);
+    background:
+        linear-gradient(180deg, #2388ff 0%, #0b55b8 100%);
 }
 
 .modification-toggle:disabled {
@@ -4542,14 +4565,6 @@ html,
     border-color: var(--accent-hover);
 }
 
-.modification-toggle {
-    background: #58645f;
-}
-
-.modification-toggle.active {
-    background: var(--accent-color);
-}
-
 .chat-stage-shell::before {
     display: none;
 }
@@ -5627,14 +5642,6 @@ html,
     color: #315b7f;
 }
 
-.modification-toggle {
-    background: #315b7f;
-}
-
-.modification-toggle.active {
-    background: #2388ff;
-}
-
 .agentic-search-toggle,
 .input-pending-summary,
 .input-pending-item,
@@ -5889,7 +5896,7 @@ html,
 }
 
 .scope-picker-list {
-    max-height: min(220px, calc(100dvh - 280px));
+    max-height: none;
     overflow-y: auto;
 }
 
@@ -6015,6 +6022,67 @@ html,
     width: 36px;
     height: 36px;
     flex-basis: 36px;
+}
+
+.input-container.edit-mode-active {
+    grid-template-columns: minmax(0, 1fr) clamp(32px, 8cqw, 36px) clamp(32px, 8cqw, 36px);
+    gap: clamp(6px, 1.8cqw, 10px);
+    padding: clamp(8px, 2.4cqw, 12px);
+}
+
+.input-container.edit-mode-active .chat-input {
+    min-height: clamp(30px, 8cqw, 36px);
+    padding: 6px 2px;
+    font-size: clamp(0.8rem, 2.1cqw, 0.94rem);
+    line-height: 1.35;
+}
+
+.input-container.edit-mode-active .send-icon-btn,
+.input-container.edit-mode-active .modification-toggle {
+    width: clamp(32px, 8cqw, 36px);
+    height: clamp(32px, 8cqw, 36px);
+    flex-basis: clamp(32px, 8cqw, 36px);
+}
+
+.input-container.edit-mode-active .send-icon-btn svg,
+.input-container.edit-mode-active .modification-toggle svg {
+    width: clamp(15px, 4cqw, 18px);
+    height: clamp(15px, 4cqw, 18px);
+}
+
+.input-container.edit-mode-active .input-agent-mode-row {
+    gap: 1px;
+    padding: 2px;
+}
+
+.input-container.edit-mode-active .agent-mode-option {
+    min-height: 24px;
+    padding: 3px 9px;
+    font-size: clamp(0.68rem, 1.8cqw, 0.74rem);
+}
+
+.desktop-assistant-stage .input-container.edit-mode-active {
+    grid-template-columns: minmax(0, 1fr) 32px 32px;
+    gap: 6px;
+    padding: 8px;
+}
+
+.desktop-assistant-stage .input-container.edit-mode-active .chat-input {
+    min-height: 32px;
+    font-size: clamp(0.76rem, 2.5cqw, 0.84rem);
+}
+
+.desktop-assistant-stage .input-container.edit-mode-active .send-icon-btn,
+.desktop-assistant-stage .input-container.edit-mode-active .modification-toggle {
+    width: 32px;
+    height: 32px;
+    flex-basis: 32px;
+}
+
+.desktop-assistant-stage .input-container.edit-mode-active .agent-mode-option {
+    min-height: 23px;
+    padding-inline: 8px;
+    font-size: 0.68rem;
 }
 
 .sidebar-header-actions .sidebar-upload-btn,

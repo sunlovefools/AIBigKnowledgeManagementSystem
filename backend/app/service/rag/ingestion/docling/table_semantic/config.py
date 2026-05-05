@@ -6,12 +6,8 @@ from __future__ import annotations
 
 import os
 
-from app.service.llm_env import (
-    DEFAULT_LLM_MODEL,
-    resolve_llm_api_key,
-    resolve_llm_api_url,
-    resolve_llm_model,
-)
+DEFAULT_TABLE_SEMANTIC_GEMINI_API_BASE_URL = "https://generativelanguage.googleapis.com/v1beta"
+DEFAULT_TABLE_SEMANTIC_GEMINI_MODEL = "gemini-3.1-flash-lite-preview"
 
 
 def _parse_bool_env(name: str, *, default: bool) -> bool:
@@ -59,35 +55,54 @@ def is_table_semantic_ingestion_enabled() -> bool:
 
 def get_table_semantic_llm_url() -> str:
     """
-    OpenAI-compatible chat completions endpoint.
+    Semantic table ingestion uses Gemini by default.
+
+    A caller can still provide TABLE_SEMANTIC_LLM_URL for compatibility with
+    older OpenAI-compatible deployments, but this path intentionally does not
+    inherit LLM_API_URL. The generic text LLM can be OpenRouter/DeepSeek while
+    table extraction remains pinned to Gemini.
     """
 
-    return resolve_llm_api_url(os.getenv("TABLE_SEMANTIC_LLM_URL"))
+    raw = (
+        (os.getenv("TABLE_SEMANTIC_LLM_URL") or "").strip()
+        or (os.getenv("TABLE_IMAGE_VLM_GEMINI_API_BASE_URL") or "").strip()
+        or (os.getenv("GOOGLE_GEMINI_API_BASE_URL") or "").strip()
+        or (os.getenv("GEMINI_API_BASE_URL") or "").strip()
+        or DEFAULT_TABLE_SEMANTIC_GEMINI_API_BASE_URL
+    )
+    return raw.rstrip("/")
 
 
 def get_table_semantic_llm_api_key() -> str:
-    return resolve_llm_api_key(os.getenv("TABLE_SEMANTIC_LLM_API_KEY")) or ""
+    return (
+        (os.getenv("TABLE_SEMANTIC_LLM_API_KEY") or "").strip()
+        or (os.getenv("TABLE_IMAGE_VLM_API_KEY") or "").strip()
+        or (os.getenv("GOOGLE_GEMINI_API_KEY") or "").strip()
+        or (os.getenv("GEMINI_API_KEY") or "").strip()
+        or (os.getenv("LLM_API_KEY") or "").strip()
+        or (os.getenv("OPENROUTER_API_KEY") or "").strip()
+    )
+
+
+def _get_table_semantic_model(stage_env_name: str) -> str:
+    return (
+        (os.getenv(stage_env_name) or "").strip()
+        or (os.getenv("TABLE_IMAGE_VLM_MODEL") or "").strip()
+        or (os.getenv("GEMINI_MODEL") or "").strip()
+        or DEFAULT_TABLE_SEMANTIC_GEMINI_MODEL
+    )
 
 
 def get_classifier_model() -> str:
-    return resolve_llm_model(
-        os.getenv("TABLE_SEMANTIC_CLASSIFIER_MODEL"),
-        default=DEFAULT_LLM_MODEL,
-    )
+    return _get_table_semantic_model("TABLE_SEMANTIC_CLASSIFIER_MODEL")
 
 
 def get_global_model() -> str:
-    return resolve_llm_model(
-        os.getenv("TABLE_SEMANTIC_GLOBAL_MODEL"),
-        default=DEFAULT_LLM_MODEL,
-    )
+    return _get_table_semantic_model("TABLE_SEMANTIC_GLOBAL_MODEL")
 
 
 def get_row_model() -> str:
-    return resolve_llm_model(
-        os.getenv("TABLE_SEMANTIC_ROW_MODEL"),
-        default=DEFAULT_LLM_MODEL,
-    )
+    return _get_table_semantic_model("TABLE_SEMANTIC_ROW_MODEL")
 
 
 def get_timeout_seconds() -> float:

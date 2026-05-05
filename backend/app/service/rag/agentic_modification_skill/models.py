@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, ConfigDict, Field, model_validator
 
 
 class AgentAction(BaseModel):
@@ -50,11 +50,25 @@ class FetchParentChunkArguments(BaseModel):
 
 
 class FetchChunkWindowArguments(BaseModel):
-    file_id: str
-    center_parent_id: str | None = None
+    model_config = ConfigDict(populate_by_name=True)
+
+    file_id: str | None = Field(default=None, validation_alias=AliasChoices("file_id", "fileId"))
+    parent_id: str | None = Field(default=None, validation_alias=AliasChoices("parent_id", "parentId"))
+    center_parent_id: str | None = Field(default=None, validation_alias=AliasChoices("center_parent_id", "centerParentId"))
     center_chunk_number: int | None = None
     before: int = 1
     after: int = 1
+    window_size: int | None = Field(default=None, validation_alias=AliasChoices("window_size", "windowSize"))
+
+    @model_validator(mode="after")
+    def normalize_aliases(self) -> "FetchChunkWindowArguments":
+        if self.center_parent_id is None and self.parent_id:
+            self.center_parent_id = self.parent_id
+        if self.window_size is not None:
+            radius = max(0, int(self.window_size))
+            self.before = radius
+            self.after = radius
+        return self
 
 
 class DelegateFileEditsArguments(BaseModel):
@@ -68,14 +82,19 @@ class ReadReferenceArguments(BaseModel):
 
 
 class SkippedCandidate(BaseModel):
-    file_id: str
+    model_config = ConfigDict(populate_by_name=True)
+
+    file_id: str = Field(validation_alias=AliasChoices("file_id", "fileId"))
+    file_name: str | None = Field(default=None, validation_alias=AliasChoices("file_name", "fileName"))
     reason: str
 
 
 class ProposalItem(BaseModel):
-    fileId: str
-    fileName: str
-    parentId: str
+    model_config = ConfigDict(populate_by_name=True)
+
+    fileId: str = Field(validation_alias=AliasChoices("fileId", "file_id"))
+    fileName: str = Field(validation_alias=AliasChoices("fileName", "file_name"))
+    parentId: str = Field(validation_alias=AliasChoices("parentId", "parent_id"))
     original: str
     proposed: str
     source: Literal["agent"] = "agent"

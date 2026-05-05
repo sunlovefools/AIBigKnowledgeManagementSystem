@@ -11,7 +11,13 @@ from app.service.rag.agentic_modification_skill import llm_client, runtime, tool
 from app.service.rag.agentic_modification_skill.config_loader import (
     load_agentic_modification_skill_config,
 )
-from app.service.rag.agentic_modification_skill.models import EvidenceItem
+from app.service.rag.agentic_modification_skill.models import (
+    EvidenceItem,
+    FetchChunkWindowArguments,
+    FinishArguments,
+    ProposalItem,
+    SkippedCandidate,
+)
 
 
 class _FakeParentCollection:
@@ -150,6 +156,60 @@ def test_reasoning_content_is_not_used_as_action_payload():
     assert content == '{"action":"finish","arguments":{"summary":"from content"}}'
 
 
+def test_finish_arguments_accept_mixed_case_model_output():
+    args = FinishArguments.model_validate(
+        {
+            "proposals": [
+                {
+                    "file_id": "file-a",
+                    "file_name": "policy.md",
+                    "parent_id": "parent-a",
+                    "original": "Refund is 14 days.",
+                    "proposed": "Refund is 30 days.",
+                }
+            ],
+            "skipped_candidates": [
+                {
+                    "fileId": "file-b",
+                    "fileName": "other.md",
+                    "reason": "Irrelevant to the requested edit.",
+                }
+            ],
+        }
+    )
+
+    assert args.proposals == [
+        ProposalItem(
+            fileId="file-a",
+            fileName="policy.md",
+            parentId="parent-a",
+            original="Refund is 14 days.",
+            proposed="Refund is 30 days.",
+        )
+    ]
+    assert args.skipped_candidates == [
+        SkippedCandidate(
+            file_id="file-b",
+            file_name="other.md",
+            reason="Irrelevant to the requested edit.",
+        )
+    ]
+
+
+def test_fetch_chunk_window_arguments_accept_parent_id_window_size_aliases():
+    args = FetchChunkWindowArguments.model_validate(
+        {
+            "parent_id": "parent-a",
+            "window_size": 0,
+        }
+    )
+
+    assert args.file_id is None
+    assert args.center_parent_id == "parent-a"
+    assert args.before == 0
+    assert args.after == 0
+
+
 def test_modification_skill_prefers_canonical_llm_envs(monkeypatch):
     monkeypatch.setenv("LLM_API_URL", "https://api.deepseek.com")
     monkeypatch.setenv("LLM_API_KEY", "canonical-key")
@@ -206,6 +266,36 @@ def test_fetch_file_outline_and_window_are_scoped_and_ordered(monkeypatch):
 
     assert [item.parent_id for item in window.chunks] == ["p1", "p2"]
     assert window.chunks[1].content == "# Later\nRefund is 14 days."
+
+
+def test_runtime_fetch_chunk_window_can_resolve_file_id_from_parent_id(monkeypatch):
+    rows = [
+        _parent_row(parent_id="p1", file_id="file-a", file_name="policy.md", chunk_number=0, content="# Start\nIntro."),
+        _parent_row(parent_id="p2", file_id="file-a", file_name="policy.md", chunk_number=1, content="# Later\nRefund is 14 days."),
+    ]
+    _install_fake_vectordb(monkeypatch, rows)
+    monkeypatch.setattr(
+        runtime.llm_client,
+        "call_action_model",
+        _llm_sequence(
+            [
+                '{"action":"fetch_chunk_window","arguments":{"parent_id":"p2","window_size":0}}',
+                '{"action":"finish","arguments":{"skipped_candidates":[{"file_id":"file-a","reason":"No edit needed."}]}}',
+            ]
+        ),
+    )
+
+    result = asyncio.run(
+        runtime.run_agentic_modification_skill(
+            user_instruction="Inspect refund context.",
+            user_id="user-1",
+            included_file_ids=["file-a"],
+            max_steps=2,
+        )
+    )
+
+    assert result.termination_reason == "finished"
+    assert result.coverage_report["explored_parent_chunks"] == ["p2"]
 
 
 def test_search_files_matches_meeting_minutes_from_full_edit_prompt(monkeypatch):

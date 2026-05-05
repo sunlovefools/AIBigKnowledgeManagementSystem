@@ -156,9 +156,42 @@ def _build_registry_message(config: Any) -> str:
                 "examples": {
                     "load_skill": {"skill_name": "document-modification"},
                     "search_context": {"query": "refund policy 14 days", "top_k": 8},
+                    "fetch_chunk_window": {
+                        "file_id": "file-1",
+                        "center_parent_id": "parent-1",
+                        "before": 1,
+                        "after": 1,
+                    },
                     "delegate_file_edits": {"file_ids": ["file-1"], "instruction": "Change refund period to 30 days."},
-                    "finish": {"proposals": [], "skipped_candidates": []},
+                    "finish": {
+                        "proposals": [
+                            {
+                                "fileId": "file-1",
+                                "fileName": "policy.pdf",
+                                "parentId": "parent-1",
+                                "original": "full original parent chunk",
+                                "proposed": "full proposed parent chunk",
+                            }
+                        ],
+                        "skipped_candidates": [
+                            {
+                                "file_id": "file-2",
+                                "file_name": "other.pdf",
+                                "reason": "Irrelevant to the requested edit.",
+                            }
+                        ],
+                    },
                 },
+                "finish_field_names": (
+                    "Use camelCase inside proposals: fileId, fileName, parentId, original, proposed. "
+                    "Use snake_case inside skipped_candidates: file_id, file_name, reason. "
+                    "The runtime also accepts file_id/file_name/parent_id aliases for proposals "
+                    "and fileId/fileName aliases for skipped candidates."
+                ),
+                "fetch_chunk_window_field_names": (
+                    "Prefer file_id plus center_parent_id. The runtime also accepts parent_id as "
+                    "an alias for center_parent_id and window_size as a symmetric before/after radius."
+                ),
             },
         }
     )
@@ -437,8 +470,23 @@ async def _run_loop(
 
             elif action.action == "fetch_chunk_window":
                 args = FetchChunkWindowArguments.model_validate(action.arguments)
+                file_id = args.file_id
+                if not file_id and args.center_parent_id:
+                    center_chunk = await tools.fetch_parent_chunk_tool(
+                        parent_id=args.center_parent_id,
+                        user_id=user_id,
+                        included_file_ids=included_file_ids,
+                        parent_doc_cache=parent_doc_cache,
+                    )
+                    if center_chunk is not None:
+                        file_id = center_chunk.file_id
+                        ledger.observe_file(center_chunk.file_id, center_chunk.file_name)
+                        ledger.explored_files.add(center_chunk.file_id)
+                        ledger.explored_parent_chunks.add(center_chunk.parent_id)
+                if not file_id:
+                    raise ValueError("fetch_chunk_window requires file_id or parent_id.")
                 window = await tools.fetch_chunk_window_tool(
-                    file_id=args.file_id,
+                    file_id=file_id,
                     center_parent_id=args.center_parent_id,
                     center_chunk_number=args.center_chunk_number,
                     before=args.before,

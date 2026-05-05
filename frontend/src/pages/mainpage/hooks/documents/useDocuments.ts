@@ -75,7 +75,7 @@ function getCollectionsCacheKey(): string {
         : "kb.collections.cache.v1";
 }
 
-const COLLECTIONS_CACHE_TTL_MS = 2 * 60 * 1000;
+const COLLECTIONS_CACHE_TTL_MS = 30 * 60 * 1000;
 
 function sanitizeCollections(raw: UserCollectionSummary[]): UserCollectionSummary[] {
     const dedupedById = new Map<string, UserCollectionSummary>();
@@ -147,7 +147,6 @@ export function useDocuments() {
                     const defaultCollection = currentCollections.find((entry) => entry.isDefault);
                     return defaultCollection?.collectionId ?? currentCollections[0]?.collectionId ?? null;
                 });
-                return;
             }
         }
 
@@ -170,9 +169,10 @@ export function useDocuments() {
                 return defaultCollection?.collectionId ?? incoming[0]?.collectionId ?? null;
             });
         } catch {
-            setCollections([]);
             setCollectionError("Failed to load collections.");
-            setActiveCollectionId(null);
+            if (collectionsRef.current.length === 0) {
+                setActiveCollectionId(null);
+            }
         } finally {
             setIsLoadingCollections(false);
         }
@@ -480,7 +480,7 @@ export function useDocuments() {
                 const detail = getAxiosErrorDetail(error);
                 return {
                     ok: false,
-                    error: detail ?? "Failed to delete file from the knowledge base.",
+                    error: detail ?? "Failed to delete file from Documind.",
                 };
             } finally {
                 fileDomain.setDeletingFileId(null);

@@ -191,6 +191,26 @@ function makeSuggestionWidget(
   return widget
 }
 
+function buildProposalWidgetHunk(marker: MarkdownReviewMarker): ProposalHunk | null {
+  if (!marker.hunks.length) return null
+
+  const first = marker.hunks[0]
+  const last = marker.hunks[marker.hunks.length - 1]
+  const originalText = marker.hunks.map((hunk) => hunk.originalText).filter(Boolean).join(' ... ')
+  const proposedText = marker.hunks.map((hunk) => hunk.proposedText).filter(Boolean).join(' ... ')
+
+  return {
+    type: !originalText ? 'insert' : !proposedText ? 'delete' : 'replace',
+    originalStart: first.originalStart,
+    originalEnd: last.originalEnd,
+    proposedStart: first.proposedStart,
+    proposedEnd: last.proposedEnd,
+    originalText,
+    proposedText,
+    tokens: [],
+  }
+}
+
 function buildReviewDecorations(
   doc: ProseMirrorNode,
   markers: MarkdownReviewMarker[],
@@ -205,7 +225,9 @@ function buildReviewDecorations(
 
   for (const marker of markers) {
     const isActive = marker.proposalKey === activeReviewKey
-    marker.hunks.forEach((hunk, hunkIndex) => {
+    let lastWidgetPosition: number | null = null
+
+    marker.hunks.forEach((hunk) => {
       const hunkStart = marker.offset + (marker.status === 'accepted' ? hunk.proposedStart : hunk.originalStart)
       const hunkEnd = marker.offset + (marker.status === 'accepted' ? hunk.proposedEnd : hunk.originalEnd)
       const from = plainOffsetToDocPosition(offsetMap, hunkStart, 'forward')
@@ -221,15 +243,22 @@ function buildReviewDecorations(
       }
 
       const widgetPosition = typeof to === 'number' && to >= from ? to : from
-      decorations.push(Decoration.widget(
-        widgetPosition,
-        () => makeSuggestionWidget(marker, hunk, isActive, callbacks, onActivate),
-        {
-          key: `${marker.proposalKey}-${hunkIndex}-${marker.status}-${isActive ? 'active' : 'idle'}`,
-          side: 1,
-        }
-      ))
+      lastWidgetPosition = Math.max(lastWidgetPosition ?? widgetPosition, widgetPosition)
     })
+
+    if (typeof lastWidgetPosition !== 'number') continue
+
+    const widgetHunk = buildProposalWidgetHunk(marker)
+    if (!widgetHunk) continue
+
+    decorations.push(Decoration.widget(
+      lastWidgetPosition,
+      () => makeSuggestionWidget(marker, widgetHunk, isActive, callbacks, onActivate),
+      {
+        key: `${marker.proposalKey}-controls-${marker.status}-${isActive ? 'active' : 'idle'}`,
+        side: 1,
+      }
+    ))
   }
 
   return DecorationSet.create(doc, decorations)

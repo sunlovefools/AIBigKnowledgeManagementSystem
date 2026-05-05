@@ -127,7 +127,6 @@ export default function ConversationPage() {
         closeDocumentTab,
         setActiveDocumentTab,
         loadMoreActiveTab,
-        invalidateDocumentCache,
         createNewBlankFile,
         renameFile,
         pendingCreationFileIds,
@@ -308,7 +307,7 @@ export default function ConversationPage() {
         appendMessage({
             role: "ai",
             text:
-                `Deleted "${result.data.fileName}" from the knowledge base ` +
+                `Deleted "${result.data.fileName}" from Documind ` +
                 `(${result.data.deletedParentChunks} parent chunks, ${result.data.deletedChildChunks} child chunks). ` +
                 `S3 cleanup: ${result.data.s3Status}.${warningText}`,
         });
@@ -900,13 +899,11 @@ export default function ConversationPage() {
         const uploadedToVisibleCollection =
             !event.item.collectionId || event.item.collectionId === activeCollectionId;
         if (uploadedToVisibleCollection) {
-            invalidateDocumentCache();
             void fetchFiles();
         }
     }), [
         activeCollectionId,
         fetchFiles,
-        invalidateDocumentCache,
         refreshCollections,
         subscribeToUploadCompletions,
     ]);
@@ -1551,7 +1548,7 @@ export default function ConversationPage() {
                             Remove "{pendingDeleteFile.fileName}"?
                         </h3>
                         <p className="delete-confirm-text">
-                            This removes the file from the Knowledge Base.
+                            This removes the file from Documind.
                         </p>
                         <div className="delete-confirm-actions">
                             <button

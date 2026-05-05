@@ -127,8 +127,8 @@ export default function GlobalSidebar({ mode, className = "" }: GlobalSidebarPro
         >
             {isConversation && (
                 <div className="global-sidebar-mainpage-brand">
-                    <span className="global-sidebar-mainpage-dot" aria-hidden="true">KB</span>
-                    <span>Knowledge Base</span>
+                    <span className="global-sidebar-mainpage-dot" aria-hidden="true">D</span>
+                    <span>Documind</span>
                 </div>
             )}
             <button

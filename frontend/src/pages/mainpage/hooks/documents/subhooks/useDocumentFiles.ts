@@ -21,6 +21,17 @@ type CachedFileChunks = {
 
 type FileChunksPage = Awaited<ReturnType<typeof getFileChunks>>;
 
+const documentStateCache: Record<
+    string,
+    {
+        filesState: FilesState;
+        chunkAsyncByFileId: Record<string, FileContentAsyncState>;
+        isDocsCached: boolean;
+    }
+> = {};
+const fileChunkCache = new Map<string, CachedFileChunks>();
+const inFlightChunkPages = new Map<string, Promise<FileChunksPage>>();
+
 function buildFileChunkCacheKey(collectionId: string | null, fileId: string): string {
     const scope = collectionId ?? "__default_collection__";
     return `${scope}::${fileId}`;
@@ -28,25 +39,17 @@ function buildFileChunkCacheKey(collectionId: string | null, fileId: string): st
 
 // Owns file list state, tab state, and per-file chunk loading/pagination.
 export function useDocumentFiles(activeCollectionId: string | null) {
-    const [filesState, setFilesState] = useState<FilesState>(createEmptyFilesState());
-    const [chunkAsyncByFileId, setChunkAsyncByFileId] = useState<Record<string, FileContentAsyncState>>({});
+    const activeCacheKey = activeCollectionId ?? "__default_collection__";
+    const initialCachedState = documentStateCache[activeCacheKey];
+    const [filesState, setFilesState] = useState<FilesState>(initialCachedState?.filesState ?? createEmptyFilesState());
+    const [chunkAsyncByFileId, setChunkAsyncByFileId] = useState<Record<string, FileContentAsyncState>>(initialCachedState?.chunkAsyncByFileId ?? {});
     const [isLoadingFiles, setIsLoadingFiles] = useState(false);
     const [fileListError, setFileListError] = useState<string | null>(null);
-    const [isDocsCached, setIsDocsCached] = useState(false);
+    const [isDocsCached, setIsDocsCached] = useState(initialCachedState?.isDocsCached ?? false);
     const [deletingFileId, setDeletingFileId] = useState<string | null>(null);
-    const cacheRef = useRef<
-        Record<
-            string,
-            {
-                filesState: FilesState;
-                chunkAsyncByFileId: Record<string, FileContentAsyncState>;
-                isDocsCached: boolean;
-            }
-        >
-    >({});
-    const fileChunkCacheRef = useRef<Map<string, CachedFileChunks>>(new Map());
-    const inFlightChunkPagesRef = useRef<Map<string, Promise<FileChunksPage>>>(new Map());
-    const activeCacheKey = activeCollectionId ?? "__default_collection__";
+    const cacheRef = useRef(documentStateCache);
+    const fileChunkCacheRef = useRef(fileChunkCache);
+    const inFlightChunkPagesRef = useRef(inFlightChunkPages);
 
     const getCachedFileChunks = useCallback(
         (fileId: string): CachedFileChunks | null => {
@@ -167,9 +170,10 @@ export function useDocumentFiles(activeCollectionId: string | null) {
     }, [activeCacheKey, chunkAsyncByFileId, filesState, isDocsCached]);
 
     useEffect(() => {
-        // Auto-load file previews after authentication and page load.
-        if (!isDocsCached) void fetchFiles();
-    }, [fetchFiles, isDocsCached]);
+        // Always revalidate in the background. Cached files remain visible while
+        // fresh sidebar metadata is fetched.
+        void fetchFiles();
+    }, [fetchFiles]);
 
     const loadFileChunks = useCallback(
         async (fileId: string, reset = false): Promise<ParentChunkContent[]> => {

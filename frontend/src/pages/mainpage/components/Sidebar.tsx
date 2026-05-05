@@ -555,7 +555,7 @@ export default function Sidebar({
             )}
             <div className="sidebar-header">
                 <div className="sidebar-header-main">
-                    <div className="logo-mark">KB</div>
+                    <div className="logo-mark">D</div>
                     <div>
                         <div className="eyebrow">Workspace</div>
                         <div className="sidebar-title">Sources</div>
@@ -578,10 +578,10 @@ export default function Sidebar({
 
             <div className="sources-section">
                 <div className="collection-section">
-                    <div className="section-title">Sources browser</div>
-                    {isLoadingCollections ? (
+                    <div className="section-title">Collection browser</div>
+                    {isLoadingCollections && collections.length === 0 ? (
                         <div className="sidebar-documents-status">Loading collections...</div>
-                    ) : collectionError ? (
+                    ) : collectionError && collections.length === 0 ? (
                         <div className="sidebar-documents-status error">{collectionError}</div>
                     ) : collections.length === 0 ? (
                         <div className="sidebar-documents-status">No collections available.</div>
@@ -888,9 +888,9 @@ export default function Sidebar({
 
                 {/* ── File list ── */}
                 <div className="sidebar-documents-list">
-                    {isLoadingFiles ? (
+                    {isLoadingFiles && files.length === 0 ? (
                         <div className="sidebar-documents-status">Loading files...</div>
-                    ) : fileListError ? (
+                    ) : fileListError && files.length === 0 ? (
                         <div className="sidebar-documents-status error">{fileListError}</div>
                     ) : files.length === 0 ? (
                         <div className="sidebar-documents-status">No files found in vector database.</div>

@@ -164,7 +164,7 @@ If merged child list is empty but parent content exists, one fallback child is c
 
 When `TABLE_SEMANTIC_INGESTION_ENABLED=true`, PDF Docling tables are preprocessed before normal Docling chunking:
 
-- Non-image markdown tables are classified with an OpenAI-compatible LLM (`layout|matrix|entity_list`).
+- Non-image markdown tables are classified with Gemini by default (`layout|matrix|entity_list`).
 - `layout` tables are flattened into key-value bullet text and fed into standard Docling chunking.
 - `matrix` / `entity_list` tables produce semantic table chunks:
 1. Global table description.

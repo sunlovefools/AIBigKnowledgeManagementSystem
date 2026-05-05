@@ -90,8 +90,8 @@ Docling branch preserves richer metadata for visual content, including:
 - `DOCLING_BACKEND_SELECTION=beam|local`
 - `DOCLING_ARTIFACTS_ENABLED=true|false`
 - `TABLE_SEMANTIC_INGESTION_ENABLED=true|false` (defaults to `true`)
-- `TABLE_SEMANTIC_LLM_URL=<openai-compatible-chat-completions-url>`
-- `TABLE_SEMANTIC_LLM_API_KEY=<required-when-semantic-tables-encountered>`
+- `TABLE_SEMANTIC_LLM_URL=<gemini-generateContent-base-url>` (defaults to Gemini, e.g. `https://generativelanguage.googleapis.com/v1beta`)
+- `TABLE_SEMANTIC_LLM_API_KEY=<gemini-api-key>` (falls back to `TABLE_IMAGE_VLM_API_KEY`, `GOOGLE_GEMINI_API_KEY`, or `GEMINI_API_KEY`)
 - `TABLE_SEMANTIC_CLASSIFIER_MODEL=<model-name>`
 - `TABLE_SEMANTIC_GLOBAL_MODEL=<model-name>`
 - `TABLE_SEMANTIC_ROW_MODEL=<model-name>`

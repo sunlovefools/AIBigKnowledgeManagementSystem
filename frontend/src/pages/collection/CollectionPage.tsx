@@ -165,7 +165,7 @@ export default function CollectionPage() {
                             </div>
                         )}
 
-                        {isLoadingCollections ? (
+                        {isLoadingCollections && collections.length === 0 ? (
                             <div className="collection-status">Loading collections...</div>
                         ) : collections.length === 0 ? (
                             <div className="collection-status">No collections available yet.</div>

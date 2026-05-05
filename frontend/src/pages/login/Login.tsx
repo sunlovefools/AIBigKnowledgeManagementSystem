@@ -113,32 +113,54 @@ export default function Login() {
 
     return (
         <div className="login-container">
-            <div className="login-card">
-                <p className="login-kicker">Team44 Workspace</p>
-                <h1>Sign in</h1>
-                <p className="login-description">
-                    Minimal, secure access to your document and chat workspace.
-                </p>
-                <p className="login-auth0-note">Only login with Auth0 is supported.</p>
+            <div className="login-shell" aria-label="Documind sign in">
+                <section className="login-brand-panel" aria-label="Documind overview">
+                    <div className="login-brand-mark" aria-hidden="true">D</div>
+                    <div>
+                        <p className="login-kicker">Documind</p>
+                        <h1>Private document intelligence for your workspace.</h1>
+                        <p className="login-description">
+                            Search, understand, and update your collections from one secure assistant.
+                        </p>
+                    </div>
+                </section>
 
-                {!hasAuth0Config && (
-                    <p className="login-message error">
-                        Missing Auth0 config. Set `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID`, and
-                        `VITE_AUTH0_AUDIENCE`.
+                <section className="login-card" aria-label="Sign in form">
+                    <div className="login-card-header">
+                        <div className="login-card-mark" aria-hidden="true">D</div>
+                        <div>
+                            <p className="login-card-eyebrow">Welcome back</p>
+                            <h2>Sign in to Documind</h2>
+                        </div>
+                    </div>
+
+                    <p className="login-auth0-note">
+                        Continue with your organization account to access Documind.
                     </p>
-                )}
 
-                {error && <p className="login-message error">Auth0 error: {error.message}</p>}
-                {exchangeError && <p className="login-message error">{exchangeError}</p>}
+                    {!hasAuth0Config && (
+                        <p className="login-message error">
+                            Missing Auth0 config. Set `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID`, and
+                            `VITE_AUTH0_AUDIENCE`.
+                        </p>
+                    )}
 
-                <button
-                    type="button"
-                    className="login-button"
-                    onClick={() => void handleOAuthLogin()}
-                    disabled={isLoading || isExchanging || !hasAuth0Config}
-                >
-                    {isLoading || isExchanging ? "Signing in..." : "Continue with Auth0"}
-                </button>
+                    {error && <p className="login-message error">Auth0 error: {error.message}</p>}
+                    {exchangeError && <p className="login-message error">{exchangeError}</p>}
+
+                    <button
+                        type="button"
+                        className="login-button"
+                        onClick={() => void handleOAuthLogin()}
+                        disabled={isLoading || isExchanging || !hasAuth0Config}
+                    >
+                        {isLoading || isExchanging ? "Signing in..." : "Continue with Auth0"}
+                    </button>
+
+                    <p className="login-security-copy">
+                        By continuing, you will be redirected to Auth0 for secure authentication.
+                    </p>
+                </section>
             </div>
         </div>
     );

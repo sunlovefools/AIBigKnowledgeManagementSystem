@@ -65,7 +65,7 @@ export default function ChatInput({
     const placeholder = isEditMode
         ? highlightedSelection
             ? "Describe how to modify the selected text..."
-            : "Enter edit instruction (e.g. Change X to Y)..."
+            : "Enter edit instruction..."
         : searchScopeLabel === "All collections"
             ? "Ask across all collections..."
             : `Ask in ${searchScopeLabel}...`;

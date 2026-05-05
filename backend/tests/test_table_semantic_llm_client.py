@@ -28,6 +28,7 @@ _SPEC.loader.exec_module(_MODULE)
 
 TableSemanticLlmError = _MODULE.TableSemanticLlmError
 parse_json_response = _MODULE.parse_json_response
+chat_completion = _MODULE.chat_completion
 
 
 def test_parse_json_response_parses_json_array():
@@ -90,3 +91,54 @@ def test_parse_json_response_parses_code_fenced_object_wrapped_in_single_quotes(
 def test_parse_json_response_raises_on_non_json():
     with pytest.raises(TableSemanticLlmError):
         parse_json_response("not json at all")
+
+
+def test_chat_completion_uses_gemini_generate_content_without_auth_header(monkeypatch):
+    calls = []
+
+    class _Response:
+        status_code = 200
+        text = ""
+
+        def json(self):
+            return {
+                "candidates": [
+                    {
+                        "content": {
+                            "parts": [
+                                {"text": '{"type":"layout","needs_description":false}'}
+                            ]
+                        }
+                    }
+                ]
+            }
+
+    def _post(endpoint, *, params, headers, json, timeout):
+        calls.append(
+            {
+                "endpoint": endpoint,
+                "params": params,
+                "headers": headers,
+                "json": json,
+                "timeout": timeout,
+            }
+        )
+        return _Response()
+
+    monkeypatch.setattr(_MODULE.requests, "post", _post)
+
+    content = chat_completion(
+        url="https://generativelanguage.googleapis.com/v1beta",
+        api_key="gemini-key",
+        model="gemini-3.1-flash-lite-preview",
+        system_prompt="system",
+        user_prompt="user",
+        timeout_s=10,
+    )
+
+    assert content == '{"type":"layout","needs_description":false}'
+    assert calls[0]["endpoint"].endswith(
+        "/models/gemini-3.1-flash-lite-preview:generateContent"
+    )
+    assert calls[0]["params"] == {"key": "gemini-key"}
+    assert "Authorization" not in calls[0]["headers"]

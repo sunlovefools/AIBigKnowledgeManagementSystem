@@ -489,7 +489,7 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                     >
                         <div className="upload-queue-header">
                             <div>
-                                <div className="upload-queue-eyebrow">Knowledge base</div>
+                                <div className="upload-queue-eyebrow">Documind</div>
                                 <h2 id="upload-queue-title">Upload files</h2>
                                 <p>{activeTargetLabel}</p>
                             </div>
