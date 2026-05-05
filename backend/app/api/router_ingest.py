@@ -241,6 +241,22 @@ async def get_ingest_upload_job_status(
     return IngestJobStatusResponse(**job)
 
 
+@router.delete("/upload-jobs/{job_id}", response_model=IngestJobStatusResponse)
+async def cancel_ingest_upload_job(
+    job_id: str,
+    current_user: dict = Depends(get_current_user),
+):
+    """Cancel and remove a queued/running upload job for the current user."""
+    user_id = str(current_user.get("sub") or "").strip() if isinstance(current_user, dict) else ""
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required")
+
+    job = await IngestJobService.cancel_ingest_job(job_id=job_id, user_id=user_id)
+    if not job:
+        raise HTTPException(status_code=404, detail=f"Ingest job '{job_id}' not found")
+    return IngestJobStatusResponse(**job)
+
+
 async def ingest_webhook(file: FileUpload):
     """Backward-compatible alias for ingest_upload (deprecated)."""
     return await ingest_upload(file)

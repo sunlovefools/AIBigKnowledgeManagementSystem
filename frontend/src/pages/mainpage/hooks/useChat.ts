@@ -650,7 +650,7 @@ export function useChat() {
                         collectionName: scopedCollectionName,
                         searchScope,
                         seed_top_k: options?.seedTopK ?? 8,
-                        max_steps: options?.maxSteps ?? 6,
+                        max_steps: options?.maxSteps ?? 12,
                     }),
                 });
                 const streamResult = await readAgenticQueryStreamResult(

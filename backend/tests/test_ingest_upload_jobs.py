@@ -173,3 +173,92 @@ def test_ingest_upload_job_status_is_user_scoped(monkeypatch):
         assert exc.value.status_code == 404
 
     asyncio.run(_scenario())
+
+
+def test_ingest_upload_job_can_be_canceled_while_running(monkeypatch):
+    async def _scenario():
+        await IngestJobService.reset_for_tests()
+        started = asyncio.Event()
+        release = asyncio.Event()
+        captured = {"upsert_called": False}
+
+        async def _fake_run_ingest_upload(*, file_name, content_type, data):
+            _ = file_name, content_type, data
+            started.set()
+            await release.wait()
+            return {
+                "parent_chunks": [{"parent_chunk_id": "p1", "metadata": {}}],
+                "child_chunks": [{"child_chunk_id": "c1", "metadata": {}}],
+                "warnings": [],
+            }
+
+        async def _fake_upsert_chunks(*, parent_chunks, child_chunks, user_id):
+            _ = parent_chunks, child_chunks, user_id
+            captured["upsert_called"] = True
+
+        monkeypatch.setattr(router_ingest.ingest_upload_service, "run_ingest_upload", _fake_run_ingest_upload)
+        monkeypatch.setattr(router_ingest.ingest_upload_service, "upsert_chunks", _fake_upsert_chunks)
+
+        accepted = await router_ingest.create_ingest_upload_job(
+            router_ingest.FileUpload(
+                fileName="slow.txt",
+                contentType="text/plain",
+                data="SGVsbG8=",
+            ),
+            current_user={"sub": "user-1"},
+        )
+        await asyncio.wait_for(started.wait(), timeout=1)
+
+        canceled = await router_ingest.cancel_ingest_upload_job(
+            accepted.jobId,
+            current_user={"sub": "user-1"},
+        )
+        assert canceled.status == "canceled"
+        assert canceled.fileName == "slow.txt"
+
+        with pytest.raises(HTTPException) as exc:
+            await router_ingest.get_ingest_upload_job_status(
+                accepted.jobId,
+                current_user={"sub": "user-1"},
+            )
+        assert exc.value.status_code == 404
+
+        release.set()
+        await asyncio.sleep(0.01)
+        assert captured["upsert_called"] is False
+
+    asyncio.run(_scenario())
+
+
+def test_ingest_upload_job_cancel_is_user_scoped(monkeypatch):
+    async def _scenario():
+        await IngestJobService.reset_for_tests()
+
+        async def _fake_run_ingest_upload(*, file_name, content_type, data):
+            _ = file_name, content_type, data
+            await asyncio.sleep(0.05)
+            return {
+                "parent_chunks": [],
+                "child_chunks": [],
+                "warnings": [],
+            }
+
+        monkeypatch.setattr(router_ingest.ingest_upload_service, "run_ingest_upload", _fake_run_ingest_upload)
+
+        accepted = await router_ingest.create_ingest_upload_job(
+            router_ingest.FileUpload(
+                fileName="example.txt",
+                contentType="text/plain",
+                data="SGVsbG8=",
+            ),
+            current_user={"sub": "user-1"},
+        )
+
+        with pytest.raises(HTTPException) as exc:
+            await router_ingest.cancel_ingest_upload_job(
+                accepted.jobId,
+                current_user={"sub": "user-2"},
+            )
+        assert exc.value.status_code == 404
+
+    asyncio.run(_scenario())

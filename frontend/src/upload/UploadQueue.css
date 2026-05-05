@@ -321,7 +321,15 @@
     color: #166534;
 }
 
+.upload-queue-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
 .upload-queue-retry,
+.upload-queue-remove,
 .upload-queue-secondary {
     border: 1px solid #d8eafd;
     border-radius: 10px;
@@ -332,6 +340,7 @@
 }
 
 .upload-queue-retry:hover:not(:disabled),
+.upload-queue-remove:hover:not(:disabled),
 .upload-queue-secondary:hover:not(:disabled) {
     border-color: #a9d5ff;
     background: #eef8ff;
@@ -467,6 +476,12 @@
 
     .upload-queue-retry {
         width: 100%;
+    }
+
+    .upload-queue-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
     }
 
     .upload-queue-footer {

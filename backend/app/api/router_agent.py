@@ -77,7 +77,7 @@ class AgenticQueryRequest(BaseModel):
     collectionName: str | None = None
     searchScope: Literal["collection", "all_collections"] = "collection"
     seed_top_k: int = 8
-    max_steps: int = 6
+    max_steps: int = 12
 
 
 class AgenticQueryResponse(BaseModel):

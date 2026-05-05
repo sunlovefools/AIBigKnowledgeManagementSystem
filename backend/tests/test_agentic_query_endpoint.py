@@ -100,7 +100,7 @@ def _build_request(**overrides):
         "collectionId": None,
         "searchScope": "collection",
         "seed_top_k": 8,
-        "max_steps": 6,
+        "max_steps": 12,
     }
     payload.update(overrides)
     return router_agent.AgenticQueryRequest(**payload)
