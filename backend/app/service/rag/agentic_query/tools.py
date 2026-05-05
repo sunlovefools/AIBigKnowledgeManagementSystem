@@ -9,6 +9,7 @@ All tools in this module are intentionally "thin":
 from __future__ import annotations
 
 import asyncio
+import re
 from typing import Any
 
 from .config_loader import AgenticQueryConfig, load_skill_content, read_reference_content
@@ -17,6 +18,7 @@ from .models import EvidenceItem, FileMatch
 _MIN_TOP_K = 1
 _MAX_TOP_K = 20
 _MAX_SNIPPET_CHARS = 1400
+_MAX_FETCH_SNIPPET_CHARS = 4200
 _MAX_SKILL_CHARS = 8000
 _MAX_FILE_MATCHES = 10
 _MAX_FILE_CONTEXT_CHUNKS = 40
@@ -89,6 +91,94 @@ def _extract_metadata(doc: dict[str, Any]) -> tuple[str, str, int | None, str]:
     return file_id, file_name, parent_chunk_number, owner_id
 
 
+def _extract_table_semantic_metadata(doc: dict[str, Any]) -> dict[str, Any]:
+    metadata = doc.get("metadata") if isinstance(doc.get("metadata"), dict) else {}
+    parent_chunk_metadata = (
+        metadata.get("parent_chunk_metadata")
+        if isinstance(metadata.get("parent_chunk_metadata"), dict)
+        else {}
+    )
+    table_semantic = parent_chunk_metadata.get("table_semantic")
+    return table_semantic if isinstance(table_semantic, dict) else {}
+
+
+def _format_structured_table_view(doc: dict[str, Any], *, max_chars: int = 2600) -> str:
+    """Render table metadata as a compact row/field view for answer synthesis."""
+
+    table_semantic = _extract_table_semantic_metadata(doc)
+    if not table_semantic:
+        return ""
+
+    parts: list[str] = []
+    section = str(table_semantic.get("section_name") or "").strip()
+    parent_section = str(table_semantic.get("parent_section_name") or "").strip()
+    subsection = str(table_semantic.get("subsection_name") or "").strip()
+    description = str(table_semantic.get("general_description") or "").strip()
+
+    title_bits = []
+    if parent_section and subsection:
+        title_bits.append(f"Parent section: {parent_section}")
+        title_bits.append(f"Subsection: {subsection}")
+    elif section:
+        title_bits.append(f"Section: {section}")
+    if title_bits:
+        parts.append("; ".join(title_bits))
+    if description:
+        parts.append(f"Table description: {description}")
+
+    criteria = table_semantic.get("criteria_names")
+    if isinstance(criteria, list):
+        normalized = [str(item).strip() for item in criteria if str(item).strip()]
+        if normalized:
+            parts.append("Item labels: " + "; ".join(normalized[:12]))
+
+    weights = table_semantic.get("weights")
+    if isinstance(weights, list):
+        normalized = [str(item).strip() for item in weights if str(item).strip()]
+        if normalized:
+            parts.append("Weights/key numeric values: " + ", ".join(normalized[:12]))
+
+    rows = table_semantic.get("structured_rows")
+    if isinstance(rows, list) and rows:
+        row_lines: list[str] = []
+        for raw_row in rows[:10]:
+            if not isinstance(raw_row, dict):
+                continue
+            label = str(raw_row.get("label") or "").strip()
+            row_weights = raw_row.get("weights")
+            weight_text = ""
+            if isinstance(row_weights, list):
+                normalized_weights = [
+                    str(item).strip() for item in row_weights if str(item).strip()
+                ]
+                if normalized_weights:
+                    weight_text = " | weights: " + ", ".join(normalized_weights[:4])
+            cells = raw_row.get("cells")
+            cell_text = ""
+            if isinstance(cells, dict):
+                cell_parts = [
+                    f"{str(key).strip()}: {str(value).strip()}"
+                    for key, value in list(cells.items())[:6]
+                    if str(key).strip() and str(value).strip()
+                ]
+                if cell_parts:
+                    cell_text = " | " + "; ".join(cell_parts)
+            row_text = str(raw_row.get("text") or "").strip()
+            if not cell_text and row_text:
+                cell_text = " | " + row_text
+            if label:
+                row_lines.append(f"- {label}{weight_text}{cell_text}")
+            elif cell_text:
+                row_lines.append(f"-{weight_text}{cell_text}")
+        if row_lines:
+            parts.append("Rows:\n" + "\n".join(row_lines))
+
+    rendered = "\n".join(parts).strip()
+    if not rendered:
+        return ""
+    return _compact_snippet(rendered, max_chars=max_chars)
+
+
 def _included_file_ids_set(included_file_ids: list[str] | None) -> set[str] | None:
     """Normalize optional file scope into a set."""
 
@@ -145,6 +235,49 @@ def _file_name_matches_query(file_name: str, query: str) -> bool:
     )
 
 
+def _query_anchors(query: str | None) -> list[str]:
+    """Extract useful search anchors from mixed-language user queries."""
+
+    normalized_query = " ".join(str(query or "").split()).lower()
+    if not normalized_query:
+        return []
+
+    anchors: list[str] = []
+    english_tokens = re.findall(r"[a-z][a-z0-9_-]*", normalized_query)
+    stopwords = {
+        "file",
+        "pdf",
+        "doc",
+        "docx",
+        "table",
+        "rubric",
+        "criteria",
+        "criterion",
+        "standard",
+        "standards",
+    }
+
+    for index in range(len(english_tokens) - 1):
+        phrase = f"{english_tokens[index]} {english_tokens[index + 1]}"
+        if phrase not in anchors:
+            anchors.append(phrase)
+
+    for token in english_tokens:
+        if len(token) >= 3 and token not in stopwords and token not in anchors:
+            anchors.append(token)
+
+    split_terms = [
+        term
+        for term in normalized_query.replace("?", " ").replace(".", " ").split()
+        if len(term) >= 4
+    ]
+    for term in split_terms:
+        if term not in anchors:
+            anchors.append(term)
+
+    return anchors
+
+
 def _compact_snippet(
     raw_content: str,
     *,
@@ -157,21 +290,12 @@ def _compact_snippet(
     if len(compact) <= max_chars:
         return compact
 
-    normalized_query = " ".join(str(query or "").split()).lower()
     start_index = -1
-    if normalized_query:
-        start_index = compact.lower().find(normalized_query)
-
-    if start_index < 0 and normalized_query:
-        terms = [
-            term
-            for term in normalized_query.replace("?", " ").replace(".", " ").split()
-            if len(term) >= 4
-        ]
-        for term in terms:
-            start_index = compact.lower().find(term)
-            if start_index >= 0:
-                break
+    compact_lower = compact.lower()
+    for anchor in _query_anchors(query):
+        start_index = compact_lower.find(anchor)
+        if start_index >= 0:
+            break
 
     if start_index < 0:
         return compact[:max_chars]
@@ -186,7 +310,12 @@ def _compact_snippet(
     return snippet
 
 
-def _build_evidence_item(doc: dict[str, Any], *, query: str | None = None) -> EvidenceItem | None:
+def _build_evidence_item(
+    doc: dict[str, Any],
+    *,
+    query: str | None = None,
+    max_chars: int = _MAX_SNIPPET_CHARS,
+) -> EvidenceItem | None:
     """Convert a raw vector-store document into a transport-safe evidence item."""
 
     parent_id = str(doc.get("id") or "").strip()
@@ -197,13 +326,15 @@ def _build_evidence_item(doc: dict[str, Any], *, query: str | None = None) -> Ev
     if not file_id:
         return None
 
-    snippet = _compact_snippet(str(doc.get("page_content") or ""), query=query)
+    snippet = _compact_snippet(str(doc.get("page_content") or ""), query=query, max_chars=max_chars)
+    structured_view = _format_structured_table_view(doc)
     return EvidenceItem(
         parent_id=parent_id,
         file_id=file_id,
         file_name=file_name,
         parent_chunk_number=parent_chunk_number,
         snippet=snippet,
+        structured_view=structured_view,
     )
 
 
@@ -341,7 +472,14 @@ async def search_context_tool(
             if str(file_id).strip()
         }
     )
-    evidence: list[EvidenceItem] = []
+    seen_parent_ids = {
+        str(parent_id).strip()
+        for parent_id in parent_doc_cache.keys()
+        if str(parent_id).strip()
+    }
+    fresh_candidates: list[tuple[EvidenceItem, dict[str, Any]]] = []
+    fallback_candidates: list[tuple[EvidenceItem, dict[str, Any]]] = []
+
     for doc in docs:
         if not isinstance(doc, dict):
             continue
@@ -354,9 +492,18 @@ async def search_context_tool(
         item = _build_evidence_item(doc, query=normalized_query)
         if item is None:
             continue
-        # Cache by parent_id so follow-up `fetch_parent_chunk` can avoid an extra DB call.
         cached_doc = dict(doc)
         cached_doc["_agentic_query_snippet"] = item.snippet
+        cached_doc["_agentic_query_structured_view"] = item.structured_view
+        if item.parent_id in seen_parent_ids:
+            fallback_candidates.append((item, cached_doc))
+        else:
+            fresh_candidates.append((item, cached_doc))
+
+    selected_candidates = fresh_candidates if fresh_candidates else fallback_candidates
+    evidence: list[EvidenceItem] = []
+    for item, cached_doc in selected_candidates:
+        # Cache by parent_id so follow-up `fetch_parent_chunk` can avoid an extra DB call.
         parent_doc_cache[item.parent_id] = cached_doc
         evidence.append(item)
     return evidence
@@ -368,6 +515,7 @@ async def fetch_parent_chunk_tool(
     user_id: str,
     included_file_ids: list[str] | None,
     parent_doc_cache: dict[str, dict[str, Any]],
+    query: str | None = None,
 ) -> EvidenceItem | None:
     """Fetch one parent chunk from cache first, then backing parent store if needed."""
     from app.vectordb.vectordb import PARENT_STORE
@@ -392,7 +540,7 @@ async def fetch_parent_chunk_tool(
         user_id=user_id,
         included_file_ids_set=included_file_ids_set,
     ):
-        return _build_evidence_item(cached_doc)
+        return _build_evidence_item(cached_doc, query=query, max_chars=_MAX_FETCH_SNIPPET_CHARS)
 
     raw_docs = await PARENT_STORE.amget([normalized_parent_id])
     if not isinstance(raw_docs, list) or not raw_docs:
@@ -410,12 +558,13 @@ async def fetch_parent_chunk_tool(
     ):
         return None
 
-    item = _build_evidence_item(doc)
+    item = _build_evidence_item(doc, query=query, max_chars=_MAX_FETCH_SNIPPET_CHARS)
     if item is None:
         return None
 
     cached_doc = dict(doc)
     cached_doc["_agentic_query_snippet"] = item.snippet
+    cached_doc["_agentic_query_structured_view"] = item.structured_view
     parent_doc_cache[normalized_parent_id] = cached_doc
     return item
 
@@ -428,6 +577,7 @@ async def fetch_file_context_tool(
     user_id: str,
     included_file_ids: list[str] | None,
     parent_doc_cache: dict[str, dict[str, Any]],
+    query: str | None = None,
 ) -> list[EvidenceItem]:
     """Fetch ordered parent chunks for one scoped file and cache them."""
 
@@ -499,11 +649,12 @@ async def fetch_file_context_tool(
 
     evidence: list[EvidenceItem] = []
     for doc in docs[:bounded_max_chunks]:
-        item = _build_evidence_item(doc)
+        item = _build_evidence_item(doc, query=query, max_chars=_MAX_FETCH_SNIPPET_CHARS)
         if item is None:
             continue
         cached_doc = dict(doc)
         cached_doc["_agentic_query_snippet"] = item.snippet
+        cached_doc["_agentic_query_structured_view"] = item.structured_view
         parent_doc_cache[item.parent_id] = cached_doc
         evidence.append(item)
 

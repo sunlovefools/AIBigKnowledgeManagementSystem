@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -21,11 +22,667 @@ from .markdown_table import (
     parse_markdown_table,
     render_markdown_table_rows,
 )
-from .models import ParsedMarkdownTable, TableClassification
+from .models import DescriptionAndSections, ParsedMarkdownTable, TableClassification
 
 
 class TableSemanticIngestionError(RuntimeError):
     pass
+
+
+_WEIGHT_RE = re.compile(r"\b\d+(?:\.\d+)?\s*%")
+_AGGREGATE_LABEL_RE = re.compile(
+    r"\b(grand\s+total|subtotal|sub-total|total|overall|sum|aggregate)\b",
+    re.IGNORECASE,
+)
+_CRITERIA_MARKER_RE = re.compile(r"\b(criteria|requirements?|components?|items?)\s*:", re.IGNORECASE)
+
+def _normalize_space(value: str) -> str:
+    return " ".join((value or "").split())
+
+
+def _row_text(row: list[str]) -> str:
+    return _normalize_space(" ".join(cell for cell in row if cell))
+
+
+def _first_meaningful_cell(row: list[str]) -> str:
+    for cell in row:
+        text = _normalize_space(cell)
+        if text:
+            return text
+    return ""
+
+
+def _clean_section_name(value: str) -> str:
+    text = _normalize_space(value)
+    if not text:
+        return ""
+    text = re.sub(r"(?i)\b(grand\s+total|subtotal|sub-total|total)\s*:?\s*$", "", text).strip(" -:;,.")
+    text = re.sub(r"\s+", " ", text)
+    return text
+
+
+def _is_pure_aggregate_row(row: list[str]) -> bool:
+    """Return True for rows that are only totals/subtotals/scores, not topics."""
+
+    non_empty = [_normalize_space(cell) for cell in row if _normalize_space(cell)]
+    if not non_empty:
+        return False
+    joined = " ".join(non_empty)
+    alpha_words = re.findall(r"[A-Za-z]+", joined)
+    has_aggregate_label = bool(_AGGREGATE_LABEL_RE.search(joined))
+    has_substantive_marker = bool(_CRITERIA_MARKER_RE.search(joined))
+    long_text_cells = [cell for cell in non_empty if len(cell) > 80]
+    mostly_numeric = len(alpha_words) <= 3 and bool(_WEIGHT_RE.search(joined))
+    return has_aggregate_label and not has_substantive_marker and (mostly_numeric or not long_text_cells)
+
+
+def _dense_item_signals(row: list[str]) -> list[str]:
+    text = _row_text(row)
+    signals: list[str] = []
+    if len(text) > 600:
+        signals.append("long_row_text")
+    if len(_WEIGHT_RE.findall(text)) >= 2:
+        signals.append("multiple_weights")
+    if len(_CRITERIA_MARKER_RE.findall(text)) >= 2:
+        signals.append("multiple_item_markers")
+    if any(len(_normalize_space(cell)) > 320 for cell in row):
+        signals.append("long_cell")
+    if text.count(";") >= 4:
+        signals.append("many_semicolon_phrases")
+    return signals
+
+
+def _section_density_summary(rows: list[list[str]]) -> dict[str, Any]:
+    dense_rows: list[dict[str, Any]] = []
+    for local_index, row in enumerate(rows):
+        signals = _dense_item_signals(row)
+        if signals:
+            dense_rows.append(
+                {
+                    "local_row_index": local_index,
+                    "signals": signals,
+                    "preview": _row_text(row)[:240],
+                }
+            )
+    return {
+        "has_dense_items": bool(dense_rows),
+        "dense_row_count": len(dense_rows),
+        "dense_rows": dense_rows[:8],
+        "item_extraction_recommended": bool(dense_rows),
+    }
+
+
+def _extract_weights(row: list[str]) -> list[str]:
+    weights: list[str] = []
+    for cell in row:
+        for match in _WEIGHT_RE.findall(cell or ""):
+            normalized = match.replace(" ", "")
+            if normalized not in weights:
+                weights.append(normalized)
+    return weights
+
+
+def _cells_by_header(headers: list[str], row: list[str]) -> dict[str, str]:
+    cells: dict[str, str] = {}
+    for idx, value in enumerate(row):
+        header = _normalize_space(headers[idx] if idx < len(headers) else "")
+        if not header:
+            header = f"column_{idx + 1}"
+        cell_value = _normalize_space(value)
+        if cell_value:
+            cells[header] = cell_value
+    return cells
+
+
+def _extract_row_label(row: list[str], exclude_text: str | list[str]) -> str | None:
+    """Extract a meaningful label from a data row, skipping the section name itself."""
+    exclude_values = exclude_text if isinstance(exclude_text, list) else [exclude_text]
+    exclude_lowers = {
+        _normalize_space(value).lower()
+        for value in exclude_values
+        if _normalize_space(value)
+    }
+    for cell in row:
+        text = _normalize_space(cell)
+        if not text or text.lower() in exclude_lowers:
+            continue
+        if not re.search(r"[A-Za-z]", text):
+            continue
+        text = _WEIGHT_RE.sub("", text).strip(" -:;,.")
+        if text and text.lower() not in exclude_lowers:
+            return text
+    return None
+
+
+def _build_structured_rows(
+    *,
+    parsed_table: ParsedMarkdownTable,
+    headers: list[str],
+    row_indices: list[int],
+    section_name: str,
+    parent_section_name: str | None = None,
+    subsection_name: str | None = None,
+    criteria_names: list[str] | None = None,
+) -> list[dict[str, Any]]:
+    """Build a generic row-level view for structure-preserving retrieval."""
+
+    label_excludes = [section_name]
+    if parent_section_name:
+        label_excludes.append(parent_section_name)
+    if subsection_name:
+        label_excludes.append(subsection_name)
+
+    supplied_labels = [
+        _normalize_space(label)
+        for label in (criteria_names or [])
+        if _normalize_space(label)
+    ]
+    one_label_per_row = len(supplied_labels) == len(row_indices)
+
+    structured_rows: list[dict[str, Any]] = []
+    for local_idx, row_idx in enumerate(row_indices):
+        if row_idx < 0 or row_idx >= len(parsed_table.rows):
+            continue
+        row = parsed_table.rows[row_idx]
+        inferred_label = _extract_row_label(row, label_excludes)
+        row_label = (
+            supplied_labels[local_idx]
+            if one_label_per_row
+            else (inferred_label or (supplied_labels[0] if len(row_indices) == 1 and supplied_labels else ""))
+        )
+        structured_rows.append(
+            {
+                "row_index": row_idx,
+                "label": row_label,
+                "weights": _extract_weights(row),
+                "cells": _cells_by_header(headers, row),
+                "text": _row_text(row),
+            }
+        )
+    return structured_rows
+
+
+def _normalize_label_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    labels: list[str] = []
+    for item in value:
+        text = _normalize_space(str(item or ""))
+        if text and text not in labels:
+            labels.append(text)
+    return labels
+
+
+def _normalize_section_detection_payload(
+    payload: Any,
+    total_rows: int,
+) -> list[dict[str, Any]]:
+    """Validate and normalise the LLM section-detection JSON response."""
+    if not isinstance(payload, dict) or not payload.get("has_sections"):
+        return []
+    raw_sections = payload.get("sections")
+    if not isinstance(raw_sections, list):
+        return []
+
+    result: list[dict[str, Any]] = []
+    seen: set[int] = set()
+
+    def _normalize_header(item: dict[str, Any]) -> dict[str, Any] | None:
+        try:
+            row_index = int(item["row_index"])
+        except (KeyError, TypeError, ValueError):
+            return None
+        section_name = _clean_section_name(str(item.get("section_name") or ""))
+        if not section_name or row_index < 0 or row_index >= total_rows:
+            return None
+
+        subsections: list[dict[str, Any]] = []
+        raw_subsections = item.get("subsections")
+        if isinstance(raw_subsections, list):
+            subsection_seen: set[int] = set()
+            for raw_subsection in raw_subsections:
+                if not isinstance(raw_subsection, dict):
+                    continue
+                normalized_subsection = _normalize_header(raw_subsection)
+                if normalized_subsection is None:
+                    continue
+                subsection_row = int(normalized_subsection["row_index"])
+                if subsection_row in subsection_seen:
+                    continue
+                subsection_seen.add(subsection_row)
+                subsections.append(normalized_subsection)
+
+        subsections.sort(key=lambda x: x["row_index"])
+        return {
+            "row_index": row_index,
+            "section_name": section_name,
+            "row_labels": _normalize_label_list(item.get("row_labels")),
+            "subsections": subsections,
+        }
+
+    for item in raw_sections:
+        if not isinstance(item, dict):
+            continue
+        normalized = _normalize_header(item)
+        if normalized is None:
+            continue
+        row_index = int(normalized["row_index"])
+        if row_index in seen:
+            continue
+        seen.add(row_index)
+        result.append(normalized)
+
+    result.sort(key=lambda x: x["row_index"])
+    return result
+
+
+def _normalize_description_and_sections_payload(
+    payload: Any,
+    total_rows: int,
+) -> DescriptionAndSections:
+    """Validate the combined table-description and section-detection response."""
+    if not isinstance(payload, dict):
+        raise TableSemanticIngestionError(
+            "Description-and-sections output must be a JSON object."
+        )
+    description = _normalize_space(str(payload.get("description") or ""))
+    if not description:
+        raise TableSemanticIngestionError(
+            "Description-and-sections output is missing description."
+        )
+    sections = _normalize_section_detection_payload(payload, total_rows)
+    return DescriptionAndSections(description=description, sections=sections)
+
+
+def _build_description_and_sections(
+    *,
+    parsed_table: ParsedMarkdownTable,
+    classification: TableClassification,
+    context_before: str,
+    context_after: str,
+) -> DescriptionAndSections:
+    sample_markdown = build_table_sample_markdown(
+        parsed_table,
+        sample_rows=config.get_max_sample_rows(),
+    )
+    payload = _llm_structured_json_call(
+        model=config.get_global_model(),
+        system_prompt=prompts.DESCRIPTION_AND_SECTIONS_SYSTEM_PROMPT,
+        user_prompt=prompts.build_description_and_sections_user_prompt(
+            col_headers=classification.col_headers or parsed_table.headers,
+            row_headers=classification.row_headers,
+            context_before=context_before,
+            context_after=context_after,
+            table_sample_markdown=sample_markdown,
+        ),
+    )
+    return _normalize_description_and_sections_payload(payload, len(parsed_table.rows))
+
+
+def _section_headers_to_spans(
+    *,
+    parsed_table: ParsedMarkdownTable,
+    section_headers: list[dict[str, Any]],
+) -> list[dict[str, Any]]:
+    if len(section_headers) < 2:
+        return []
+
+    spans: list[dict[str, Any]] = []
+
+    def _build_span(
+        *,
+        section_index: int,
+        section_name: str,
+        start: int,
+        end: int,
+        supplied_labels: list[str],
+        parent_section_name: str | None = None,
+        subsection_name: str | None = None,
+    ) -> dict[str, Any] | None:
+        if end <= start:
+            return None
+        row_indices = list(range(start, end))
+        criteria_names: list[str] = list(supplied_labels)
+        weights: list[str] = []
+        should_infer_labels = not criteria_names
+        label_excludes = [section_name]
+        if parent_section_name:
+            label_excludes.append(parent_section_name)
+        if subsection_name:
+            label_excludes.append(subsection_name)
+        for row_idx in row_indices:
+            row = parsed_table.rows[row_idx]
+            if should_infer_labels:
+                label = _extract_row_label(row, label_excludes)
+                if label and label not in criteria_names:
+                    criteria_names.append(label)
+            for w in _extract_weights(row):
+                if w not in weights:
+                    weights.append(w)
+        return {
+            "section_index": section_index,
+            "section_name": section_name,
+            "parent_section_name": parent_section_name,
+            "subsection_name": subsection_name,
+            "row_start": start,
+            "row_end": end,
+            "row_indices": row_indices,
+            "criteria_names": criteria_names,
+            "weights": weights,
+            "is_subsection": subsection_name is not None,
+        }
+
+    for section_index, header in enumerate(section_headers):
+        start = header["row_index"]
+        if _is_pure_aggregate_row(parsed_table.rows[start]):
+            continue
+        section_name = _clean_section_name(str(header["section_name"]))
+        if not section_name:
+            first_cell_name = _clean_section_name(_first_meaningful_cell(parsed_table.rows[start]))
+            section_name = first_cell_name
+        if not section_name:
+            continue
+        next_start = (
+            section_headers[section_index + 1]["row_index"]
+            if section_index + 1 < len(section_headers)
+            else len(parsed_table.rows)
+        )
+        if next_start <= start:
+            continue
+
+        raw_subsections = [
+            subsection
+            for subsection in header.get("subsections", [])
+            if start <= int(subsection.get("row_index", -1)) < next_start
+        ]
+        raw_subsections.sort(key=lambda x: x["row_index"])
+        if len(raw_subsections) >= 2:
+            for subsection_index, subsection in enumerate(raw_subsections):
+                subsection_start = int(subsection["row_index"])
+                if _is_pure_aggregate_row(parsed_table.rows[subsection_start]):
+                    continue
+                subsection_end = (
+                    int(raw_subsections[subsection_index + 1]["row_index"])
+                    if subsection_index + 1 < len(raw_subsections)
+                    else next_start
+                )
+                subsection_name = _clean_section_name(str(subsection["section_name"]))
+                if not subsection_name:
+                    subsection_name = _clean_section_name(
+                        _first_meaningful_cell(parsed_table.rows[subsection_start])
+                    )
+                if not subsection_name:
+                    continue
+                span = _build_span(
+                    section_index=len(spans),
+                    section_name=f"{section_name} / {subsection_name}",
+                    start=subsection_start,
+                    end=subsection_end,
+                    supplied_labels=list(subsection.get("row_labels") or []),
+                    parent_section_name=section_name,
+                    subsection_name=subsection_name,
+                )
+                if span is not None:
+                    spans.append(span)
+            continue
+
+        span = _build_span(
+            section_index=len(spans),
+            section_name=section_name,
+            start=start,
+            end=next_start,
+            supplied_labels=list(header.get("row_labels") or []),
+        )
+        if span is not None:
+            spans.append(span)
+
+    return spans
+
+
+def _build_section_semantic_chunks_for_table(
+    *,
+    table_id: str,
+    table_block: DoclingStructuredBlock,
+    parsed_table: ParsedMarkdownTable,
+    classification: TableClassification,
+    general_description: str,
+    section_spans: list[dict[str, Any]],
+    child_rows_per_chunk: int,
+    file_name: str,
+    file_id: str,
+) -> tuple[list[ParentChunkModel], list[ChildChunkModel]]:
+    headers = (
+        classification.col_headers
+        if classification.col_headers
+        else parsed_table.headers
+    )
+    parent_chunks: list[ParentChunkModel] = []
+    child_chunks: list[ChildChunkModel] = []
+    now_iso = datetime.now(timezone.utc).isoformat()
+    page_number = _resolve_page_number(table_block.page_no)
+    section_single_chunk_max_rows = config.get_section_single_chunk_max_rows()
+
+    for section in section_spans:
+        row_indices = section["row_indices"]
+        row_lines = [parsed_table.markdown_rows[idx] for idx in row_indices]
+        # section_markdown already includes the header row + separator + data rows.
+        section_markdown = render_markdown_table_rows(
+            header_line=parsed_table.markdown_header,
+            separator_line=parsed_table.markdown_separator,
+            row_lines=row_lines,
+        )
+        section_name = section["section_name"]
+        criteria_names = section["criteria_names"]
+        weights = section["weights"]
+        section_rows = [parsed_table.rows[idx] for idx in row_indices]
+        density = _section_density_summary(section_rows)
+        structured_rows = _build_structured_rows(
+            parsed_table=parsed_table,
+            headers=headers,
+            row_indices=row_indices,
+            section_name=section_name,
+            parent_section_name=section.get("parent_section_name"),
+            subsection_name=section.get("subsection_name"),
+            criteria_names=criteria_names,
+        )
+        criteria_line = ", ".join(criteria_names) if criteria_names else "none detected"
+        weights_line = ", ".join(weights) if weights else "none detected"
+
+        parent_id = generate_uuid_v6()
+        # Parent content is what the source viewer reconstructs. Keep it close to
+        # the uploaded document instead of exposing retrieval-only semantic labels.
+        parent_content = section_markdown.strip()
+
+        child_ids: list[str] = []
+        is_large_section = len(row_lines) > section_single_chunk_max_rows
+
+        if is_large_section:
+            row_summaries = _build_row_slice_summaries(
+                parsed_table=parsed_table,
+                general_description=general_description,
+                child_rows_per_chunk=child_rows_per_chunk,
+                row_lines=row_lines,
+            )
+            for local_slice_index, local_row_start in enumerate(
+                range(0, len(row_lines), child_rows_per_chunk)
+            ):
+                local_row_end = min(local_row_start + child_rows_per_chunk, len(row_lines))
+                slice_rows = row_lines[local_row_start:local_row_end]
+                slice_markdown = render_markdown_table_rows(
+                    header_line=parsed_table.markdown_header,
+                    separator_line=parsed_table.markdown_separator,
+                    row_lines=slice_rows,
+                )
+                child_id = generate_uuid_v6()
+                child_ids.append(child_id)
+                child_content = "\n\n".join(
+                    [
+                        f"Section: {section_name}",
+                        f"General Description: {general_description}",
+                        f"Row Description: {row_summaries[local_slice_index]}",
+                        f"Criteria Names: {criteria_line}",
+                        f"Weights: {weights_line}",
+                        f"Table:\n{slice_markdown}",
+                    ]
+                ).strip()
+                child_chunks.append(
+                    ChildChunkModel(
+                        child_chunk_id=child_id,
+                        content=child_content,
+                        file_metadata={
+                            "file_name": file_name,
+                            "file_id": file_id,
+                        },
+                        child_chunk_metadata={
+                            "parent_id": parent_id,
+                            "child_chunk_number": 0,  # re-sequenced in ingest service
+                            "page_number": page_number,
+                            "has_preamble": False,
+                            "ingested_at": now_iso,
+                            "table_slice": {
+                                "table_id": table_id,
+                                "slice_index": int(section["section_index"]),
+                                "local_slice_index": int(local_slice_index),
+                                "row_start": int(section["row_start"]) + local_row_start + 1,
+                                "row_end": int(section["row_start"]) + local_row_end,
+                                "table_block_index": int(table_block.block_index),
+                                "section_chunking": True,
+                                "large_section_chunking": True,
+                                "section_index": int(section["section_index"]),
+                                "section_name": section_name,
+                                "parent_section_name": section.get("parent_section_name"),
+                                "subsection_name": section.get("subsection_name"),
+                                "is_subsection": bool(section.get("is_subsection")),
+                                "criteria_names": criteria_names,
+                                "weights": weights,
+                                "density": density,
+                                "structured_rows": [
+                                    row
+                                    for row in structured_rows
+                                    if local_row_start <= row["row_index"] - int(section["row_start"]) < local_row_end
+                                ],
+                            },
+                        },
+                        content_flags={
+                            "is_image": False,
+                            "is_table_image": False,
+                            "is_semantic_table": True,
+                        },
+                        artifact_refs={
+                            "image_uuid": None,
+                            "table_image_uuid": None,
+                        },
+                    )
+                )
+        else:
+            child_id = generate_uuid_v6()
+            child_ids.append(child_id)
+            child_content = "\n\n".join(
+                [
+                    f"Section: {section_name}",
+                    f"General Description: {general_description}",
+                    f"Criteria Names: {criteria_line}",
+                    f"Weights: {weights_line}",
+                    f"Table:\n{section_markdown}",
+                ]
+            ).strip()
+            child_chunks.append(
+                ChildChunkModel(
+                    child_chunk_id=child_id,
+                    content=child_content,
+                    file_metadata={
+                        "file_name": file_name,
+                        "file_id": file_id,
+                    },
+                    child_chunk_metadata={
+                        "parent_id": parent_id,
+                        "child_chunk_number": 0,  # re-sequenced in ingest service
+                        "page_number": page_number,
+                        "has_preamble": False,
+                        "ingested_at": now_iso,
+                        "table_slice": {
+                            "table_id": table_id,
+                            "slice_index": int(section["section_index"]),
+                            "row_start": int(section["row_start"]) + 1,
+                            "row_end": int(section["row_end"]),
+                            "table_block_index": int(table_block.block_index),
+                            "section_chunking": True,
+                            "large_section_chunking": False,
+                            "section_index": int(section["section_index"]),
+                            "section_name": section_name,
+                            "parent_section_name": section.get("parent_section_name"),
+                            "subsection_name": section.get("subsection_name"),
+                            "is_subsection": bool(section.get("is_subsection")),
+                            "criteria_names": criteria_names,
+                            "weights": weights,
+                            "density": density,
+                            "structured_rows": structured_rows,
+                        },
+                    },
+                    content_flags={
+                        "is_image": False,
+                        "is_table_image": False,
+                        "is_semantic_table": True,
+                    },
+                    artifact_refs={
+                        "image_uuid": None,
+                        "table_image_uuid": None,
+                    },
+                )
+            )
+
+        parent_chunks.append(
+            ParentChunkModel(
+                parent_chunk_id=parent_id,
+                content=parent_content,
+                file_metadata={
+                    "file_name": file_name,
+                    "file_id": file_id,
+                },
+                parent_chunk_metadata={
+                    "child_chunks_ids": child_ids,
+                    "parent_chunk_number": 0,  # re-sequenced in ingest service
+                    "page_number": [page_number] if page_number > 0 else [0],
+                    "ingested_at": now_iso,
+                    "table_semantic": {
+                        "table_id": table_id,
+                        "table_type": classification.table_type,
+                        "col_headers": headers,
+                        "row_headers": classification.row_headers,
+                        "general_description": general_description,
+                        "group_index": int(section["section_index"]),
+                        "table_block_index": int(table_block.block_index),
+                        "child_rows_per_chunk": child_rows_per_chunk if is_large_section else None,
+                        "parent_group_size": len(child_ids),
+                        "section_chunking": True,
+                        "large_section_chunking": is_large_section,
+                        "section_single_chunk_max_rows": section_single_chunk_max_rows,
+                        "section_index": int(section["section_index"]),
+                        "section_name": section_name,
+                        "parent_section_name": section.get("parent_section_name"),
+                        "subsection_name": section.get("subsection_name"),
+                        "is_subsection": bool(section.get("is_subsection")),
+                        "section_row_start": int(section["row_start"]) + 1,
+                        "section_row_end": int(section["row_end"]),
+                        "criteria_names": criteria_names,
+                        "weights": weights,
+                        "density": density,
+                        "structured_rows": structured_rows,
+                    },
+                },
+                content_flags={
+                    "is_image": False,
+                    "is_table_image": False,
+                    "is_semantic_table": True,
+                },
+                artifact_refs={
+                    "image_uuid": [],
+                    "table_image_uuid": [],
+                },
+            )
+        )
+
+    return parent_chunks, child_chunks
 
 
 def _resolve_page_number(page_no: int | None) -> int:
@@ -45,7 +702,6 @@ def _nearest_text_context(
     idx = block_index + step
     while 0 <= idx < len(blocks):
         block = blocks[idx]
-        #TODO: Allow header to be part of it too. If its header, then we + the next block until it is no longer header
         if block.block_type in {"text", "list"}:
             return " ".join((block.content or "").split())[:2000]
         idx += step
@@ -203,12 +859,14 @@ def _build_row_slice_summaries(
     parsed_table: ParsedMarkdownTable,
     general_description: str,
     child_rows_per_chunk: int,
+    row_lines: list[str] | None = None,
 ) -> list[str]:
     """
     Build row-slice summaries by pre-slicing rows in code, calling LLM per
     parent-sized batch with explicit slice blocks, and normalizing results.
     """
-    if not parsed_table.rows:
+    source_row_lines = row_lines if row_lines is not None else parsed_table.markdown_rows
+    if not source_row_lines:
         return []
 
     # Keep row-summary calls aligned to parent grouping windows (3 child slices).
@@ -216,9 +874,8 @@ def _build_row_slice_summaries(
     all_summaries: list[str] = []
 
     # For each parent-sized batch, pre-slice rows and pass explicit slices to the LLM.
-    row_lines = parsed_table.markdown_rows
-    for batch_start in range(0, len(row_lines), rows_per_parent):
-        batch_rows = row_lines[batch_start : batch_start + rows_per_parent]
+    for batch_start in range(0, len(source_row_lines), rows_per_parent):
+        batch_rows = source_row_lines[batch_start : batch_start + rows_per_parent]
         if not batch_rows:
             continue
 
@@ -251,7 +908,7 @@ def _build_row_slice_summaries(
         batch_summaries = _normalize_row_slice_summaries(payload, batch_slice_count)
         all_summaries.extend(batch_summaries)
 
-    expected_total_slices = math.ceil(len(row_lines) / child_rows_per_chunk)
+    expected_total_slices = math.ceil(len(source_row_lines) / child_rows_per_chunk)
     if len(all_summaries) != expected_total_slices:
         raise TableSemanticIngestionError(
             "Row-summary output size mismatch: "
@@ -268,6 +925,7 @@ def _build_semantic_chunks_for_table(
     classification: TableClassification,
     general_description: str,
     row_slice_summaries: list[str],
+    child_rows_per_chunk: int,
     file_name: str,
     file_id: str,
 ) -> tuple[list[ParentChunkModel], list[ChildChunkModel]]:
@@ -276,7 +934,6 @@ def _build_semantic_chunks_for_table(
         if classification.col_headers
         else parsed_table.headers
     )
-    child_rows_per_chunk = 10 if len(headers) <= 10 else 5
 
     # Build semantic child payloads first.
     child_payloads: list[dict[str, Any]] = []
@@ -299,11 +956,6 @@ def _build_semantic_chunks_for_table(
             separator_line=parsed_table.markdown_separator,
             row_lines=slice_rows,
         )
-        headers_markdown = render_markdown_table_rows(
-            header_line=parsed_table.markdown_header,
-            separator_line=parsed_table.markdown_separator,
-            row_lines=[],
-        )
         child_payloads.append(
             {
                 "slice_index": slice_index,
@@ -311,7 +963,6 @@ def _build_semantic_chunks_for_table(
                 "row_end": row_end,
                 "rows_markdown": rows_markdown,
                 "summary": row_slice_summaries[slice_index],
-                "headers_markdown": headers_markdown,
                 "row_lines": slice_rows,
             }
         )
@@ -334,16 +985,37 @@ def _build_semantic_chunks_for_table(
             separator_line=parsed_table.markdown_separator,
             row_lines=parent_row_lines,
         )
+        grouped_row_indices: list[int] = []
+        for payload in grouped:
+            grouped_row_indices.extend(
+                range(int(payload["row_start"]) - 1, int(payload["row_end"]))
+            )
+        parent_structured_rows = _build_structured_rows(
+            parsed_table=parsed_table,
+            headers=headers,
+            row_indices=grouped_row_indices,
+            section_name="",
+        )
+        parent_density = _section_density_summary(
+            [parsed_table.rows[idx] for idx in grouped_row_indices]
+        )
 
         for payload in grouped:
             child_id = generate_uuid_v6()
             parent_child_ids.append(child_id)
+            child_row_indices = list(
+                range(int(payload["row_start"]) - 1, int(payload["row_end"]))
+            )
+            child_structured_rows = [
+                row
+                for row in parent_structured_rows
+                if row["row_index"] in child_row_indices
+            ]
             child_content = "\n\n".join(
                 [
                     f"General Description: {general_description}",
                     f"Row-Specific Description: {payload['summary']}",
-                    f"Headers:\n{payload['headers_markdown']}",
-                    f"Rows:\n{payload['rows_markdown']}",
+                    f"Table:\n{payload['rows_markdown']}",
                 ]
             ).strip()
             child_chunks.append(
@@ -366,6 +1038,10 @@ def _build_semantic_chunks_for_table(
                             "row_start": int(payload["row_start"]),
                             "row_end": int(payload["row_end"]),
                             "table_block_index": int(table_block.block_index),
+                            "density": _section_density_summary(
+                                [parsed_table.rows[idx] for idx in child_row_indices]
+                            ),
+                            "structured_rows": child_structured_rows,
                         },
                     },
                     content_flags={
@@ -403,6 +1079,8 @@ def _build_semantic_chunks_for_table(
                         "table_block_index": int(table_block.block_index),
                         "child_rows_per_chunk": child_rows_per_chunk,
                         "parent_group_size": 3,
+                        "density": parent_density,
+                        "structured_rows": parent_structured_rows,
                     },
                 },
                 content_flags={
@@ -530,48 +1208,63 @@ def process_semantic_tables_for_pdf(
         # proceed with semantic chunking.
         table_id = generate_uuid_v6()
         try:
-            general_description = _llm_text_call(
-                model=config.get_global_model(),
-                system_prompt=prompts.GLOBAL_DESCRIPTION_SYSTEM_PROMPT,
-                user_prompt=prompts.build_global_description_user_prompt(
-                    col_headers=classification.col_headers or parsed.headers,
-                    row_headers=classification.row_headers,
-                    context_before=context_before,
-                    context_after=context_after,
-                ),
+            description_and_sections = _build_description_and_sections(
+                parsed_table=parsed,
+                classification=classification,
+                context_before=context_before,
+                context_after=context_after,
             )
         except Exception as exc:
             raise TableSemanticIngestionError(
-                "Global table description generation failed "
+                "Table description and section detection failed "
                 f"for block_index={block.block_index}: {exc}"
             ) from exc
 
+        general_description = description_and_sections.description
+        section_spans = _section_headers_to_spans(
+            parsed_table=parsed,
+            section_headers=description_and_sections.sections,
+        )
         child_rows_per_chunk = (
             10 if len(classification.col_headers or parsed.headers) <= 10 else 5
         )
 
-        try:
-            row_summaries = _build_row_slice_summaries(
+        if section_spans:
+            table_parents, table_children = _build_section_semantic_chunks_for_table(
+                table_id=table_id,
+                table_block=block,
                 parsed_table=parsed,
+                classification=classification,
                 general_description=general_description,
+                section_spans=section_spans,
                 child_rows_per_chunk=child_rows_per_chunk,
+                file_name=file_name,
+                file_id=file_id,
             )
-        except Exception as exc:
-            raise TableSemanticIngestionError(
-                "Row-slice summary generation failed "
-                f"for block_index={block.block_index}: {exc}"
-            ) from exc
+        else:
+            try:
+                row_summaries = _build_row_slice_summaries(
+                    parsed_table=parsed,
+                    general_description=general_description,
+                    child_rows_per_chunk=child_rows_per_chunk,
+                )
+            except Exception as exc:
+                raise TableSemanticIngestionError(
+                    "Row-slice summary generation failed "
+                    f"for block_index={block.block_index}: {exc}"
+                ) from exc
 
-        table_parents, table_children = _build_semantic_chunks_for_table(
-            table_id=table_id,
-            table_block=block,
-            parsed_table=parsed,
-            classification=classification,
-            general_description=general_description,
-            row_slice_summaries=row_summaries,
-            file_name=file_name,
-            file_id=file_id,
-        )
+            table_parents, table_children = _build_semantic_chunks_for_table(
+                table_id=table_id,
+                table_block=block,
+                parsed_table=parsed,
+                classification=classification,
+                general_description=general_description,
+                row_slice_summaries=row_summaries,
+                child_rows_per_chunk=child_rows_per_chunk,
+                file_name=file_name,
+                file_id=file_id,
+            )
         semantic_parents.extend(table_parents)
         semantic_children.extend(table_children)
 
@@ -590,6 +1283,10 @@ def process_semantic_tables_for_pdf(
                 "col_headers": classification.col_headers or parsed.headers,
                 "row_headers": classification.row_headers,
                 "child_rows_per_chunk": child_rows_per_chunk,
+                "section_chunking": bool(section_spans),
+                "section_names": [
+                    str(section["section_name"]) for section in section_spans
+                ],
                 "semantic_parent_count": len(table_parents),
                 "semantic_child_count": len(table_children),
             }

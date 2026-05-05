@@ -151,6 +151,133 @@ def test_search_context_tool_passes_none_scope_to_vector_search(monkeypatch):
     assert captured["user_id"] == "user-1"
 
 
+def test_evidence_item_includes_structured_table_view():
+    item = tools._build_evidence_item(
+        {
+            "id": "parent-table",
+            "page_content": "| Item | Weight |\n| --- | --- |\n| Manual | 25% |",
+            "metadata": {
+                "user_id": "user-1",
+                "file_metadata": {"file_id": "file-table", "file_name": "rubric.pdf"},
+                "parent_chunk_metadata": {
+                    "parent_chunk_number": 3,
+                    "table_semantic": {
+                        "section_name": "Software User Manual",
+                        "general_description": "Assessment criteria table.",
+                        "criteria_names": ["Developer documentation"],
+                        "weights": ["25%"],
+                        "structured_rows": [
+                            {
+                                "label": "Developer documentation",
+                                "weights": ["25%"],
+                                "cells": {
+                                    "Item": "Documentation for software engineer / programmer",
+                                    "Criteria": "Architecture, design, implementation.",
+                                },
+                            }
+                        ],
+                    },
+                },
+            },
+        },
+        query="software manual criteria",
+    )
+
+    assert item is not None
+    assert "Section: Software User Manual" in item.structured_view
+    assert "- Developer documentation | weights: 25%" in item.structured_view
+    assert "Documentation for software engineer / programmer" in item.structured_view
+
+
+def test_search_context_tool_prefers_unseen_parent_chunks(monkeypatch):
+    fake_vectordb = types.ModuleType("app.vectordb.vectordb")
+
+    async def _fake_search_and_retrieve_context(**_kwargs):
+        return [
+            {
+                "id": "parent-seen",
+                "page_content": "Already inspected handbook evidence.",
+                "metadata": {
+                    "user_id": "user-1",
+                    "file_metadata": {
+                        "file_id": "file-handbook",
+                        "file_name": "handbook.pdf",
+                    },
+                    "parent_chunk_metadata": {"parent_chunk_number": 1},
+                },
+                "type": "Document",
+            },
+            {
+                "id": "parent-new",
+                "page_content": "New rubric evidence.",
+                "metadata": {
+                    "user_id": "user-1",
+                    "file_metadata": {
+                        "file_id": "file-rubric",
+                        "file_name": "rubric.pdf",
+                    },
+                    "parent_chunk_metadata": {"parent_chunk_number": 2},
+                },
+                "type": "Document",
+            },
+        ]
+
+    fake_vectordb.search_and_retrieve_context = _fake_search_and_retrieve_context
+    monkeypatch.setitem(sys.modules, "app.vectordb.vectordb", fake_vectordb)
+
+    cache = {"parent-seen": {"id": "parent-seen"}}
+    result = asyncio.run(
+        tools.search_context_tool(
+            query="main report criteria",
+            top_k=8,
+            user_id="user-1",
+            included_file_ids=None,
+            parent_doc_cache=cache,
+        )
+    )
+
+    assert [item.parent_id for item in result] == ["parent-new"]
+    assert "parent-new" in cache
+
+
+def test_search_context_tool_falls_back_when_all_parent_chunks_seen(monkeypatch):
+    fake_vectordb = types.ModuleType("app.vectordb.vectordb")
+
+    async def _fake_search_and_retrieve_context(**_kwargs):
+        return [
+            {
+                "id": "parent-seen",
+                "page_content": "Only already inspected evidence is still relevant.",
+                "metadata": {
+                    "user_id": "user-1",
+                    "file_metadata": {
+                        "file_id": "file-handbook",
+                        "file_name": "handbook.pdf",
+                    },
+                    "parent_chunk_metadata": {"parent_chunk_number": 1},
+                },
+                "type": "Document",
+            }
+        ]
+
+    fake_vectordb.search_and_retrieve_context = _fake_search_and_retrieve_context
+    monkeypatch.setitem(sys.modules, "app.vectordb.vectordb", fake_vectordb)
+
+    cache = {"parent-seen": {"id": "parent-seen"}}
+    result = asyncio.run(
+        tools.search_context_tool(
+            query="main report criteria",
+            top_k=8,
+            user_id="user-1",
+            included_file_ids=None,
+            parent_doc_cache=cache,
+        )
+    )
+
+    assert [item.parent_id for item in result] == ["parent-seen"]
+    assert cache["parent-seen"]["_agentic_query_snippet"]
+
+
 def test_fetch_file_context_tool_returns_ordered_scoped_parent_chunks(monkeypatch):
     rows = [
         _parent_row(
@@ -201,6 +328,83 @@ def test_fetch_file_context_tool_returns_ordered_scoped_parent_chunks(monkeypatc
     assert [item.parent_chunk_number for item in result] == [0, 1, 2]
     assert [item.parent_id for item in result] == ["parent-0", "parent-1", "parent-2"]
     assert set(cache) == {"parent-0", "parent-1", "parent-2"}
+
+
+def test_fetch_file_context_tool_biases_large_single_chunk_to_query_terms(monkeypatch):
+    long_prefix = " ".join(f"CV criteria filler {index}" for index in range(180))
+    main_report_row = (
+        "Main Report Project Background & Understanding 12% "
+        "Requirements & Critical Analysis 15% Project Management & progress 15% "
+        "Reflection 12% Style 6%"
+    )
+    rows = [
+        _parent_row(
+            parent_id="parent-rubric",
+            file_id="file-rubric",
+            file_name="groupProjectRubric2025-2026.pdf",
+            chunk_number=0,
+            content=f"{long_prefix} {main_report_row}",
+        )
+    ]
+    fake_vectordb = types.ModuleType("app.vectordb.vectordb")
+    fake_vectordb.PARENT_STORE = types.SimpleNamespace(collection=_FakeParentCollection(rows))
+    monkeypatch.setitem(sys.modules, "app.vectordb.vectordb", fake_vectordb)
+
+    result = asyncio.run(
+        tools.fetch_file_context_tool(
+            file_id="file-rubric",
+            file_name=None,
+            max_chunks=20,
+            user_id="user-1",
+            included_file_ids=["file-rubric"],
+            parent_doc_cache={},
+            query="Rubric里面关于main report的标准有哪些",
+        )
+    )
+
+    assert len(result) == 1
+    assert "Main Report Project Background" in result[0].snippet
+    assert "Reflection 12%" in result[0].snippet
+
+
+def test_fetch_file_context_tool_keeps_long_main_report_table_section(monkeypatch):
+    long_prefix = " ".join(f"Earlier rubric content {index}" for index in range(260))
+    main_report_section = (
+        "Main Report Project Background & Understanding 12% Criteria understanding originality related work. "
+        "Requirements & Critical Analysis 15% Criteria requirements prioritisation scope reductions methods user surveys. "
+        "Project Management & progress 15% Criteria agile tools team skills supporting documentation work ethic. "
+        + " ".join(f"middle filler {index}" for index in range(130))
+        + " Reflection 12% Criteria technical reflection methods choices difficulties future directions realisation reflection achievements weaknesses caveats management reflection posterior evaluation lessons learned contingency planning. "
+        + "Style 6% Criteria content related length depth motivation presentation accessibility clarity structure narrative grammar spelling articulation jargon visuals graphics formatting layout."
+    )
+    rows = [
+        _parent_row(
+            parent_id="parent-rubric",
+            file_id="file-rubric",
+            file_name="rubric_table.docx",
+            chunk_number=0,
+            content=f"{long_prefix} {main_report_section}",
+        )
+    ]
+    fake_vectordb = types.ModuleType("app.vectordb.vectordb")
+    fake_vectordb.PARENT_STORE = types.SimpleNamespace(collection=_FakeParentCollection(rows))
+    monkeypatch.setitem(sys.modules, "app.vectordb.vectordb", fake_vectordb)
+
+    result = asyncio.run(
+        tools.fetch_file_context_tool(
+            file_id="file-rubric",
+            file_name=None,
+            max_chunks=20,
+            user_id="user-1",
+            included_file_ids=["file-rubric"],
+            parent_doc_cache={},
+            query="Rubric里面关于main report的标准有哪些",
+        )
+    )
+
+    assert len(result) == 1
+    assert "Reflection 12%" in result[0].snippet
+    assert "Style 6%" in result[0].snippet
 
 
 def test_search_files_tool_finds_filename_in_scope(monkeypatch):

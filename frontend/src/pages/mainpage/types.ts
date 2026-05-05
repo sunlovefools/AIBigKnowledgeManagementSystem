@@ -9,21 +9,6 @@ export type ChatScope =
     | { type: "all_collections" }
     | { type: "collection"; collectionId: string; collectionName?: string };
 
-// Normal conversational chat message.
-export type ChatTextMessage = {
-    id: string;
-    kind: "text";
-    role: ChatRole;
-    messageId?: string; // Unique ID from backend
-    userEmail?: string; // Email of the user who initiated the conversation
-    text: string;
-    timestamp?: string; // ISO timestamp when message was created
-    searchScope?: QuerySearchScope;
-    collectionId?: string | null;
-    collectionName?: string | null;
-    sources?: string[]; // Array of source documents that informed the AI response
-};
-
 // Type for a conversation - groups related messages
 export type Conversation = {
     conversationId: string;
@@ -71,16 +56,35 @@ export type ChatProgressTranscriptItem = {
     status?: "running" | "completed" | "failed" | string;
 };
 
-// Progress timeline card that remains in chat history per call.
-export type ChatProgressMessage = {
-    id: string;
-    kind: "progress";
-    role: "ai";
+export type ChatProgressSnapshot = {
     status: "running" | "completed" | "failed";
     scope: "agentic" | "selection" | "agentic-search" | "standard-search";
     currentStageText: string;
     steps: ChatProgressStep[];
     transcript: ChatProgressTranscriptItem[];
+};
+
+// Progress timeline card that remains in chat history per call.
+export type ChatProgressMessage = ChatProgressSnapshot & {
+    id: string;
+    kind: "progress";
+    role: "ai";
+};
+
+// Normal conversational chat message.
+export type ChatTextMessage = {
+    id: string;
+    kind: "text";
+    role: ChatRole;
+    messageId?: string; // Unique ID from backend
+    userEmail?: string; // Email of the user who initiated the conversation
+    text: string;
+    timestamp?: string; // ISO timestamp when message was created
+    searchScope?: QuerySearchScope;
+    collectionId?: string | null;
+    collectionName?: string | null;
+    sources?: string[]; // Array of source documents that informed the AI response
+    progressTrace?: ChatProgressSnapshot;
 };
 
 // Chat message exchanged between the user and AI.
@@ -127,6 +131,8 @@ export type ParentChunkContent = {
     content: string;
     size: number;
     pageNumbers: number[];
+    contentFlags?: Record<string, unknown>;
+    tableSemantic?: Record<string, unknown>;
 };
 
 // Loaded content and pagination state for one file.

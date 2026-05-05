@@ -75,6 +75,7 @@ def _build_fake_query_helpers(saved_messages: list[dict[str, str]] | None = None
             search_scope: str | None = None,
             collection_id: str | None = None,
             collection_name: str | None = None,
+            progress_trace: dict | None = None,
         ):
             _ = user_email, chat_collection, conversations_collection
             item = {
@@ -85,6 +86,7 @@ def _build_fake_query_helpers(saved_messages: list[dict[str, str]] | None = None
                 "searchScope": search_scope,
                 "collectionId": collection_id,
                 "collectionName": collection_name,
+                "progressTrace": progress_trace,
             }
             if isinstance(saved_messages, list):
                 saved_messages.append(item)
@@ -164,6 +166,8 @@ def test_agentic_query_returns_answer_and_persists_messages(monkeypatch):
     assert saved_messages[0]["collectionId"] == "collection-default"
     assert saved_messages[0]["collectionName"] == "Default"
     assert "(Sources: policy.md)" in saved_messages[1]["text"]
+    assert saved_messages[1]["progressTrace"]["scope"] == "agentic-search"
+    assert saved_messages[1]["progressTrace"]["currentStageText"] == "Agentic search completed."
 
 
 def test_agentic_query_all_collections_scope_skips_collection_file_filter(monkeypatch):

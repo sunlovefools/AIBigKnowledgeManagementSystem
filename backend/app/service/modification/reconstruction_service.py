@@ -210,6 +210,12 @@ class ReconstructionService:
         parent_chunk_metadata = metadata.get("parent_chunk_metadata") or {}
         if not isinstance(parent_chunk_metadata, dict):
             parent_chunk_metadata = {}
+        content_flags = metadata.get("content_flags") or {}
+        if not isinstance(content_flags, dict):
+            content_flags = {}
+        table_semantic = parent_chunk_metadata.get("table_semantic") or {}
+        if not isinstance(table_semantic, dict):
+            table_semantic = {}
 
         file_id = str(file_metadata.get("file_id") or "").strip()
         file_name = file_metadata.get("file_name") or metadata.get("source") or "Unknown"
@@ -243,6 +249,8 @@ class ReconstructionService:
             "pageNumbers": page_numbers,
             "collectionId": collection_metadata["collectionId"],
             "collectionName": collection_metadata["collectionName"],
+            "contentFlags": content_flags,
+            "tableSemantic": table_semantic,
         }
 
     @staticmethod
@@ -371,6 +379,8 @@ class ReconstructionService:
                     "content": fields["content"],
                     "size": len(fields["content"]),
                     "pageNumbers": fields["pageNumbers"],
+                    "contentFlags": fields["contentFlags"],
+                    "tableSemantic": fields["tableSemantic"],
                 }
             )
 
@@ -410,6 +420,8 @@ class ReconstructionService:
                 "content": r["content"],
                 "size": r["size"],
                 "pageNumbers": r["pageNumbers"],
+                "contentFlags": r.get("contentFlags", {}),
+                "tableSemantic": r.get("tableSemantic", {}),
             }
             for r in page_rows
         ]

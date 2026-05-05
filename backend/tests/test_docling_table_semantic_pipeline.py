@@ -23,7 +23,10 @@ from app.service.rag.ingestion.docling.models import DoclingParseResult, Docling
 from app.service.rag.ingestion.docling.table_semantic.markdown_table import (
     parse_markdown_table,
 )
-from app.service.rag.ingestion.docling.table_semantic.models import TableClassification
+from app.service.rag.ingestion.docling.table_semantic.models import (
+    DescriptionAndSections,
+    TableClassification,
+)
 from app.service.rag.ingestion.docling.table_semantic import pipeline as table_semantic_pipeline
 from app.service.rag.ingestion.docling.table_semantic.pipeline import (
     TableSemanticIngestionError,
@@ -122,8 +125,11 @@ def test_matrix_table_builds_semantic_children_and_parents(monkeypatch, tmp_path
         ),
     )
     monkeypatch.setattr(
-        "app.service.rag.ingestion.docling.table_semantic.pipeline._llm_text_call",
-        lambda **_: "This table compares quarterly figures by region.",
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="This table compares quarterly figures by region.",
+            sections=[],
+        ),
     )
     monkeypatch.setattr(
         "app.service.rag.ingestion.docling.table_semantic.pipeline._build_row_slice_summaries",
@@ -176,8 +182,11 @@ def test_entity_list_uses_semantic_path(monkeypatch, tmp_path):
         ),
     )
     monkeypatch.setattr(
-        "app.service.rag.ingestion.docling.table_semantic.pipeline._llm_text_call",
-        lambda **_: "This table describes API endpoints and limits.",
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="This table describes API endpoints and limits.",
+            sections=[],
+        ),
     )
     monkeypatch.setattr(
         "app.service.rag.ingestion.docling.table_semantic.pipeline._build_row_slice_summaries",
@@ -219,8 +228,11 @@ def test_wide_table_uses_five_rows_per_child_chunk(monkeypatch, tmp_path):
         ),
     )
     monkeypatch.setattr(
-        "app.service.rag.ingestion.docling.table_semantic.pipeline._llm_text_call",
-        lambda **_: "Wide table summary.",
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="Wide table summary.",
+            sections=[],
+        ),
     )
 
     def _fake_row_summaries(**kwargs):
@@ -245,6 +257,524 @@ def test_wide_table_uses_five_rows_per_child_chunk(monkeypatch, tmp_path):
     assert len(semantic_children) == 3
     assert len(semantic_parents) == 1
     assert semantic_parents[0].parent_chunk_metadata["table_semantic"]["child_rows_per_chunk"] == 5
+
+
+def test_rubric_table_builds_section_chunks(monkeypatch, tmp_path):
+    monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
+    headers = ["Section", "Component", "Weight", "Criteria"]
+    rows = [
+        ["Interim Report", "Project Background & Understanding", "10%", "Evidence of understanding of the brief."],
+        ["", "Requirements & Critical Analysis", "15%", "Depth, clarity, and prioritisation of requirements."],
+        ["Main Report", "Project Background & Understanding", "12%", "Understanding of the project, scope, and subject area."],
+        ["", "Requirements & Critical Analysis", "15%", "Depth, clarity, breadth of requirements and critical analysis."],
+        ["", "Project Management & Progress", "15%", "Efficiency and consistency of project management and tools."],
+        ["", "Reflection", "12%", "Technical, realisation, and management reflection."],
+        ["", "Style", "6%", "Length, depth, clarity, structure, grammar, visuals, and layout."],
+        ["Software User Manual", "Documentation for software engineer", "25%", "Architecture, design, implementation, and testing documentation."],
+    ]
+    table_markdown = _make_markdown_table(headers, rows)
+    blocks = [_block(0, "table", table_markdown)]
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._classify_table",
+        lambda **_: TableClassification(
+            table_type="matrix",
+            needs_description=True,
+            col_headers=headers,
+            row_headers=["Interim Report", "Main Report", "Software User Manual"],
+        ),
+    )
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="Rubric table for assessment criteria and mark weights.",
+            sections=[
+                {
+                    "row_index": 0,
+                    "section_name": "Interim Report",
+                    "row_labels": ["Project Background", "Requirements"],
+                    "subsections": [],
+                },
+                {
+                    "row_index": 2,
+                    "section_name": "Main Report",
+                    "row_labels": [
+                        "Project Background & Understanding",
+                        "Requirements & Critical Analysis",
+                        "Project Management & Progress",
+                        "Reflection",
+                        "Style",
+                    ],
+                    "subsections": [],
+                },
+                {
+                    "row_index": 7,
+                    "section_name": "Software User Manual",
+                    "row_labels": ["Documentation for software engineer"],
+                    "subsections": [],
+                },
+            ],
+        ),
+    )
+
+    def _unexpected_row_summaries(**_kwargs):
+        raise AssertionError("section chunking should not call row-slice summaries")
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_row_slice_summaries",
+        _unexpected_row_summaries,
+    )
+
+    transformed_blocks, semantic_parents, semantic_children, _warnings = (
+        process_semantic_tables_for_pdf(
+            blocks=blocks,
+            file_name="groupProjectRubric2025-2026.pdf",
+            file_id="file-rubric",
+            artifact_dir=tmp_path,
+        )
+    )
+
+    assert transformed_blocks[0].block_type == "other"
+    assert len(semantic_parents) == 3
+    assert len(semantic_children) == 3
+
+    main_report_parent = next(
+        parent
+        for parent in semantic_parents
+        if parent.parent_chunk_metadata["table_semantic"]["section_name"] == "Main Report"
+    )
+    main_metadata = main_report_parent.parent_chunk_metadata["table_semantic"]
+    assert main_metadata["section_chunking"] is True
+    assert main_metadata["weights"] == ["12%", "15%", "6%"]
+    assert main_metadata["criteria_names"][:5] == [
+        "Project Background & Understanding",
+        "Requirements & Critical Analysis",
+        "Project Management & Progress",
+        "Reflection",
+        "Style",
+    ]
+    assert main_metadata["structured_rows"][0]["label"] == "Project Background & Understanding"
+    assert main_metadata["structured_rows"][0]["weights"] == ["12%"]
+    assert "Component" in main_metadata["structured_rows"][0]["cells"]
+    assert "Project Background & Understanding" in main_report_parent.content
+    assert "Requirements & Critical Analysis" in main_report_parent.content
+    assert "Project Management & Progress" in main_report_parent.content
+    assert "Reflection" in main_report_parent.content
+    assert "Style" in main_report_parent.content
+    assert "Section: Main Report" not in main_report_parent.content
+    assert "Criteria Names:" not in main_report_parent.content
+
+    main_report_child = next(
+        child
+        for child in semantic_children
+        if child.child_chunk_metadata["table_slice"]["section_name"] == "Main Report"
+    )
+    assert "Section: Main Report" in main_report_child.content
+    assert "Criteria Names:" in main_report_child.content
+    assert "Criteria Names: Project Background & Understanding, Requirements & Critical Analysis, Project Management & Progress, Reflection, Style" in main_report_child.content
+    assert "Technical, realisation, and management reflection." in main_report_child.content
+
+
+def test_rubric_subsections_build_independent_chunks(monkeypatch, tmp_path):
+    monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
+    headers = ["Section", "Component", "Weight", "Criteria"]
+    rows = [
+        ["Interim Report", "Summary", "5%", "Summarise progress."],
+        ["", "Style", "5%", "Clear writing."],
+        ["Software User Manual", "Documentation for software engineer / programmer", "25%", "Architecture, design, implementation, testing approaches."],
+        ["", "Documentation for end user", "15%", "Installation, functionality, troubleshooting, FAQs."],
+        ["Software Total", "Software", "100%", "Technical achievement and implementation quality."],
+    ]
+    table_markdown = _make_markdown_table(headers, rows)
+    blocks = [_block(0, "table", table_markdown)]
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._classify_table",
+        lambda **_: TableClassification(
+            table_type="matrix",
+            needs_description=True,
+            col_headers=headers,
+            row_headers=[],
+        ),
+    )
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="Rubric table for software manual criteria.",
+            sections=[
+                {"row_index": 0, "section_name": "Interim Report", "row_labels": ["Summary", "Style"], "subsections": []},
+                {
+                    "row_index": 2,
+                    "section_name": "Software User Manual",
+                    "row_labels": [],
+                    "subsections": [
+                        {
+                            "row_index": 2,
+                            "section_name": "Software Engineer Documentation",
+                            "row_labels": ["Architecture and implementation documentation"],
+                            "subsections": [],
+                        },
+                        {
+                            "row_index": 3,
+                            "section_name": "End User Documentation",
+                            "row_labels": ["Installation and functionality documentation"],
+                            "subsections": [],
+                        },
+                    ],
+                },
+                {"row_index": 4, "section_name": "Software Total", "row_labels": ["Software"], "subsections": []},
+            ],
+        ),
+    )
+
+    _transformed_blocks, semantic_parents, semantic_children, _warnings = (
+        process_semantic_tables_for_pdf(
+            blocks=blocks,
+            file_name="groupProjectRubric2025-2026.pdf",
+            file_id="file-rubric",
+            artifact_dir=tmp_path,
+        )
+    )
+
+    software_engineer_parent = next(
+        parent
+        for parent in semantic_parents
+        if parent.parent_chunk_metadata["table_semantic"]["subsection_name"] == "Software Engineer Documentation"
+    )
+    end_user_parent = next(
+        parent
+        for parent in semantic_parents
+        if parent.parent_chunk_metadata["table_semantic"]["subsection_name"] == "End User Documentation"
+    )
+    assert software_engineer_parent.parent_chunk_metadata["table_semantic"]["parent_section_name"] == "Software User Manual"
+    assert software_engineer_parent.parent_chunk_metadata["table_semantic"]["is_subsection"] is True
+    assert software_engineer_parent.parent_chunk_metadata["table_semantic"]["criteria_names"] == [
+        "Architecture and implementation documentation"
+    ]
+    assert software_engineer_parent.parent_chunk_metadata["table_semantic"]["structured_rows"][0]["label"] == (
+        "Architecture and implementation documentation"
+    )
+    assert "Documentation for software engineer / programmer" in software_engineer_parent.content
+    assert "Architecture and implementation documentation" not in software_engineer_parent.content
+    assert "Documentation for end user" not in software_engineer_parent.content
+    assert "End User Documentation" not in end_user_parent.content
+    assert "Documentation for end user" in end_user_parent.content
+    software_engineer_child = next(
+        child
+        for child in semantic_children
+        if child.child_chunk_metadata["table_slice"]["subsection_name"] == "Software Engineer Documentation"
+    )
+    assert "Architecture and implementation documentation" in software_engineer_child.content
+    assert len(semantic_children) == len(semantic_parents)
+
+
+def test_large_section_uses_row_slice_children_with_clean_parent(monkeypatch, tmp_path):
+    monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
+    monkeypatch.setenv("TABLE_SEMANTIC_SECTION_SINGLE_CHUNK_MAX_ROWS", "8")
+    headers = ["Section", "Component", "Weight", "Criteria"]
+    rows = [
+        ["Small Section", "Opening", "5%", "Short opening criteria."],
+        ["", "Style", "5%", "Short style criteria."],
+    ]
+    rows.extend(
+        [
+            [
+                "Big Section" if idx == 0 else "",
+                f"Criterion {idx + 1}",
+                "10%",
+                f"Detailed criteria text {idx + 1}.",
+            ]
+            for idx in range(11)
+        ]
+    )
+    rows.append(["Tail Section", "Summary", "5%", "Tail criteria."])
+    table_markdown = _make_markdown_table(headers, rows)
+    blocks = [_block(0, "table", table_markdown)]
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._classify_table",
+        lambda **_: TableClassification(
+            table_type="matrix",
+            needs_description=True,
+            col_headers=headers,
+            row_headers=[],
+        ),
+    )
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="Rubric table with mixed section sizes.",
+            sections=[
+                {"row_index": 0, "section_name": "Small Section", "row_labels": ["Opening", "Style"], "subsections": []},
+                {"row_index": 2, "section_name": "Big Section", "row_labels": ["Large criteria"], "subsections": []},
+                {"row_index": 13, "section_name": "Tail Section", "row_labels": ["Summary"], "subsections": []},
+            ],
+        ),
+    )
+
+    captured = {"row_line_counts": []}
+
+    def _fake_row_summaries(**kwargs):
+        captured["row_line_counts"].append(len(kwargs["row_lines"]))
+        return ["big-slice-0", "big-slice-1"]
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_row_slice_summaries",
+        _fake_row_summaries,
+    )
+
+    _transformed_blocks, semantic_parents, semantic_children, _warnings = (
+        process_semantic_tables_for_pdf(
+            blocks=blocks,
+            file_name="large-section.pdf",
+            file_id="file-large-section",
+            artifact_dir=tmp_path,
+        )
+    )
+
+    big_parent = next(
+        parent
+        for parent in semantic_parents
+        if parent.parent_chunk_metadata["table_semantic"]["section_name"] == "Big Section"
+    )
+    big_children = [
+        child
+        for child in semantic_children
+        if child.child_chunk_metadata["table_slice"]["section_name"] == "Big Section"
+    ]
+
+    assert captured["row_line_counts"] == [11]
+    assert len(big_children) == 2
+    assert big_parent.parent_chunk_metadata["table_semantic"]["large_section_chunking"] is True
+    assert big_parent.parent_chunk_metadata["table_semantic"]["structured_rows"][0]["label"] == "Criterion 1"
+    assert len(big_parent.parent_chunk_metadata["child_chunks_ids"]) == 2
+    assert "Section: Big Section" not in big_parent.content
+    assert "Row Description:" not in big_parent.content
+    assert "Criterion 11" in big_parent.content
+    assert "Row Description: big-slice-0" in big_children[0].content
+    assert "Row Description: big-slice-1" in big_children[1].content
+
+
+def test_section_detection_cleans_total_names_and_skips_pure_aggregate_rows(monkeypatch, tmp_path):
+    monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
+    headers = ["Section", "Component", "Weight", "Criteria"]
+    rows = [
+        ["Feature Area Total:", "Login", "20%", "Criteria: secure login flow."],
+        ["", "Recovery", "10%", "Criteria: recovery flow."],
+        ["Grand Total:", "", "30%", ""],
+        ["Billing Total:", "Invoices", "15%", "Criteria: invoice generation."],
+        ["", "Refunds", "15%", "Criteria: refund handling."],
+    ]
+    table_markdown = _make_markdown_table(headers, rows)
+    blocks = [_block(0, "table", table_markdown)]
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._classify_table",
+        lambda **_: TableClassification(
+            table_type="matrix",
+            needs_description=True,
+            col_headers=headers,
+            row_headers=[],
+        ),
+    )
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="Feature criteria table.",
+            sections=[
+                {"row_index": 0, "section_name": "Feature Area Total:", "row_labels": ["Login", "Recovery"], "subsections": []},
+                {"row_index": 2, "section_name": "Grand Total:", "row_labels": [], "subsections": []},
+                {"row_index": 3, "section_name": "Billing Total:", "row_labels": ["Invoices", "Refunds"], "subsections": []},
+            ],
+        ),
+    )
+
+    def _unexpected_row_summaries(**_kwargs):
+        raise AssertionError("small sections should not call row-slice summaries")
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_row_slice_summaries",
+        _unexpected_row_summaries,
+    )
+
+    _transformed_blocks, semantic_parents, _semantic_children, _warnings = (
+        process_semantic_tables_for_pdf(
+            blocks=blocks,
+            file_name="feature-criteria.pdf",
+            file_id="file-feature-criteria",
+            artifact_dir=tmp_path,
+        )
+    )
+
+    section_names = [
+        parent.parent_chunk_metadata["table_semantic"]["section_name"]
+        for parent in semantic_parents
+    ]
+    assert section_names == ["Feature Area", "Billing"]
+    assert all("Grand Total" not in parent.content for parent in semantic_parents)
+
+
+def test_dense_item_signals_are_recorded_for_compound_rows(monkeypatch, tmp_path):
+    monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
+    headers = ["Section", "Criteria", "Weight"]
+    compound_criteria = (
+        "Alpha component (20%) Criteria: first set of expectations. "
+        "Beta component (15%) Criteria: second set of expectations."
+    )
+    rows = [
+        ["Overview", "Short criteria.", "5%"],
+        ["Compound Section", compound_criteria, "20% 15%"],
+        ["Tail", "Tail criteria.", "5%"],
+    ]
+    table_markdown = _make_markdown_table(headers, rows)
+    blocks = [_block(0, "table", table_markdown)]
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._classify_table",
+        lambda **_: TableClassification(
+            table_type="matrix",
+            needs_description=True,
+            col_headers=headers,
+            row_headers=[],
+        ),
+    )
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="Compound criteria table.",
+            sections=[
+                {"row_index": 0, "section_name": "Overview", "row_labels": ["Overview"], "subsections": []},
+                {"row_index": 1, "section_name": "Compound Section", "row_labels": [], "subsections": []},
+                {"row_index": 2, "section_name": "Tail", "row_labels": ["Tail"], "subsections": []},
+            ],
+        ),
+    )
+
+    _transformed_blocks, semantic_parents, _semantic_children, _warnings = (
+        process_semantic_tables_for_pdf(
+            blocks=blocks,
+            file_name="compound.pdf",
+            file_id="file-compound",
+            artifact_dir=tmp_path,
+        )
+    )
+
+    compound_parent = next(
+        parent
+        for parent in semantic_parents
+        if parent.parent_chunk_metadata["table_semantic"]["section_name"] == "Compound Section"
+    )
+    density = compound_parent.parent_chunk_metadata["table_semantic"]["density"]
+    assert density["has_dense_items"] is True
+    assert density["item_extraction_recommended"] is True
+    assert "multiple_weights" in density["dense_rows"][0]["signals"]
+    assert "multiple_item_markers" in density["dense_rows"][0]["signals"]
+
+
+def test_generic_sectioned_table_builds_section_chunks_without_rubric_hint(monkeypatch, tmp_path):
+    monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
+    headers = ["Area", "Topic", "Detail"]
+    rows = [
+        ["Authentication", "Login", "Password and SSO login flow."],
+        ["", "Recovery", "Password reset and account recovery."],
+        ["Billing", "Invoices", "Monthly invoice generation."],
+        ["", "Refunds", "Refund request workflow."],
+    ]
+    table_markdown = _make_markdown_table(headers, rows)
+    blocks = [_block(0, "table", table_markdown)]
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._classify_table",
+        lambda **_: TableClassification(
+            table_type="matrix",
+            needs_description=True,
+            col_headers=headers,
+            row_headers=[],
+        ),
+    )
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        lambda **_: DescriptionAndSections(
+            description="Feature areas and their implementation topics.",
+            sections=[
+                {"row_index": 0, "section_name": "Authentication", "row_labels": [], "subsections": []},
+                {"row_index": 2, "section_name": "Billing", "row_labels": [], "subsections": []},
+            ],
+        ),
+    )
+
+    def _unexpected_row_summaries(**_kwargs):
+        raise AssertionError("natural section tables should not call row-slice summaries")
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_row_slice_summaries",
+        _unexpected_row_summaries,
+    )
+
+    _transformed_blocks, semantic_parents, semantic_children, _warnings = (
+        process_semantic_tables_for_pdf(
+            blocks=blocks,
+            file_name="feature_overview.pdf",
+            file_id="file-sections",
+            artifact_dir=tmp_path,
+        )
+    )
+
+    assert len(semantic_parents) == 2
+    assert len(semantic_children) == 2
+    auth_parent = next(
+        parent
+        for parent in semantic_parents
+        if parent.parent_chunk_metadata["table_semantic"]["section_name"] == "Authentication"
+    )
+    assert "Login" in auth_parent.content
+    assert "Recovery" in auth_parent.content
+
+
+def test_description_and_sections_prompt_uses_markdown_table_sample(monkeypatch):
+    headers = ["Section", "Topic", "Detail"]
+    rows = [
+        ["", "continuation", "leading blank"],
+        ["Section A", "alpha", "first section"],
+        ["", "beta", "first section continuation"],
+        ["Section B", "gamma", "second section"],
+    ]
+    parsed = parse_markdown_table(_make_markdown_table(headers, rows))
+    assert parsed is not None
+    captured_prompt = {"value": ""}
+
+    def _fake_description_and_sections_call(**kwargs):
+        captured_prompt["value"] = kwargs["user_prompt"]
+        return {
+            "description": "Sectioned feature table.",
+            "has_sections": True,
+            "sections": [{"row_index": 1, "section_name": "Section A"}],
+        }
+
+    monkeypatch.setattr(
+        table_semantic_pipeline,
+        "_llm_structured_json_call",
+        _fake_description_and_sections_call,
+    )
+
+    result = table_semantic_pipeline._build_description_and_sections(
+        parsed_table=parsed,
+        classification=TableClassification(
+            table_type="matrix",
+            needs_description=True,
+            col_headers=headers,
+            row_headers=[],
+        ),
+        context_before="",
+        context_after="",
+    )
+
+    assert result.description == "Sectioned feature table."
+    assert result.sections[0]["section_name"] == "Section A"
+    assert "Markdown table sample:" in captured_prompt["value"]
+    assert "| Section | Topic | Detail |" in captured_prompt["value"]
+    assert "| Section A | alpha | first section |" in captured_prompt["value"]
+    assert "First-column cell values" not in captured_prompt["value"]
 
 
 def test_row_summary_build_uses_explicit_presliced_prompt(monkeypatch):

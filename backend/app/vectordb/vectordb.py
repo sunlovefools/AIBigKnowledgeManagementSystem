@@ -478,12 +478,61 @@ def _enrich_parent_content_with_table_semantic_context(
 
     general_description = str(table_semantic.get("general_description") or "").strip()
     headers_markdown = _render_headers_markdown(table_semantic.get("col_headers"))
+    section_name = str(table_semantic.get("section_name") or "").strip()
+    parent_section_name = str(table_semantic.get("parent_section_name") or "").strip()
+    subsection_name = str(table_semantic.get("subsection_name") or "").strip()
+    criteria_names = table_semantic.get("criteria_names")
+    weights = table_semantic.get("weights")
+    structured_rows = table_semantic.get("structured_rows")
 
     prefix_parts: List[str] = []
+    if section_name:
+        prefix_parts.append(f"Section: {section_name}")
+    if parent_section_name and subsection_name:
+        prefix_parts.append(f"Parent Section: {parent_section_name}")
+        prefix_parts.append(f"Subsection: {subsection_name}")
     if general_description:
         prefix_parts.append(f"General Description: {general_description}")
+    if isinstance(criteria_names, list):
+        normalized_criteria = [str(item).strip() for item in criteria_names if str(item).strip()]
+        if normalized_criteria:
+            prefix_parts.append(f"Criteria Names: {', '.join(normalized_criteria)}")
+    if isinstance(weights, list):
+        normalized_weights = [str(item).strip() for item in weights if str(item).strip()]
+        if normalized_weights:
+            prefix_parts.append(f"Weights: {', '.join(normalized_weights)}")
     if headers_markdown:
         prefix_parts.append(f"Headers:\n{headers_markdown}")
+    if isinstance(structured_rows, list) and structured_rows:
+        row_lines: List[str] = []
+        for raw_row in structured_rows[:10]:
+            if not isinstance(raw_row, dict):
+                continue
+            label = str(raw_row.get("label") or "").strip()
+            row_weights = raw_row.get("weights")
+            weight_text = ""
+            if isinstance(row_weights, list):
+                normalized_row_weights = [
+                    str(item).strip() for item in row_weights if str(item).strip()
+                ]
+                if normalized_row_weights:
+                    weight_text = f" | weights: {', '.join(normalized_row_weights[:4])}"
+            cells = raw_row.get("cells")
+            cell_text = ""
+            if isinstance(cells, dict):
+                cell_parts = [
+                    f"{str(key).strip()}: {str(value).strip()}"
+                    for key, value in list(cells.items())[:6]
+                    if str(key).strip() and str(value).strip()
+                ]
+                if cell_parts:
+                    cell_text = " | " + "; ".join(cell_parts)
+            if label:
+                row_lines.append(f"- {label}{weight_text}{cell_text}")
+            elif cell_text:
+                row_lines.append(f"-{weight_text}{cell_text}")
+        if row_lines:
+            prefix_parts.append("Structured Rows:\n" + "\n".join(row_lines))
 
     if not prefix_parts:
         return page_content
