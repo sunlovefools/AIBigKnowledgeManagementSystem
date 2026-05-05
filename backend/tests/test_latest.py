@@ -1,29 +1,38 @@
-from app.service.auth_service import AuthService, AuthenticationError
+from pathlib import Path
 
 
-def test_authentication():
-    """Test the complete authentication flow"""
-    print("Starting authentication tests...\n")
-    
-    # Initialize auth service (Just like Java new AuthService())
-    auth = AuthService()
+AUTH_SERVICE_PATH = Path("backend/app/service/auth/auth_service.py")
+ROUTER_AUTH_PATH = Path("backend/app/api/router_auth.py")
 
-    # # Test 1: Register a new user with valid credentials
-    # print("Test 1: Register valid user")
-    # try:
-    #     user = auth.register_user("test6@example.com", "SecurePass123!")
-    #     print(f"✅ User registered: {user['email']}")
-    #     print(f"   User ID: {user['id']}\n")
-    # except AuthenticationError as e:
-    #     print(f"❌ Registration failed: {e}\n")
 
-    # Test 5: Login with correct credentials
-    print("Test 5: Login with correct credentials")
-    try:
-        user = auth.login_user("test@example.com", "SecurePass123!")
-        print(f"✅ Login successful: {user['email']}\n")
-    except AuthenticationError as e:
-        print(f"❌ Login failed: {e}\n")
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
 
-if __name__ == "__main__":
-    test_authentication()
+
+def test_auth_service_is_auth0_only():
+    content = _read(AUTH_SERVICE_PATH)
+    assert "def register_user(" not in content
+    assert "def login_user(" not in content
+    assert "def auth0_login(" in content
+    assert "def oauth_login(" in content
+
+
+def test_router_exposes_only_auth0_login_route():
+    content = _read(ROUTER_AUTH_PATH)
+    assert "\"/auth0-login\"" in content
+    assert "\"/register\"" not in content
+    assert "\"/login\"" not in content
+
+
+def test_auth0_login_uses_single_email_source_userinfo():
+    content = _read(AUTH_SERVICE_PATH)
+    assert "def auth0_login(" in content
+    assert "get_auth0_userinfo(token)" in content
+    assert "userinfo.get(\"email\")" in content
+    assert "payload.get(\"email\")" not in content
+
+
+def test_verify_auth0_token_uses_single_key_resolution_path():
+    content = _read(AUTH_SERVICE_PATH)
+    assert "def _get_signing_rsa_key(" in content
+    assert "rsa_key = _get_signing_rsa_key(" in content

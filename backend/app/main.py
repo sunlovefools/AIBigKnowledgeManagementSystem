@@ -1,31 +1,51 @@
-from fastapi import FastAPI
-import httpx
 import os
+import logging
+from contextlib import asynccontextmanager
+
 from dotenv import load_dotenv
-load_dotenv()
-from pydantic import BaseModel
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-# import app.api.router_auth as auth_router
+from pydantic import BaseModel
+
+load_dotenv() # Need to be called before the local import below
+
+from app.mcp.server import mcp_asgi_app, rag_mcp
+
+
+def configure_third_party_logging() -> None:
+    """Reduce noisy INFO logs from SDK internals."""
+    noisy_loggers = (
+        "astrapy",
+        "astrapy.data.cursors.cursor",
+        "httpx",
+        "httpcore",
+    )
+    for logger_name in noisy_loggers:
+        logging.getLogger(logger_name).setLevel(logging.WARNING)
+
+
+configure_third_party_logging()
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    _ = app
+    async with rag_mcp.session_manager.run():
+        yield
+
+
+app = FastAPI(lifespan=lifespan)
+
+# Local imports
 import app.api.router_ingest as ingest_router
 import app.api.router_query as query_router
-# from app.service.beam_client import query_llm
-# Initialize FastAPI app
-app = FastAPI()
+import app.api.router_conversations as conversations_router
+import app.api.router_modifications as modifications_router
+import app.api.router_retrieve as retrieve_router
+import app.api.router_agent as agent_router
+import app.api.router_collections as collections_router
+import app.api.router_auth as auth_router  # ADDED: uncommented now that auth is implemented
 
-# Initialize the vector database
-# @app.on_event("startup")
-# def startup_event():
-#     print("Initialising vector database (if not already created)...")
-#     init_vector_db()
-
-
-# BEAM_LLM_URL = os.getenv("BEAM_LLM_URL")
-# BEAM_LLM_KEY = os.getenv("BEAM_LLM_KEY")
-
-# TEST FOR SENDINGQUERY TO BACKEND
-class QueryRequest(BaseModel):
-    query: str
-# TEST FOR SENDING WUERY TO BACKEND
 
 # Allow requests from your React dev server (localhost:5173)
 # When allow_credentials=True, you must specify explicit origins (can't use "*")
@@ -38,63 +58,86 @@ app.add_middleware(
     allow_credentials=True, # Allow cookies, authorization headers, etc in the requests to the backend
     allow_methods=["*"], # Allow all HTTP methods (GET, POST, PUT, DELETE, etc)
     allow_headers=["*"], # Allow all headers, including custom headers
+    expose_headers=["Mcp-Session-Id"],
     # Popular headers include Authorization, Content-Type, X-Requested-With, etc.
 )
 
-# If the request URL starts with /auth, forward it to router_auth.py
-# app.include_router(
-#    auth_router.router,     # The router object from router_auth.py
-#    prefix="/auth",          # All routes from this file will start with /auth
-#    tags=["Authentication"]  # Groups them nicely in the API docs
-# )
+# --- Router Registration ---
+
+# Authentication router  # ADDED: uncommented now that auth is implemented
+app.include_router(
+   auth_router.router,      # The router object from router_auth.py
+   prefix="/auth",           # All routes from this file will start with /auth
+   tags=["Authentication"]   # Groups them nicely in the API docs
+)
+
+# Ingestion router
 app.include_router(
     ingest_router.router,
     prefix="/ingest",
     tags=["Ingestion"]
 )
 
+# Query router
 app.include_router(
     query_router.router, 
     prefix="/api", 
     tags=["Query"])
 
-# A simple test endpoint to verify the backend is running, not being used at all
+# Conversations router
+app.include_router(
+    conversations_router.router,
+    prefix="/api",
+    tags=["Conversations"]
+)
+
+# Modifications router
+app.include_router(
+    modifications_router.router,
+    prefix="/api/modifications",
+    tags=["Modifications"]
+)
+
+# Retrieve router
+app.include_router(
+    retrieve_router.router,
+    prefix="/api/retrieve",
+    tags=["Retrieve"]
+)
+
+# Agent router
+app.include_router(
+    agent_router.router,
+    prefix="/api/agent",
+    tags=["Agent"]
+)
+
+# Collections router
+app.include_router(
+    collections_router.router,
+    prefix="/api/collections",
+    tags=["Collections"],
+)
+
+app.mount("/api/mcp", mcp_asgi_app)
+
+# --- Data Models ---
+# TEST FOR SENDINGQUERY TO BACKEND
+class QueryRequest(BaseModel):
+    """Request model for testing backend query endpoint."""
+    query: str
+# TEST FOR SENDING QUERY TO BACKEND
+
+# --- Endpoints ---
 @app.get("/hello")
 def hello_from_backend():
+    """Simple test endpoint to verify backend is running."""
     return {"message": "Hello from backend"}
 
 @app.post("/query")
 async def ask_user(body: QueryRequest):
+    """Test endpoint to receive a query and respond with a placeholder."""
     user_query = body.query
     print(f"Received query: {user_query}")
 
     return {"response": "Hi there! This is a placeholder response from the backend."}
-
-    # headers = {
-    #     "Content-Type": "application/json",
-    #     "Authorization": f"Bearer {BEAM_LLM_KEY}",
-    #     "Connection": "keep-alive",
-    # }
-
-    # payload = {"prompt": user_query}
-
-    # try:
-    #     async with httpx.AsyncClient() as client:
-    #         response = await client.post(
-    #             BEAM_LLM_URL,
-    #             headers=headers,
-    #             json=payload,
-    #             timeout=60.0,
-    #         )
-
-    #     response.raise_for_status()
-    #     data = response.json()
-
-    #     # Your LLM output is in data["response"]
-    #     llm_output = data.get("response", "(LLM returned no response field)")
-
-    # except Exception as e:
-    #     print("Error talking to Beam:", e)
-    #     return {"response": "❌ Error: Could not reach LLM service"}
-
-    # return {"response": llm_output}

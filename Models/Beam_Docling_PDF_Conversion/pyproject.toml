@@ -1,0 +1,27 @@
+[project]
+name = "beam-docling-endpoint-service"
+version = "0.1.0"
+description = "Beam-hosted Docling PDF conversion endpoint service"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "beam-client>=0.2.191",
+    "docling>=2.74.0",
+    "hf-xet>=1.2.0",
+    "pillow>=12.1.1",
+    "pydantic>=2.0.0",
+]
+
+# This folder is a script/service project (not a packaged Python library).
+[tool.uv]
+package = false
+
+# Optional but useful if you install via `uv sync`
+[[tool.uv.index]]
+name = "pytorch-cu126"
+url = "https://download.pytorch.org/whl/cu126"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cu126" }
+torchvision = { index = "pytorch-cu126" }
