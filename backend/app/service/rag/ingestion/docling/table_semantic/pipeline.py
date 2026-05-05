@@ -1178,10 +1178,21 @@ def process_semantic_tables_for_pdf(
                 context_after=context_after,
             )
         except Exception as exc:
-            raise TableSemanticIngestionError(
-                "Table semantic classification failed "
-                f"for block_index={block.block_index}: {exc}"
-            ) from exc
+            warnings.append(
+                f"Table classification failed for block_index={block.block_index}, "
+                f"treating as layout: {exc}"
+            )
+            flattened = flatten_layout_table_to_bullets(parsed)
+            transformed_blocks[index] = block.model_copy(
+                update={"block_type": "text", "content": flattened}
+            )
+            diagnostics.append({
+                "block_index": int(block.block_index),
+                "page_no": _resolve_page_number(block.page_no),
+                "status": "classification_error_treated_as_layout",
+                "error": str(exc),
+            })
+            continue
 
         # Process Semantic Tables 2.4: If classification succeeds and is classified as layout or doesn't need description, flatten to bullets.
         if classification.table_type == "layout" or not classification.needs_description:
@@ -1215,10 +1226,21 @@ def process_semantic_tables_for_pdf(
                 context_after=context_after,
             )
         except Exception as exc:
-            raise TableSemanticIngestionError(
-                "Table description and section detection failed "
-                f"for block_index={block.block_index}: {exc}"
-            ) from exc
+            warnings.append(
+                f"Table description/section detection failed for block_index={block.block_index}, "
+                f"treating as layout: {exc}"
+            )
+            flattened = flatten_layout_table_to_bullets(parsed)
+            transformed_blocks[index] = block.model_copy(
+                update={"block_type": "text", "content": flattened}
+            )
+            diagnostics.append({
+                "block_index": int(block.block_index),
+                "page_no": _resolve_page_number(block.page_no),
+                "status": "description_error_treated_as_layout",
+                "error": str(exc),
+            })
+            continue
 
         general_description = description_and_sections.description
         section_spans = _section_headers_to_spans(
@@ -1249,10 +1271,21 @@ def process_semantic_tables_for_pdf(
                     child_rows_per_chunk=child_rows_per_chunk,
                 )
             except Exception as exc:
-                raise TableSemanticIngestionError(
-                    "Row-slice summary generation failed "
-                    f"for block_index={block.block_index}: {exc}"
-                ) from exc
+                warnings.append(
+                    f"Row-slice summary generation failed for block_index={block.block_index}, "
+                    f"treating as layout: {exc}"
+                )
+                flattened = flatten_layout_table_to_bullets(parsed)
+                transformed_blocks[index] = block.model_copy(
+                    update={"block_type": "text", "content": flattened}
+                )
+                diagnostics.append({
+                    "block_index": int(block.block_index),
+                    "page_no": _resolve_page_number(block.page_no),
+                    "status": "row_summary_error_treated_as_layout",
+                    "error": str(exc),
+                })
+                continue
 
             table_parents, table_children = _build_semantic_chunks_for_table(
                 table_id=table_id,

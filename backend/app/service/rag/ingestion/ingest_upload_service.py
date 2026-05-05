@@ -228,6 +228,8 @@ def run_docling_pdf_pipeline(
 
     try:
         # Docling-PDF-chunker 5: Run semantic-table preprocessing for PDF tables.
+        # Per-table LLM failures are demoted to warnings inside process_semantic_tables_for_pdf,
+        # so this call only raises on unrecoverable structural errors.
         transformed_blocks, semantic_parent_models, semantic_child_models, semantic_warnings = (
             process_semantic_tables_for_pdf(
                 blocks=parse_result.structured_blocks,
@@ -261,8 +263,6 @@ def run_docling_pdf_pipeline(
 
         if semantic_warnings:
             parse_result.warnings.extend(semantic_warnings)
-    except TableSemanticIngestionError as exc:
-        raise DoclingChunkingFailedError(str(exc)) from exc
     except Exception as exc:
         # Docling-PDF-chunker 6a: Normalize chunking failure for router-level HTTP mapping.
         raise DoclingChunkingFailedError(str(exc)) from exc

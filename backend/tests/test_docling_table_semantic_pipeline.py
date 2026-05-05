@@ -108,6 +108,82 @@ def test_layout_table_is_flattened_and_not_semantic_chunked(monkeypatch, tmp_pat
     )
 
 
+def test_table_classification_failure_falls_back_to_layout(monkeypatch, tmp_path):
+    monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
+
+    table_markdown = _make_markdown_table(
+        ["Metric", "Definition"],
+        [["Growth", "Revenue prior to foreign currency impact."]],
+    )
+    blocks = [_block(0, "table", table_markdown)]
+
+    def _raise_classifier_error(**_kwargs):
+        raise RuntimeError("classifier timeout")
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._classify_table",
+        _raise_classifier_error,
+    )
+
+    transformed_blocks, semantic_parents, semantic_children, warnings = (
+        process_semantic_tables_for_pdf(
+            blocks=blocks,
+            file_name="fallback.pdf",
+            file_id="file-fallback",
+            artifact_dir=tmp_path,
+        )
+    )
+
+    assert not semantic_parents
+    assert not semantic_children
+    assert transformed_blocks[0].block_type == "text"
+    assert "Metric: Growth" in transformed_blocks[0].content
+    assert any("Table classification failed" in warning for warning in warnings)
+
+
+def test_table_description_failure_falls_back_to_layout(monkeypatch, tmp_path):
+    monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
+
+    table_markdown = _make_markdown_table(
+        ["Metric", "Q1", "Q2"],
+        [["Growth", "10", "12"]],
+    )
+    blocks = [_block(0, "table", table_markdown)]
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._classify_table",
+        lambda **_: TableClassification(
+            table_type="matrix",
+            needs_description=True,
+            col_headers=["Metric", "Q1", "Q2"],
+            row_headers=["Growth"],
+        ),
+    )
+
+    def _raise_description_error(**_kwargs):
+        raise RuntimeError("description timeout")
+
+    monkeypatch.setattr(
+        "app.service.rag.ingestion.docling.table_semantic.pipeline._build_description_and_sections",
+        _raise_description_error,
+    )
+
+    transformed_blocks, semantic_parents, semantic_children, warnings = (
+        process_semantic_tables_for_pdf(
+            blocks=blocks,
+            file_name="fallback.pdf",
+            file_id="file-fallback",
+            artifact_dir=tmp_path,
+        )
+    )
+
+    assert not semantic_parents
+    assert not semantic_children
+    assert transformed_blocks[0].block_type == "text"
+    assert "Metric: Growth" in transformed_blocks[0].content
+    assert any("Table description/section detection failed" in warning for warning in warnings)
+
+
 def test_matrix_table_builds_semantic_children_and_parents(monkeypatch, tmp_path):
     monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
     headers = ["Region", "Q1", "Q2", "Q3"]
