@@ -62,7 +62,7 @@ except Exception:
 
 
 _DEFAULT_TIMEOUT_SECONDS = 60.0
-_DEFAULT_MAX_STEPS = 6
+_DEFAULT_MAX_STEPS = 12
 _DEFAULT_SEED_TOP_K = 8
 _MAX_STEPS_CAP = 12
 _MIN_STEPS_CAP = 1
@@ -185,9 +185,16 @@ def _summarize_evidence_cache(parent_doc_cache: dict[str, dict[str, Any]]) -> st
         chunk_label = str(chunk_number) if isinstance(chunk_number, (int, float, str)) else "?"
         cached_snippet = str(doc.get("_agentic_query_snippet") or "").strip()
         snippet = cached_snippet or " ".join(str(doc.get("page_content") or "").split())[:1200]
-        lines.append(
-            f"- parent_id={parent_id}, file={file_name}, chunk={chunk_label}, snippet={snippet}"
-        )
+        structured_view = str(doc.get("_agentic_query_structured_view") or "").strip()
+        if structured_view:
+            lines.append(
+                f"- parent_id={parent_id}, file={file_name}, chunk={chunk_label}, "
+                f"structured_view={structured_view}, snippet={snippet}"
+            )
+        else:
+            lines.append(
+                f"- parent_id={parent_id}, file={file_name}, chunk={chunk_label}, snippet={snippet}"
+            )
     return "\n".join(lines) if lines else "- (no evidence cached yet)"
 
 
@@ -418,8 +425,20 @@ def _build_state_update(
     timeout_s: float,
     parent_doc_cache: dict[str, dict[str, Any]],
     step_traces: list[dict[str, Any]],
+    pending_file_fetches: list[tuple[str, str]] | None = None,
 ) -> str:
     """Build a compact runtime state message for the next model turn."""
+
+    file_candidate_hint = ""
+    if pending_file_fetches:
+        file_list = ", ".join(
+            f"{name!r} (file_id={fid!r})" for fid, name in pending_file_fetches
+        )
+        file_candidate_hint = (
+            f"\n\nKnown file candidate(s) not yet read: {file_list}. "
+            "If the user is asking about one of these files, consider calling fetch_file_context "
+            "with its file_id before continuing broad search.\n"
+        )
 
     return (
         f"Runtime step {step}/{max_steps}. Timeout seconds: {timeout_s}.\n\n"
@@ -427,7 +446,8 @@ def _build_state_update(
         "Current Evidence Cache:\n"
         f"{_summarize_evidence_cache(parent_doc_cache)}\n\n"
         "Recent Structured Step Trace:\n"
-        f"{_summarize_step_trace_rows(step_traces)}\n\n"
+        f"{_summarize_step_trace_rows(step_traces)}"
+        f"{file_candidate_hint}\n\n"
         "Return only the next JSON action-state object."
     )
 
@@ -485,6 +505,7 @@ async def _run_loop(
     used_reference_ids: set[str] = set()
     step_traces: list[dict[str, Any]] = []
     tool_call_count = 0
+    pending_file_fetches: list[tuple[str, str]] = []
 
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": config.system_prompt},
@@ -621,6 +642,7 @@ async def _run_loop(
                     timeout_s=timeout_s,
                     parent_doc_cache=parent_doc_cache,
                     step_traces=step_traces,
+                    pending_file_fetches=pending_file_fetches if pending_file_fetches else None,
                 ),
             }
         )
@@ -793,6 +815,8 @@ async def _run_loop(
                 tool_call_count += 1
                 for match in matches:
                     observed_file_names.add(match.file_name)
+                if matches:
+                    pending_file_fetches = [(m.file_id, m.file_name) for m in matches]
                 step_observation = _trim_observation(
                     "search_files returned "
                     f"{len(matches)} candidate files for query={args.query!r}."
@@ -830,6 +854,7 @@ async def _run_loop(
                     user_id=user_id,
                     included_file_ids=included_file_ids,
                     parent_doc_cache=parent_doc_cache,
+                    query=user_query,
                 )
                 tool_call_count += 1
                 if item is None:
@@ -855,8 +880,15 @@ async def _run_loop(
                     user_id=user_id,
                     included_file_ids=included_file_ids,
                     parent_doc_cache=parent_doc_cache,
+                    query=user_query,
                 )
                 tool_call_count += 1
+                fetched_id = str(args.file_id or "").strip()
+                pending_file_fetches = [
+                    (fid, fname)
+                    for fid, fname in pending_file_fetches
+                    if fid != fetched_id
+                ]
                 for item in evidence:
                     observed_file_names.add(item.file_name)
                 file_label = str(args.file_id or args.file_name or "").strip()
@@ -1059,17 +1091,17 @@ async def _run_loop(
                     "successCriteria": trace_success,
                     "fallback": trace_fallback,
                     "decision": trace_fallback,
-                "argumentsPreview": arguments_preview,
-                "observation": step_observation,
-                "error": step_error,
-                "transcriptMessage": _tool_transcript_item(
-                    action_name=action.action,
-                    step=step,
-                    observation=step_observation,
-                    status="failed" if step_error else "completed",
-                ),
-            },
-        )
+                    "argumentsPreview": arguments_preview,
+                    "observation": step_observation,
+                    "error": step_error,
+                    "transcriptMessage": _tool_transcript_item(
+                        action_name=action.action,
+                        step=step,
+                        observation=step_observation,
+                        status="failed" if step_error else "completed",
+                    ),
+                },
+            )
 
     if parent_doc_cache:
         forced_step = max_steps + 1

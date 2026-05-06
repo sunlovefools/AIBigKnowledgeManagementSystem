@@ -7,7 +7,7 @@ import traceback
 from typing import List
 
 from fastapi import APIRouter, HTTPException, Query, status, Depends  # ADDED: Depends
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from app.service.modification.reconstruction_service import ReconstructionService
 from app.core.dependencies import get_current_user  # ADDED: auth dependency
@@ -49,6 +49,8 @@ class ParentChunkContent(BaseModel):
     content: str
     size: int
     pageNumbers: List[int]
+    contentFlags: dict = Field(default_factory=dict)
+    tableSemantic: dict = Field(default_factory=dict)
 
 
 class FileChunksResponse(BaseModel):
@@ -137,6 +139,8 @@ async def get_file_chunks(
                     content=chunk["content"],
                     size=chunk["size"],
                     pageNumbers=chunk.get("pageNumbers", [0]),
+                    contentFlags=chunk.get("contentFlags", {}),
+                    tableSemantic=chunk.get("tableSemantic", {}),
                 )
                 for chunk in result["chunks"]
             ],

@@ -1,6 +1,12 @@
 import { createContext, useContext } from "react";
 
-export type UploadQueueStatus = "queued" | "reading" | "uploading" | "processing" | "completed" | "failed";
+export type UploadQueueStatus =
+    | "queued"
+    | "reading"
+    | "uploading"
+    | "processing"
+    | "completed"
+    | "failed";
 
 export type UploadQueueTarget = {
     collectionId?: string | null;
@@ -25,7 +31,7 @@ export type IngestUploadJobAcceptedResponse = {
 
 export type IngestUploadJobStatusResponse = {
     jobId: string;
-    status: "queued" | "running" | "succeeded" | "failed" | string;
+    status: "queued" | "running" | "succeeded" | "failed" | "canceled" | string;
     fileName: string;
     collectionId: string;
     collectionName?: string | null;
@@ -48,6 +54,7 @@ export type UploadQueueItem = {
     phaseLabel: string;
     error: string | null;
     response: IngestUploadResponse | null;
+    jobId?: string | null;
 };
 
 export type UploadCompletionEvent = {
@@ -64,6 +71,7 @@ export type UploadQueueContextValue = {
     closeModal: () => void;
     openFilePicker: (target?: UploadQueueTarget) => void;
     retryItem: (itemId: string) => void;
+    removeItem: (itemId: string) => void;
     clearCompleted: () => void;
     subscribeToCompletions: (handler: (event: UploadCompletionEvent) => void) => () => void;
 };

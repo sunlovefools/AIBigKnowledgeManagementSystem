@@ -4,6 +4,7 @@ import { API_BASE, CHAT_TEST_USER_EMAIL } from "../../../config/env";
 import type {
     ChatMessage,
     ChatProgressMessage,
+    ChatProgressSnapshot,
     ChatProgressStep,
     ChatProgressTranscriptItem,
     ChatRole,
@@ -20,6 +21,7 @@ type AppendTextMessagePayload = {
     searchScope?: QuerySearchScope;
     collectionId?: string | null;
     collectionName?: string | null;
+    progressTrace?: ChatProgressSnapshot;
 };
 
 type ConversationApiMessage = {
@@ -31,6 +33,7 @@ type ConversationApiMessage = {
     searchScope?: QuerySearchScope;
     collectionId?: string | null;
     collectionName?: string | null;
+    progressTrace?: ChatProgressSnapshot | null;
 };
 
 type HandleQueryOptions = {
@@ -213,6 +216,42 @@ function normalizeApiRole(raw: string | undefined): ChatRole {
     return raw === "user" ? "user" : "ai";
 }
 
+function completeProgressMessage(
+    message: ChatProgressMessage,
+    finalStatus: "completed" | "failed",
+    finalStageText?: string
+): ChatProgressMessage {
+    if (!finalStageText) {
+        return {
+            ...message,
+            status: finalStatus,
+        };
+    }
+
+    const normalizedFinalText = finalStageText.trim();
+    const latestStep = message.steps[message.steps.length - 1];
+    const nextSteps = latestStep?.message === normalizedFinalText
+        ? message.steps
+        : [...message.steps, { stage: finalStatus, message: normalizedFinalText }];
+
+    return {
+        ...message,
+        status: finalStatus,
+        currentStageText: normalizedFinalText,
+        steps: nextSteps,
+    };
+}
+
+function toProgressSnapshot(message: ChatProgressMessage): ChatProgressSnapshot {
+    return {
+        status: message.status,
+        scope: message.scope,
+        currentStageText: message.currentStageText,
+        steps: message.steps,
+        transcript: message.transcript,
+    };
+}
+
 function optionalText(value: unknown): string | undefined {
     if (typeof value !== "string") return undefined;
     const normalized = value.trim();
@@ -276,6 +315,7 @@ export function useChat() {
         searchScope: payload.searchScope,
         collectionId: payload.collectionId ?? null,
         collectionName: payload.collectionName ?? null,
+        progressTrace: payload.progressTrace,
     }), [nextMessageId]);
 
     const toConversationTextMessage = useCallback(
@@ -290,6 +330,7 @@ export function useChat() {
             searchScope: message.searchScope,
             collectionId: message.collectionId ?? null,
             collectionName: message.collectionName ?? null,
+            progressTrace: message.progressTrace ?? undefined,
         }),
         [nextMessageId]
     );
@@ -297,6 +338,34 @@ export function useChat() {
     const appendMessage = useCallback((payload: AppendTextMessagePayload) => {
         setMessages((previousMessages) => [...previousMessages, buildTextMessage(payload)]);
     }, [buildTextMessage]);
+
+    const appendMessageWithProgressTrace = useCallback(
+        (
+            payload: AppendTextMessagePayload,
+            progressMessageId: string,
+            finalStatus: "completed" | "failed",
+            finalStageText?: string
+        ) => {
+            setMessages((previousMessages) => {
+                let progressTrace: ChatProgressSnapshot | undefined;
+                const nextMessages: ChatMessage[] = [];
+
+                for (const message of previousMessages) {
+                    if (message.id !== progressMessageId || message.kind !== "progress") {
+                        nextMessages.push(message);
+                        continue;
+                    }
+
+                    const completedProgress = completeProgressMessage(message, finalStatus, finalStageText);
+                    progressTrace = toProgressSnapshot(completedProgress);
+                }
+
+                nextMessages.push(buildTextMessage({ ...payload, progressTrace }));
+                return nextMessages;
+            });
+        },
+        [buildTextMessage]
+    );
 
     const startProgressMessage = useCallback(
         (scope: "agentic" | "selection" | "agentic-search" | "standard-search", initialStageText: string): string => {
@@ -551,25 +620,7 @@ export function useChat() {
                 previousMessages.map((message) => {
                     if (message.id !== messageId || message.kind !== "progress") return message;
 
-                    if (!finalStageText) {
-                        return {
-                            ...message,
-                            status: finalStatus,
-                        };
-                    }
-
-                    const normalizedFinalText = finalStageText.trim();
-                    const latestStep = message.steps[message.steps.length - 1];
-                    const nextSteps = latestStep?.message === normalizedFinalText
-                        ? message.steps
-                        : [...message.steps, { stage: finalStatus, message: normalizedFinalText }];
-
-                    return {
-                        ...message,
-                        status: finalStatus,
-                        currentStageText: normalizedFinalText,
-                        steps: nextSteps,
-                    };
+                    return completeProgressMessage(message, finalStatus, finalStageText);
                 })
             );
         },
@@ -650,7 +701,7 @@ export function useChat() {
                         collectionName: scopedCollectionName,
                         searchScope,
                         seed_top_k: options?.seedTopK ?? 8,
-                        max_steps: options?.maxSteps ?? 6,
+                        max_steps: options?.maxSteps ?? 12,
                     }),
                 });
                 const streamResult = await readAgenticQueryStreamResult(
@@ -675,16 +726,23 @@ export function useChat() {
                     ? `${answerText}\n\n(Sources: ${citations.join(", ")})`
                     : answerText;
 
-                if (agenticProgressMessageId) {
-                    finishProgressMessage(agenticProgressMessageId, "completed", "Agentic search completed.");
-                }
-                appendMessage({
+                const answerMessage: AppendTextMessagePayload = {
                     role: "ai",
                     text: answerWithCitations,
                     searchScope,
                     collectionId: scopedCollectionId,
                     collectionName: scopedCollectionName,
-                });
+                };
+                if (agenticProgressMessageId) {
+                    appendMessageWithProgressTrace(
+                        answerMessage,
+                        agenticProgressMessageId,
+                        "completed",
+                        "Agentic search completed."
+                    );
+                } else {
+                    appendMessage(answerMessage);
+                }
                 void refreshConversations();
                 return;
             }
@@ -719,16 +777,23 @@ export function useChat() {
                 || "Error: Failed to get response from server.";
 
             if (shouldUseAgenticSearch) {
-                if (agenticProgressMessageId) {
-                    finishProgressMessage(agenticProgressMessageId, "failed", fallbackError);
-                }
-                appendMessage({
+                const errorMessage: AppendTextMessagePayload = {
                     role: "ai",
                     text: fallbackError,
                     searchScope,
                     collectionId: scopedCollectionId,
                     collectionName: scopedCollectionName,
-                });
+                };
+                if (agenticProgressMessageId) {
+                    appendMessageWithProgressTrace(
+                        errorMessage,
+                        agenticProgressMessageId,
+                        "failed",
+                        fallbackError
+                    );
+                } else {
+                    appendMessage(errorMessage);
+                }
             } else {
                 if (standardProgressMessageId) {
                     finishProgressMessage(standardProgressMessageId, "failed", fallbackError);
@@ -747,6 +812,7 @@ export function useChat() {
         }
     }, [
         appendMessage,
+        appendMessageWithProgressTrace,
         buildTextMessage,
         conversationId,
         finishProgressMessage,

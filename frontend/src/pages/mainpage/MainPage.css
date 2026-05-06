@@ -1825,6 +1825,66 @@ html,
     color: #334155;
 }
 
+.message-progress-trace {
+    margin-top: 12px;
+    border-top: 1px solid rgba(148, 163, 184, 0.22);
+    padding-top: 8px;
+}
+
+.message-progress-toggle {
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: #334155;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-align: left;
+}
+
+.message-progress-toggle:hover {
+    color: #1d4ed8;
+}
+
+.message-progress-toggle .progress-chevron {
+    flex: 0 0 6px;
+}
+
+.message-progress-toggle.expanded .progress-chevron {
+    transform: rotate(-135deg) translateY(-1px);
+}
+
+.message-progress-count {
+    margin-left: auto;
+    color: #64748b;
+    font-size: 0.72rem;
+    font-weight: 600;
+}
+
+.message-progress-panel {
+    margin-top: 6px;
+    padding: 8px 10px 9px;
+    border-radius: 10px;
+    background: rgba(239, 246, 255, 0.74);
+    border: 1px solid rgba(191, 219, 254, 0.88);
+}
+
+.message-progress-trace.failed .message-progress-panel {
+    background: rgba(254, 242, 242, 0.72);
+    border-color: rgba(254, 202, 202, 0.9);
+}
+
+.message-progress-current {
+    color: #475569;
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
 .progress-current-row {
     display: flex;
     align-items: center;

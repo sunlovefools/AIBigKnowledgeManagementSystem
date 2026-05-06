@@ -34,6 +34,7 @@ class ChatMessageOut(BaseModel):
     searchScope: str | None = None
     collectionId: str | None = None
     collectionName: str | None = None
+    progressTrace: dict[str, Any] | None = None
 
 
 class ConversationMetaOut(BaseModel):
@@ -169,6 +170,7 @@ def get_conversation_messages(
                 searchScope=doc.get("searchScope"),
                 collectionId=doc.get("collectionId"),
                 collectionName=doc.get("collectionName"),
+                progressTrace=doc.get("progressTrace") if isinstance(doc.get("progressTrace"), dict) else None,
             )
             for doc in message_docs
         ],

@@ -111,3 +111,10 @@ def get_timeout_seconds() -> float:
 
 def get_max_sample_rows() -> int:
     return _parse_positive_int_env("TABLE_SEMANTIC_MAX_SAMPLE_ROWS", default=8)
+
+
+def get_section_single_chunk_max_rows() -> int:
+    return _parse_positive_int_env(
+        "TABLE_SEMANTIC_SECTION_SINGLE_CHUNK_MAX_ROWS",
+        default=8,
+    )

@@ -77,7 +77,7 @@ class AgenticQueryRequest(BaseModel):
     collectionName: str | None = None
     searchScope: Literal["collection", "all_collections"] = "collection"
     seed_top_k: int = 8
-    max_steps: int = 6
+    max_steps: int = 12
 
 
 class AgenticQueryResponse(BaseModel):
@@ -542,6 +542,157 @@ def _build_agentic_query_answer_text(answer: str, citations: list[str]) -> str:
     return normalized_answer + "\n\n" + f"(Sources: {', '.join(normalized_citations)})"
 
 
+def _optional_text(value: Any) -> str | None:
+    if not isinstance(value, str):
+        return None
+    normalized = value.strip()
+    return normalized or None
+
+
+def _optional_number(value: Any) -> int | None:
+    if isinstance(value, bool):
+        return None
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float) and value.is_integer():
+        return int(value)
+    if isinstance(value, str):
+        try:
+            return int(value.strip())
+        except ValueError:
+            return None
+    return None
+
+
+def _normalize_progress_status(value: Any) -> Literal["running", "completed", "failed"]:
+    normalized = str(value or "").strip().lower()
+    if normalized == "failed":
+        return "failed"
+    if normalized == "completed":
+        return "completed"
+    return "running"
+
+
+def _humanize_stage(stage: str) -> str:
+    cleaned = str(stage or "").strip()
+    if not cleaned:
+        return "Processing"
+    return " ".join(cleaned.replace("_", " ").replace("-", " ").split()).title()
+
+
+def _format_current_stage_text(stage: str, message: str, batch_id: int | None = None) -> str:
+    prefix = f"Batch {batch_id} | " if isinstance(batch_id, int) else ""
+    detail = str(message or "").strip() or "Working..."
+    return f"{prefix}{_humanize_stage(stage)}: {detail}"
+
+
+def _normalize_transcript_message(value: Any) -> dict[str, Any] | None:
+    if not isinstance(value, dict):
+        return None
+    role_raw = str(value.get("role") or "").strip()
+    role = role_raw if role_raw in {"system", "assistant", "tool"} else "assistant"
+    title = _optional_text(value.get("title"))
+    summary = _optional_text(value.get("summary"))
+    if not title or not summary:
+        return None
+    normalized: dict[str, Any] = {
+        "role": role,
+        "title": title,
+        "summary": summary,
+    }
+    detail = _optional_text(value.get("detail"))
+    status_value = _optional_text(value.get("status"))
+    if detail:
+        normalized["detail"] = detail
+    if status_value:
+        normalized["status"] = status_value
+    return normalized
+
+
+def _progress_event_to_step(event: dict[str, Any]) -> tuple[dict[str, Any], dict[str, Any] | None, str]:
+    stage = str(event.get("stage") or "").strip() or "processing"
+    detail = str(event.get("message") or "").strip() or "Working..."
+    metadata = event.get("metadata") if isinstance(event.get("metadata"), dict) else {}
+    batch_id = _optional_number(event.get("batchId"))
+    step_number = _optional_number(metadata.get("step"))
+    tool = _optional_text(metadata.get("tool")) or _optional_text(metadata.get("action"))
+    stage_prefix_parts: list[str] = []
+    if isinstance(step_number, int):
+        stage_prefix_parts.append(f"Step {step_number}")
+    if tool:
+        stage_prefix_parts.append(tool)
+    current_stage_text = (
+        f"{' | '.join(stage_prefix_parts)}: {detail}"
+        if stage_prefix_parts
+        else _format_current_stage_text(stage, detail, batch_id)
+    )
+    step: dict[str, Any] = {
+        "stage": stage,
+        "message": detail,
+    }
+    if isinstance(batch_id, int):
+        step["batchId"] = batch_id
+    if isinstance(step_number, int):
+        step["step"] = step_number
+    for source_key, target_key in (
+        ("tool", "tool"),
+        ("intent", "intent"),
+        ("successCriteria", "successCriteria"),
+        ("fallback", "fallback"),
+        ("decision", "decision"),
+        ("observation", "observation"),
+        ("argumentsPreview", "argumentsPreview"),
+    ):
+        text_value = _optional_text(metadata.get(source_key))
+        if text_value:
+            step[target_key] = text_value
+    transcript_message = _normalize_transcript_message(metadata.get("transcriptMessage"))
+    if transcript_message:
+        step["transcriptMessage"] = transcript_message
+    return step, transcript_message, current_stage_text
+
+
+def _dedupe_append(items: list[dict[str, Any]], item: dict[str, Any]) -> None:
+    if items and items[-1] == item:
+        return
+    items.append(item)
+
+
+def _build_agentic_progress_trace(
+    progress_events: list[dict[str, Any]],
+    *,
+    final_status: Literal["completed", "failed"],
+    final_stage_text: str,
+) -> dict[str, Any]:
+    steps: list[dict[str, Any]] = [
+        {"stage": "started", "message": "Agentic search started."}
+    ]
+    transcript: list[dict[str, Any]] = []
+    current_stage_text = "Agentic search started."
+    status_value: Literal["running", "completed", "failed"] = "running"
+
+    for event in progress_events:
+        if not isinstance(event, dict):
+            continue
+        step, transcript_message, next_current_stage_text = _progress_event_to_step(event)
+        incoming_status = _normalize_progress_status(event.get("status"))
+        status_value = "failed" if status_value == "failed" or incoming_status == "failed" else "running"
+        _dedupe_append(steps, step)
+        if transcript_message:
+            _dedupe_append(transcript, transcript_message)
+        current_stage_text = next_current_stage_text
+
+    final_step = {"stage": final_status, "message": final_stage_text}
+    _dedupe_append(steps, final_step)
+    return {
+        "status": final_status if status_value != "failed" else "failed",
+        "scope": "agentic-search",
+        "currentStageText": final_stage_text,
+        "steps": steps,
+        "transcript": transcript,
+    }
+
+
 async def _run_agentic_query_pipeline(
     request: AgenticQueryRequest,
     user_id: str,
@@ -632,6 +783,14 @@ async def _run_agentic_query_pipeline(
             detail="Failed to persist user chat message.",
         )
 
+    progress_events: list[dict[str, Any]] = []
+
+    async def _record_progress(event_payload: dict[str, Any]) -> None:
+        if isinstance(event_payload, dict):
+            progress_events.append(event_payload)
+        if progress_callback is not None:
+            await progress_callback(event_payload)
+
     run_agentic_query = _load_agentic_query_runner()
     try:
         runtime_result = await run_agentic_query(
@@ -648,7 +807,7 @@ async def _run_agentic_query_pipeline(
             ),
             seed_top_k=request.seed_top_k,
             max_steps=request.max_steps,
-            progress_callback=progress_callback,
+            progress_callback=_record_progress,
         )
     except Exception as exc:
         raise HTTPException(
@@ -663,6 +822,11 @@ async def _run_agentic_query_pipeline(
     ]
     response_answer = str(runtime_result.answer or "").strip() or "No answer found in the provided context."
     persisted_ai_text = _build_agentic_query_answer_text(response_answer, normalized_citations)
+    progress_trace = _build_agentic_progress_trace(
+        progress_events,
+        final_status="completed",
+        final_stage_text="Agentic search completed.",
+    )
 
     try:
         saved_ai_message = query_helpers._save_chat_message(
@@ -676,6 +840,7 @@ async def _run_agentic_query_pipeline(
             search_scope=request.searchScope,
             collection_id=scope_collection_id,
             collection_name=scope_collection_name,
+            progress_trace=progress_trace,
         )
         if saved_ai_message is not None:
             saved_messages.append(saved_ai_message)

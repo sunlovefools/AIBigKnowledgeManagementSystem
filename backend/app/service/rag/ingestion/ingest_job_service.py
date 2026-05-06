@@ -18,7 +18,7 @@ from typing import Any, Literal
 from app.service.collection.collection_service import CollectionService
 from app.service.rag.ingestion import ingest_upload_service
 
-IngestJobStatus = Literal["queued", "running", "succeeded", "failed"]
+IngestJobStatus = Literal["queued", "running", "succeeded", "failed", "canceled"]
 
 
 class IngestJobValidationError(ValueError):
@@ -134,6 +134,29 @@ class IngestJobService:
             return record.public_dict()
 
     @classmethod
+    async def cancel_ingest_job(cls, *, job_id: str, user_id: str) -> dict[str, Any] | None:
+        normalized_job_id = str(job_id or "").strip()
+        normalized_user_id = str(user_id or "").strip()
+        async with cls._lock:
+            record = cls._jobs.get(normalized_job_id)
+            if not record or record.user_id != normalized_user_id:
+                return None
+
+            record.status = "canceled"
+            record.finished_at = _now_iso()
+            record.error = None
+            record.data = None
+            canceled_job = record.public_dict()
+
+            cls._jobs.pop(normalized_job_id, None)
+            task = cls._tasks.pop(normalized_job_id, None)
+
+        if task and not task.done():
+            task.cancel()
+
+        return canceled_job
+
+    @classmethod
     async def _set_status(
         cls,
         job_id: str,
@@ -150,7 +173,7 @@ class IngestJobService:
             record.status = status_value
             if status_value == "running":
                 record.started_at = _now_iso()
-            if status_value in ("succeeded", "failed"):
+            if status_value in ("succeeded", "failed", "canceled"):
                 record.finished_at = _now_iso()
                 record.result = result
                 record.error = error

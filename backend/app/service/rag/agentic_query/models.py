@@ -90,6 +90,7 @@ class EvidenceItem(BaseModel):
     file_name: str
     parent_chunk_number: int | None = None
     snippet: str
+    structured_view: str = ""
 
 
 class FileMatch(BaseModel):

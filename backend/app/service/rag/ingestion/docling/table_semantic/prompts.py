@@ -29,11 +29,42 @@ Return ONLY valid JSON:
 """.strip()
 
 
-GLOBAL_DESCRIPTION_SYSTEM_PROMPT = """
-You are an expert technical writer and data summarization specialist.
-Write a concise 1-2 sentence global description of the table purpose.
-Do not summarize specific cell values; describe what the table represents.
-Return only plain text.
+DESCRIPTION_AND_SECTIONS_SYSTEM_PROMPT = """
+You are an expert technical writer and table structure analyst.
+
+Analyze a parsed table sample and return:
+- a concise 1-2 sentence description of what the table represents
+- whether the table has logical section groups
+- clean section names and clean row labels when section groups exist
+
+Rules:
+- Do not summarize specific cell values in the description; describe the table purpose.
+- A "section header row" is a body row that introduces a logical group or category. Rows that follow it until the next section header belong to that section.
+- A valid section structure requires at least 2 distinct sections.
+- If the table is a flat list with no grouping, return has_sections: false.
+- Use zero-based row_index values for body rows only. Do not count the markdown header or separator rows.
+- Section names must be short and clean (for example, "Curriculum Vitae", not "Curriculum Vitae Total: ...").
+- Distinguish aggregate labels from real section boundaries. Rows whose meaningful cells are only totals, subtotals, scores, percentages, or aggregate labels are summary rows, not section headers.
+- If a row has a label such as "Total" but also introduces a new substantive topic with criteria/items in other cells, it may be a section boundary; clean the section name by removing aggregate suffixes such as "Total" or "Total:".
+- Do not merge adjacent topics into one section name. If a row appears to contain the end of one topic and the start of another, choose the start row of the new topic and return only the new clean topic name.
+- row_labels must be short clean labels only, not full criteria descriptions. For example, use "Motivation", not "Motivation (20%) Criteria: ...".
+- If a section contains meaningful sub-sections or criteria rows that should be retrieved separately, include them in subsections.
+
+Return ONLY valid JSON:
+{
+  "description": "<1-2 sentence table description>",
+  "has_sections": true | false,
+  "sections": [
+    {
+      "row_index": <int>,
+      "section_name": "<string>",
+      "row_labels": ["..."],
+      "subsections": [
+        {"row_index": <int>, "section_name": "<string>", "row_labels": ["..."]}
+      ]
+    }
+  ]
+}
 """.strip()
 
 
@@ -78,23 +109,24 @@ def build_classifier_user_prompt(
     )
 
 
-def build_global_description_user_prompt(
+def build_description_and_sections_user_prompt(
     *,
     col_headers: list[str],
     row_headers: list[str],
     context_before: str,
     context_after: str,
+    table_sample_markdown: str,
 ) -> str:
-    """
-    Build the user prompt for generating a global table description, incorporating column headers, row headers, and surrounding context to inform the model's understanding of the table's purpose and content, 
-    while instructing it to produce a concise description without summarizing specific cell values.
-    """
+    """Build the combined table description + section detection prompt."""
     return (
         f"Column Headers: {col_headers}\n"
         f"Row Headers / Index: {row_headers}\n"
         f"Context Before: {context_before}\n"
         f"Context After: {context_after}\n\n"
-        "Write the general description for this table."
+        "Markdown table sample:\n"
+        f"{table_sample_markdown}\n\n"
+        "Write the general table description and identify section header rows. "
+        "Return JSON only."
     )
 
 

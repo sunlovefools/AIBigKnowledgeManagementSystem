@@ -29,6 +29,12 @@ class TableClassification:
 
 
 @dataclass
+class DescriptionAndSections:
+    description: str
+    sections: list[dict] = field(default_factory=list)
+
+
+@dataclass
 class TableSliceSummary:
     slice_index: int
     summary: str

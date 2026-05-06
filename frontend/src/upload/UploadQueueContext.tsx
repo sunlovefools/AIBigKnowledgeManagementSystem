@@ -28,6 +28,13 @@ import { API_BASE } from "../config/env";
 import "./UploadQueue.css";
 const INGEST_JOB_POLL_INTERVAL_MS = 1200;
 
+class UploadQueueItemRemovedError extends Error {
+    constructor() {
+        super("Upload was removed from the queue.");
+        this.name = "UploadQueueItemRemovedError";
+    }
+}
+
 function createUploadId(): string {
     if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
         return `upload-${crypto.randomUUID()}`;
@@ -74,6 +81,10 @@ function waitForPollDelay(): Promise<void> {
     });
 }
 
+function isUploadQueueItemRemovedError(error: unknown): boolean {
+    return error instanceof UploadQueueItemRemovedError;
+}
+
 function isFileDrag(event: DragEvent<HTMLElement>): boolean {
     return Array.from(event.dataTransfer.types).includes("Files");
 }
@@ -97,15 +108,23 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
     const targetRef = useRef<Required<UploadQueueTarget>>(normalizeTarget());
     const isProcessingRef = useRef(false);
     const subscribersRef = useRef(new Set<(event: UploadCompletionEvent) => void>());
+    const fileReadersRef = useRef(new Map<string, FileReader>());
 
-    const commitItems = useCallback((updater: (current: UploadQueueItem[]) => UploadQueueItem[]) => {
-        const nextItems = updater(itemsRef.current);
-        itemsRef.current = nextItems;
-        setItems(nextItems);
-    }, []);
+    const commitItems = useCallback(
+        (updater: (current: UploadQueueItem[]) => UploadQueueItem[]) => {
+            const nextItems = updater(itemsRef.current);
+            itemsRef.current = nextItems;
+            setItems(nextItems);
+        },
+        []
+    );
 
     const notifyCompletion = useCallback((event: UploadCompletionEvent) => {
         subscribersRef.current.forEach((handler) => handler(event));
+    }, []);
+
+    const hasQueueItem = useCallback((itemId: string) => {
+        return itemsRef.current.some((item) => item.id === itemId);
     }, []);
 
     const updateTarget = useCallback((nextTarget?: UploadQueueTarget) => {
@@ -115,10 +134,13 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
         setTarget(normalized);
     }, []);
 
-    const openModal = useCallback((nextTarget?: UploadQueueTarget) => {
-        updateTarget(nextTarget);
-        setIsModalOpen(true);
-    }, [updateTarget]);
+    const openModal = useCallback(
+        (nextTarget?: UploadQueueTarget) => {
+            updateTarget(nextTarget);
+            setIsModalOpen(true);
+        },
+        [updateTarget]
+    );
 
     const closeModal = useCallback(() => {
         setIsModalOpen(false);
@@ -129,47 +151,72 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
         (item: UploadQueueItem): Promise<string> =>
             new Promise((resolve, reject) => {
                 const reader = new FileReader();
+                fileReadersRef.current.set(item.id, reader);
 
                 reader.onprogress = (event) => {
+                    if (!hasQueueItem(item.id)) return;
                     if (!event.lengthComputable || event.total <= 0) return;
                     const readRatio = Math.min(event.loaded / event.total, 1);
                     commitItems((current) =>
                         current.map((entry) =>
                             entry.id === item.id
                                 ? {
-                                    ...entry,
-                                    status: "reading",
-                                    progress: Math.max(2, Math.round(readRatio * 22)),
-                                    phaseLabel: "Reading file",
-                                }
+                                      ...entry,
+                                      status: "reading",
+                                      progress: Math.max(2, Math.round(readRatio * 22)),
+                                      phaseLabel: "Reading file",
+                                  }
                                 : entry
                         )
                     );
                 };
 
                 reader.onload = () => {
+                    fileReadersRef.current.delete(item.id);
+                    if (!hasQueueItem(item.id)) {
+                        reject(new UploadQueueItemRemovedError());
+                        return;
+                    }
                     const result = String(reader.result || "");
                     const commaIndex = result.indexOf(",");
                     resolve(commaIndex >= 0 ? result.slice(commaIndex + 1) : result);
                 };
 
-                reader.onerror = () => reject(new Error("Could not read this file."));
+                reader.onerror = () => {
+                    fileReadersRef.current.delete(item.id);
+                    reject(new Error("Could not read this file."));
+                };
+
+                reader.onabort = () => {
+                    fileReadersRef.current.delete(item.id);
+                    reject(new UploadQueueItemRemovedError());
+                };
 
                 commitItems((current) =>
                     current.map((entry) =>
                         entry.id === item.id
-                            ? { ...entry, status: "reading", progress: 2, phaseLabel: "Reading file", error: null }
+                            ? {
+                                  ...entry,
+                                  status: "reading",
+                                  progress: 2,
+                                  phaseLabel: "Reading file",
+                                  error: null,
+                              }
                             : entry
                     )
                 );
                 reader.readAsDataURL(item.file);
             }),
-        [commitItems]
+        [commitItems, hasQueueItem]
     );
 
     const pollIngestJob = useCallback(
         async (item: UploadQueueItem, jobId: string): Promise<IngestUploadResponse> => {
             while (true) {
+                if (!hasQueueItem(item.id)) {
+                    throw new UploadQueueItemRemovedError();
+                }
+
                 const response = await apiClient.get<IngestUploadJobStatusResponse>(
                     `${API_BASE}/ingest/upload-jobs/${jobId}`
                 );
@@ -186,22 +233,29 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                     throw new Error(job.error || "Upload processing failed.");
                 }
 
+                if (job.status === "canceled") {
+                    throw new UploadQueueItemRemovedError();
+                }
+
                 commitItems((current) =>
                     current.map((entry) =>
                         entry.id === item.id
                             ? {
-                                ...entry,
-                                status: "processing",
-                                progress: Math.max(entry.progress, 88),
-                                phaseLabel: job.status === "queued" ? "Queued for processing" : "Processing",
-                            }
+                                  ...entry,
+                                  status: "processing",
+                                  progress: Math.max(entry.progress, 88),
+                                  phaseLabel:
+                                      job.status === "queued"
+                                          ? "Queued for processing"
+                                          : "Processing",
+                              }
                             : entry
                     )
                 );
                 await waitForPollDelay();
             }
         },
-        [commitItems]
+        [commitItems, hasQueueItem]
     );
 
     const processItem = useCallback(
@@ -214,20 +268,30 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                     phaseLabel: "Unsupported file",
                     error: "Upload PDF, DOC, DOCX, TXT, PPTX, or XLSX files.",
                 };
-                commitItems((current) => current.map((entry) => (entry.id === item.id ? failedItem : entry)));
+                commitItems((current) =>
+                    current.map((entry) => (entry.id === item.id ? failedItem : entry))
+                );
                 notifyCompletion({ item: failedItem, ok: false });
                 return;
             }
 
             try {
                 const base64Data = await readFileAsBase64(item);
+                if (!hasQueueItem(item.id)) return;
+
                 commitItems((current) =>
                     current.map((entry) =>
                         entry.id === item.id
-                            ? { ...entry, status: "uploading", progress: 25, phaseLabel: "Uploading" }
+                            ? {
+                                  ...entry,
+                                  status: "uploading",
+                                  progress: 25,
+                                  phaseLabel: "Uploading",
+                              }
                             : entry
                     )
                 );
+                if (!hasQueueItem(item.id)) return;
 
                 const acceptedResponse = await apiClient.post<IngestUploadJobAcceptedResponse>(
                     `${API_BASE}/ingest/upload-jobs`,
@@ -244,11 +308,11 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                                     current.map((entry) =>
                                         entry.id === item.id
                                             ? {
-                                                ...entry,
-                                                status: "uploading",
-                                                progress: Math.max(entry.progress, 35),
-                                                phaseLabel: "Uploading",
-                                            }
+                                                  ...entry,
+                                                  status: "uploading",
+                                                  progress: Math.max(entry.progress, 35),
+                                                  phaseLabel: "Uploading",
+                                              }
                                             : entry
                                     )
                                 );
@@ -261,11 +325,12 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                                 current.map((entry) =>
                                     entry.id === item.id
                                         ? {
-                                            ...entry,
-                                            status: uploadRatio >= 1 ? "processing" : "uploading",
-                                            progress: uploadRatio >= 1 ? 88 : uploadProgress,
-                                            phaseLabel: uploadRatio >= 1 ? "Processing" : "Uploading",
-                                        }
+                                              ...entry,
+                                              status: uploadRatio >= 1 ? "processing" : "uploading",
+                                              progress: uploadRatio >= 1 ? 88 : uploadProgress,
+                                              phaseLabel:
+                                                  uploadRatio >= 1 ? "Processing" : "Uploading",
+                                          }
                                         : entry
                                 )
                             );
@@ -276,28 +341,42 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                     current.map((entry) =>
                         entry.id === item.id
                             ? {
-                                ...entry,
-                                status: "processing",
-                                progress: Math.max(entry.progress, 88),
-                                phaseLabel: "Queued for processing",
-                            }
+                                  ...entry,
+                                  jobId: acceptedResponse.data.jobId,
+                                  status: "processing",
+                                  progress: Math.max(entry.progress, 88),
+                                  phaseLabel: "Queued for processing",
+                              }
                             : entry
                     )
                 );
+                if (!hasQueueItem(item.id)) {
+                    void apiClient
+                        .delete(`${API_BASE}/ingest/upload-jobs/${acceptedResponse.data.jobId}`)
+                        .catch(() => undefined);
+                    return;
+                }
 
                 const ingestResult = await pollIngestJob(item, acceptedResponse.data.jobId);
+                if (!hasQueueItem(item.id)) return;
 
                 const completedItem: UploadQueueItem = {
                     ...item,
+                    jobId: acceptedResponse.data.jobId,
                     status: "completed",
                     progress: 100,
                     phaseLabel: "Uploaded",
                     error: null,
                     response: ingestResult,
                 };
-                commitItems((current) => current.map((entry) => (entry.id === item.id ? completedItem : entry)));
+                commitItems((current) =>
+                    current.map((entry) => (entry.id === item.id ? completedItem : entry))
+                );
                 notifyCompletion({ item: completedItem, ok: true });
             } catch (error) {
+                if (isUploadQueueItemRemovedError(error) || !hasQueueItem(item.id)) {
+                    return;
+                }
                 const failedItem: UploadQueueItem = {
                     ...item,
                     status: "failed",
@@ -305,11 +384,13 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                     phaseLabel: "Failed",
                     error: getUploadErrorMessage(error),
                 };
-                commitItems((current) => current.map((entry) => (entry.id === item.id ? failedItem : entry)));
+                commitItems((current) =>
+                    current.map((entry) => (entry.id === item.id ? failedItem : entry))
+                );
                 notifyCompletion({ item: failedItem, ok: false });
             }
         },
-        [commitItems, notifyCompletion, pollIngestJob, readFileAsBase64]
+        [commitItems, hasQueueItem, notifyCompletion, pollIngestJob, readFileAsBase64]
     );
 
     const processQueue = useCallback(async () => {
@@ -353,6 +434,7 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                     phaseLabel: isSupported ? "Queued" : "Unsupported file",
                     error: isSupported ? null : "Upload PDF, DOC, DOCX, TXT, PPTX, or XLSX files.",
                     response: null,
+                    jobId: null,
                 };
             });
 
@@ -384,6 +466,7 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                         phaseLabel: "Queued",
                         error: null,
                         response: null,
+                        jobId: null,
                     };
                 })
             );
@@ -392,16 +475,43 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
         [commitItems, processQueue]
     );
 
+    const removeItem = useCallback(
+        (itemId: string) => {
+            const item = itemsRef.current.find((entry) => entry.id === itemId);
+            if (!item) return;
+
+            fileReadersRef.current.get(itemId)?.abort();
+            fileReadersRef.current.delete(itemId);
+            commitItems((current) => current.filter((entry) => entry.id !== itemId));
+
+            const hasBackendJob =
+                item.jobId &&
+                (item.status === "queued" ||
+                    item.status === "reading" ||
+                    item.status === "uploading" ||
+                    item.status === "processing");
+            if (hasBackendJob) {
+                void apiClient
+                    .delete(`${API_BASE}/ingest/upload-jobs/${item.jobId}`)
+                    .catch(() => undefined);
+            }
+        },
+        [commitItems]
+    );
+
     const clearCompleted = useCallback(() => {
         commitItems((current) => current.filter((item) => item.status !== "completed"));
     }, [commitItems]);
 
-    const subscribeToCompletions = useCallback((handler: (event: UploadCompletionEvent) => void) => {
-        subscribersRef.current.add(handler);
-        return () => {
-            subscribersRef.current.delete(handler);
-        };
-    }, []);
+    const subscribeToCompletions = useCallback(
+        (handler: (event: UploadCompletionEvent) => void) => {
+            subscribersRef.current.add(handler);
+            return () => {
+                subscribersRef.current.delete(handler);
+            };
+        },
+        []
+    );
 
     const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
         if (event.target.files) {
@@ -431,8 +541,12 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
         enqueueFiles(event.dataTransfer.files, targetRef.current);
     };
 
-    const hasActiveUploads = items.some((item) =>
-        item.status === "queued" || item.status === "reading" || item.status === "uploading" || item.status === "processing"
+    const hasActiveUploads = items.some(
+        (item) =>
+            item.status === "queued" ||
+            item.status === "reading" ||
+            item.status === "uploading" ||
+            item.status === "processing"
     );
     const completedCount = items.filter((item) => item.status === "completed").length;
     const failedCount = items.filter((item) => item.status === "failed").length;
@@ -449,6 +563,7 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
             closeModal,
             openFilePicker,
             retryItem,
+            removeItem,
             clearCompleted,
             subscribeToCompletions,
         }),
@@ -461,6 +576,7 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
             items,
             openFilePicker,
             openModal,
+            removeItem,
             retryItem,
             subscribeToCompletions,
         ]
@@ -493,7 +609,12 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                                 <h2 id="upload-queue-title">Upload files</h2>
                                 <p>{activeTargetLabel}</p>
                             </div>
-                            <button className="upload-queue-close" type="button" onClick={closeModal} aria-label="Close upload queue">
+                            <button
+                                className="upload-queue-close"
+                                type="button"
+                                onClick={closeModal}
+                                aria-label="Close upload queue"
+                            >
                                 x
                             </button>
                         </div>
@@ -505,7 +626,16 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                             onDrop={handleModalDrop}
                         >
                             <div className="upload-queue-drop-icon" aria-hidden="true">
-                                <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                                <svg
+                                    width="26"
+                                    height="26"
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                >
                                     <path d="M12 16V4" />
                                     <path d="m7 9 5-5 5 5" />
                                     <path d="M20 16.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-2.5" />
@@ -513,9 +643,15 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                             </div>
                             <div>
                                 <div className="upload-queue-drop-title">Drop files here</div>
-                                <div className="upload-queue-drop-copy">PDF, DOC, DOCX, TXT, PPTX, XLSX</div>
+                                <div className="upload-queue-drop-copy">
+                                    PDF, DOC, DOCX, TXT, PPTX, XLSX
+                                </div>
                             </div>
-                            <button className="upload-queue-add-btn" type="button" onClick={() => fileInputRef.current?.click()}>
+                            <button
+                                className="upload-queue-add-btn"
+                                type="button"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
                                 Upload files
                             </button>
                         </div>
@@ -523,7 +659,9 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                         <div className="upload-queue-summary">
                             <span>{totalCount} queued</span>
                             <span>{completedCount} uploaded</span>
-                            {failedCount > 0 && <span className="failed">{failedCount} failed</span>}
+                            {failedCount > 0 && (
+                                <span className="failed">{failedCount} failed</span>
+                            )}
                         </div>
 
                         <div className="upload-queue-list" role="list" aria-label="Upload queue">
@@ -531,34 +669,69 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
                                 <div className="upload-queue-empty">No files queued.</div>
                             ) : (
                                 items.map((item) => {
-                                    const canRetry = item.status === "failed" && isSupportedUploadFile(item.fileName);
+                                    const canRetry =
+                                        item.status === "failed" &&
+                                        isSupportedUploadFile(item.fileName);
                                     return (
-                                        <div key={item.id} className={`upload-queue-item ${item.status}`} role="listitem">
+                                        <div
+                                            key={item.id}
+                                            className={`upload-queue-item ${item.status}`}
+                                            role="listitem"
+                                        >
                                             <div className="upload-queue-item-main">
                                                 <div className="upload-queue-file-row">
-                                                    <span className="upload-queue-file-name" title={item.fileName}>
+                                                    <span
+                                                        className="upload-queue-file-name"
+                                                        title={item.fileName}
+                                                    >
                                                         {item.fileName}
                                                     </span>
-                                                    <span className={`upload-queue-status ${item.status}`}>
+                                                    <span
+                                                        className={`upload-queue-status ${item.status}`}
+                                                    >
                                                         {statusLabel(item.status)}
                                                     </span>
                                                 </div>
                                                 <div className="upload-queue-file-meta">
                                                     <span>{formatBytes(item.size)}</span>
-                                                    <span>{item.collectionName || "Default collection"}</span>
+                                                    <span>
+                                                        {item.collectionName ||
+                                                            "Default collection"}
+                                                    </span>
                                                 </div>
-                                                <div className={`upload-queue-progress ${item.status === "processing" ? "indeterminate" : ""}`}>
-                                                    <span style={{ width: `${Math.max(0, Math.min(item.progress, 100))}%` }} />
+                                                <div
+                                                    className={`upload-queue-progress ${item.status === "processing" ? "indeterminate" : ""}`}
+                                                >
+                                                    <span
+                                                        style={{
+                                                            width: `${Math.max(0, Math.min(item.progress, 100))}%`,
+                                                        }}
+                                                    />
                                                 </div>
-                                                <div className={`upload-queue-phase ${item.status}`}>
+                                                <div
+                                                    className={`upload-queue-phase ${item.status}`}
+                                                >
                                                     {item.error || item.phaseLabel}
                                                 </div>
                                             </div>
-                                            {canRetry && (
-                                                <button className="upload-queue-retry" type="button" onClick={() => retryItem(item.id)}>
-                                                    Retry
+                                            <div className="upload-queue-actions">
+                                                {canRetry && (
+                                                    <button
+                                                        className="upload-queue-retry"
+                                                        type="button"
+                                                        onClick={() => retryItem(item.id)}
+                                                    >
+                                                        Retry
+                                                    </button>
+                                                )}
+                                                <button
+                                                    className="upload-queue-remove"
+                                                    type="button"
+                                                    onClick={() => removeItem(item.id)}
+                                                >
+                                                    Remove
                                                 </button>
-                                            )}
+                                            </div>
                                         </div>
                                     );
                                 })
@@ -580,14 +753,26 @@ export function UploadQueueProvider({ children }: { children: ReactNode }) {
             )}
 
             {!isModalOpen && items.length > 0 && (
-                <button className="upload-queue-dock" type="button" onClick={() => openModal()} aria-label="Open upload queue">
-                    <span className={`upload-queue-dock-dot ${hasActiveUploads ? "active" : failedCount > 0 ? "failed" : "completed"}`} />
+                <button
+                    className="upload-queue-dock"
+                    type="button"
+                    onClick={() => openModal()}
+                    aria-label="Open upload queue"
+                >
+                    <span
+                        className={`upload-queue-dock-dot ${hasActiveUploads ? "active" : failedCount > 0 ? "failed" : "completed"}`}
+                    />
                     <span className="upload-queue-dock-main">
                         <span className="upload-queue-dock-title">
-                            {hasActiveUploads ? "Uploads running" : failedCount > 0 ? "Uploads need attention" : "Uploads complete"}
+                            {hasActiveUploads
+                                ? "Uploads running"
+                                : failedCount > 0
+                                  ? "Uploads need attention"
+                                  : "Uploads complete"}
                         </span>
                         <span className="upload-queue-dock-meta">
-                            {completedCount}/{totalCount} uploaded{failedCount > 0 ? `, ${failedCount} failed` : ""}
+                            {completedCount}/{totalCount} uploaded
+                            {failedCount > 0 ? `, ${failedCount} failed` : ""}
                         </span>
                     </span>
                 </button>

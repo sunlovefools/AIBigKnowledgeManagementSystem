@@ -258,6 +258,7 @@ def _save_chat_message(
     search_scope: str | None = None,
     collection_id: str | None = None,
     collection_name: str | None = None,
+    progress_trace: dict[str, Any] | None = None,
 ):
     if chat_collection is None:
         return None
@@ -311,6 +312,8 @@ def _save_chat_message(
         chat_document["searchScope"] = search_scope
         chat_document["collectionId"] = collection_id
         chat_document["collectionName"] = collection_name
+    if isinstance(progress_trace, dict) and progress_trace:
+        chat_document["progressTrace"] = progress_trace
 
     result = chat_collection.insert_one(chat_document)
 
@@ -339,6 +342,7 @@ def _save_chat_message(
         "searchScope": search_scope,
         "collectionId": collection_id,
         "collectionName": collection_name,
+        "progressTrace": progress_trace if isinstance(progress_trace, dict) and progress_trace else None,
     }
 
 

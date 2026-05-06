@@ -2,7 +2,7 @@ import { useMemo, useState, type RefObject } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeHighlight from "rehype-highlight";
-import type { ChatMessage, ChatProgressStep, ChatProgressTranscriptItem } from "../types";
+import type { ChatMessage, ChatProgressSnapshot, ChatProgressStep, ChatProgressTranscriptItem } from "../types";
 
 type ChatAreaProps = {
     messages: ChatMessage[];
@@ -70,6 +70,72 @@ function getScopeLabel(message: ChatMessage): string | null {
     return `${verb} ${message.collectionName || "selected collection"}`;
 }
 
+function getProgressTraceLabel(trace: ChatProgressSnapshot): string {
+    if (trace.status === "failed") return "Agentic search process failed";
+    if (trace.scope === "standard-search") return "Search process";
+    return "Agentic search process";
+}
+
+function renderProgressTranscriptItems(
+    messageId: string,
+    transcriptItems: ChatProgressTranscriptItem[]
+) {
+    if (transcriptItems.length === 0) return null;
+
+    return (
+        <div className="progress-transcript" aria-label="Agent activity">
+            {transcriptItems.map((item, index) => (
+                <div
+                    key={`${messageId}-transcript-${index}`}
+                    className={`progress-transcript-item ${item.role} ${item.status || "running"}`}
+                >
+                    <div className="progress-transcript-title">
+                        {getTranscriptTitle(item)}
+                    </div>
+                    <div className="progress-transcript-summary">
+                        {item.summary}
+                    </div>
+                    {item.detail && (
+                        <div className="progress-transcript-detail">
+                            {item.detail}
+                        </div>
+                    )}
+                </div>
+            ))}
+        </div>
+    );
+}
+
+function renderProgressStepList(
+    messageId: string,
+    steps: ChatProgressStep[],
+    scope: ChatProgressSnapshot["scope"]
+) {
+    if (steps.length === 0) return null;
+
+    return (
+        <ul className="progress-step-list">
+            {steps.map((step, index) => {
+                const detailRows = renderStepDetails(step, scope);
+                return (
+                    <li key={`${messageId}-step-${index}`} className="progress-step-item">
+                        <div className="progress-step-primary">
+                            {renderStepLabel(step)}
+                        </div>
+                        {detailRows.length > 0 && (
+                            <div className="progress-step-details">
+                                {detailRows.map((row, rowIndex) => (
+                                    <div key={`${messageId}-step-${index}-detail-${rowIndex}`}>{row}</div>
+                                ))}
+                            </div>
+                        )}
+                    </li>
+                );
+            })}
+        </ul>
+    );
+}
+
 export default function ChatArea({
     messages,
     bottomRef,
@@ -117,6 +183,9 @@ export default function ChatArea({
                     {messages.map((msg) => {
                         if (msg.kind === "text") {
                             const scopeLabel = getScopeLabel(msg);
+                            const progressTrace = msg.progressTrace;
+                            const isTraceExpanded = expandedHistoryByMessageId[msg.id] ?? false;
+                            const traceStepCount = progressTrace?.steps.length ?? 0;
                             return (
                                 <div key={msg.id} className={`message ${msg.role}`}>
                                     <div className="message-avatar">
@@ -129,6 +198,33 @@ export default function ChatArea({
                                         >
                                             {msg.text}
                                         </ReactMarkdown>
+                                        {progressTrace && (
+                                            <div className={`message-progress-trace ${progressTrace.status}`}>
+                                                <button
+                                                    type="button"
+                                                    className={`message-progress-toggle ${isTraceExpanded ? "expanded" : ""}`}
+                                                    onClick={() => toggleHistory(msg.id)}
+                                                    aria-expanded={isTraceExpanded}
+                                                    aria-label={isTraceExpanded ? "Collapse search process" : "Expand search process"}
+                                                    title={isTraceExpanded ? "Collapse search process" : "Expand search process"}
+                                                >
+                                                    <span className="progress-chevron" aria-hidden="true" />
+                                                    <span>{getProgressTraceLabel(progressTrace)}</span>
+                                                    {traceStepCount > 0 && (
+                                                        <span className="message-progress-count">{traceStepCount} step(s)</span>
+                                                    )}
+                                                </button>
+                                                {isTraceExpanded && (
+                                                    <div className="message-progress-panel">
+                                                        <div className="message-progress-current">
+                                                            {progressTrace.currentStageText}
+                                                        </div>
+                                                        {renderProgressTranscriptItems(msg.id, progressTrace.transcript)}
+                                                        {renderProgressStepList(msg.id, progressTrace.steps, progressTrace.scope)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                        )}
                                         {scopeLabel && <div className="message-scope-label">{scopeLabel}</div>}
                                     </div>
                                 </div>
@@ -168,49 +264,10 @@ export default function ChatArea({
                                         )}
                                     </div>
 
-                                    {transcriptItems.length > 0 && (
-                                        <div className="progress-transcript" aria-label="Agent activity">
-                                            {transcriptItems.map((item, index) => (
-                                                <div
-                                                    key={`${msg.id}-transcript-${index}`}
-                                                    className={`progress-transcript-item ${item.role} ${item.status || "running"}`}
-                                                >
-                                                    <div className="progress-transcript-title">
-                                                        {getTranscriptTitle(item)}
-                                                    </div>
-                                                    <div className="progress-transcript-summary">
-                                                        {item.summary}
-                                                    </div>
-                                                    {item.detail && (
-                                                        <div className="progress-transcript-detail">
-                                                            {item.detail}
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                    {renderProgressTranscriptItems(msg.id, transcriptItems)}
 
                                     {historyCount > 0 && isExpanded && (
-                                        <ul className="progress-step-list">
-                                            {historicalSteps.map((step, index) => {
-                                                const detailRows = renderStepDetails(step, msg.scope);
-                                                return (
-                                                    <li key={`${msg.id}-step-${index}`} className="progress-step-item">
-                                                        <div className="progress-step-primary">
-                                                            {renderStepLabel(step)}
-                                                        </div>
-                                                        {detailRows.length > 0 && (
-                                                            <div className="progress-step-details">
-                                                                {detailRows.map((row, rowIndex) => (
-                                                                    <div key={`${msg.id}-step-${index}-detail-${rowIndex}`}>{row}</div>
-                                                                ))}
-                                                            </div>
-                                                        )}
-                                                    </li>
-                                                );
-                                            })}
-                                        </ul>
+                                        renderProgressStepList(msg.id, historicalSteps, msg.scope)
                                     )}
                                 </div>
                             </div>

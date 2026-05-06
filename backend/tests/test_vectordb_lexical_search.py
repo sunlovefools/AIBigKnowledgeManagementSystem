@@ -267,6 +267,19 @@ def test_normalize_parent_document_prepends_semantic_table_context():
                 "table_semantic": {
                     "general_description": "Quarterly regional performance table.",
                     "col_headers": ["Region", "Q1"],
+                    "section_name": "Main Report",
+                    "criteria_names": ["Requirements", "Reflection"],
+                    "weights": ["15%", "12%"],
+                    "structured_rows": [
+                        {
+                            "label": "Requirements",
+                            "weights": ["15%"],
+                            "cells": {
+                                "Region": "APAC",
+                                "Q1": "10",
+                            },
+                        }
+                    ],
                 }
             },
         },
@@ -275,9 +288,13 @@ def test_normalize_parent_document_prepends_semantic_table_context():
     normalized = vectordb._normalize_parent_document(raw_doc)
     assert normalized is not None
     assert normalized["page_content"].startswith(
-        "General Description: Quarterly regional performance table."
+        "Section: Main Report"
     )
+    assert "General Description: Quarterly regional performance table." in normalized["page_content"]
+    assert "Criteria Names: Requirements, Reflection" in normalized["page_content"]
+    assert "Weights: 15%, 12%" in normalized["page_content"]
     assert "Headers:\n| Region | Q1 |\n| --- | --- |" in normalized["page_content"]
+    assert "Structured Rows:\n- Requirements | weights: 15% | Region: APAC; Q1: 10" in normalized["page_content"]
 
 
 def test_normalize_parent_document_leaves_non_semantic_content_unchanged():
