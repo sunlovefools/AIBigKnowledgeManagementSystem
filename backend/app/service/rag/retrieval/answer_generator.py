@@ -1,64 +1,41 @@
-import aiohttp
-import asyncio
-import os
+"""Compatibility facade for answer generation entrypoints.
 
-# ============================================================
-# Beam Answer Generator Configuration
-# ============================================================
-BEAM_ANSWER_URL = os.getenv("BEAM_ANSWER_GENERATOR_LLM_URL")  # e.g. https://api.beam.cloud/v1/qwen-1_5b-answer-generator
-BEAM_ANSWER_KEY = os.getenv("BEAM_ANSWER_GENERATOR_LLM_KEY")  # Your Beam API Key
+This module keeps legacy imports stable while delegating all implementation logic to
+`answer_generation.orchestration`. It exists to preserve caller compatibility and should
+not contain provider, transport, or normalization business logic.
+"""
 
+from __future__ import annotations
 
-HEADERS = {
-    "Authorization": f"Bearer {BEAM_ANSWER_KEY}",
-    "Content-Type": "application/json"
-}
+from typing import Any
+
+__all__ = ["generate_answer", "generate_answer_api"]
 
 
-# ============================================================
-# Call Beam Answer Generator (Async)
-# ============================================================
-async def generate_answer(rag_contents: list[str], user_query: str) -> str:
-    """
-    Calls the Beam Answer Generator Endpoint with:
-    - rag_context (string)
-    - user_query (string)
+async def generate_answer(rag_docs: list[dict[str, Any]], user_query: str) -> str:
+    """Forward answer generation calls to the refactored orchestration module.
 
     Args:
-        rag_contents: list of text chunks returned by similarity search
-        user_query: the user question
+        rag_docs: Retrieved RAG documents as dictionaries.
+        user_query: Raw user query text.
 
     Returns:
-        The final structured answer from Beam LLM.
+        Generated answer text from the selected provider.
     """
+    # Keep lazy import to avoid loading orchestration dependencies at import time.
+    from .answer_generation.orchestration import generate_answer as _generate_answer
 
-    if not BEAM_ANSWER_URL or not BEAM_ANSWER_KEY:
-        raise RuntimeError("Beam Answer Generator config missing. Set BEAM_ANSWER_URL and BEAM_ANSWER_KEY.")
+    return await _generate_answer(rag_docs, user_query)
 
-    # Convert list of chunks into a single context string
-    rag_context = "\n\n".join(rag_contents)
 
-    payload = {
-        "rag_context": rag_context,
-        "user_query": user_query,
-        # "max_new_tokens": 350 (optional, it is defaulted 400 at Beam endpoint)
-    }
+async def generate_answer_api(rag_docs: list[dict[str, Any]], user_query: str) -> str:
+    """Compatibility wrapper that preserves historical `generate_answer_api` usage.
 
-    # Debug: Print payload
-    print("🚀 Sending payload to Beam Answer Generator:")
-    async with aiohttp.ClientSession() as session:
-        try:
-            async with session.post(BEAM_ANSWER_URL, json=payload, headers=HEADERS, timeout=60) as resp:
-                if resp.status != 200:
-                    error_text = await resp.text()
-                    raise RuntimeError(f"Beam Answer API Error ({resp.status}): {error_text}")
+    Args:
+        rag_docs: Retrieved RAG documents as dictionaries.
+        user_query: Raw user query text.
 
-                data = await resp.json()
-                return data.get("answer", "No answer returned by Beam")
-        
-        except asyncio.TimeoutError:
-            raise RuntimeError("Beam Answer Generator timed out.")
-        
-        except Exception as e:
-            raise RuntimeError(f"Beam Answer Generator failed: {str(e)}")
-
+    Returns:
+        Generated answer text.
+    """
+    return await generate_answer(rag_docs, user_query)
