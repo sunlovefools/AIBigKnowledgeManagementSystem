@@ -6238,3 +6238,76 @@ html,
         box-shadow: 0 10px 24px rgba(18, 68, 121, 0.08);
     }
 }
+
+/* Final mobile workspace overrides. Keep this block last so the app-level
+   navigation and later theme refinements cannot push mobile tabs off-screen. */
+@media (max-width: 1024px) {
+    .mainpage-shell {
+        position: relative;
+        display: block;
+        width: 100vw;
+        height: 100dvh;
+        min-height: 100dvh;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .mainpage-shell > .global-sidebar.mainpage {
+        display: none !important;
+    }
+
+    .mainpage-shell .app-root.mobile-layout {
+        position: relative;
+        display: block;
+        width: 100vw;
+        height: 100dvh;
+        min-height: 100dvh;
+        padding: 0;
+        overflow: hidden;
+    }
+
+    .mobile-layout .main-content,
+    .mobile-layout .sidebar-container,
+    .mobile-layout .mod-panel-container {
+        position: absolute;
+        inset: 0 0 calc(var(--mobile-switcher-height) + env(safe-area-inset-bottom)) 0;
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .mobile-layout .sidebar-container,
+    .mobile-layout .mod-panel-container {
+        z-index: 30;
+    }
+
+    .mobile-layout .main-content {
+        z-index: 20;
+    }
+
+    .mobile-workspace-switcher {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 1000;
+        height: calc(var(--mobile-switcher-height) + env(safe-area-inset-bottom));
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+        box-sizing: border-box;
+    }
+
+    .mobile-workspace-button {
+        min-width: 0;
+        min-height: 44px;
+        width: 100%;
+        padding: 6px 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
