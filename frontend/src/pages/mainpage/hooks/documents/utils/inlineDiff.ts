@@ -197,6 +197,54 @@ function hunkType(originalText: string, proposedText: string): ProposalHunk["typ
     return "replace";
 }
 
+function isReviewTokenCharacter(char: string): boolean {
+    return /[A-Za-z0-9_%]/.test(char);
+}
+
+function expandReplaceHunkToToken(original: string, proposed: string, hunk: ProposalHunk): ProposalHunk {
+    if (hunk.type !== "replace" || !hunk.originalText || !hunk.proposedText) return hunk;
+
+    let originalStart = hunk.originalStart;
+    let originalEnd = hunk.originalEnd;
+    let proposedStart = hunk.proposedStart;
+    let proposedEnd = hunk.proposedEnd;
+
+    while (originalStart > 0 && isReviewTokenCharacter(original[originalStart - 1])) {
+        originalStart -= 1;
+    }
+    while (originalEnd < original.length && isReviewTokenCharacter(original[originalEnd])) {
+        originalEnd += 1;
+    }
+    while (proposedStart > 0 && isReviewTokenCharacter(proposed[proposedStart - 1])) {
+        proposedStart -= 1;
+    }
+    while (proposedEnd < proposed.length && isReviewTokenCharacter(proposed[proposedEnd])) {
+        proposedEnd += 1;
+    }
+
+    if (
+        originalStart === hunk.originalStart &&
+        originalEnd === hunk.originalEnd &&
+        proposedStart === hunk.proposedStart &&
+        proposedEnd === hunk.proposedEnd
+    ) {
+        return hunk;
+    }
+
+    const originalText = original.slice(originalStart, originalEnd);
+    const proposedText = proposed.slice(proposedStart, proposedEnd);
+    return {
+        type: hunkType(originalText, proposedText),
+        originalStart,
+        originalEnd,
+        proposedStart,
+        proposedEnd,
+        originalText,
+        proposedText,
+        tokens: buildInlineDiffTokens(originalText, proposedText),
+    };
+}
+
 // Returns compact changed ranges for one proposal, avoiding full parent-chunk highlight boxes.
 export function buildProposalHunks(original: string, proposed: string): ProposalHunk[] {
     if (original === proposed) return [];
@@ -230,7 +278,7 @@ export function buildProposalHunks(original: string, proposed: string): Proposal
         const proposedEnd = Math.max(...current.map((token) => token.proposedEnd));
         const originalText = windowOriginal.slice(originalStart, originalEnd);
         const proposedText = windowProposed.slice(proposedStart, proposedEnd);
-        hunks.push({
+        const hunk = {
             type: hunkType(originalText, proposedText),
             originalStart: window.originalStart + originalStart,
             originalEnd: window.originalStart + originalEnd,
@@ -239,7 +287,8 @@ export function buildProposalHunks(original: string, proposed: string): Proposal
             originalText,
             proposedText,
             tokens: mergeAdjacent(current.map(({ type, text }) => ({ type, text }))),
-        });
+        };
+        hunks.push(expandReplaceHunkToToken(original, proposed, hunk));
         current = [];
     };
 
