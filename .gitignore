@@ -29,15 +29,9 @@ Thumbs.db
 .vscode/
 .idea/
 
-# __pycache__/
-*.pyc
-
-cgi-backend-server.pem
-cgi-backend-server.pem
-nginx/ssl/cert.pem
-nginx/ssl/key.pem
-#pem
+# Secrets and certificates
 *.pem
+nginx/ssl/*.pem
 
 # Debug logs
 backend/debug/logs/

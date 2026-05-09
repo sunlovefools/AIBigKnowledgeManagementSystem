@@ -34,10 +34,21 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Validate deployment config
+        run: test -n "$VITE_API_BASE"
+        env:
+          VITE_API_BASE: ${{ secrets.VITE_API_BASE }}
+
       - name: Build
         run: npm run build
         env:
           VITE_API_BASE: ${{ secrets.VITE_API_BASE }}
+          VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH || '/AIBigKnowledgeManagementSystem/' }}
+          VITE_AUTH0_DOMAIN: ${{ secrets.VITE_AUTH0_DOMAIN }}
+          VITE_AUTH0_CLIENT_ID: ${{ secrets.VITE_AUTH0_CLIENT_ID }}
+          VITE_AUTH0_AUDIENCE: ${{ secrets.VITE_AUTH0_AUDIENCE }}
+          VITE_AUTH0_REDIRECT_URI: ${{ vars.VITE_AUTH0_REDIRECT_URI || 'https://sunlovefools.github.io/AIBigKnowledgeManagementSystem/login' }}
+          VITE_AUTH0_LOGOUT_RETURN_TO: ${{ vars.VITE_AUTH0_LOGOUT_RETURN_TO || 'https://sunlovefools.github.io/AIBigKnowledgeManagementSystem/' }}
 
       # For single-page apps (React Router)
       - name: Fix for SPA refresh

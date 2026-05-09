@@ -20,6 +20,12 @@ export const AUTH0_REDIRECT_URI = _normalizeEnvValue(import.meta.env.VITE_AUTH0_
 export const AUTH0_LOGOUT_RETURN_TO = _normalizeEnvValue(import.meta.env.VITE_AUTH0_LOGOUT_RETURN_TO);
 export const CHAT_TEST_USER_EMAIL = _normalizeEnvValue(import.meta.env.VITE_CHAT_TEST_USER_EMAIL);
 
+export function canRunAuth0InCurrentOrigin(): boolean {
+    if (typeof window === "undefined") return true;
+    const { protocol, hostname } = window.location;
+    return protocol === "https:" || hostname === "localhost" || hostname === "127.0.0.1";
+}
+
 export function hasConfiguredValue(value: string): boolean {
     const normalized = value.trim();
     return normalized.length > 0 && !normalized.startsWith("your-");

@@ -1,5 +1,5 @@
-import os
 import logging
+import os
 from contextlib import asynccontextmanager
 
 from dotenv import load_dotenv
@@ -7,7 +7,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-load_dotenv() # Need to be called before the local import below
+load_dotenv()  # Need to be called before the local import below
 
 from app.mcp.server import mcp_asgi_app, rag_mcp
 
@@ -37,79 +37,84 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 # Local imports
-import app.api.router_ingest as ingest_router
-import app.api.router_query as query_router
-import app.api.router_conversations as conversations_router
-import app.api.router_modifications as modifications_router
-import app.api.router_retrieve as retrieve_router
 import app.api.router_agent as agent_router
-import app.api.router_collections as collections_router
 import app.api.router_auth as auth_router  # ADDED: uncommented now that auth is implemented
+import app.api.router_collections as collections_router
+import app.api.router_conversations as conversations_router
+import app.api.router_ingest as ingest_router
+import app.api.router_modifications as modifications_router
+import app.api.router_query as query_router
+import app.api.router_retrieve as retrieve_router
 
+CORS_ORIGINS = [
+    origin.strip()
+    for origin in os.getenv(
+        "CORS_ORIGINS",
+        "http://localhost:5173,https://sunlovefools.github.io",
+    ).split(",")
+    if origin.strip()
+]
 
-# Allow requests from your React dev server (localhost:5173)
-# When allow_credentials=True, you must specify explicit origins (can't use "*")
-# explain about the line below
-# This is a security measure to prevent unauthorized domains from accessing your API
+# Allow requests from your React dev server and deployed frontend.
+# When allow_credentials=True, you must specify explicit origins.
 app.add_middleware(
     CORSMiddleware,
-    # This is a security measure to prevent unauthorized domains from accessing our API
-    allow_origins=["*"],  # dev origins, during production, specify your frontend domain here, eg. ["https://myfrontend.com"]
-    allow_credentials=True, # Allow cookies, authorization headers, etc in the requests to the backend
-    allow_methods=["*"], # Allow all HTTP methods (GET, POST, PUT, DELETE, etc)
-    allow_headers=["*"], # Allow all headers, including custom headers
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
     expose_headers=["Mcp-Session-Id"],
-    # Popular headers include Authorization, Content-Type, X-Requested-With, etc.
 )
 
 # --- Router Registration ---
 
 # Authentication router  # ADDED: uncommented now that auth is implemented
 app.include_router(
-   auth_router.router,      # The router object from router_auth.py
-   prefix="/auth",           # All routes from this file will start with /auth
-   tags=["Authentication"]   # Groups them nicely in the API docs
+    auth_router.router,
+    prefix="/auth",
+    tags=["Authentication"],
 )
 
 # Ingestion router
 app.include_router(
     ingest_router.router,
     prefix="/ingest",
-    tags=["Ingestion"]
+    tags=["Ingestion"],
 )
 
 # Query router
 app.include_router(
-    query_router.router, 
-    prefix="/api", 
-    tags=["Query"])
+    query_router.router,
+    prefix="/api",
+    tags=["Query"],
+)
 
 # Conversations router
 app.include_router(
     conversations_router.router,
     prefix="/api",
-    tags=["Conversations"]
+    tags=["Conversations"],
 )
 
 # Modifications router
 app.include_router(
     modifications_router.router,
     prefix="/api/modifications",
-    tags=["Modifications"]
+    tags=["Modifications"],
 )
 
 # Retrieve router
 app.include_router(
     retrieve_router.router,
     prefix="/api/retrieve",
-    tags=["Retrieve"]
+    tags=["Retrieve"],
 )
 
 # Agent router
 app.include_router(
     agent_router.router,
     prefix="/api/agent",
-    tags=["Agent"]
+    tags=["Agent"],
 )
 
 # Collections router
@@ -121,18 +126,20 @@ app.include_router(
 
 app.mount("/api/mcp", mcp_asgi_app)
 
+
 # --- Data Models ---
-# TEST FOR SENDINGQUERY TO BACKEND
 class QueryRequest(BaseModel):
     """Request model for testing backend query endpoint."""
+
     query: str
-# TEST FOR SENDING QUERY TO BACKEND
+
 
 # --- Endpoints ---
 @app.get("/hello")
 def hello_from_backend():
     """Simple test endpoint to verify backend is running."""
     return {"message": "Hello from backend"}
+
 
 @app.post("/query")
 async def ask_user(body: QueryRequest):
