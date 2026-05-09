@@ -3800,32 +3800,42 @@ html,
 }
 
 .review-suggestion-widget {
-    display: inline-flex;
-    align-items: center;
+    display: inline-grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 6px;
-    max-width: min(100%, 520px);
-    margin: 0 4px;
-    vertical-align: middle;
-    white-space: nowrap;
+    max-width: min(100%, 300px);
+    margin: 6px 6px 6px 0;
+    padding: 6px;
+    vertical-align: baseline;
+    white-space: normal;
     position: relative;
     z-index: 2;
+    border: 1px solid #d8eafd;
+    border-radius: 12px;
+    background: #f8fcff;
+    box-shadow: 0 6px 16px rgba(18, 68, 121, 0.08);
+    font-size: 0.82rem;
+    line-height: 1.25;
 }
 
 .review-suggestion-pill {
     display: inline-flex;
     align-items: center;
-    max-width: min(100%, 320px);
+    justify-content: center;
+    width: 100%;
+    max-width: 100%;
     border: 1px solid #bbf7d0;
-    border-radius: 999px;
+    border-radius: 9px;
     background: #ecfdf5;
     color: #166534;
-    padding: 2px 8px;
-    font-size: 0.72rem;
+    padding: 5px 8px;
+    font-size: 0.82rem;
     font-weight: 800;
-    line-height: 1.4;
+    line-height: 1.25;
     cursor: pointer;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    overflow-wrap: anywhere;
+    text-align: center;
+    white-space: normal;
 }
 
 .desktop-stage-file-name-editor {
@@ -3883,32 +3893,27 @@ html,
 }
 
 .review-suggestion-actions {
-    display: none;
-    position: absolute;
-    left: 0;
-    top: calc(100% + 5px);
+    display: grid;
+    position: static;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
     z-index: 30;
     align-items: center;
-    gap: 5px;
-    padding: 3px;
-    border: 1px solid #dbeafe;
-    border-radius: 999px;
-    background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
-    white-space: nowrap;
-}
-
-.review-suggestion-widget.active .review-suggestion-actions,
-.review-suggestion-widget:focus-within .review-suggestion-actions,
-.review-suggestion-widget:hover .review-suggestion-actions {
-    display: inline-flex;
+    gap: 6px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    white-space: normal;
 }
 
 .review-action {
     border: 1px solid transparent;
-    border-radius: 999px;
-    padding: 4px 9px;
-    font-size: 0.7rem;
+    border-radius: 9px;
+    min-height: 30px;
+    padding: 5px 8px;
+    font-size: 0.78rem;
     font-weight: 850;
     line-height: 1.2;
     cursor: pointer;
@@ -4523,6 +4528,31 @@ html,
 .mainpage-shell button {
     border-radius: 8px;
     min-height: 36px;
+}
+
+.mainpage-shell .review-suggestion-widget,
+.mainpage-shell .review-suggestion-widget button,
+.mainpage-shell .review-suggestion-pill,
+.mainpage-shell .review-action {
+    font-family: inherit;
+    letter-spacing: 0;
+}
+
+.mainpage-shell .review-suggestion-widget {
+    font-size: 0.82rem;
+    line-height: 1.25;
+}
+
+.mainpage-shell .review-suggestion-pill {
+    min-height: 30px;
+    font-size: 0.82rem;
+    line-height: 1.25;
+}
+
+.mainpage-shell .review-action {
+    min-height: 30px;
+    font-size: 0.78rem;
+    line-height: 1.2;
 }
 
 .mainpage-shell a:focus-visible,
