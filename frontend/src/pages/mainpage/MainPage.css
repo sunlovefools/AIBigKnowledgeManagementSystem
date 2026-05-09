@@ -6385,6 +6385,142 @@ html,
         overflow: visible;
     }
 
+    .mobile-layout .mod-panel-agent-section {
+        padding: 8px;
+        margin-bottom: 10px;
+        box-shadow: none;
+    }
+
+    .mobile-layout .mod-panel-agent-card {
+        gap: 8px;
+        padding: 10px;
+        border-radius: 12px;
+        box-shadow: none;
+    }
+
+    .mobile-layout .mod-panel-agent-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: start;
+        gap: 8px;
+    }
+
+    .mobile-layout .mod-panel-agent-title-group h4 {
+        font-size: 0.8rem;
+        letter-spacing: 0.04em;
+    }
+
+    .mobile-layout .mod-panel-agent-title-group p {
+        font-size: 0.76rem;
+        line-height: 1.35;
+    }
+
+    .mobile-layout .mod-panel-agent-clear-btn {
+        min-height: 36px;
+        border-radius: 12px;
+        padding: 6px 10px;
+    }
+
+    .mobile-layout .mod-panel-agent-scope-row {
+        display: none;
+    }
+
+    .mobile-layout .mod-panel-agent-count-row span,
+    .mobile-layout .inline-review-summary-main span {
+        border-radius: 10px;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .mobile-layout .inline-review-summary {
+        gap: 8px;
+        padding: 8px;
+        box-shadow: none;
+    }
+
+    .mobile-layout .inline-review-bulk-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+
+    .mobile-layout .inline-review-bulk-btn {
+        min-height: 40px;
+        width: 100%;
+        border-radius: 12px;
+        justify-content: center;
+    }
+
+    .mobile-layout .mod-panel-selection-hint {
+        padding: 8px 10px;
+        font-size: 0.82rem;
+        line-height: 1.35;
+        border-radius: 10px;
+    }
+
+    .mobile-layout .mod-panel-document-flow.inline-review-active {
+        padding: 10px;
+        border-radius: 12px;
+        background: #ffffff;
+    }
+
+    .mobile-layout .review-text-marker {
+        padding: 0 3px;
+    }
+
+    .mobile-layout .review-suggestion-widget {
+        display: inline-grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 7px;
+        width: min(100%, 260px);
+        max-width: 100%;
+        margin: 8px 2px;
+        padding: 7px;
+        vertical-align: middle;
+        white-space: normal;
+        border: 1px solid #d8eafd;
+        border-radius: 14px;
+        background: #f8fcff;
+        box-shadow: 0 8px 18px rgba(18, 68, 121, 0.08);
+    }
+
+    .mobile-layout .review-suggestion-pill {
+        max-width: 100%;
+        width: 100%;
+        justify-content: center;
+        border-radius: 10px;
+        padding: 6px 8px;
+        font-size: 0.82rem;
+        line-height: 1.25;
+        white-space: normal;
+        overflow-wrap: anywhere;
+        text-align: center;
+    }
+
+    .mobile-layout .review-suggestion-actions,
+    .mobile-layout .review-suggestion-widget.active .review-suggestion-actions,
+    .mobile-layout .review-suggestion-widget:focus-within .review-suggestion-actions,
+    .mobile-layout .review-suggestion-widget:hover .review-suggestion-actions {
+        position: static;
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        width: 100%;
+        gap: 7px;
+        padding: 0;
+        border: 0;
+        border-radius: 0;
+        background: transparent;
+        box-shadow: none;
+    }
+
+    .mobile-layout .review-action {
+        min-height: 36px;
+        width: 100%;
+        border-radius: 10px;
+        padding: 6px 8px;
+        font-size: 0.78rem;
+    }
+
     .mobile-workspace-switcher {
         position: fixed;
         left: 0;
