@@ -2696,6 +2696,13 @@ html,
     color: var(--text-secondary);
 }
 
+.delete-confirm-target {
+    display: inline;
+    font-weight: 700;
+    color: var(--text-primary);
+    overflow-wrap: anywhere;
+}
+
 .delete-confirm-actions {
     display: flex;
     justify-content: flex-end;
