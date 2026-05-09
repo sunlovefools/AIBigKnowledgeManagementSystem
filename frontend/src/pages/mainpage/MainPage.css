@@ -6242,6 +6242,10 @@ html,
 /* Final mobile workspace overrides. Keep this block last so the app-level
    navigation and later theme refinements cannot push mobile tabs off-screen. */
 @media (max-width: 1024px) {
+    :root {
+        --mobile-global-nav-height: 58px;
+    }
+
     .mainpage-shell {
         position: relative;
         display: block;
@@ -6253,15 +6257,66 @@ html,
     }
 
     .mainpage-shell > .global-sidebar.mainpage {
-        display: none !important;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 1001;
+        width: 100%;
+        height: var(--mobile-global-nav-height);
+        padding: 8px 10px;
+        display: grid !important;
+        grid-template-columns: auto minmax(0, 1fr);
+        align-items: center;
+        gap: 8px;
+        overflow: hidden;
+        border-bottom: 1px solid #d8eafd;
+        background: rgba(255, 255, 255, 0.98);
+        box-shadow: 0 8px 22px rgba(18, 68, 121, 0.08);
+    }
+
+    .mainpage-shell > .global-sidebar.mainpage .global-sidebar-mainpage-brand {
+        min-width: 0;
+        gap: 0;
+    }
+
+    .mainpage-shell > .global-sidebar.mainpage .global-sidebar-mainpage-brand span:not(.global-sidebar-mainpage-dot) {
+        display: none;
+    }
+
+    .mainpage-shell > .global-sidebar.mainpage .global-sidebar-nav {
+        min-width: 0;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 6px;
+    }
+
+    .mainpage-shell > .global-sidebar.mainpage .global-sidebar-link.with-label {
+        min-width: 0;
+        min-height: 40px;
+        padding: 0 8px;
+        gap: 5px;
+        font-size: 0.78rem;
+        white-space: nowrap;
+        overflow: hidden;
+    }
+
+    .mainpage-shell > .global-sidebar.mainpage .global-sidebar-label {
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     .mainpage-shell .app-root.mobile-layout {
-        position: relative;
+        position: absolute;
+        top: var(--mobile-global-nav-height);
+        left: 0;
+        right: 0;
+        bottom: 0;
         display: block;
         width: 100vw;
-        height: 100dvh;
-        min-height: 100dvh;
+        height: auto;
+        min-height: 0;
         padding: 0;
         overflow: hidden;
     }
