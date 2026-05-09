@@ -91,6 +91,7 @@ export default function ConversationPage() {
         setInput,
         toggleAgenticSearch,
         appendMessage,
+        persistConversationTurn,
         startProgressMessage,
         pushProgressStep,
         finishProgressMessage,
@@ -251,9 +252,21 @@ export default function ConversationPage() {
                     );
                 appendMessage({
                     role: "ai",
-                        text: result.ok
-                            ? result.summary ?? "Review the proposals in the edit panel."
-                            : `Edit failed: ${result.error ?? "Unknown error"}`,
+                    text: result.ok
+                        ? result.summary ?? "Review the proposals in the edit panel."
+                        : `Edit failed: ${result.error ?? "Unknown error"}`,
+                });
+                const aiHistoryText = result.ok
+                    ? result.summary ?? "Review the proposals in the edit panel."
+                    : `Edit failed: ${result.error ?? "Unknown error"}`;
+                void persistConversationTurn({
+                    userText: textInput,
+                    aiText: aiHistoryText,
+                    searchScope: modificationCollectionScope.type === "collection" ? "collection" : "all_collections",
+                    collectionId: modificationCollectionScope.type === "collection" ? modificationCollectionScope.collectionId : null,
+                    collectionName: modificationCollectionScope.type === "collection" ? modificationCollectionScope.collectionName ?? null : null,
+                }).catch((error) => {
+                    console.warn("Failed to persist modification conversation turn:", error);
                 });
                 progressStatus = result.ok ? "completed" : "failed";
                 if (result.ok) {

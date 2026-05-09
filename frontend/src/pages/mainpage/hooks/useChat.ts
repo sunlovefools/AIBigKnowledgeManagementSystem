@@ -24,6 +24,15 @@ type AppendTextMessagePayload = {
     progressTrace?: ChatProgressSnapshot;
 };
 
+type PersistConversationTurnPayload = {
+    userText: string;
+    aiText: string;
+    searchScope?: QuerySearchScope;
+    collectionId?: string | null;
+    collectionName?: string | null;
+    progressTrace?: ChatProgressSnapshot;
+};
+
 type ConversationApiMessage = {
     messageId?: string;
     role?: string;
@@ -476,6 +485,34 @@ export function useChat() {
         setConversationMessagesError(null);
     }, []);
 
+    const persistConversationTurn = useCallback(
+        async (payload: PersistConversationTurnPayload): Promise<string | null> => {
+            const userText = payload.userText.trim();
+            const aiText = payload.aiText.trim();
+            if (!userText || !aiText) return conversationId;
+
+            const response = await apiClient.post(`${API_BASE}/api/conversations/turn`, {
+                user_text: userText,
+                ai_text: aiText,
+                conversation_id: conversationId,
+                searchScope: payload.searchScope,
+                collectionId: payload.collectionId ?? null,
+                collectionName: payload.collectionName ?? null,
+                progressTrace: payload.progressTrace,
+            });
+
+            const nextConversationId = typeof response.data?.conversation_id === "string"
+                ? response.data.conversation_id
+                : conversationId;
+            if (nextConversationId) {
+                setConversationId(nextConversationId);
+            }
+            void refreshConversations();
+            return nextConversationId;
+        },
+        [conversationId, refreshConversations]
+    );
+
     const pushProgressStep = useCallback((messageId: string, event: ProgressEventWithMetadata) => {
         const stage = String(event.stage || "").trim() || "processing";
         const detail = String(event.message || "").trim() || "Working...";
@@ -852,6 +889,7 @@ export function useChat() {
         setTestUserEmail,
         clearTestUserEmail,
         appendMessage,
+        persistConversationTurn,
         startProgressMessage,
         pushProgressStep,
         finishProgressMessage,
