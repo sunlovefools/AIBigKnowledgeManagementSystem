@@ -6349,6 +6349,42 @@ html,
         z-index: 20;
     }
 
+    .mobile-layout .mod-panel-container.open {
+        overflow: hidden;
+    }
+
+    .mobile-layout .modification-panel {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .mobile-layout .mod-panel-tabs,
+    .mobile-layout .mod-panel-header {
+        flex: 0 0 auto;
+    }
+
+    .mobile-layout .mod-panel-content {
+        flex: 1 1 auto;
+        min-height: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+        overscroll-behavior: contain;
+        padding-bottom: 12px;
+    }
+
+    .mobile-layout .mod-panel-document-window,
+    .mobile-layout .mod-panel-document-flow,
+    .mobile-layout .md-editor-wrapper,
+    .mobile-layout .md-editor,
+    .mobile-layout .md-editor .tiptap {
+        max-height: none;
+        overflow: visible;
+    }
+
     .mobile-workspace-switcher {
         position: fixed;
         left: 0;
