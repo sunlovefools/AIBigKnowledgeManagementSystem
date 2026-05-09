@@ -222,6 +222,15 @@ function expandReplaceHunkToToken(original: string, proposed: string, hunk: Prop
         proposedEnd += 1;
     }
 
+    if (originalStart > 0 && original[originalStart - 1] === "(" && originalEnd < original.length && original[originalEnd] === ")") {
+        originalStart -= 1;
+        originalEnd += 1;
+    }
+    if (proposedStart > 0 && proposed[proposedStart - 1] === "(" && proposedEnd < proposed.length && proposed[proposedEnd] === ")") {
+        proposedStart -= 1;
+        proposedEnd += 1;
+    }
+
     if (
         originalStart === hunk.originalStart &&
         originalEnd === hunk.originalEnd &&
