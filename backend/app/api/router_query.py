@@ -361,9 +361,92 @@ class QueryResponse(BaseModel):
     saved_messages: list[dict] = Field(default_factory=list)
 
 
+class ConversationTurnPersistRequest(BaseModel):
+    user_text: str = Field(..., min_length=1)
+    ai_text: str = Field(..., min_length=1)
+    conversation_id: str | None = None
+    searchScope: Literal["collection", "all_collections"] | None = None
+    collectionId: str | None = None
+    collectionName: str | None = None
+    progressTrace: dict[str, Any] | None = None
+
+
+class ConversationTurnPersistResponse(BaseModel):
+    conversation_id: str
+    saved_messages: list[dict] = Field(default_factory=list)
+
+
 @router.get("/health")
 def query_health():
     return {"query_service": "ok"}
+
+
+@router.post("/conversations/turn", response_model=ConversationTurnPersistResponse)
+async def persist_conversation_turn(
+    request: ConversationTurnPersistRequest,
+    current_user: dict = Depends(get_current_user),
+    chat_collection: Any = Depends(get_chat_messages_collection),
+    conversations_collection: Any = Depends(get_conversations_collection),
+):
+    user_id = str(current_user.get("sub") or "").strip()
+    if not user_id:
+        raise HTTPException(status_code=401, detail="Authentication required.")
+
+    user_email = _normalized_email(str(current_user.get("email") or ""))
+    conversation_id = request.conversation_id or str(uuid4())
+
+    if request.conversation_id and chat_collection is not None:
+        existing_count = _count_documents(
+            chat_collection,
+            _conversation_owner_filter(conversation_id, user_id, user_email),
+        )
+        if existing_count >= MAX_MESSAGES_PER_CONVERSATION - 1:
+            conversation_id = str(uuid4())
+
+    saved_messages: list[dict] = []
+    try:
+        saved_user_message = _save_chat_message(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            user_email=user_email,
+            role="user",
+            text=request.user_text.strip(),
+            chat_collection=chat_collection,
+            conversations_collection=conversations_collection,
+            search_scope=request.searchScope,
+            collection_id=request.collectionId,
+            collection_name=request.collectionName,
+        )
+        if saved_user_message is not None:
+            saved_messages.append(saved_user_message)
+
+        saved_ai_message = _save_chat_message(
+            conversation_id=conversation_id,
+            user_id=user_id,
+            user_email=user_email,
+            role="ai",
+            text=request.ai_text.strip(),
+            chat_collection=chat_collection,
+            conversations_collection=conversations_collection,
+            search_scope=request.searchScope,
+            collection_id=request.collectionId,
+            collection_name=request.collectionName,
+            progress_trace=request.progressTrace,
+        )
+        if saved_ai_message is not None:
+            saved_messages.append(saved_ai_message)
+    except PermissionError as e:
+        raise HTTPException(status_code=403, detail=str(e))
+    except MessageLimitExceededError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+    except Exception as e:
+        print(f"Failed to persist conversation turn: {e}")
+        raise HTTPException(status_code=500, detail="Failed to persist conversation turn.")
+
+    return ConversationTurnPersistResponse(
+        conversation_id=conversation_id,
+        saved_messages=saved_messages,
+    )
 
 
 @router.post("/query", response_model=QueryResponse)

@@ -40,6 +40,7 @@ export default function ConversationPage() {
     const [renameTitle, setRenameTitle] = useState("");
     const [isRenamingConversation, setIsRenamingConversation] = useState(false);
     const [deletingConversationId, setDeletingConversationId] = useState<string | null>(null);
+    const [pendingDeleteConversation, setPendingDeleteConversation] = useState<{ conversationId: string; title: string } | null>(null);
     const [isEditMode, setIsEditMode] = useState(false);
     const [desktopFileNameDraft, setDesktopFileNameDraft] = useState("");
     const [desktopFileNameError, setDesktopFileNameError] = useState<string | null>(null);
@@ -59,6 +60,8 @@ export default function ConversationPage() {
     const modificationCloseTimeoutRef = useRef<number | null>(null);
     const deleteConfirmDialogRef = useRef<HTMLDivElement | null>(null);
     const deleteConfirmCancelRef = useRef<HTMLButtonElement | null>(null);
+    const conversationDeleteDialogRef = useRef<HTMLDivElement | null>(null);
+    const conversationDeleteCancelRef = useRef<HTMLButtonElement | null>(null);
     const previouslyFocusedElementRef = useRef<HTMLElement | null>(null);
 
     const {
@@ -88,6 +91,7 @@ export default function ConversationPage() {
         setInput,
         toggleAgenticSearch,
         appendMessage,
+        persistConversationTurn,
         startProgressMessage,
         pushProgressStep,
         finishProgressMessage,
@@ -195,6 +199,7 @@ export default function ConversationPage() {
         setHighlightedSelection(null);
         setSelectionError(null);
         setPendingDeleteFile(null);
+        setPendingDeleteConversation(null);
     }, [activeCollectionId]);
 
     useEffect(() => {
@@ -247,9 +252,25 @@ export default function ConversationPage() {
                     );
                 appendMessage({
                     role: "ai",
-                        text: result.ok
-                            ? result.summary ?? "Review the proposals in the edit panel."
-                            : `Edit failed: ${result.error ?? "Unknown error"}`,
+                    text: result.ok
+                        ? result.summary ?? "Review the proposals in the edit panel."
+                        : `Edit failed: ${result.error ?? "Unknown error"}`,
+                });
+                const aiHistoryText = result.ok
+                    ? result.summary ?? "Review the proposals in the edit panel."
+                    : `Edit failed: ${result.error ?? "Unknown error"}`;
+                void persistConversationTurn({
+                    userText: textInput,
+                    aiText: aiHistoryText,
+                    searchScope: modificationCollectionScope.type === "collection" ? "collection" : "all_collections",
+                    collectionId: modificationCollectionScope.type === "collection" ? modificationCollectionScope.collectionId : null,
+                    collectionName: modificationCollectionScope.type === "collection" ? modificationCollectionScope.collectionName ?? null : null,
+                }).catch((error) => {
+                    console.warn("Failed to persist modification conversation turn:", error);
+                    appendMessage({
+                        role: "ai",
+                        text: "This edit result could not be saved to conversation history. Please start a new chat if the current history is full.",
+                    });
                 });
                 progressStatus = result.ok ? "completed" : "failed";
                 if (result.ok) {
@@ -328,6 +349,30 @@ export default function ConversationPage() {
         setPendingDeleteFile(null);
     }, [deletingFileId]);
 
+    const handleRequestDeleteConversation = useCallback((conversationId: string, title: string) => {
+        if (deletingConversationId) return;
+        setPendingDeleteConversation({ conversationId, title });
+    }, [deletingConversationId]);
+
+    const handleCancelDeleteConversation = useCallback(() => {
+        if (deletingConversationId) return;
+        setPendingDeleteConversation(null);
+    }, [deletingConversationId]);
+
+    const handleConfirmDeleteConversation = useCallback(async () => {
+        if (!pendingDeleteConversation || deletingConversationId) return;
+
+        setDeletingConversationId(pendingDeleteConversation.conversationId);
+        const success = await deleteConversation(pendingDeleteConversation.conversationId);
+        setDeletingConversationId(null);
+
+        if (success) {
+            setPendingDeleteConversation(null);
+            setRenamingConversationId(null);
+            setRenameTitle("");
+        }
+    }, [deleteConversation, deletingConversationId, pendingDeleteConversation]);
+
     useEffect(() => {
         if (!pendingDeleteFile) return;
 
@@ -392,6 +437,71 @@ export default function ConversationPage() {
             previouslyFocusedElementRef.current = null;
         };
     }, [deletingFileId, handleCancelDeleteFile, pendingDeleteFile]);
+
+    useEffect(() => {
+        if (!pendingDeleteConversation) return;
+
+        previouslyFocusedElementRef.current = document.activeElement instanceof HTMLElement
+            ? document.activeElement
+            : null;
+
+        const dialog = conversationDeleteDialogRef.current;
+        const initialFocusTarget = conversationDeleteCancelRef.current
+            ?? dialog?.querySelector<HTMLElement>("button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])")
+            ?? dialog;
+        initialFocusTarget?.focus();
+
+        const handleKeyDown = (event: globalThis.KeyboardEvent) => {
+            if (event.key === "Escape") {
+                event.preventDefault();
+                if (!deletingConversationId) {
+                    handleCancelDeleteConversation();
+                }
+                return;
+            }
+            if (event.key !== "Tab") return;
+            const activeDialog = conversationDeleteDialogRef.current;
+            if (!activeDialog) return;
+
+            const focusable = Array.from(
+                activeDialog.querySelectorAll<HTMLElement>(
+                    "button:not(:disabled), [href], input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex='-1'])"
+                )
+            ).filter((element) => !element.hasAttribute("disabled"));
+            if (focusable.length === 0) {
+                event.preventDefault();
+                activeDialog.focus();
+                return;
+            }
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            const activeElement = document.activeElement as HTMLElement | null;
+
+            if (event.shiftKey) {
+                if (activeElement === first || !activeDialog.contains(activeElement)) {
+                    event.preventDefault();
+                    last.focus();
+                }
+                return;
+            }
+
+            if (activeElement === last || !activeDialog.contains(activeElement)) {
+                event.preventDefault();
+                first.focus();
+            }
+        };
+
+        document.addEventListener("keydown", handleKeyDown);
+        return () => {
+            document.removeEventListener("keydown", handleKeyDown);
+            const previouslyFocused = previouslyFocusedElementRef.current;
+            if (previouslyFocused && previouslyFocused.isConnected) {
+                previouslyFocused.focus();
+            }
+            previouslyFocusedElementRef.current = null;
+        };
+    }, [deletingConversationId, handleCancelDeleteConversation, pendingDeleteConversation]);
 
     const activeChunkSignature = activeTabData?.chunks
         .map((chunk) => `${chunk.parentId}:${chunk.size}`)
@@ -593,6 +703,7 @@ export default function ConversationPage() {
         setRenamingConversationId(null);
         setRenameTitle("");
         setDeletingConversationId(null);
+        setPendingDeleteConversation(null);
         setIsConversationMenuOpen(false);
     }, [startNewConversation]);
 
@@ -601,6 +712,7 @@ export default function ConversationPage() {
         setRenamingConversationId(null);
         setRenameTitle("");
         setDeletingConversationId(null);
+        setPendingDeleteConversation(null);
         void loadConversationMessages(targetConversationId);
     }, [loadConversationMessages]);
 
@@ -817,7 +929,7 @@ export default function ConversationPage() {
                                                     onClick={(event) => {
                                                         event.preventDefault();
                                                         event.stopPropagation();
-                                                        void handleDeleteConversation(
+                                                        handleRequestDeleteConversation(
                                                             conversation.conversationId,
                                                             conversation.title?.trim() || "New AI chat"
                                                         );
@@ -1026,6 +1138,14 @@ export default function ConversationPage() {
         setIsModificationPanelClosing(false);
 
         if (isMobile) {
+            if (isEditMode) {
+                setIsEditMode(false);
+                setSelectedFileIds(new Set());
+                clearHighlightedSelection();
+                setFocusedProposalKey(null);
+                return;
+            }
+
             if (!isModificationPanelOpen || mobileWorkspace !== "document") {
                 setIsModificationPanelOpen(true);
                 setMobileWorkspace("document");
@@ -1033,15 +1153,7 @@ export default function ConversationPage() {
                 return;
             }
 
-            if (!isEditMode) {
-                setIsEditMode(true);
-                return;
-            }
-
-            setIsEditMode(false);
-            setSelectedFileIds(new Set());
-            clearHighlightedSelection();
-            setFocusedProposalKey(null);
+            setIsEditMode(true);
             return;
         }
 
@@ -1106,21 +1218,6 @@ export default function ConversationPage() {
         setIsRenamingConversation(false);// Finish rename process, set renaming state back to false to re-enable input and buttons
 
         if (success) { // If rename was successful, reset renaming state (convo id and new title)
-            setRenamingConversationId(null);
-            setRenameTitle("");
-        }
-    };
-
-    const handleDeleteConversation = async (targetConversationId: string, title: string) => {
-        if (deletingConversationId) return;
-        const confirmed = window.confirm(`Delete "${title}"? This removes the conversation history.`);
-        if (!confirmed) return;
-
-        setDeletingConversationId(targetConversationId);
-        const success = await deleteConversation(targetConversationId);
-        setDeletingConversationId(null);
-
-        if (success) {
             setRenamingConversationId(null);
             setRenameTitle("");
         }
@@ -1237,7 +1334,7 @@ export default function ConversationPage() {
         <div className="mainpage-shell">
             <GlobalSidebar mode="conversation" />
             <div
-                className={`app-root ${isMobile ? "mobile-layout" : ""} mobile-workspace-${activeMobileWorkspace} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""} ${pendingDeleteFile ? "delete-modal-open" : ""}`}
+                className={`app-root ${isMobile ? "mobile-layout" : ""} mobile-workspace-${activeMobileWorkspace} ${isSidebarOpen ? "sidebar-open" : "sidebar-closed"} ${isModificationPanelOpen ? "mod-panel-open" : ""} ${isResizing ? "is-resizing" : ""} ${isSidebarToggling ? "is-sidebar-toggling" : ""} ${pendingDeleteFile || pendingDeleteConversation ? "delete-modal-open" : ""}`}
                 style={{
                     "--sidebar-width": `${sidebarWidth}px`,
                     "--mod-panel-width": `${modPanelWidth}px`,
@@ -1567,6 +1664,51 @@ export default function ConversationPage() {
                                 disabled={Boolean(deletingFileId)}
                             >
                                 {deletingFileId ? "Deleting..." : "Delete"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {pendingDeleteConversation && (
+                <div
+                    className="delete-confirm-overlay"
+                    onClick={handleCancelDeleteConversation}
+                    role="presentation"
+                >
+                    <div
+                        className="delete-confirm-dialog"
+                        onClick={(event) => event.stopPropagation()}
+                        ref={conversationDeleteDialogRef}
+                        tabIndex={-1}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="conversation-delete-confirm-title"
+                    >
+                        <div className="delete-confirm-eyebrow">Delete conversation</div>
+                        <h3 id="conversation-delete-confirm-title" className="delete-confirm-title">
+                            Delete this conversation?
+                        </h3>
+                        <p className="delete-confirm-text">
+                            <span className="delete-confirm-target">{pendingDeleteConversation.title}</span>
+                            {" "}will be removed from your conversation history.
+                        </p>
+                        <div className="delete-confirm-actions">
+                            <button
+                                className="delete-confirm-cancel"
+                                ref={conversationDeleteCancelRef}
+                                type="button"
+                                onClick={handleCancelDeleteConversation}
+                                disabled={Boolean(deletingConversationId)}
+                            >
+                                Keep chat
+                            </button>
+                            <button
+                                className="delete-confirm-submit"
+                                type="button"
+                                onClick={() => { void handleConfirmDeleteConversation(); }}
+                                disabled={Boolean(deletingConversationId)}
+                            >
+                                {deletingConversationId ? "Deleting..." : "Delete"}
                             </button>
                         </div>
                     </div>

@@ -1,8 +1,11 @@
 .login-container {
+    box-sizing: border-box;
+    width: 100%;
     min-height: 100dvh;
     display: grid;
     place-items: center;
     padding: 32px 18px;
+    overflow-x: hidden;
     background:
         radial-gradient(780px 520px at 12% 16%, rgba(70, 128, 255, 0.34), transparent 58%),
         radial-gradient(620px 460px at 88% 12%, rgba(45, 212, 191, 0.28), transparent 54%),
@@ -10,8 +13,15 @@
         linear-gradient(135deg, #eef6ff 0%, #dff4f1 45%, #fff8df 100%);
 }
 
+.login-container *,
+.login-container *::before,
+.login-container *::after {
+    box-sizing: border-box;
+}
+
 .login-shell {
-    width: min(980px, 100%);
+    box-sizing: border-box;
+    width: min(980px, calc(100vw - 36px));
     display: grid;
     grid-template-columns: minmax(0, 1.1fr) minmax(360px, 0.9fr);
     overflow: hidden;
@@ -23,6 +33,8 @@
 }
 
 .login-brand-panel {
+    min-width: 0;
+    box-sizing: border-box;
     min-height: 560px;
     display: flex;
     flex-direction: column;
@@ -73,6 +85,7 @@
     font-size: clamp(2.6rem, 5vw, 4.55rem);
     line-height: 0.95;
     letter-spacing: -0.06em;
+    overflow-wrap: anywhere;
 }
 
 .login-description {
@@ -84,6 +97,8 @@
 }
 
 .login-card {
+    min-width: 0;
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -116,6 +131,7 @@
     font-size: clamp(1.8rem, 4vw, 2.55rem);
     line-height: 1.05;
     letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
 }
 
 .login-auth0-note {
@@ -183,6 +199,9 @@
     .login-shell {
         grid-template-columns: 1fr;
         border-radius: 22px;
+        justify-self: center;
+        width: calc(100vw - 28px);
+        max-width: calc(100vw - 28px);
     }
 
     .login-brand-panel {
@@ -193,9 +212,37 @@
     .login-card {
         padding: 28px;
     }
+
+    .login-brand-panel,
+    .login-card {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    .login-brand-panel h1,
+    .login-description,
+    .login-card h2,
+    .login-auth0-note,
+    .login-button,
+    .login-security-copy {
+        max-width: 100%;
+    }
 }
 
 @media (max-width: 480px) {
+    .login-brand-panel h1 {
+        font-size: clamp(1.85rem, 8.4vw, 2.2rem);
+        line-height: 1;
+        letter-spacing: -0.02em;
+    }
+
+    .login-description,
+    .login-auth0-note,
+    .login-security-copy {
+        overflow-wrap: anywhere;
+    }
+
     .login-brand-panel,
     .login-card {
         padding: 22px;
