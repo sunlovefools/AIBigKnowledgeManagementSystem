@@ -267,6 +267,10 @@ export default function ConversationPage() {
                     collectionName: modificationCollectionScope.type === "collection" ? modificationCollectionScope.collectionName ?? null : null,
                 }).catch((error) => {
                     console.warn("Failed to persist modification conversation turn:", error);
+                    appendMessage({
+                        role: "ai",
+                        text: "This edit result could not be saved to conversation history. Please start a new chat if the current history is full.",
+                    });
                 });
                 progressStatus = result.ok ? "completed" : "failed";
                 if (result.ok) {

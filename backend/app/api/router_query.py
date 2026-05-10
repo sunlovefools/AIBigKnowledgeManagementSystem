@@ -401,13 +401,7 @@ async def persist_conversation_turn(
             _conversation_owner_filter(conversation_id, user_id, user_email),
         )
         if existing_count >= MAX_MESSAGES_PER_CONVERSATION - 1:
-            raise HTTPException(
-                status_code=409,
-                detail=(
-                    "This conversation has reached the 20-message limit. "
-                    "Please start a new conversation."
-                ),
-            )
+            conversation_id = str(uuid4())
 
     saved_messages: list[dict] = []
     try:
