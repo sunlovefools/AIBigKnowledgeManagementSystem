@@ -90,6 +90,12 @@ function getApiErrorDetail(error: unknown): string | null {
     return typeof detail === "string" && detail.trim() ? detail.trim() : null;
 }
 
+function getApiErrorStatus(error: unknown): number | null {
+    if (!error || typeof error !== "object") return null;
+    const status = (error as { response?: { status?: unknown } }).response?.status;
+    return typeof status === "number" ? status : null;
+}
+
 function parseStreamEvent(rawChunk: string): StreamEvent | null {
     const lines = rawChunk
         .split("\n")
@@ -491,15 +497,26 @@ export function useChat() {
             const aiText = payload.aiText.trim();
             if (!userText || !aiText) return conversationId;
 
-            const response = await apiClient.post(`${API_BASE}/api/conversations/turn`, {
+            const postTurn = (targetConversationId: string | null) => apiClient.post(`${API_BASE}/api/conversations/turn`, {
                 user_text: userText,
                 ai_text: aiText,
-                conversation_id: conversationId,
+                conversation_id: targetConversationId,
                 searchScope: payload.searchScope,
                 collectionId: payload.collectionId ?? null,
                 collectionName: payload.collectionName ?? null,
                 progressTrace: payload.progressTrace,
             });
+
+            let response;
+            try {
+                response = await postTurn(conversationId);
+            } catch (error) {
+                if (conversationId && getApiErrorStatus(error) === 409) {
+                    response = await postTurn(null);
+                } else {
+                    throw error;
+                }
+            }
 
             const nextConversationId = typeof response.data?.conversation_id === "string"
                 ? response.data.conversation_id
