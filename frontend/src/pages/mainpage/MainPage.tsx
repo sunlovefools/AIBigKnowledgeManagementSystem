@@ -1138,6 +1138,14 @@ export default function ConversationPage() {
         setIsModificationPanelClosing(false);
 
         if (isMobile) {
+            if (isEditMode) {
+                setIsEditMode(false);
+                setSelectedFileIds(new Set());
+                clearHighlightedSelection();
+                setFocusedProposalKey(null);
+                return;
+            }
+
             if (!isModificationPanelOpen || mobileWorkspace !== "document") {
                 setIsModificationPanelOpen(true);
                 setMobileWorkspace("document");
@@ -1145,15 +1153,7 @@ export default function ConversationPage() {
                 return;
             }
 
-            if (!isEditMode) {
-                setIsEditMode(true);
-                return;
-            }
-
-            setIsEditMode(false);
-            setSelectedFileIds(new Set());
-            clearHighlightedSelection();
-            setFocusedProposalKey(null);
+            setIsEditMode(true);
             return;
         }
 
