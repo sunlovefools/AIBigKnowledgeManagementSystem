@@ -13,7 +13,8 @@ import {
 } from "../../config/env";
 import "./Login.css";
 
-const auth0RedirectUri = AUTH0_REDIRECT_URI || `${window.location.origin}/login`;
+const auth0RedirectUri =
+    AUTH0_REDIRECT_URI || new URL("login", `${window.location.origin}${import.meta.env.BASE_URL}`).toString();
 
 export default function Login() {
     const navigate = useNavigate();

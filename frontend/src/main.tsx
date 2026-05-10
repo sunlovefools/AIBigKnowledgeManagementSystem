@@ -12,7 +12,9 @@ import {
     AUTH0_REDIRECT_URI,
 } from "./config/env";
 
-const auth0RedirectUri = AUTH0_REDIRECT_URI || `${window.location.origin}/login`;
+const routerBaseName = import.meta.env.BASE_URL;
+const auth0RedirectUri =
+    AUTH0_REDIRECT_URI || new URL("login", `${window.location.origin}${routerBaseName}`).toString();
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
@@ -27,7 +29,7 @@ createRoot(document.getElementById("root")!).render(
             cacheLocation="localstorage"
             useRefreshTokens
         >
-            <BrowserRouter>
+            <BrowserRouter basename={routerBaseName}>
                 <UploadQueueProvider>
                     <App />
                 </UploadQueueProvider>
