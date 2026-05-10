@@ -10,36 +10,30 @@ import {
     AUTH0_CLIENT_ID,
     AUTH0_DOMAIN,
     AUTH0_REDIRECT_URI,
-    canRunAuth0InCurrentOrigin,
 } from "./config/env";
 
-const auth0RedirectUri = AUTH0_REDIRECT_URI || `${window.location.origin}/login`;
-const shouldUseAuth0 = canRunAuth0InCurrentOrigin();
-
-const appTree = (
-    <BrowserRouter basename={import.meta.env.BASE_URL}>
-        <UploadQueueProvider>
-            <App />
-        </UploadQueueProvider>
-    </BrowserRouter>
-);
+const routerBaseName = import.meta.env.BASE_URL;
+const auth0RedirectUri =
+    AUTH0_REDIRECT_URI || new URL("login", `${window.location.origin}${routerBaseName}`).toString();
 
 createRoot(document.getElementById("root")!).render(
     <StrictMode>
-        {shouldUseAuth0 ? (
-            <Auth0Provider
-                domain={AUTH0_DOMAIN}
-                clientId={AUTH0_CLIENT_ID}
-                authorizationParams={{
-                    redirect_uri: auth0RedirectUri,
-                    audience: AUTH0_AUDIENCE,
-                    scope: "openid profile email",
-                }}
-                cacheLocation="localstorage"
-                useRefreshTokens
-            >
-                {appTree}
-            </Auth0Provider>
-        ) : appTree}
+        <Auth0Provider
+            domain={AUTH0_DOMAIN}
+            clientId={AUTH0_CLIENT_ID}
+            authorizationParams={{
+                redirect_uri: auth0RedirectUri,
+                audience: AUTH0_AUDIENCE,
+                scope: "openid profile email",
+            }}
+            cacheLocation="localstorage"
+            useRefreshTokens
+        >
+            <BrowserRouter basename={routerBaseName}>
+                <UploadQueueProvider>
+                    <App />
+                </UploadQueueProvider>
+            </BrowserRouter>
+        </Auth0Provider>
     </StrictMode>
 );

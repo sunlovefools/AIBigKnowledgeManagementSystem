@@ -1,49 +1,22 @@
 import { useAuth0 } from "@auth0/auth0-react";
 import axios from "axios";
-import type { ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { clearAuthSession, saveAuthSession } from "../../auth/session";
+import { saveAuthSession } from "../../auth/session";
 import {
     API_BASE,
     AUTH0_AUDIENCE,
     AUTH0_CLIENT_ID,
     AUTH0_DOMAIN,
     AUTH0_REDIRECT_URI,
-    canRunAuth0InCurrentOrigin,
     hasConfiguredValue,
 } from "../../config/env";
 import "./Login.css";
 
-const auth0RedirectUri = AUTH0_REDIRECT_URI || `${window.location.origin}/login`;
+const auth0RedirectUri =
+    AUTH0_REDIRECT_URI || new URL("login", `${window.location.origin}${import.meta.env.BASE_URL}`).toString();
 
 export default function Login() {
-    const canUseAuth0 = canRunAuth0InCurrentOrigin();
-    if (!canUseAuth0) {
-        return <InsecureLocalLoginNotice />;
-    }
-
-    return <Auth0Login />;
-}
-
-function InsecureLocalLoginNotice() {
-    useEffect(() => {
-        clearAuthSession();
-    }, []);
-
-    return (
-        <LoginLayout>
-            <p className="login-message error">
-                Auth0 login requires HTTPS or localhost. This local network address is only useful for checking that the server is reachable.
-            </p>
-            <p className="login-security-copy">
-                Use the deployed HTTPS frontend, or open localhost on this computer, to sign in normally.
-            </p>
-        </LoginLayout>
-    );
-}
-
-function Auth0Login() {
     const navigate = useNavigate();
     const [exchangeError, setExchangeError] = useState("");
     const [isExchanging, setIsExchanging] = useState(false);
@@ -140,39 +113,6 @@ function Auth0Login() {
         hasConfiguredValue(AUTH0_AUDIENCE);
 
     return (
-        <LoginLayout>
-            <p className="login-auth0-note">
-                Continue with your organization account to access Documind.
-            </p>
-
-            {!hasAuth0Config && (
-                <p className="login-message error">
-                    Missing Auth0 config. Set `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID`, and
-                    `VITE_AUTH0_AUDIENCE`.
-                </p>
-            )}
-
-            {error && <p className="login-message error">Auth0 error: {error.message}</p>}
-            {exchangeError && <p className="login-message error">{exchangeError}</p>}
-
-            <button
-                type="button"
-                className="login-button"
-                onClick={() => void handleOAuthLogin()}
-                disabled={isLoading || isExchanging || !hasAuth0Config}
-            >
-                {isLoading || isExchanging ? "Signing in..." : "Continue with Auth0"}
-            </button>
-
-            <p className="login-security-copy">
-                By continuing, you will be redirected to Auth0 for secure authentication.
-            </p>
-        </LoginLayout>
-    );
-}
-
-function LoginLayout({ children }: { children: ReactNode }) {
-    return (
         <div className="login-container">
             <div className="login-shell" aria-label="Documind sign in">
                 <section className="login-brand-panel" aria-label="Documind overview">
@@ -194,7 +134,33 @@ function LoginLayout({ children }: { children: ReactNode }) {
                             <h2>Sign in to Documind</h2>
                         </div>
                     </div>
-                    {children}
+
+                    <p className="login-auth0-note">
+                        Continue with your organization account to access Documind.
+                    </p>
+
+                    {!hasAuth0Config && (
+                        <p className="login-message error">
+                            Missing Auth0 config. Set `VITE_AUTH0_DOMAIN`, `VITE_AUTH0_CLIENT_ID`, and
+                            `VITE_AUTH0_AUDIENCE`.
+                        </p>
+                    )}
+
+                    {error && <p className="login-message error">Auth0 error: {error.message}</p>}
+                    {exchangeError && <p className="login-message error">{exchangeError}</p>}
+
+                    <button
+                        type="button"
+                        className="login-button"
+                        onClick={() => void handleOAuthLogin()}
+                        disabled={isLoading || isExchanging || !hasAuth0Config}
+                    >
+                        {isLoading || isExchanging ? "Signing in..." : "Continue with Auth0"}
+                    </button>
+
+                    <p className="login-security-copy">
+                        By continuing, you will be redirected to Auth0 for secure authentication.
+                    </p>
                 </section>
             </div>
         </div>
