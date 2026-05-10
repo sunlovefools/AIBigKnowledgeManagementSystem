@@ -44,7 +44,7 @@ class LocalGemmaEmbeddings(Embeddings):
         resolved_model_name = (
             model_name
             or (os.getenv("LOCAL_EMBEDDING_MODEL") or "").strip()
-            or "google/embeddinggemma-300m"
+            or "sentence-transformers/all-MiniLM-L6-v2"
         )
 
         if swap_to_ram is None:
