@@ -7,7 +7,7 @@ fastapi
 uvicorn[standard]
 python-dotenv
 pydantic
-python-jose>=3.5.0
+python-jose[cryptography]>=3.5.0
 pandas
 astrapy
 bcrypt
