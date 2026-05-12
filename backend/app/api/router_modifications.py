@@ -32,6 +32,14 @@ from app.service.modification.save_job_service import (
 router = APIRouter()
 ProgressCallback = Callable[[dict[str, Any]], Awaitable[None]]
 
+
+async def _reconcile_collection_counts_best_effort(user_id: str) -> None:
+    try:
+        await CollectionService.reconcile_all_collection_file_counts(user_id)
+    except Exception as error:
+        print(f"Collection file-count reconciliation failed for user_id={user_id}: {error}")
+        traceback.print_exc()
+
 # --- Data Models ---
 class BatchUpdateParentChunkItem(BaseModel):
     """One parent chunk update payload in a batch request."""
@@ -1171,7 +1179,7 @@ async def delete_file_by_id(
             deleted = await ReconstructionService.delete_file(file_id=file_id, user_id=user_id)
         except TypeError:
             deleted = await ReconstructionService.delete_file(file_id=file_id)
-        await CollectionService.reconcile_all_collection_file_counts(user_id)
+        asyncio.create_task(_reconcile_collection_counts_best_effort(user_id))
         return DeleteFileResponse(
             fileId=deleted["fileId"],
             fileName=deleted["fileName"],

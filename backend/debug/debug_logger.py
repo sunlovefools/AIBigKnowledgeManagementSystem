@@ -353,6 +353,165 @@ def _truncate_for_log(text: str, *, max_chars: int = 12000) -> str:
     return normalized[:max_chars] + f"\n...[truncated {len(normalized) - max_chars} chars]"
 
 
+def _format_agentic_scalar(value: Any) -> str:
+    if value is None:
+        return "N/A"
+    if isinstance(value, bool):
+        return "yes" if value else "no"
+    if isinstance(value, (int, float)):
+        return str(value)
+    text = " ".join(str(value).split())
+    return text if text else "N/A"
+
+
+def _format_agentic_mapping(payload: dict[str, Any], *, indent: str = "- ") -> list[str]:
+    lines: list[str] = []
+    for key, value in payload.items():
+        label = str(key).replace("_", " ").title()
+        if isinstance(value, dict):
+            if not value:
+                lines.append(f"{indent}{label}: none")
+                continue
+            lines.append(f"{indent}{label}:")
+            lines.extend(_format_agentic_mapping(value, indent="  " + indent))
+        elif isinstance(value, list):
+            if not value:
+                lines.append(f"{indent}{label}: none")
+                continue
+            lines.append(f"{indent}{label}:")
+            lines.extend(_format_agentic_list(value, indent="  " + indent))
+        else:
+            lines.append(f"{indent}{label}: {_format_agentic_scalar(value)}")
+    return lines
+
+
+def _format_agentic_evidence_item(item: dict[str, Any], index: int, *, indent: str = "- ") -> list[str]:
+    parent_id = item.get("parent_id") or item.get("id") or "N/A"
+    file_name = item.get("file_name") or "unknown file"
+    chunk_number = item.get("chunk_number")
+    snippet = item.get("snippet") or item.get("content") or item.get("page_content") or ""
+    structured_view = item.get("structured_view") or ""
+    title = f"{indent}{index}. {file_name}"
+    details: list[str] = [title]
+    details.append(f"{indent}   Parent ID: {_format_agentic_scalar(parent_id)}")
+    if chunk_number is not None:
+        details.append(f"{indent}   Chunk: {_format_agentic_scalar(chunk_number)}")
+    if snippet:
+        details.append(f"{indent}   Snippet: {_truncate_for_log(_format_agentic_scalar(snippet), max_chars=700)}")
+    if structured_view:
+        details.append(f"{indent}   Structured view: {_truncate_for_log(str(structured_view), max_chars=900)}")
+    return details
+
+
+def _format_agentic_list(items: list[Any], *, indent: str = "- ") -> list[str]:
+    lines: list[str] = []
+    for index, item in enumerate(items, start=1):
+        if isinstance(item, dict) and (
+            "parent_id" in item
+            or "file_name" in item
+            or "snippet" in item
+            or "structured_view" in item
+        ):
+            lines.extend(_format_agentic_evidence_item(item, index, indent=indent))
+        elif isinstance(item, dict):
+            lines.append(f"{indent}{index}.")
+            lines.extend(_format_agentic_mapping(item, indent="  " + indent))
+        else:
+            lines.append(f"{indent}{index}. {_format_agentic_scalar(item)}")
+    return lines
+
+
+def _format_agentic_payload(payload: dict[str, Any] | None) -> list[str]:
+    if not isinstance(payload, dict) or not payload:
+        return ["- none"]
+    return _format_agentic_mapping(payload)
+
+
+def _format_agentic_action_log(
+    *,
+    action: str,
+    arguments: dict[str, Any] | None,
+    result: dict[str, Any] | None,
+    error: str | None,
+) -> list[str]:
+    arguments = arguments if isinstance(arguments, dict) else {}
+    result = result if isinstance(result, dict) else {}
+    lines: list[str] = []
+
+    intent = arguments.get("intent")
+    success_criteria = arguments.get("success_criteria")
+    fallback = arguments.get("fallback")
+    if intent:
+        lines.append(f"Intent: {_format_agentic_scalar(intent)}")
+    lines.append(f"Action: {action}")
+    if success_criteria:
+        lines.append(f"Success Criteria: {_format_agentic_scalar(success_criteria)}")
+    if fallback:
+        lines.append(f"Fallback / Next Step If Needed: {_format_agentic_scalar(fallback)}")
+    if error:
+        lines.append(f"Error: {_format_agentic_scalar(error)}")
+
+    tool_arguments = {
+        key: value
+        for key, value in arguments.items()
+        if key not in {"intent", "success_criteria", "fallback", "decision"}
+    }
+    lines.extend(["", "Arguments:"])
+    lines.extend(_format_agentic_payload(tool_arguments))
+    lines.extend(["", "Result:"])
+    lines.extend(_format_agentic_payload(result))
+    return lines
+
+
+def _format_agentic_config_event(event: str, payload: dict[str, Any] | None) -> list[str]:
+    payload = payload if isinstance(payload, dict) else {}
+    lines = [f"Event Summary: {event.replace('_', ' ').title()}"]
+
+    if event == "assistant_action_summary":
+        lines.extend(
+            _format_agentic_action_log(
+                action=str(payload.get("action") or "unknown"),
+                arguments={
+                    **(payload.get("arguments") if isinstance(payload.get("arguments"), dict) else {}),
+                    "intent": payload.get("intent"),
+                    "success_criteria": payload.get("success_criteria"),
+                    "fallback": payload.get("fallback"),
+                },
+                result={},
+                error=None,
+            )
+        )
+        return lines
+
+    preferred_keys = [
+        "termination_reason",
+        "search_scope",
+        "included_file_ids_count",
+        "skill_bodies_preloaded",
+        "loaded_skill_names",
+        "references_read_count",
+        "references_read_ids",
+        "recent_step_trace",
+        "skill_name",
+        "ref_id",
+        "body_length",
+        "content_length",
+        "cached",
+    ]
+    summary = {key: payload[key] for key in preferred_keys if key in payload}
+    remaining = {key: value for key, value in payload.items() if key not in summary}
+
+    if summary:
+        lines.extend(["", "Key Details:"])
+        lines.extend(_format_agentic_mapping(summary))
+    if remaining:
+        lines.extend(["", "Additional Details:"])
+        lines.extend(_format_agentic_mapping(remaining))
+    if not payload:
+        lines.append("- none")
+    return lines
+
+
 def log_agentic_query_llm_request(
     *,
     run_id: str | None,
@@ -426,11 +585,6 @@ def log_agentic_query_action(
     """Append one agentic query action execution block to backend/debug/logs/agentic_query_debug.txt."""
     try:
         timestamp = datetime.now(timezone.utc).isoformat()
-        payload = {
-            "arguments": arguments if isinstance(arguments, dict) else {},
-            "result": result if isinstance(result, dict) else {},
-            "error": str(error) if error else None,
-        }
         lines = [
             "=" * 50,
             "DEBUG: AGENTIC QUERY ACTION",
@@ -438,10 +592,13 @@ def log_agentic_query_action(
             f"Timestamp: {timestamp}",
             f"Run ID: {run_id if run_id else 'N/A'}",
             f"Step: {step if isinstance(step, int) else 'N/A'}",
-            f"Action: {action}",
-            "<ACTION_PAYLOAD>",
-            _truncate_for_log(json.dumps(payload, ensure_ascii=False, indent=2)),
-            "</ACTION_PAYLOAD>",
+            "",
+            *_format_agentic_action_log(
+                action=action,
+                arguments=arguments,
+                result=result,
+                error=str(error) if error else None,
+            ),
             "=" * 50,
         ]
         _append(_AGENTIC_QUERY_FILE, lines)
@@ -465,9 +622,8 @@ def log_agentic_query_config_event(
             f"Timestamp: {timestamp}",
             f"Run ID: {run_id if run_id else 'N/A'}",
             f"Event: {event}",
-            "<CONFIG_EVENT_PAYLOAD>",
-            _truncate_for_log(json.dumps(payload or {}, ensure_ascii=False, indent=2)),
-            "</CONFIG_EVENT_PAYLOAD>",
+            "",
+            *_format_agentic_config_event(event, payload),
             "=" * 50,
         ]
         _append(_AGENTIC_QUERY_FILE, lines)

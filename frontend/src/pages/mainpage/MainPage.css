@@ -361,7 +361,13 @@ html,
 .collection-switcher-popover {
     left: 0;
     width: min(320px, calc(100vw - 48px));
+    height: min(340px, calc(100dvh - 110px));
+    max-height: min(340px, calc(100dvh - 110px));
+    box-sizing: border-box;
     padding: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
 .collection-action-dropdown {
@@ -371,6 +377,7 @@ html,
 }
 
 .collection-switcher-search {
+    flex: 0 0 auto;
     width: 100%;
     min-height: 36px;
     box-sizing: border-box;
@@ -384,8 +391,11 @@ html,
 
 .collection-switcher-list {
     margin-top: 8px;
-    max-height: 210px;
+    padding-right: 2px;
+    min-height: 0;
+    flex: 1 1 auto;
     overflow-y: auto;
+    overscroll-behavior: contain;
     display: flex;
     flex-direction: column;
     gap: 6px;
@@ -402,6 +412,7 @@ html,
 }
 
 .collection-switcher-row {
+    flex: 0 0 auto;
     min-height: 44px;
     border-radius: 10px;
     padding: 7px 9px;
@@ -438,15 +449,18 @@ html,
 }
 
 .collection-switcher-status {
+    flex: 0 0 auto;
     padding: 10px;
     color: #64748b;
     font-size: 0.8rem;
 }
 
 .collection-switcher-new {
+    flex: 0 0 auto;
     width: 100%;
     min-height: 36px;
     margin-top: 8px;
+    box-sizing: border-box;
     border: 1px dashed #cbd5e1;
     border-radius: 10px;
     background: #f8fafc;
@@ -3755,6 +3769,91 @@ html,
     cursor: not-allowed;
 }
 
+.inline-review-cards {
+    display: grid;
+    gap: 10px;
+    margin-top: 2px;
+}
+
+.inline-review-card {
+    display: grid;
+    gap: 10px;
+    border: 1px solid #cbdff5;
+    border-radius: 10px;
+    background: #ffffff;
+    padding: 10px;
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+}
+
+.inline-review-card.accepted {
+    border-color: #bbf7d0;
+    background: #fbfefc;
+}
+
+.inline-review-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: #0f2942;
+    font-size: 0.78rem;
+    font-weight: 900;
+}
+
+.inline-review-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.inline-review-card-body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.inline-review-card-before,
+.inline-review-card-after {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    border-radius: 8px;
+    padding: 8px;
+}
+
+.inline-review-card-before {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #7f1d1d;
+}
+
+.inline-review-card-after {
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #14532d;
+}
+
+.inline-review-card-label {
+    font-size: 0.66rem;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.inline-review-card pre {
+    margin: 0;
+    min-width: 0;
+    overflow: auto;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+    color: inherit;
+    font-family: inherit;
+    font-size: 0.76rem;
+    font-weight: 650;
+    line-height: 1.45;
+}
+
 .mod-panel-document-flow.inline-review-active {
     border-radius: 8px;
     border: 1px solid #dbe7f7;
@@ -3775,9 +3874,13 @@ html,
     transition: background 0.16s ease, box-shadow 0.16s ease;
 }
 
+.review-section-marker {
+    padding: 2px 3px;
+}
+
 .review-text-marker.pending.replace {
-    background: rgba(253, 230, 138, 0.42);
-    box-shadow: inset 0 -2px 0 rgba(245, 158, 11, 0.45);
+    background: rgba(254, 226, 226, 0.6);
+    box-shadow: inset 0 0 0 1px rgba(248, 113, 113, 0.32);
 }
 
 .review-text-marker.pending.delete {
@@ -3788,8 +3891,8 @@ html,
 }
 
 .review-text-marker.accepted {
-    background: rgba(187, 247, 208, 0.46);
-    box-shadow: inset 0 -2px 0 rgba(22, 163, 74, 0.35);
+    background: rgba(220, 252, 231, 0.66);
+    box-shadow: inset 0 0 0 1px rgba(34, 197, 94, 0.3);
 }
 
 .review-text-marker.active,
@@ -3800,22 +3903,31 @@ html,
 }
 
 .review-suggestion-widget {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    max-width: min(100%, 260px);
-    margin: 0 4px;
-    padding: 0;
-    vertical-align: middle;
-    white-space: nowrap;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+    width: min(100%, 680px);
+    max-width: 100%;
+    margin: 10px 0 12px;
+    padding: 10px;
+    vertical-align: baseline;
+    white-space: normal;
     position: relative;
-    z-index: 2;
-    border: 0;
-    border-radius: 0;
-    background: transparent;
-    box-shadow: none;
+    z-index: 1;
+    border: 1px solid #d8eafd;
+    border-radius: 8px;
+    background: #f8fcff;
+    box-shadow: inset 3px 0 0 rgba(37, 99, 235, 0.24);
     font-size: 0.72rem;
     line-height: 1.2;
+}
+
+.review-suggestion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    min-width: 0;
 }
 
 .review-suggestion-pill {
@@ -3823,7 +3935,7 @@ html,
     align-items: center;
     justify-content: center;
     width: auto;
-    max-width: min(170px, 100%);
+    max-width: min(190px, 100%);
     border: 1px solid #bbf7d0;
     border-radius: 999px;
     background: #ecfdf5;
@@ -3837,6 +3949,59 @@ html,
     text-overflow: ellipsis;
     text-align: center;
     white-space: nowrap;
+}
+
+.review-section-preview {
+    display: grid;
+    position: static;
+    width: 100%;
+    max-height: none;
+    overflow: auto;
+    gap: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    white-space: normal;
+}
+
+.review-section-before,
+.review-section-after {
+    display: grid;
+    gap: 5px;
+    min-width: 0;
+    border-radius: 8px;
+    padding: 8px 10px;
+    line-height: 1.45;
+}
+
+.review-section-before {
+    border: 1px solid #fecaca;
+    background: #fff1f2;
+    color: #7f1d1d;
+}
+
+.review-section-after {
+    border: 1px solid #bbf7d0;
+    background: #f0fdf4;
+    color: #14532d;
+}
+
+.review-section-label {
+    font-size: 0.68rem;
+    font-weight: 900;
+    letter-spacing: 0;
+    text-transform: uppercase;
+}
+
+.review-section-text {
+    display: block;
+    min-width: 0;
+    font-size: 0.78rem;
+    font-weight: 650;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
 }
 
 .desktop-stage-file-name-editor {
@@ -3894,25 +4059,16 @@ html,
 }
 
 .review-suggestion-actions {
-    display: none;
-    position: absolute;
-    left: 0;
-    top: calc(100% + 5px);
-    z-index: 30;
+    display: inline-flex;
+    position: static;
     align-items: center;
     gap: 5px;
-    padding: 3px;
-    border: 1px solid #dbeafe;
+    padding: 0;
+    border: 0;
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.98);
-    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+    background: transparent;
+    box-shadow: none;
     white-space: nowrap;
-}
-
-.review-suggestion-widget.active .review-suggestion-actions,
-.review-suggestion-widget:focus-within .review-suggestion-actions,
-.review-suggestion-widget:hover .review-suggestion-actions {
-    display: inline-flex;
 }
 
 .review-action {
@@ -5029,8 +5185,8 @@ html,
 
     .mobile-layout .review-suggestion-widget {
         max-width: 100%;
-        flex-wrap: wrap;
-        margin: 2px 0;
+        width: 100%;
+        margin: 10px 0 12px;
     }
 
     .mobile-layout .review-suggestion-actions {
@@ -6023,12 +6179,14 @@ html,
     top: calc(100% + 8px);
     bottom: auto;
     z-index: 90;
+    height: min(340px, calc(100dvh - 110px));
     max-height: min(340px, calc(100dvh - 110px));
     overflow: hidden;
 }
 
 .collection-switcher-list {
-    max-height: min(220px, calc(100dvh - 230px));
+    min-height: 0;
+    flex: 1 1 auto;
     overflow-y: auto;
 }
 
@@ -6187,6 +6345,43 @@ html,
     min-height: 23px;
     padding-inline: 8px;
     font-size: 0.68rem;
+}
+
+.input-area-wrapper.edit-mode-active {
+    border-top-color: rgba(251, 146, 60, 0.45);
+    background:
+        linear-gradient(to top, rgba(255, 247, 237, 0.98) 72%, rgba(255, 247, 237, 0.74) 86%, rgba(255, 255, 255, 0));
+}
+
+.input-container.edit-mode-active {
+    border-color: #fb923c;
+    background: #fffaf5;
+    box-shadow:
+        0 18px 42px rgba(194, 65, 12, 0.13),
+        0 0 0 4px rgba(251, 146, 60, 0.18);
+}
+
+.input-container.edit-mode-active:focus-within {
+    border-color: #f97316;
+    box-shadow:
+        0 18px 42px rgba(194, 65, 12, 0.16),
+        0 0 0 4px rgba(249, 115, 22, 0.22);
+}
+
+.input-container.edit-mode-active .input-agent-mode-row {
+    border-color: #fed7aa;
+    background: #fff7ed;
+}
+
+.input-container.edit-mode-active .agent-mode-option.active {
+    background: #f97316;
+    color: #ffffff;
+    cursor: default;
+}
+
+.input-container.edit-mode-active .chat-input::placeholder,
+.input-area-wrapper.edit-mode-active .input-hint {
+    color: #9a3412;
 }
 
 .sidebar-header-actions .sidebar-upload-btn,
@@ -6506,19 +6701,25 @@ html,
     }
 
     .mobile-layout .review-suggestion-widget {
-        display: inline-grid;
+        display: grid;
         grid-template-columns: minmax(0, 1fr);
         gap: 7px;
-        width: min(100%, 260px);
+        width: 100%;
         max-width: 100%;
-        margin: 8px 2px;
+        margin: 10px 0 12px;
         padding: 7px;
-        vertical-align: middle;
+        vertical-align: baseline;
         white-space: normal;
         border: 1px solid #d8eafd;
-        border-radius: 14px;
+        border-radius: 8px;
         background: #f8fcff;
-        box-shadow: 0 8px 18px rgba(18, 68, 121, 0.08);
+        box-shadow: inset 3px 0 0 rgba(37, 99, 235, 0.24);
+    }
+
+    .mobile-layout .review-suggestion-header {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 7px;
     }
 
     .mobile-layout .review-suggestion-pill {
@@ -6534,10 +6735,7 @@ html,
         text-align: center;
     }
 
-    .mobile-layout .review-suggestion-actions,
-    .mobile-layout .review-suggestion-widget.active .review-suggestion-actions,
-    .mobile-layout .review-suggestion-widget:focus-within .review-suggestion-actions,
-    .mobile-layout .review-suggestion-widget:hover .review-suggestion-actions {
+    .mobile-layout .review-suggestion-actions {
         position: static;
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));

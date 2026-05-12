@@ -92,6 +92,25 @@ class _FakeActionModelResult:
         yield self.usage
 
 
+def test_safe_json_object_ignores_trailing_provider_wrapper():
+    raw_response = (
+        '<LLM_RESPONSE>\n'
+        '{"action":"provide_final_answer","arguments":{"answer":"A {nested-looking} answer",'
+        '"citations":["COMP2001-Artificial-Intelligence-Methods.pdf"]}}'
+        '</\uff5c\uff5cDSML\uff5c\uff5cparameter>\n'
+        '</\uff5c\uff5cDSML\uff5c\uff5cinvoke>\n'
+        '</LLM_RESPONSE>'
+    )
+
+    parsed = runtime._safe_json_object(raw_response)
+
+    assert parsed["action"] == "provide_final_answer"
+    assert parsed["arguments"]["answer"] == "A {nested-looking} answer"
+    assert parsed["arguments"]["citations"] == [
+        "COMP2001-Artificial-Intelligence-Methods.pdf"
+    ]
+
+
 def test_runtime_rejects_unknown_action_and_recovers_with_finish(monkeypatch):
     monkeypatch.setattr(
         runtime.llm_client,
@@ -122,6 +141,61 @@ def test_runtime_rejects_unknown_action_and_recovers_with_finish(monkeypatch):
     assert result.termination_reason == "finished"
     # Seed retrieval is counted; unknown action should not trigger extra tool execution.
     assert result.tool_call_count == 1
+
+
+def test_forced_finish_parses_json_before_trailing_provider_wrapper(monkeypatch):
+    async def _fake_search_context_tool(**kwargs):
+        kwargs["parent_doc_cache"]["p-ai"] = {
+            "id": "p-ai",
+            "metadata": {
+                "user_id": "user-1",
+                "file_metadata": {
+                    "file_id": "file-ai",
+                    "file_name": "COMP2001-Artificial-Intelligence-Methods.pdf",
+                },
+                "parent_chunk_metadata": {"parent_chunk_number": 1},
+            },
+            "page_content": "Module Code: COMP2001 - Level: 2 - Semester: Spring UK",
+        }
+        return [
+            EvidenceItem(
+                parent_id="p-ai",
+                file_id="file-ai",
+                file_name="COMP2001-Artificial-Intelligence-Methods.pdf",
+                parent_chunk_number=1,
+                snippet="Module Code: COMP2001 - Level: 2 - Semester: Spring UK",
+            )
+        ]
+
+    monkeypatch.setattr(runtime.tools, "search_context_tool", _fake_search_context_tool)
+    monkeypatch.setattr(
+        runtime.llm_client,
+        "call_action_model",
+        _llm_sequence(
+            [
+                '{"action":"search_context","arguments":{"query":"repeat","top_k":1}}',
+                (
+                    '{"action":"provide_final_answer","arguments":{"answer":"COMP2001",'
+                    '"citations":["COMP2001-Artificial-Intelligence-Methods.pdf"]}}'
+                    '</\uff5c\uff5cDSML\uff5c\uff5cparameter>\n'
+                    '</\uff5c\uff5cDSML\uff5c\uff5cinvoke>'
+                ),
+            ]
+        ),
+    )
+
+    result = asyncio.run(
+        runtime.run_agentic_query(
+            user_query="Find the module",
+            user_id="user-1",
+            included_file_ids=["file-ai"],
+            max_steps=1,
+        )
+    )
+
+    assert result.answer == "COMP2001"
+    assert result.citations == ["COMP2001-Artificial-Intelligence-Methods.pdf"]
+    assert result.termination_reason == "forced_finish_after_max_steps"
 
 
 def test_search_context_tool_passes_none_scope_to_vector_search(monkeypatch):
@@ -328,6 +402,168 @@ def test_fetch_file_context_tool_returns_ordered_scoped_parent_chunks(monkeypatc
     assert [item.parent_chunk_number for item in result] == [0, 1, 2]
     assert [item.parent_id for item in result] == ["parent-0", "parent-1", "parent-2"]
     assert set(cache) == {"parent-0", "parent-1", "parent-2"}
+
+
+def test_find_inventory_records_tool_returns_all_matching_scoped_records(monkeypatch):
+    rows = [
+        _parent_row(
+            parent_id="p-ai",
+            file_id="file-ai",
+            file_name="COMP2001-Artificial-Intelligence-Methods.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2001 - Level: 2 - Semester: Spring UK",
+        ),
+        _parent_row(
+            parent_id="p-afp",
+            file_id="file-afp",
+            file_name="COMP2003-Advanced-Functional-Programming.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2003 - Level: 2 - Semester: Spring UK",
+        ),
+        _parent_row(
+            parent_id="p-hci",
+            file_id="file-hci",
+            file_name="COMP2004-Introduction-to-Human-Computer-Interaction.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2004 - Level: 2 - Semester: Spring UK",
+        ),
+        _parent_row(
+            parent_id="p-cpp",
+            file_id="file-cpp",
+            file_name="COMP2006-C++-Programming.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2006 - Level: 2 - Semester: Spring UK",
+        ),
+        _parent_row(
+            parent_id="p-lac",
+            file_id="file-lac",
+            file_name="COMP2012-Languages-and-Computation.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2012 - Level: 2 - Semester: Spring UK",
+        ),
+        _parent_row(
+            parent_id="p-ds",
+            file_id="file-ds",
+            file_name="COMP2014-Distributed-Systems.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2014 - Level: 2 - Semester: Spring UK",
+        ),
+        _parent_row(
+            parent_id="p-adse",
+            file_id="file-adse",
+            file_name="COMP2054-Algorithms-Data-Structures-and-Efficiency.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2054 - Level: 2 - Semester: Spring UK",
+        ),
+        _parent_row(
+            parent_id="p-segp",
+            file_id="file-segp",
+            file_name="COMP2002-Software-Engineering-Group-Project.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2002 - Level: 2 - Semester: Full Year",
+        ),
+        _parent_row(
+            parent_id="p-autumn",
+            file_id="file-autumn",
+            file_name="COMP2007-Operating-Systems-and-Concurrency.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP2007 - Level: 2 - Semester: Autumn UK",
+        ),
+        _parent_row(
+            parent_id="p-l3",
+            file_id="file-l3",
+            file_name="COMP3001-Something.pdf",
+            chunk_number=1,
+            content="## Module Overview - Module Code: COMP3001 - Level: 3 - Semester: Spring UK",
+        ),
+    ]
+    fake_vectordb = types.ModuleType("app.vectordb.vectordb")
+    fake_vectordb.PARENT_STORE = types.SimpleNamespace(collection=_FakeParentCollection(rows))
+    monkeypatch.setitem(sys.modules, "app.vectordb.vectordb", fake_vectordb)
+
+    cache: dict[str, dict] = {}
+    result = asyncio.run(
+        tools.find_inventory_records_tool(
+            query="Find all the Y2 Spring modules and their assessment weightage",
+            user_id="user-1",
+            included_file_ids=[
+                "file-ai",
+                "file-afp",
+                "file-hci",
+                "file-cpp",
+                "file-lac",
+                "file-ds",
+                "file-adse",
+                "file-segp",
+                "file-autumn",
+            ],
+            parent_doc_cache=cache,
+        )
+    )
+
+    assert [item.file_name for item in result] == [
+        "COMP2001-Artificial-Intelligence-Methods.pdf",
+        "COMP2002-Software-Engineering-Group-Project.pdf",
+        "COMP2003-Advanced-Functional-Programming.pdf",
+        "COMP2004-Introduction-to-Human-Computer-Interaction.pdf",
+        "COMP2006-C++-Programming.pdf",
+        "COMP2012-Languages-and-Computation.pdf",
+        "COMP2014-Distributed-Systems.pdf",
+        "COMP2054-Algorithms-Data-Structures-and-Efficiency.pdf",
+    ]
+    assert set(cache) == {
+        "p-ai",
+        "p-afp",
+        "p-hci",
+        "p-cpp",
+        "p-lac",
+        "p-ds",
+        "p-adse",
+        "p-segp",
+    }
+
+
+def test_find_inventory_records_tool_supports_non_module_inventory_queries(monkeypatch):
+    rows = [
+        _parent_row(
+            parent_id="p-security",
+            file_id="file-security",
+            file_name="Security-Policy.pdf",
+            chunk_number=1,
+            content="Policy Overview - Security policy for account access.",
+        ),
+        _parent_row(
+            parent_id="p-retention",
+            file_id="file-retention",
+            file_name="Retention-Policy.pdf",
+            chunk_number=1,
+            content="Policy Overview - Data retention policy for archived records.",
+        ),
+        _parent_row(
+            parent_id="p-guide",
+            file_id="file-guide",
+            file_name="Setup-Guide.pdf",
+            chunk_number=1,
+            content="Guide Overview - Local development setup instructions.",
+        ),
+    ]
+    fake_vectordb = types.ModuleType("app.vectordb.vectordb")
+    fake_vectordb.PARENT_STORE = types.SimpleNamespace(collection=_FakeParentCollection(rows))
+    monkeypatch.setitem(sys.modules, "app.vectordb.vectordb", fake_vectordb)
+
+    result = asyncio.run(
+        tools.find_inventory_records_tool(
+            query="List all policy records",
+            user_id="user-1",
+            included_file_ids=None,
+            parent_doc_cache={},
+        )
+    )
+
+    assert [item.file_name for item in result] == [
+        "Retention-Policy.pdf",
+        "Security-Policy.pdf",
+    ]
 
 
 def test_fetch_file_context_tool_biases_large_single_chunk_to_query_terms(monkeypatch):
@@ -628,6 +864,10 @@ def test_runtime_enforces_max_steps(monkeypatch):
     assert result.answer == "No answer found in the provided context."
 
 
+def test_runtime_default_timeout_is_500_seconds():
+    assert runtime._DEFAULT_TIMEOUT_SECONDS == 500.0
+
+
 def test_runtime_reads_reference_only_on_demand(monkeypatch):
     calls = {"count": 0}
 
@@ -690,7 +930,7 @@ def test_config_loads_system_prompt_and_skill_metadata_without_body():
     assert "agentic-query" in config.skill_registry
     metadata = config.skill_registry["agentic-query"]
     assert metadata.description
-    assert "load_skill" in metadata.allowed_tools
+    assert "load_answering_instructions" in metadata.allowed_tools
     assert "answer_examples" in metadata.reference_ids
 
 
@@ -858,6 +1098,155 @@ def test_runtime_executes_fetch_file_context_action(monkeypatch):
     assert result.citations == ["Random Stories.pdf"]
 
 
+def test_runtime_auto_seeds_inventory_records_for_exhaustive_query(monkeypatch):
+    async def _fake_search_context_tool(**_kwargs):
+        return [
+            EvidenceItem(
+                parent_id="p-cpp",
+                file_id="file-cpp",
+                file_name="COMP2006-C++-Programming.pdf",
+                parent_chunk_number=1,
+                snippet="Module Code: COMP2006 - Level: 2 - Semester: Spring UK",
+            )
+        ]
+
+    async def _fake_find_inventory_records_tool(**kwargs):
+        kwargs["parent_doc_cache"]["p-ai"] = {"id": "p-ai"}
+        return [
+            EvidenceItem(
+                parent_id="p-ai",
+                file_id="file-ai",
+                file_name="COMP2001-Artificial-Intelligence-Methods.pdf",
+                parent_chunk_number=1,
+                snippet="Module Code: COMP2001 - Level: 2 - Semester: Spring UK",
+            ),
+            EvidenceItem(
+                parent_id="p-cpp",
+                file_id="file-cpp",
+                file_name="COMP2006-C++-Programming.pdf",
+                parent_chunk_number=1,
+                snippet="Module Code: COMP2006 - Level: 2 - Semester: Spring UK",
+            ),
+        ]
+
+    monkeypatch.setattr(runtime.tools, "search_context_tool", _fake_search_context_tool)
+    monkeypatch.setattr(runtime.tools, "find_inventory_records_tool", _fake_find_inventory_records_tool)
+    monkeypatch.setattr(
+        runtime.llm_client,
+        "call_action_model",
+        _llm_sequence(
+            [
+                (
+                    '{"action":"finish","arguments":{"answer":"COMP2001 and COMP2006",'
+                    '"citations":["COMP2001-Artificial-Intelligence-Methods.pdf",'
+                    '"COMP2006-C++-Programming.pdf"]}}'
+                )
+            ]
+        ),
+    )
+
+    result = asyncio.run(
+        runtime.run_agentic_query(
+            user_query="List down all the module in Y2 Spring",
+            user_id="user-1",
+            included_file_ids=["file-ai", "file-cpp"],
+            max_steps=1,
+        )
+    )
+
+    assert result.answer == "COMP2001 and COMP2006"
+    assert result.citations == [
+        "COMP2001-Artificial-Intelligence-Methods.pdf",
+        "COMP2006-C++-Programming.pdf",
+    ]
+    assert result.tool_call_count == 2
+
+
+def test_runtime_rejects_inventory_answer_with_extra_semantic_record(monkeypatch):
+    async def _fake_search_context_tool(**_kwargs):
+        return [
+            EvidenceItem(
+                parent_id="p-compiler",
+                file_id="file-compiler",
+                file_name="COMP3095-Compiler-Design-and-Implementation.pdf",
+                parent_chunk_number=7,
+                snippet="Assessment table for COMP3095.",
+            )
+        ]
+
+    async def _fake_find_inventory_records_tool(**kwargs):
+        kwargs["parent_doc_cache"]["p-ai"] = {
+            "id": "p-ai",
+            "metadata": {
+                "file_metadata": {
+                    "file_name": "COMP2001-Artificial-Intelligence-Methods.pdf"
+                }
+            },
+            "page_content": "Module Code: COMP2001 - Level: 2 - Semester: Spring UK",
+        }
+        kwargs["parent_doc_cache"]["p-cpp"] = {
+            "id": "p-cpp",
+            "metadata": {
+                "file_metadata": {
+                    "file_name": "COMP2006-C++-Programming.pdf"
+                }
+            },
+            "page_content": "Module Code: COMP2006 - Level: 2 - Semester: Spring UK",
+        }
+        return [
+            EvidenceItem(
+                parent_id="p-ai",
+                file_id="file-ai",
+                file_name="COMP2001-Artificial-Intelligence-Methods.pdf",
+                parent_chunk_number=1,
+                snippet="Module Code: COMP2001 - Level: 2 - Semester: Spring UK",
+            ),
+            EvidenceItem(
+                parent_id="p-cpp",
+                file_id="file-cpp",
+                file_name="COMP2006-C++-Programming.pdf",
+                parent_chunk_number=1,
+                snippet="Module Code: COMP2006 - Level: 2 - Semester: Spring UK",
+            ),
+        ]
+
+    monkeypatch.setattr(runtime.tools, "search_context_tool", _fake_search_context_tool)
+    monkeypatch.setattr(runtime.tools, "find_inventory_records_tool", _fake_find_inventory_records_tool)
+    monkeypatch.setattr(
+        runtime.llm_client,
+        "call_action_model",
+        _llm_sequence(
+            [
+                (
+                    '{"action":"finish","arguments":{"answer":"COMP2001 and COMP3095",'
+                    '"citations":["COMP2001-Artificial-Intelligence-Methods.pdf",'
+                    '"COMP3095-Compiler-Design-and-Implementation.pdf"]}}'
+                ),
+                (
+                    '{"action":"finish","arguments":{"answer":"COMP2001 and COMP2006",'
+                    '"citations":["COMP2001-Artificial-Intelligence-Methods.pdf",'
+                    '"COMP2006-C++-Programming.pdf"]}}'
+                ),
+            ]
+        ),
+    )
+
+    result = asyncio.run(
+        runtime.run_agentic_query(
+            user_query="Find all the Y2 Spring modules and their assessment weightage",
+            user_id="user-1",
+            included_file_ids=["file-ai", "file-cpp", "file-compiler"],
+            max_steps=2,
+        )
+    )
+
+    assert result.answer == "COMP2001 and COMP2006"
+    assert result.citations == [
+        "COMP2001-Artificial-Intelligence-Methods.pdf",
+        "COMP2006-C++-Programming.pdf",
+    ]
+
+
 def test_runtime_normalizes_citations_to_scoped_evidence(monkeypatch):
     monkeypatch.setattr(
         runtime.llm_client,
@@ -1005,12 +1394,12 @@ def test_runtime_emits_structured_step_trace_metadata(monkeypatch):
         if event.get("stage") == "agentic_query_step"
         and event.get("status") == "started"
         and isinstance(event.get("metadata"), dict)
-        and event["metadata"].get("action") == "search_context"
+        and event["metadata"].get("action") == "search_relevant_chunks"
     ]
-    assert step_started, "Expected started step event for search_context."
+    assert step_started, "Expected started step event for search_relevant_chunks."
     assert step_started[0]["metadata"].get("intent") == "Find policy evidence"
     assert step_started[0]["metadata"].get("decision") == "If weak, fetch parent chunk"
-    assert step_started[0]["metadata"].get("tool") == "search_context"
+    assert step_started[0]["metadata"].get("tool") == "search_relevant_chunks"
 
     step_completed = [
         event
@@ -1018,8 +1407,8 @@ def test_runtime_emits_structured_step_trace_metadata(monkeypatch):
         if event.get("stage") == "agentic_query_step"
         and event.get("status") == "completed"
         and isinstance(event.get("metadata"), dict)
-        and event["metadata"].get("action") == "search_context"
+        and event["metadata"].get("action") == "search_relevant_chunks"
     ]
-    assert step_completed, "Expected completed step event for search_context."
+    assert step_completed, "Expected completed step event for search_relevant_chunks."
     assert isinstance(step_completed[0]["metadata"].get("argumentsPreview"), str)
-    assert "search_context returned" in str(step_completed[0]["metadata"].get("observation"))
+    assert "search_relevant_chunks returned" in str(step_completed[0]["metadata"].get("observation"))

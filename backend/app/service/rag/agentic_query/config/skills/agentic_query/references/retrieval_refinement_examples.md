@@ -7,21 +7,21 @@ Observed situation:
 The search returns many related results, but they cover the whole project rather than the exact topic.
 
 Preferred move:
-Run a narrower `search_context` query using the exact topic, policy term, or entity name.
+Run a narrower `search_relevant_chunks` query using the exact topic, policy term, or entity name.
 
 ## Case 2: results are sparse
 Observed situation:
 The search returns no useful evidence or only weakly related snippets.
 
 Preferred move:
-Run a broader `search_context` query with fewer constraints or more general wording.
+Run a broader `search_relevant_chunks` query with fewer constraints or more general wording.
 
 ## Case 3: one chunk looks promising
 Observed situation:
 A parent chunk appears directly relevant and likely contains the exact statement needed.
 
 Preferred move:
-Use `fetch_parent_chunk` for that parent chunk before running another search.
+Use `read_chunk_detail` for that parent chunk before running another search.
 
 ## Case 4: repeated failed search
 Observed situation:

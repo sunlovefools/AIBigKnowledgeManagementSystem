@@ -22,6 +22,8 @@ export type MarkdownReviewMarker = {
   status: ProposalStatus
   hunks: ProposalHunk[]
   offset: number
+  originalText: string
+  proposedText: string
 }
 
 type MarkdownReviewCallbacks = {
@@ -120,9 +122,31 @@ function plainOffsetToDocPosition(
   return null
 }
 
+function formatReviewTitle(marker: MarkdownReviewMarker) {
+  if (marker.status === 'accepted') return 'Accepted'
+  if (!marker.originalText.trim()) return 'Add section'
+  if (!marker.proposedText.trim()) return 'Delete section'
+  return 'Review section change'
+}
+
+function appendReviewText(parent: HTMLElement, className: string, label: string, text: string) {
+  const block = document.createElement('span')
+  block.className = className
+
+  const blockLabel = document.createElement('span')
+  blockLabel.className = 'review-section-label'
+  blockLabel.textContent = label
+
+  const blockText = document.createElement('span')
+  blockText.className = 'review-section-text'
+  blockText.textContent = text.trim() || '(empty)'
+
+  block.append(blockLabel, blockText)
+  parent.appendChild(block)
+}
+
 function makeSuggestionWidget(
   marker: MarkdownReviewMarker,
-  hunk: ProposalHunk,
   isActive: boolean,
   callbacks?: MarkdownReviewCallbacks,
   onActivate?: (proposalKey: string) => void
@@ -135,20 +159,15 @@ function makeSuggestionWidget(
   const pill = document.createElement('button')
   pill.type = 'button'
   pill.className = 'review-suggestion-pill'
-  pill.textContent = marker.status === 'accepted'
-    ? 'Accepted'
-    : hunk.type === 'insert'
-      ? `Add ${hunk.proposedText.trim() || 'text'}`
-      : hunk.type === 'delete'
-        ? 'Delete'
-        : `Change to ${hunk.proposedText.trim() || 'new text'}`
+  pill.textContent = formatReviewTitle(marker)
   pill.addEventListener('click', (event) => {
     event.preventDefault()
     event.stopPropagation()
     onActivate?.(marker.proposalKey)
   })
-  widget.appendChild(pill)
 
+  const header = document.createElement('span')
+  header.className = 'review-suggestion-header'
   const actions = document.createElement('span')
   actions.className = 'review-suggestion-actions'
 
@@ -187,28 +206,16 @@ function makeSuggestionWidget(
     actions.appendChild(undo)
   }
 
-  widget.appendChild(actions)
+  header.append(pill, actions)
+  widget.appendChild(header)
+
+  const preview = document.createElement('span')
+  preview.className = 'review-section-preview'
+  appendReviewText(preview, 'review-section-before', marker.status === 'accepted' ? 'Original' : 'Remove', marker.originalText)
+  appendReviewText(preview, 'review-section-after', marker.status === 'accepted' ? 'Current' : 'Replace with', marker.proposedText)
+  widget.appendChild(preview)
+
   return widget
-}
-
-function buildProposalWidgetHunk(marker: MarkdownReviewMarker): ProposalHunk | null {
-  if (!marker.hunks.length) return null
-
-  const first = marker.hunks[0]
-  const last = marker.hunks[marker.hunks.length - 1]
-  const originalText = marker.hunks.map((hunk) => hunk.originalText).filter(Boolean).join(' ... ')
-  const proposedText = marker.hunks.map((hunk) => hunk.proposedText).filter(Boolean).join(' ... ')
-
-  return {
-    type: !originalText ? 'insert' : !proposedText ? 'delete' : 'replace',
-    originalStart: first.originalStart,
-    originalEnd: last.originalEnd,
-    proposedStart: first.proposedStart,
-    proposedEnd: last.proposedEnd,
-    originalText,
-    proposedText,
-    tokens: [],
-  }
 }
 
 function buildReviewDecorations(
@@ -226,34 +233,29 @@ function buildReviewDecorations(
   for (const marker of markers) {
     const isActive = marker.proposalKey === activeReviewKey
     let lastWidgetPosition: number | null = null
+    const sourceText = marker.status === 'accepted' ? marker.proposedText : marker.originalText
+    const rangeStart = marker.offset
+    const rangeEnd = marker.offset + sourceText.length
+    const from = plainOffsetToDocPosition(offsetMap, rangeStart, 'forward')
+    const to = plainOffsetToDocPosition(offsetMap, rangeEnd, 'backward') ?? from
 
-    marker.hunks.forEach((hunk) => {
-      const hunkStart = marker.offset + (marker.status === 'accepted' ? hunk.proposedStart : hunk.originalStart)
-      const hunkEnd = marker.offset + (marker.status === 'accepted' ? hunk.proposedEnd : hunk.originalEnd)
-      const from = plainOffsetToDocPosition(offsetMap, hunkStart, 'forward')
-      const to = plainOffsetToDocPosition(offsetMap, hunkEnd, 'backward') ?? from
+    if (typeof from !== 'number') continue
 
-      if (typeof from !== 'number') return
+    const markerType = !marker.originalText ? 'insert' : !marker.proposedText ? 'delete' : 'replace'
+    if (typeof to === 'number' && to > from) {
+      decorations.push(Decoration.inline(from, to, {
+        class: `review-text-marker review-section-marker ${marker.status} ${markerType} ${isActive ? 'active' : ''}`.trim(),
+        'data-proposal-key': marker.proposalKey,
+      }))
+    }
 
-      if (typeof to === 'number' && to > from) {
-        decorations.push(Decoration.inline(from, to, {
-          class: `review-text-marker ${marker.status} ${hunk.type} ${isActive ? 'active' : ''}`.trim(),
-          'data-proposal-key': marker.proposalKey,
-        }))
-      }
-
-      const widgetPosition = typeof to === 'number' && to >= from ? to : from
-      lastWidgetPosition = Math.max(lastWidgetPosition ?? widgetPosition, widgetPosition)
-    })
+    lastWidgetPosition = typeof to === 'number' && to >= from ? to : from
 
     if (typeof lastWidgetPosition !== 'number') continue
 
-    const widgetHunk = buildProposalWidgetHunk(marker)
-    if (!widgetHunk) continue
-
     decorations.push(Decoration.widget(
       lastWidgetPosition,
-      () => makeSuggestionWidget(marker, widgetHunk, isActive, callbacks, onActivate),
+      () => makeSuggestionWidget(marker, isActive, callbacks, onActivate),
       {
         key: `${marker.proposalKey}-controls-${marker.status}-${isActive ? 'active' : 'idle'}`,
         side: 1,

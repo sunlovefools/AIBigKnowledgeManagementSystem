@@ -64,7 +64,7 @@ def _block(
     )
 
 
-def test_layout_table_is_flattened_and_not_semantic_chunked(monkeypatch, tmp_path):
+def test_layout_table_is_preserved_and_not_semantic_chunked(monkeypatch, tmp_path):
     monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
 
     table_markdown = _make_markdown_table(
@@ -102,13 +102,11 @@ def test_layout_table_is_flattened_and_not_semantic_chunked(monkeypatch, tmp_pat
     assert not warnings
     assert not semantic_parents
     assert not semantic_children
-    assert transformed_blocks[1].block_type == "text"
-    assert "- Metric: Growth; Definition: Revenue prior to foreign currency impact." in (
-        transformed_blocks[1].content
-    )
+    assert transformed_blocks[1].block_type == "table"
+    assert transformed_blocks[1].content == table_markdown
 
 
-def test_table_classification_failure_falls_back_to_layout(monkeypatch, tmp_path):
+def test_table_classification_failure_preserves_table(monkeypatch, tmp_path):
     monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
 
     table_markdown = _make_markdown_table(
@@ -136,12 +134,12 @@ def test_table_classification_failure_falls_back_to_layout(monkeypatch, tmp_path
 
     assert not semantic_parents
     assert not semantic_children
-    assert transformed_blocks[0].block_type == "text"
-    assert "Metric: Growth" in transformed_blocks[0].content
+    assert transformed_blocks[0].block_type == "table"
+    assert transformed_blocks[0].content == table_markdown
     assert any("Table classification failed" in warning for warning in warnings)
 
 
-def test_table_description_failure_falls_back_to_layout(monkeypatch, tmp_path):
+def test_table_description_failure_preserves_table(monkeypatch, tmp_path):
     monkeypatch.setenv("TABLE_SEMANTIC_INGESTION_ENABLED", "true")
 
     table_markdown = _make_markdown_table(
@@ -179,8 +177,8 @@ def test_table_description_failure_falls_back_to_layout(monkeypatch, tmp_path):
 
     assert not semantic_parents
     assert not semantic_children
-    assert transformed_blocks[0].block_type == "text"
-    assert "Metric: Growth" in transformed_blocks[0].content
+    assert transformed_blocks[0].block_type == "table"
+    assert transformed_blocks[0].content == table_markdown
     assert any("Table description/section detection failed" in warning for warning in warnings)
 
 
@@ -1008,6 +1006,129 @@ def test_run_docling_pdf_pipeline_resequences_after_merge(monkeypatch, tmp_path)
 
     assert [item["parent_chunk_metadata"]["parent_chunk_number"] for item in parent_dicts] == [0, 1]
     assert [item["child_chunk_metadata"]["child_chunk_number"] for item in child_dicts] == [0, 1]
+
+
+def test_run_docling_pdf_pipeline_interleaves_semantic_tables_by_source_block(monkeypatch, tmp_path):
+    parse_result = DoclingParseResult(
+        warnings=[],
+        partial_failures=[],
+        structured_blocks=[
+            _block(0, "text", "before"),
+            _block(3, "table", "| a | b |\n| --- | --- |\n| 1 | 2 |"),
+            _block(4, "text", "after"),
+        ],
+    )
+
+    before_parent = ParentChunkModel(
+        parent_chunk_id="parent-before",
+        content="before parent",
+        file_metadata={"file_name": "sample.pdf", "file_id": "file-123"},
+        parent_chunk_metadata={
+            "child_chunks_ids": ["child-before"],
+            "parent_chunk_number": 0,
+            "page_number": [1],
+            "ingested_at": "now",
+            "source_block_start": 0,
+            "source_block_end": 0,
+        },
+        content_flags={"is_image": False, "is_table_image": False},
+        artifact_refs={"image_uuid": [], "table_image_uuid": []},
+    )
+    after_parent = ParentChunkModel(
+        parent_chunk_id="parent-after",
+        content="after parent",
+        file_metadata={"file_name": "sample.pdf", "file_id": "file-123"},
+        parent_chunk_metadata={
+            "child_chunks_ids": ["child-after"],
+            "parent_chunk_number": 1,
+            "page_number": [1],
+            "ingested_at": "now",
+            "source_block_start": 4,
+            "source_block_end": 4,
+        },
+        content_flags={"is_image": False, "is_table_image": False},
+        artifact_refs={"image_uuid": [], "table_image_uuid": []},
+    )
+    semantic_parent = ParentChunkModel(
+        parent_chunk_id="parent-semantic",
+        content="semantic table parent",
+        file_metadata={"file_name": "sample.pdf", "file_id": "file-123"},
+        parent_chunk_metadata={
+            "child_chunks_ids": ["child-semantic"],
+            "parent_chunk_number": 99,
+            "page_number": [1],
+            "ingested_at": "now",
+            "table_semantic": {"table_block_index": 3, "group_index": 0},
+        },
+        content_flags={"is_image": False, "is_table_image": False, "is_semantic_table": True},
+        artifact_refs={"image_uuid": [], "table_image_uuid": []},
+    )
+
+    def _child(child_id: str, parent_id: str, number: int) -> ChildChunkModel:
+        return ChildChunkModel(
+            child_chunk_id=child_id,
+            content=child_id,
+            file_metadata={"file_name": "sample.pdf", "file_id": "file-123"},
+            child_chunk_metadata={
+                "parent_id": parent_id,
+                "child_chunk_number": number,
+                "page_number": 1,
+                "has_preamble": False,
+                "ingested_at": "now",
+            },
+            content_flags={"is_image": False, "is_table_image": False},
+            artifact_refs={"image_uuid": None, "table_image_uuid": None},
+        )
+
+    monkeypatch.setattr(
+        ingest_upload_service.local_artifacts_store,
+        "prepare_docling_artifact_dir",
+        lambda **_: ("run-id", tmp_path, tmp_path / "document.md"),
+    )
+    monkeypatch.setattr(
+        ingest_upload_service,
+        "parse_pdf_with_docling",
+        lambda **_: parse_result,
+    )
+    monkeypatch.setattr(
+        ingest_upload_service,
+        "process_semantic_tables_for_pdf",
+        lambda **_: (
+            parse_result.structured_blocks,
+            [semantic_parent],
+            [_child("child-semantic", "parent-semantic", 99)],
+            [],
+        ),
+    )
+    monkeypatch.setattr(
+        ingest_upload_service,
+        "split_parent_child_chunks_from_docling_blocks",
+        lambda **_: (
+            [before_parent, after_parent],
+            [
+                _child("child-before", "parent-before", 0),
+                _child("child-after", "parent-after", 1),
+            ],
+        ),
+    )
+
+    parent_dicts, child_dicts, _warnings, _run_id = ingest_upload_service.run_docling_pdf_pipeline(
+        file_name="sample.pdf",
+        file_bytes=b"%PDF-1.4",
+    )
+
+    assert [item["parent_chunk_id"] for item in parent_dicts] == [
+        "parent-before",
+        "parent-semantic",
+        "parent-after",
+    ]
+    assert [item["parent_chunk_metadata"]["parent_chunk_number"] for item in parent_dicts] == [0, 1, 2]
+    assert [item["child_chunk_metadata"]["parent_id"] for item in child_dicts] == [
+        "parent-before",
+        "parent-semantic",
+        "parent-after",
+    ]
+    assert [item["child_chunk_metadata"]["child_chunk_number"] for item in child_dicts] == [0, 1, 2]
 
 
 def test_run_docling_pdf_pipeline_fails_when_semantic_llm_stage_fails(monkeypatch, tmp_path):

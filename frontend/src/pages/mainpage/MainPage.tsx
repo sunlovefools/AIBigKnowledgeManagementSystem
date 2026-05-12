@@ -24,10 +24,7 @@ type MobileWorkspace = "chat" | "files" | "document";
 const MODIFICATION_AGENT_MODE_STORAGE_KEY = "modificationAgentMode";
 
 function loadModificationAgentMode(): ModificationAgentMode {
-    if (typeof window === "undefined") return "workflow";
-    return window.localStorage.getItem(MODIFICATION_AGENT_MODE_STORAGE_KEY) === "skills"
-        ? "skills"
-        : "workflow";
+    return "skills";
 }
 
 export default function ConversationPage() {
@@ -87,10 +84,9 @@ export default function ConversationPage() {
         conversationsError,
         conversationMessagesError,
         conversationId,
-        isAgenticSearchEnabled,
         setInput,
-        toggleAgenticSearch,
         appendMessage,
+        appendMessageForProgress,
         persistConversationTurn,
         startProgressMessage,
         pushProgressStep,
@@ -207,6 +203,12 @@ export default function ConversationPage() {
     }, [modificationAgentMode]);
 
     useEffect(() => {
+        if (isEditMode && modificationAgentMode !== "skills") {
+            setModificationAgentMode("skills");
+        }
+    }, [isEditMode, modificationAgentMode]);
+
+    useEffect(() => {
         return () => {
             if (modificationCloseTimeoutRef.current !== null) {
                 window.clearTimeout(modificationCloseTimeoutRef.current);
@@ -250,7 +252,7 @@ export default function ConversationPage() {
                         modificationAgentMode,
                         onProgress
                     );
-                appendMessage({
+                appendMessageForProgress(progressMessageId, {
                     role: "ai",
                     text: result.ok
                         ? result.summary ?? "Review the proposals in the edit panel."
@@ -267,7 +269,7 @@ export default function ConversationPage() {
                     collectionName: modificationCollectionScope.type === "collection" ? modificationCollectionScope.collectionName ?? null : null,
                 }).catch((error) => {
                     console.warn("Failed to persist modification conversation turn:", error);
-                    appendMessage({
+                    appendMessageForProgress(progressMessageId, {
                         role: "ai",
                         text: "This edit result could not be saved to conversation history. Please start a new chat if the current history is full.",
                     });
@@ -727,32 +729,6 @@ export default function ConversationPage() {
                 collectionError={collectionError}
                 onScopeChange={setChatScope}
             />
-            <div className="search-mode-toggle-group" role="group" aria-label="Search mode">
-                <button
-                    type="button"
-                    className={`search-mode-option ${!isAgenticSearchEnabled ? "active" : ""}`}
-                    onClick={() => {
-                        if (isAgenticSearchEnabled) toggleAgenticSearch();
-                    }}
-                    disabled={chatControlsDisabled}
-                    aria-pressed={!isAgenticSearchEnabled}
-                    title="Use standard retrieve-and-answer search"
-                >
-                    Standard
-                </button>
-                <button
-                    type="button"
-                    className={`search-mode-option ${isAgenticSearchEnabled ? "active" : ""}`}
-                    onClick={() => {
-                        if (!isAgenticSearchEnabled) toggleAgenticSearch();
-                    }}
-                    disabled={chatControlsDisabled}
-                    aria-pressed={isAgenticSearchEnabled}
-                    title="Use agentic multi-step search"
-                >
-                    Agentic
-                </button>
-            </div>
         </>
     );
     const modificationCollectionControls = (

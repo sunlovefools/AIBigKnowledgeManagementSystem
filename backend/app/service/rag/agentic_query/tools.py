@@ -22,6 +22,7 @@ _MAX_FETCH_SNIPPET_CHARS = 4200
 _MAX_SKILL_CHARS = 8000
 _MAX_FILE_MATCHES = 10
 _MAX_FILE_CONTEXT_CHUNKS = 40
+_MAX_INVENTORY_RECORD_MATCHES = 50
 
 
 def load_skill_tool(
@@ -35,7 +36,7 @@ def load_skill_tool(
 
     normalized_skill_name = str(skill_name or "").strip().lower().replace("_", "-")
     if not normalized_skill_name:
-        raise ValueError("load_skill skill_name must not be empty.")
+        raise ValueError("load_answering_instructions skill_name must not be empty.")
 
     cached = loaded_skill_cache.get(normalized_skill_name)
     if isinstance(cached, dict):
@@ -278,6 +279,145 @@ def _query_anchors(query: str | None) -> list[str]:
     return anchors
 
 
+def _extract_record_code(raw: str | None) -> str:
+    """Return the first course/module-style code found in a filename or body."""
+
+    match = re.search(r"\b[A-Z]{2,}\d{3,4}\b", str(raw or ""), flags=re.IGNORECASE)
+    return match.group(0).upper() if match else ""
+
+
+def _inventory_filters_from_query(query: str | None) -> dict[str, Any]:
+    """Extract reusable structured filters for high-recall inventory scans."""
+
+    normalized = " ".join(str(query or "").split()).lower()
+    level: int | None = None
+    level_match = re.search(r"\b(?:y|year\s*|level\s*)([1-9])\b", normalized)
+    if level_match:
+        level = int(level_match.group(1))
+
+    semester: str | None = None
+    for candidate in ("spring", "autumn", "summer", "fall"):
+        if candidate in normalized:
+            semester = "autumn" if candidate == "fall" else candidate
+            break
+
+    stopwords = {
+        "all",
+        "and",
+        "are",
+        "down",
+        "every",
+        "find",
+        "for",
+        "from",
+        "in",
+        "into",
+        "list",
+        "listed",
+        "the",
+        "them",
+        "what",
+        "which",
+        "with",
+        "year",
+        "level",
+        "spring",
+        "autumn",
+        "summer",
+        "fall",
+        "their",
+        "its",
+    }
+    terms = [
+        token
+        for token in re.findall(r"[a-z][a-z0-9_-]*", normalized)
+        if len(token) >= 3 and token not in stopwords and not re.fullmatch(r"y[1-9]", token)
+    ]
+    return {"level": level, "semester": semester, "terms": terms}
+
+
+def _content_matches_level_and_semester(content: str, *, level: int | None, semester: str | None) -> bool:
+    """Match common level/year and semester fields without relying on vector ranking."""
+
+    normalized = " ".join(str(content or "").split()).lower()
+    if not normalized:
+        return False
+
+    if level is not None:
+        level_patterns = [
+            rf"\blevel\s*[:\-]?\s*{int(level)}\b",
+            rf"\blevel\s+{int(level)}\b",
+            rf"\byear\s*{int(level)}\b",
+            rf"\by{int(level)}\b",
+        ]
+        if not any(re.search(pattern, normalized) for pattern in level_patterns):
+            return False
+
+    normalized_semester = str(semester or "").strip().lower()
+    if normalized_semester:
+        full_year_aliases = [
+            "full year",
+            "full-year",
+            "fullyear",
+            "full year uk",
+            "year long",
+            "year-long",
+            "yearlong",
+        ]
+        semester_aliases = {
+            "spring": ["spring", "spring uk", *full_year_aliases],
+            "autumn": ["autumn", "autumn uk", "fall", *full_year_aliases],
+            "summer": ["summer", "summer uk"],
+        }
+        aliases = semester_aliases.get(normalized_semester, [normalized_semester])
+        if not any(alias in normalized for alias in aliases):
+            return False
+
+    return True
+
+
+def _record_matches_inventory_query(
+    doc: dict[str, Any],
+    *,
+    query: str,
+    filters: dict[str, Any],
+) -> bool:
+    """Return true when a scoped parent chunk looks like one requested inventory item."""
+
+    file_id, file_name, _, _ = _extract_metadata(doc)
+    if not file_id:
+        return False
+    content = str(doc.get("page_content") or "")
+    combined = f"{file_name}\n{content}".lower()
+    if not _content_matches_level_and_semester(
+        combined,
+        level=filters.get("level"),
+        semester=filters.get("semester"),
+    ):
+        return False
+
+    terms = [
+        str(term).strip().lower()
+        for term in filters.get("terms", [])
+        if str(term).strip()
+    ]
+    if not terms:
+        return True
+
+    module_terms = {"module", "modules"}
+    if any(term in module_terms for term in terms):
+        module_signal = (
+            "module" in combined
+            or "module code" in combined
+            or "module overview" in combined
+            or bool(_extract_record_code(file_name))
+            or bool(_extract_record_code(content))
+        )
+        return module_signal
+
+    return any(term in combined for term in terms)
+
+
 def _compact_snippet(
     raw_content: str,
     *,
@@ -370,7 +510,7 @@ async def _find_file_matches(
     normalized_query = str(query or "").strip()
     normalized_user_id = str(user_id or "").strip()
     if not normalized_query:
-        raise ValueError("search_files query must not be empty.")
+        raise ValueError("find_files_by_name query must not be empty.")
     if not normalized_user_id:
         raise ValueError("user_id must be a non-empty string.")
 
@@ -438,6 +578,95 @@ async def search_files_tool(
     )
 
 
+async def find_inventory_records_tool(
+    *,
+    query: str,
+    user_id: str,
+    included_file_ids: list[str] | None,
+    parent_doc_cache: dict[str, dict[str, Any]],
+    max_matches: int = _MAX_INVENTORY_RECORD_MATCHES,
+) -> list[EvidenceItem]:
+    """Deterministically scan scoped parent chunks for inventory-like records.
+
+    Semantic retrieval is intentionally ranked and can miss sibling records.
+    This helper gives exhaustive list-style questions a high-recall pass across
+    scoped parent chunks using lightweight filters derived from the user query.
+    """
+
+    from app.vectordb.vectordb import PARENT_STORE
+
+    normalized_query = str(query or "").strip()
+    normalized_user_id = str(user_id or "").strip()
+    if not normalized_query:
+        raise ValueError("find_inventory_records query must not be empty.")
+    if not normalized_user_id:
+        raise ValueError("user_id must be a non-empty string.")
+
+    filters = _inventory_filters_from_query(normalized_query)
+    included_file_ids_set = _included_file_ids_set(included_file_ids)
+    bounded_max_matches = max(1, min(_MAX_INVENTORY_RECORD_MATCHES, int(max_matches)))
+
+    def _query_rows() -> list[dict[str, Any]]:
+        collection = PARENT_STORE.collection
+        filter_doc: dict[str, Any] = {"value.metadata.user_id": normalized_user_id}
+        if included_file_ids_set:
+            filter_doc["value.metadata.file_metadata.file_id"] = {"$in": sorted(included_file_ids_set)}
+        projection_doc = {"_id": True, "value": True}
+        rows: list[dict[str, Any]] = []
+        for row in collection.find(filter_doc, projection=projection_doc):
+            if isinstance(row, dict):
+                rows.append(row)
+        return rows
+
+    rows = await asyncio.to_thread(_query_rows)
+    matches_by_file_id: dict[str, EvidenceItem] = {}
+    cached_docs_by_file_id: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        doc = _normalize_parent_store_row(row)
+        if doc is None or not _is_doc_in_scope(
+            doc,
+            user_id=normalized_user_id,
+            included_file_ids_set=included_file_ids_set,
+        ):
+            continue
+
+        file_id, file_name, _, _ = _extract_metadata(doc)
+        if not file_id or file_id in matches_by_file_id:
+            continue
+        if not _record_matches_inventory_query(doc, query=normalized_query, filters=filters):
+            continue
+
+        item = _build_evidence_item(
+            doc,
+            query=normalized_query,
+            max_chars=_MAX_FETCH_SNIPPET_CHARS,
+        )
+        if item is None:
+            continue
+        matches_by_file_id[file_id] = item
+        cached_docs_by_file_id[file_id] = {
+            **doc,
+            "_agentic_query_snippet": item.snippet,
+            "_agentic_query_structured_view": item.structured_view,
+        }
+        if len(matches_by_file_id) >= bounded_max_matches:
+            break
+
+    ordered_file_ids = sorted(
+        matches_by_file_id,
+        key=lambda file_id: (
+            _extract_record_code(matches_by_file_id[file_id].file_name),
+            matches_by_file_id[file_id].file_name.lower(),
+        ),
+    )
+    evidence: list[EvidenceItem] = []
+    for file_id in ordered_file_ids:
+        item = matches_by_file_id[file_id]
+        parent_doc_cache[item.parent_id] = cached_docs_by_file_id[file_id]
+        evidence.append(item)
+    return evidence
+
+
 async def search_context_tool(
     *,
     query: str,
@@ -451,7 +680,7 @@ async def search_context_tool(
 
     normalized_query = str(query or "").strip()
     if not normalized_query:
-        raise ValueError("search_context query must not be empty.")
+        raise ValueError("search_relevant_chunks query must not be empty.")
 
     bounded_top_k = max(_MIN_TOP_K, min(_MAX_TOP_K, int(top_k)))
     docs = await search_and_retrieve_context(
@@ -503,7 +732,7 @@ async def search_context_tool(
     selected_candidates = fresh_candidates if fresh_candidates else fallback_candidates
     evidence: list[EvidenceItem] = []
     for item, cached_doc in selected_candidates:
-        # Cache by parent_id so follow-up `fetch_parent_chunk` can avoid an extra DB call.
+        # Cache by parent_id so follow-up `read_chunk_detail` can avoid an extra DB call.
         parent_doc_cache[item.parent_id] = cached_doc
         evidence.append(item)
     return evidence
@@ -522,7 +751,7 @@ async def fetch_parent_chunk_tool(
 
     normalized_parent_id = str(parent_id or "").strip()
     if not normalized_parent_id:
-        raise ValueError("fetch_parent_chunk parent_id must not be empty.")
+        raise ValueError("read_chunk_detail parent_id must not be empty.")
 
     included_file_ids_set = (
         None
@@ -589,7 +818,7 @@ async def fetch_file_context_tool(
     if not normalized_user_id:
         raise ValueError("user_id must be a non-empty string.")
     if not normalized_file_id and not normalized_file_name:
-        raise ValueError("fetch_file_context requires file_id or file_name.")
+        raise ValueError("read_file_chunks requires file_id or file_name.")
 
     included_file_ids_set = _included_file_ids_set(included_file_ids)
     if (

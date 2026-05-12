@@ -19,11 +19,15 @@ def test_mcp_tools_are_registered():
     assert {
         "list_collections",
         "describe_collection",
-        "search_materials",
-        "search_files",
-        "fetch_parent_chunk",
-        "fetch_file_outline",
+        "search_relevant_chunks",
+        "find_files_by_name",
+        "read_chunk_detail",
+        "read_file_chunk_outline",
     }.issubset(tool_names)
+    assert "search_materials" not in tool_names
+    assert "search_files" not in tool_names
+    assert "fetch_parent_chunk" not in tool_names
+    assert "fetch_file_outline" not in tool_names
 
 
 def test_mcp_tool_call_returns_structured_content(monkeypatch):

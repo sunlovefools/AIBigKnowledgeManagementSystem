@@ -22,6 +22,7 @@ from .models import (
     AgenticQueryRunResult,
     FetchFileContextArguments,
     FetchParentChunkArguments,
+    FindInventoryRecordsArguments,
     FinishArguments,
     LoadSkillArguments,
     ReadReferenceArguments,
@@ -61,7 +62,7 @@ except Exception:
             return None
 
 
-_DEFAULT_TIMEOUT_SECONDS = 60.0
+_DEFAULT_TIMEOUT_SECONDS = 500.0
 _DEFAULT_MAX_STEPS = 12
 _DEFAULT_SEED_TOP_K = 8
 _MAX_STEPS_CAP = 12
@@ -70,7 +71,106 @@ _MAX_TOOL_SUMMARY_CHARS = 1200
 _MAX_TRACE_TEXT_CHARS = 240
 _MAX_TRACE_ARGUMENTS_CHARS = 320
 _MAX_TRACE_ROWS = 6
+_MAX_STATE_EVIDENCE_ROWS = 12
+_MAX_STATE_SNIPPET_CHARS = 420
+_MAX_TOOL_EVIDENCE_SNIPPET_CHARS = 900
+_MAX_TOOL_EVIDENCE_STRUCTURED_CHARS = 900
 _JSON_BLOCK_PATTERN = re.compile(r"```(?:json)?\s*(\{[\s\S]*\})\s*```", re.IGNORECASE)
+_ACTION_ALIASES = {
+    "load_skill": "load_answering_instructions",
+    "search_files": "find_files_by_name",
+    "find_module_overviews": "find_inventory_records",
+    "search_context": "search_relevant_chunks",
+    "fetch_parent_chunk": "read_chunk_detail",
+    "fetch_file_context": "read_file_chunks",
+    "read_reference": "read_skill_reference",
+    "finish": "provide_final_answer",
+}
+
+
+def _inventory_seed_request(user_query: str) -> dict[str, Any] | None:
+    """Return a deterministic inventory seed request for exhaustive list questions."""
+
+    normalized = " ".join(str(user_query or "").split()).lower()
+    if not normalized:
+        return None
+
+    asks_for_inventory = any(
+        phrase in normalized
+        for phrase in (
+            "all module",
+            "all the module",
+            "all modules",
+            "all the modules",
+            "all ",
+            "list ",
+            "list module",
+            "list down",
+            "find all",
+            "show all",
+            "every module",
+            "every ",
+        )
+    )
+    if not asks_for_inventory:
+        return None
+
+    return {"query": str(user_query or "").strip(), "max_matches": 50}
+_TOOL_DESCRIPTIONS: dict[str, dict[str, Any]] = {
+    "load_answering_instructions": {
+        "purpose": "Load the full answer-writing and retrieval instructions for one skill before relying on that skill's detailed procedure.",
+        "use_when": "Use early when the skill registry says a skill is relevant and only its short metadata is currently visible.",
+        "inputs": {"skill_name": "Skill name from the registry, usually agentic-query."},
+        "returns": "Full bounded skill body, frontmatter, available reference IDs, and cache status.",
+    },
+    "find_files_by_name": {
+        "purpose": "Find in-scope files by filename and return file IDs that can be used for whole-file reads.",
+        "use_when": "Use when the user names or implies a specific file, asks about an entire file, or content search hints at a target file but the file_id is unknown.",
+        "inputs": {"query": "Filename terms or a likely document title.", "limit": "Maximum file matches to return, capped by the runtime."},
+        "returns": "Matching file_id, file_name, first parent chunk ID, and a short file preview.",
+    },
+    "find_inventory_records": {
+        "purpose": "Deterministically scan scoped files for item records matching an exhaustive list-style query.",
+        "use_when": "Use when the user asks for all/every/listed items. Semantic search alone is ranked, so it may miss sibling records in inventories.",
+        "inputs": {"query": "Original user query or a concise inventory query.", "max_matches": "Maximum matching records to return, capped by the runtime."},
+        "returns": "Evidence items from matching parent chunks, deduplicated by file when possible.",
+    },
+    "search_relevant_chunks": {
+        "purpose": "Run semantic retrieval over the allowed user/collection scope and return the most relevant parent chunks.",
+        "use_when": "Use for normal fact-finding, targeted follow-up searches, or when the answer should come from relevant passages rather than an entire file.",
+        "inputs": {"query": "Search query text.", "top_k": "Requested number of parent chunks, bounded to the runtime limit."},
+        "returns": "Evidence items with parent_id, file_id, file_name, chunk number, a query-focused snippet, and structured table view when available.",
+    },
+    "read_chunk_detail": {
+        "purpose": "Inspect one known parent chunk more deeply by parent_id.",
+        "use_when": "Use after search_relevant_chunks or find_files_by_name has exposed a specific parent_id and the short snippet is not enough to answer confidently.",
+        "inputs": {"parent_id": "Parent chunk ID from earlier evidence."},
+        "returns": "A larger snippet for that one parent chunk, plus source metadata and structured table view when available.",
+    },
+    "read_file_chunks": {
+        "purpose": "Read ordered parent chunks from one in-scope file.",
+        "use_when": "Use when the user asks to summarize, audit, compare, extract requirements from, or answer broadly about a whole file. Prefer file_id when known.",
+        "inputs": {"file_id": "Preferred exact file ID.", "file_name": "Optional filename fallback if file_id is unknown.", "max_chunks": "Maximum ordered chunks to read, bounded by the runtime."},
+        "returns": "A sequence of evidence items from the file in chunk order. Each item is still bounded as a snippet to keep the prompt within context limits.",
+    },
+    "read_skill_reference": {
+        "purpose": "Load optional markdown guidance or examples for the active skill.",
+        "use_when": "Use only when examples or policy guidance are needed to answer or cite correctly.",
+        "inputs": {"skill_name": "Skill name.", "ref_id": "Reference ID listed in the skill registry."},
+        "returns": "Bounded markdown reference text.",
+    },
+    "provide_final_answer": {
+        "purpose": "End the run with the final answer and file-name citations.",
+        "use_when": "Use as soon as observed evidence is sufficient, or when evidence is insufficient and the no-answer fallback is required.",
+        "inputs": {"answer": "Final plain-text answer.", "citations": "List of observed supporting file names only."},
+        "returns": "Terminal answer payload; no more tools are called.",
+    },
+}
+
+
+def _canonical_action_name(action_name: str) -> str:
+    normalized = str(action_name or "").strip()
+    return _ACTION_ALIASES.get(normalized, normalized)
 
 
 def _safe_json_object(raw_text: str) -> dict[str, Any]:
@@ -79,6 +179,7 @@ def _safe_json_object(raw_text: str) -> dict[str, Any]:
     stripped = str(raw_text or "").strip()
     if not stripped:
         raise ValueError("Model returned empty action payload.")
+    decoder = json.JSONDecoder()
 
     try:
         parsed = json.loads(stripped)
@@ -89,18 +190,26 @@ def _safe_json_object(raw_text: str) -> dict[str, Any]:
 
     fenced = _JSON_BLOCK_PATTERN.search(stripped)
     if fenced:
+        fenced_content = fenced.group(1)
+        for start_index, char in enumerate(fenced_content):
+            if char != "{":
+                continue
+            try:
+                parsed, _ = decoder.raw_decode(fenced_content[start_index:])
+                if isinstance(parsed, dict):
+                    return parsed
+            except json.JSONDecodeError:
+                continue
+
+    for start_index, char in enumerate(stripped):
+        if char != "{":
+            continue
         try:
-            parsed = json.loads(fenced.group(1))
+            parsed, _ = decoder.raw_decode(stripped[start_index:])
             if isinstance(parsed, dict):
                 return parsed
         except json.JSONDecodeError:
-            pass
-
-    object_match = re.search(r"(\{[\s\S]*\})", stripped)
-    if object_match:
-        parsed = json.loads(object_match.group(1))
-        if isinstance(parsed, dict):
-            return parsed
+            continue
 
     raise ValueError("Model output did not contain a valid JSON object.")
 
@@ -133,6 +242,22 @@ def _normalize_citations(
     return normalized
 
 
+def _extract_record_codes(raw: str | None) -> set[str]:
+    """Extract module/course-style codes from answer text or file names."""
+
+    return {
+        match.group(0).upper()
+        for match in re.finditer(r"\b[A-Z]{2,}\d{3,4}\b", str(raw or ""), flags=re.IGNORECASE)
+    }
+
+
+def _record_codes_from_file_names(file_names: set[str]) -> set[str]:
+    codes: set[str] = set()
+    for file_name in file_names:
+        codes.update(_extract_record_codes(file_name))
+    return codes
+
+
 def _trim_observation(raw: str, *, max_chars: int = _MAX_TOOL_SUMMARY_CHARS) -> str:
     """Collapse whitespace and bound observation size for prompt stability."""
 
@@ -162,12 +287,18 @@ def _arguments_preview(arguments: dict[str, Any], *, max_chars: int = _MAX_TRACE
 
 
 def _summarize_evidence_cache(parent_doc_cache: dict[str, dict[str, Any]]) -> str:
-    """Render a compact evidence summary for state messages and forced finish."""
+    """Render a compact evidence ledger for state messages and forced finish.
+
+    Full parent documents stay in ``parent_doc_cache`` for tools that need them.
+    The LLM only needs a concise ledger on each turn; replaying full snippets
+    repeatedly causes later searches to compete with stale context.
+    """
 
     lines: list[str] = []
     for index, (parent_id, doc) in enumerate(parent_doc_cache.items(), start=1):
-        if index > 8:
-            lines.append("- ...")
+        if index > _MAX_STATE_EVIDENCE_ROWS:
+            remaining = len(parent_doc_cache) - _MAX_STATE_EVIDENCE_ROWS
+            lines.append(f"- ... {remaining} more cached evidence item(s) not repeated in this state update")
             break
         metadata = doc.get("metadata") if isinstance(doc.get("metadata"), dict) else {}
         file_metadata = (
@@ -184,8 +315,12 @@ def _summarize_evidence_cache(parent_doc_cache: dict[str, dict[str, Any]]) -> st
         chunk_number = parent_chunk_metadata.get("parent_chunk_number")
         chunk_label = str(chunk_number) if isinstance(chunk_number, (int, float, str)) else "?"
         cached_snippet = str(doc.get("_agentic_query_snippet") or "").strip()
-        snippet = cached_snippet or " ".join(str(doc.get("page_content") or "").split())[:1200]
-        structured_view = str(doc.get("_agentic_query_structured_view") or "").strip()
+        raw_snippet = cached_snippet or " ".join(str(doc.get("page_content") or "").split())
+        snippet = _trim_observation(raw_snippet, max_chars=_MAX_STATE_SNIPPET_CHARS)
+        structured_view = _trim_observation(
+            str(doc.get("_agentic_query_structured_view") or "").strip(),
+            max_chars=_MAX_STATE_SNIPPET_CHARS,
+        )
         if structured_view:
             lines.append(
                 f"- parent_id={parent_id}, file={file_name}, chunk={chunk_label}, "
@@ -232,6 +367,25 @@ def _evidence_payload(items: list[Any]) -> list[dict[str, Any]]:
         elif isinstance(item, dict):
             payload.append(dict(item))
     return payload
+
+
+def _compact_evidence_payload(items: list[Any]) -> list[dict[str, Any]]:
+    """Serialize evidence for the LLM transcript without replaying full chunks."""
+
+    payload = _evidence_payload(items)
+    compact_payload: list[dict[str, Any]] = []
+    for item in payload:
+        compact_item = dict(item)
+        compact_item["snippet"] = _trim_observation(
+            str(compact_item.get("snippet") or ""),
+            max_chars=_MAX_TOOL_EVIDENCE_SNIPPET_CHARS,
+        )
+        compact_item["structured_view"] = _trim_observation(
+            str(compact_item.get("structured_view") or ""),
+            max_chars=_MAX_TOOL_EVIDENCE_STRUCTURED_CHARS,
+        )
+        compact_payload.append(compact_item)
+    return compact_payload
 
 
 def _tool_message_content(tool_name: str, payload: dict[str, Any]) -> str:
@@ -306,17 +460,18 @@ def _display_tool_name(action_name: str) -> str:
     """Return a user-facing label for an internal tool/action name."""
 
     labels = {
-        "load_skill": "Load skill",
-        "search_files": "Find files",
-        "search_context": "Search documents",
-        "fetch_parent_chunk": "Inspect source chunk",
-        "fetch_file_context": "Read file context",
-        "read_reference": "Read guidance",
-        "finish": "Prepare answer",
+        "load_answering_instructions": "Load answer instructions",
+        "find_files_by_name": "Find files by name",
+        "find_inventory_records": "Find inventory records",
+        "search_relevant_chunks": "Search relevant chunks",
+        "read_chunk_detail": "Read chunk detail",
+        "read_file_chunks": "Read file chunks",
+        "read_skill_reference": "Read skill guidance",
+        "provide_final_answer": "Prepare answer",
         "forced_finish": "Prepare answer",
         "invalid_action_payload": "Repair action",
     }
-    return labels.get(str(action_name or "").strip(), "Work step")
+    return labels.get(_canonical_action_name(action_name), "Work step")
 
 
 def _polished_transcript_item(
@@ -390,27 +545,30 @@ def _build_registry_message(config: Any) -> str:
             },
             "skill_registry": registry,
             "action_protocol": {
+                "available_tools": _TOOL_DESCRIPTIONS,
                 "shape": {
                     "intent": "short operational sentence",
-                    "action": "load_skill|search_files|search_context|fetch_parent_chunk|fetch_file_context|read_reference|finish",
+                    "action": "load_answering_instructions|find_files_by_name|find_inventory_records|search_relevant_chunks|read_chunk_detail|read_file_chunks|read_skill_reference|provide_final_answer",
                     "arguments": {},
                     "success_criteria": "short condition for sufficiency",
                     "fallback": "short next step if insufficient",
                 },
                 "argument_shapes": {
-                    "load_skill": {"skill_name": "agentic-query"},
-                    "search_files": {"query": "filename terms", "limit": 5},
-                    "search_context": {"query": "string", "top_k": 8},
-                    "fetch_parent_chunk": {"parent_id": "string"},
-                    "fetch_file_context": {"file_id": "string", "file_name": "optional string", "max_chunks": 20},
-                    "read_reference": {"skill_name": "agentic-query", "ref_id": "answer_examples"},
-                    "finish": {"answer": "string", "citations": ["file_name"]},
+                    "load_answering_instructions": {"skill_name": "agentic-query"},
+                    "find_files_by_name": {"query": "filename terms", "limit": 5},
+                    "find_inventory_records": {"query": "original list-style user query", "max_matches": 50},
+                    "search_relevant_chunks": {"query": "string", "top_k": 8},
+                    "read_chunk_detail": {"parent_id": "string"},
+                    "read_file_chunks": {"file_id": "string", "file_name": "optional string", "max_chunks": 20},
+                    "read_skill_reference": {"skill_name": "agentic-query", "ref_id": "answer_examples"},
+                    "provide_final_answer": {"answer": "string", "citations": ["file_name"]},
                 },
                 "rules": [
                     "Return only one JSON object per assistant turn.",
-                    "Load a skill before relying on its detailed procedure.",
-                    "For whole-file summaries, use fetch_file_context once a file_id is known.",
-                    "Use finish on the final step or when evidence is sufficient.",
+                    "Use load_answering_instructions before relying on a skill's detailed procedure.",
+                    "For exhaustive list/inventory questions, use find_inventory_records before finalizing.",
+                    "For whole-file summaries, use read_file_chunks once a file_id is known.",
+                    "Use provide_final_answer on the final step or when evidence is sufficient.",
                 ],
             },
         }
@@ -426,6 +584,7 @@ def _build_state_update(
     parent_doc_cache: dict[str, dict[str, Any]],
     step_traces: list[dict[str, Any]],
     pending_file_fetches: list[tuple[str, str]] | None = None,
+    inventory_baseline_file_names: set[str] | None = None,
 ) -> str:
     """Build a compact runtime state message for the next model turn."""
 
@@ -436,8 +595,18 @@ def _build_state_update(
         )
         file_candidate_hint = (
             f"\n\nKnown file candidate(s) not yet read: {file_list}. "
-            "If the user is asking about one of these files, consider calling fetch_file_context "
+            "If the user is asking about one of these files, consider calling read_file_chunks "
             "with its file_id before continuing broad search.\n"
+        )
+
+    inventory_baseline_hint = ""
+    if inventory_baseline_file_names:
+        baseline_files = ", ".join(sorted(inventory_baseline_file_names))
+        inventory_baseline_hint = (
+            "\n\nInventory baseline for this exhaustive query:\n"
+            f"{baseline_files}\n"
+            "Final inventory answers must include exactly these inventory items; "
+            "semantic-search evidence can add details but cannot add or remove inventory items.\n"
         )
 
     return (
@@ -447,15 +616,136 @@ def _build_state_update(
         f"{_summarize_evidence_cache(parent_doc_cache)}\n\n"
         "Recent Structured Step Trace:\n"
         f"{_summarize_step_trace_rows(step_traces)}"
-        f"{file_candidate_hint}\n\n"
+        f"{file_candidate_hint}"
+        f"{inventory_baseline_hint}\n\n"
         "Return only the next JSON action-state object."
     )
 
 
-def _messages_for_log(messages: list[dict[str, Any]]) -> str:
-    """Serialize transcript for existing debug logger shape."""
+def _drop_prior_state_updates(messages: list[dict[str, Any]]) -> None:
+    """Remove obsolete runtime state snapshots before appending the next one."""
 
-    return json.dumps(messages, ensure_ascii=False, indent=2)
+    messages[:] = [
+        message
+        for message in messages
+        if not (
+            message.get("role") == "user"
+            and str(message.get("content") or "").startswith("Runtime step ")
+        )
+    ]
+
+
+def _messages_for_log(messages: list[dict[str, Any]]) -> str:
+    """Render the model transcript in a human-readable debug-log format."""
+
+    def _append_mapping(prefix: str, payload: dict[str, Any]) -> None:
+        for key, value in payload.items():
+            label = str(key).replace("_", " ").title()
+            if isinstance(value, (dict, list)):
+                rendered = json.dumps(value, ensure_ascii=False, indent=2)
+                lines.append(f"{prefix}{label}:")
+                lines.append(
+                    rendered[:1400] + "\n...[truncated]"
+                    if len(rendered) > 1400
+                    else rendered
+                )
+            else:
+                text = " ".join(str(value).split())
+                lines.append(f"{prefix}{label}: {text if text else 'N/A'}")
+
+    lines: list[str] = []
+    for index, message in enumerate(messages, start=1):
+        role = str(message.get("role") or "unknown").upper()
+        name = str(message.get("name") or "").strip()
+        title = f"Message {index}: {role}"
+        if name:
+            title += f" ({name})"
+        lines.append(title)
+        lines.append("-" * len(title))
+
+        content = str(message.get("content") or "").strip()
+        parsed_content: dict[str, Any] | None = None
+        if content.startswith("{") and content.endswith("}"):
+            try:
+                parsed = json.loads(content)
+                if isinstance(parsed, dict):
+                    parsed_content = parsed
+            except json.JSONDecodeError:
+                parsed_content = None
+
+        if parsed_content and "action" in parsed_content:
+            action = str(parsed_content.get("action") or "unknown")
+            intent = _trace_text(parsed_content.get("intent"))
+            success = _trace_text(parsed_content.get("success_criteria"))
+            fallback = _trace_text(parsed_content.get("fallback") or parsed_content.get("decision"))
+            arguments = parsed_content.get("arguments") if isinstance(parsed_content.get("arguments"), dict) else {}
+            if intent:
+                lines.append(f"Intent: {intent}")
+            lines.append(f"Action: {action}")
+            if arguments:
+                lines.append("Arguments:")
+                _append_mapping("- ", arguments)
+            if success:
+                lines.append(f"Success criteria: {success}")
+            if fallback:
+                lines.append(f"Fallback: {fallback}")
+        elif parsed_content and "tool" in parsed_content:
+            tool = str(parsed_content.get("tool") or name or "tool")
+            status = str(parsed_content.get("status") or "unknown")
+            lines.append(f"Tool: {tool}")
+            lines.append(f"Status: {status}")
+            if "error" in parsed_content:
+                lines.append(f"Error: {_trace_text(parsed_content.get('error'), max_chars=900) or 'N/A'}")
+            for key in ("evidence_count", "file_count", "answer_length"):
+                if key in parsed_content:
+                    lines.append(f"{key.replace('_', ' ').title()}: {parsed_content[key]}")
+            evidence = parsed_content.get("evidence")
+            if isinstance(evidence, list) and evidence:
+                lines.append("Evidence:")
+                for item_index, item in enumerate(evidence[:6], start=1):
+                    if not isinstance(item, dict):
+                        continue
+                    file_name = item.get("file_name") or "unknown file"
+                    parent_id = item.get("parent_id") or item.get("id") or "N/A"
+                    snippet = _trace_text(item.get("snippet") or item.get("content"), max_chars=500)
+                    lines.append(f"- {item_index}. {file_name} (parent_id={parent_id})")
+                    if snippet:
+                        lines.append(f"  Snippet: {snippet}")
+                if len(evidence) > 6:
+                    lines.append(f"- ... {len(evidence) - 6} more evidence item(s)")
+            elif "content" in parsed_content:
+                lines.append("Content:")
+                tool_content = str(parsed_content.get("content") or "")
+                lines.append(
+                    tool_content[:2000] + "\n...[truncated]"
+                    if len(tool_content) > 2000
+                    else tool_content
+                )
+            else:
+                omitted = {
+                    key: value
+                    for key, value in parsed_content.items()
+                    if key not in {"tool", "status", "evidence", "error", "content"}
+                }
+                if omitted:
+                    lines.append("Payload:")
+                    _append_mapping("- ", omitted)
+        else:
+            lines.append(content[:4000] + "\n...[truncated]" if len(content) > 4000 else content or "(empty)")
+
+        tool_calls = message.get("tool_calls")
+        if isinstance(tool_calls, list) and tool_calls:
+            lines.append("Tool call metadata:")
+            for call in tool_calls:
+                if not isinstance(call, dict):
+                    continue
+                function = call.get("function") if isinstance(call.get("function"), dict) else {}
+                lines.append(
+                    f"- {function.get('name') or 'unknown'} "
+                    f"(id={call.get('id') or 'N/A'})"
+                )
+        lines.append("")
+    return "\n".join(lines).strip()
 
 
 async def _emit_progress(
@@ -506,6 +796,7 @@ async def _run_loop(
     step_traces: list[dict[str, Any]] = []
     tool_call_count = 0
     pending_file_fetches: list[tuple[str, str]] = []
+    inventory_baseline_file_names: set[str] = set()
 
     messages: list[dict[str, Any]] = [
         {"role": "system", "content": config.system_prompt},
@@ -514,8 +805,8 @@ async def _run_loop(
             "role": "user",
             "content": (
                 f"User Query:\n{user_query}\n\n"
-                "Use the skill registry metadata to decide whether to call load_skill. "
-                "Do not rely on any full skill body until the load_skill tool returns it."
+                "Use the skill registry metadata to decide whether to call load_answering_instructions. "
+                "Do not rely on any full skill body until the load_answering_instructions tool returns it."
             ),
         },
     ]
@@ -567,17 +858,17 @@ async def _run_loop(
 
     seed_action = {
         "intent": "Seed the transcript with scoped evidence for the user query.",
-        "action": "search_context",
+        "action": "search_relevant_chunks",
         "arguments": {"query": user_query, "top_k": int(seed_top_k)},
         "success_criteria": "Initial scoped evidence is available to the assistant.",
-        "fallback": "Continue with load_skill or another scoped search if evidence is insufficient.",
+        "fallback": "Continue with load_answering_instructions or another scoped search if evidence is insufficient.",
     }
-    seed_tool_call_id = _tool_call_id(run_id, 0, "search_context")
+    seed_tool_call_id = _tool_call_id(run_id, 0, "search_relevant_chunks")
     seed_assistant_message: dict[str, Any] = {"role": "assistant", "content": _json_dumps(seed_action)}
     _attach_tool_call(
         seed_assistant_message,
         tool_call_id=seed_tool_call_id,
-        action_name="search_context",
+        action_name="search_relevant_chunks",
         arguments=seed_action["arguments"],
     )
     messages.append(seed_assistant_message)
@@ -594,18 +885,18 @@ async def _run_loop(
     seed_payload = {
         "status": "ok",
         "evidence_count": len(seed_evidence),
-        "evidence": _evidence_payload(seed_evidence),
+        "evidence": _compact_evidence_payload(seed_evidence),
     }
     _append_tool_message(
         messages,
-        tool_name="search_context",
+        tool_name="search_relevant_chunks",
         payload=seed_payload,
         tool_call_id=seed_tool_call_id,
     )
     log_agentic_query_action(
         run_id=run_id,
         step=0,
-        action="seed_search_context",
+        action="seed_search_relevant_chunks",
         arguments={
             "query": user_query,
             "top_k": int(seed_top_k),
@@ -631,7 +922,91 @@ async def _run_loop(
         },
     )
 
+    inventory_seed_request = _inventory_seed_request(user_query)
+    if inventory_seed_request:
+        inventory_seed_action = {
+            "intent": "Broaden exhaustive list evidence beyond ranked semantic retrieval.",
+            "action": "find_inventory_records",
+            "arguments": inventory_seed_request,
+            "success_criteria": "Scoped inventory records are available for list-style answering.",
+            "fallback": "Continue with the normal agentic loop if no inventory records are found.",
+        }
+        inventory_seed_tool_call_id = _tool_call_id(run_id, 0, "find_inventory_records")
+        inventory_seed_assistant_message: dict[str, Any] = {
+            "role": "assistant",
+            "content": _json_dumps(inventory_seed_action),
+        }
+        _attach_tool_call(
+            inventory_seed_assistant_message,
+            tool_call_id=inventory_seed_tool_call_id,
+            action_name="find_inventory_records",
+            arguments=inventory_seed_action["arguments"],
+        )
+        messages.append(inventory_seed_assistant_message)
+        try:
+            inventory_evidence = await tools.find_inventory_records_tool(
+                query=str(inventory_seed_request.get("query") or user_query),
+                user_id=user_id,
+                included_file_ids=included_file_ids,
+                parent_doc_cache=parent_doc_cache,
+                max_matches=int(inventory_seed_request.get("max_matches") or 50),
+            )
+            inventory_seed_status = "ok"
+            inventory_seed_error = None
+        except Exception as exc:
+            inventory_evidence = []
+            inventory_seed_status = "error"
+            inventory_seed_error = str(exc)
+        tool_call_count += 1
+        for item in inventory_evidence:
+            observed_file_names.add(item.file_name)
+            inventory_baseline_file_names.add(item.file_name)
+        inventory_seed_payload: dict[str, Any] = {
+            "status": inventory_seed_status,
+            "evidence_count": len(inventory_evidence),
+            "evidence": _compact_evidence_payload(inventory_evidence),
+        }
+        if inventory_seed_error:
+            inventory_seed_payload["error"] = inventory_seed_error
+        _append_tool_message(
+            messages,
+            tool_name="find_inventory_records",
+            payload=inventory_seed_payload,
+            tool_call_id=inventory_seed_tool_call_id,
+        )
+        log_agentic_query_action(
+            run_id=run_id,
+            step=0,
+            action="seed_find_inventory_records",
+            arguments={
+                **inventory_seed_request,
+                "included_file_ids_count": None if included_file_ids is None else len(included_file_ids),
+                "search_scope": "all_collections" if included_file_ids is None else "collection",
+            },
+            result=inventory_seed_payload,
+        )
+        await _emit_progress(
+            progress_callback,
+            stage="agentic_query_seed",
+            status="completed" if inventory_seed_status == "ok" else "warning",
+            message="Inventory seed completed.",
+            metadata={
+                "runId": run_id,
+                "seedCount": len(inventory_evidence),
+                "transcriptMessage": _polished_transcript_item(
+                    role="tool",
+                    title="Inventory scan",
+                    summary=(
+                        f"Found {len(inventory_evidence)} scoped inventory "
+                        f"record{'s' if len(inventory_evidence) != 1 else ''} for the requested list."
+                    ),
+                    status="completed" if inventory_seed_status == "ok" else "warning",
+                ),
+            },
+        )
+
     for step in range(1, max_steps + 1):
+        _drop_prior_state_updates(messages)
         messages.append(
             {
                 "role": "user",
@@ -643,6 +1018,11 @@ async def _run_loop(
                     parent_doc_cache=parent_doc_cache,
                     step_traces=step_traces,
                     pending_file_fetches=pending_file_fetches if pending_file_fetches else None,
+                    inventory_baseline_file_names=(
+                        inventory_baseline_file_names
+                        if inventory_baseline_file_names
+                        else None
+                    ),
                 ),
             }
         )
@@ -672,6 +1052,7 @@ async def _run_loop(
         try:
             action_payload = _safe_json_object(llm_response_text)
             action = AgentAction.model_validate(action_payload)
+            action.action = _canonical_action_name(action.action)
         except (ValueError, ValidationError) as error:
             invalid_observation = _trim_observation(f"Invalid action payload: {error}")
             messages.append(
@@ -771,7 +1152,7 @@ async def _run_loop(
         )
 
         try:
-            if action.action == "load_skill":
+            if action.action == "load_answering_instructions":
                 args = LoadSkillArguments.model_validate(action.arguments)
                 payload = tools.load_skill_tool(
                     skill_name=args.skill_name,
@@ -782,7 +1163,7 @@ async def _run_loop(
                 tool_call_count += 1
                 loaded_skill_names.add(str(payload.get("skill_name") or args.skill_name).strip().lower())
                 step_observation = _trim_observation(
-                    f"load_skill loaded skill_name={payload.get('skill_name')} "
+                    f"load_answering_instructions loaded skill_name={payload.get('skill_name')} "
                     f"with {len(str(payload.get('body') or ''))} body chars."
                 )
                 tool_payload = {
@@ -804,7 +1185,7 @@ async def _run_loop(
                         "references": payload.get("references") or [],
                     },
                 )
-            elif action.action == "search_files":
+            elif action.action == "find_files_by_name":
                 args = SearchFilesArguments.model_validate(action.arguments)
                 matches = await tools.search_files_tool(
                     query=args.query,
@@ -818,7 +1199,7 @@ async def _run_loop(
                 if matches:
                     pending_file_fetches = [(m.file_id, m.file_name) for m in matches]
                 step_observation = _trim_observation(
-                    "search_files returned "
+                    "find_files_by_name returned "
                     f"{len(matches)} candidate files for query={args.query!r}."
                 )
                 tool_payload = {
@@ -826,7 +1207,32 @@ async def _run_loop(
                     "file_count": len(matches),
                     "files": _evidence_payload(matches),
                 }
-            elif action.action == "search_context":
+            elif action.action == "find_inventory_records":
+                raw_arguments = dict(action.arguments or {})
+                if "query" not in raw_arguments:
+                    raw_arguments["query"] = user_query
+                args = FindInventoryRecordsArguments.model_validate(raw_arguments)
+                evidence = await tools.find_inventory_records_tool(
+                    query=args.query,
+                    user_id=user_id,
+                    included_file_ids=included_file_ids,
+                    parent_doc_cache=parent_doc_cache,
+                    max_matches=args.max_matches,
+                )
+                tool_call_count += 1
+                for item in evidence:
+                    observed_file_names.add(item.file_name)
+                    inventory_baseline_file_names.add(item.file_name)
+                step_observation = _trim_observation(
+                    "find_inventory_records returned "
+                    f"{len(evidence)} inventory records for query={args.query!r}."
+                )
+                tool_payload = {
+                    "status": "ok",
+                    "evidence_count": len(evidence),
+                    "evidence": _compact_evidence_payload(evidence),
+                }
+            elif action.action == "search_relevant_chunks":
                 args = SearchContextArguments.model_validate(action.arguments)
                 evidence = await tools.search_context_tool(
                     query=args.query,
@@ -839,15 +1245,15 @@ async def _run_loop(
                 for item in evidence:
                     observed_file_names.add(item.file_name)
                 step_observation = _trim_observation(
-                    "search_context returned "
+                    "search_relevant_chunks returned "
                     f"{len(evidence)} items for query={args.query!r} top_k={int(args.top_k)}."
                 )
                 tool_payload = {
                     "status": "ok",
                     "evidence_count": len(evidence),
-                    "evidence": _evidence_payload(evidence),
+                    "evidence": _compact_evidence_payload(evidence),
                 }
-            elif action.action == "fetch_parent_chunk":
+            elif action.action == "read_chunk_detail":
                 args = FetchParentChunkArguments.model_validate(action.arguments)
                 item = await tools.fetch_parent_chunk_tool(
                     parent_id=args.parent_id,
@@ -858,20 +1264,20 @@ async def _run_loop(
                 )
                 tool_call_count += 1
                 if item is None:
-                    step_observation = "fetch_parent_chunk returned no scoped record."
+                    step_observation = "read_chunk_detail returned no scoped record."
                     tool_payload = {"status": "ok", "found": False}
                 else:
                     observed_file_names.add(item.file_name)
                     step_observation = _trim_observation(
-                        "fetch_parent_chunk returned "
+                        "read_chunk_detail returned "
                         f"parent_id={item.parent_id} in file={item.file_name}."
                     )
                     tool_payload = {
                         "status": "ok",
                         "found": True,
-                        "evidence": item.model_dump(),
+                        "evidence": _compact_evidence_payload([item])[0],
                     }
-            elif action.action == "fetch_file_context":
+            elif action.action == "read_file_chunks":
                 args = FetchFileContextArguments.model_validate(action.arguments)
                 evidence = await tools.fetch_file_context_tool(
                     file_id=args.file_id,
@@ -893,15 +1299,15 @@ async def _run_loop(
                     observed_file_names.add(item.file_name)
                 file_label = str(args.file_id or args.file_name or "").strip()
                 step_observation = _trim_observation(
-                    "fetch_file_context returned "
+                    "read_file_chunks returned "
                     f"{len(evidence)} parent chunks for file={file_label!r}."
                 )
                 tool_payload = {
                     "status": "ok",
                     "evidence_count": len(evidence),
-                    "evidence": _evidence_payload(evidence),
+                    "evidence": _compact_evidence_payload(evidence),
                 }
-            elif action.action == "read_reference":
+            elif action.action == "read_skill_reference":
                 args = ReadReferenceArguments.model_validate(action.arguments)
                 ref_text = tools.read_reference_tool(
                     skill_name=args.skill_name,
@@ -913,7 +1319,7 @@ async def _run_loop(
                 ref_key = f"{str(args.skill_name).strip().lower().replace('_', '-')}:{str(args.ref_id).strip().lower()}"
                 used_reference_ids.add(ref_key)
                 step_observation = _trim_observation(
-                    f"read_reference loaded skill_name={args.skill_name} ref_id={args.ref_id} "
+                    f"read_skill_reference loaded skill_name={args.skill_name} ref_id={args.ref_id} "
                     f"with {len(ref_text)} chars."
                 )
                 tool_payload = {
@@ -932,19 +1338,95 @@ async def _run_loop(
                         "content_length": len(ref_text),
                     },
                 )
-            elif action.action == "finish":
+            elif action.action == "provide_final_answer":
                 args = FinishArguments.model_validate(action.arguments)
                 normalized_answer = str(args.answer or "").strip()
                 if not normalized_answer:
                     normalized_answer = "No answer found in the provided context."
+                if (
+                    inventory_baseline_file_names
+                    and normalized_answer != "No answer found in the provided context."
+                ):
+                    baseline_codes = _record_codes_from_file_names(inventory_baseline_file_names)
+                    answer_codes = _extract_record_codes(normalized_answer)
+                    extra_codes = sorted(answer_codes - baseline_codes)
+                    missing_codes = sorted(baseline_codes - answer_codes)
+                    if extra_codes or missing_codes:
+                        step_observation = _trim_observation(
+                            "provide_final_answer failed inventory validation. "
+                            f"Extra codes: {', '.join(extra_codes) or 'none'}. "
+                            f"Missing codes: {', '.join(missing_codes) or 'none'}."
+                        )
+                        tool_payload = {
+                            "status": "error",
+                            "error": step_observation,
+                            "inventory_baseline_files": sorted(inventory_baseline_file_names),
+                        }
+                        _append_tool_message(
+                            messages,
+                            tool_name="provide_final_answer",
+                            payload=tool_payload,
+                            tool_call_id=current_tool_call_id,
+                        )
+                        log_agentic_query_action(
+                            run_id=run_id,
+                            step=step,
+                            action="provide_final_answer_inventory_validation",
+                            arguments={
+                                "extra_codes": extra_codes,
+                                "missing_codes": missing_codes,
+                                "inventory_baseline_files": sorted(inventory_baseline_file_names),
+                                "intent": trace_intent,
+                                "success_criteria": trace_success,
+                                "fallback": trace_fallback,
+                            },
+                            result=tool_payload,
+                            error=step_observation,
+                        )
+                        step_traces.append(
+                            {
+                                "step": step,
+                                "action": "provide_final_answer_inventory_validation",
+                                "arguments_preview": arguments_preview,
+                                "intent": trace_intent or "",
+                                "success_criteria": trace_success or "",
+                                "fallback": trace_fallback or "",
+                                "observation": step_observation,
+                            }
+                        )
+                        await _emit_progress(
+                            progress_callback,
+                            stage="agentic_query_step",
+                            status="warning",
+                            message=f"Step {step}: rejected final answer outside inventory baseline",
+                            metadata={
+                                "runId": run_id,
+                                "step": step,
+                                "action": "provide_final_answer_inventory_validation",
+                                "tool": "provide_final_answer",
+                                "observation": step_observation,
+                                "transcriptMessage": _tool_transcript_item(
+                                    action_name="provide_final_answer",
+                                    step=step,
+                                    observation=step_observation,
+                                    status="failed",
+                                ),
+                            },
+                        )
+                        continue
+                allowed_final_file_names = (
+                    inventory_baseline_file_names
+                    if inventory_baseline_file_names
+                    else observed_file_names
+                )
                 normalized_citations = _normalize_citations(
                     args.citations,
-                    allowed_file_names=observed_file_names,
+                    allowed_file_names=allowed_final_file_names,
                 )
                 if not normalized_citations:
-                    normalized_citations = sorted(observed_file_names)
+                    normalized_citations = sorted(allowed_final_file_names)
                 step_observation = _trim_observation(
-                    "finish returned final answer with "
+                    "provide_final_answer returned final answer with "
                     f"{len(normalized_citations)} citations."
                 )
                 tool_payload = {
@@ -955,7 +1437,7 @@ async def _run_loop(
                 log_agentic_query_action(
                     run_id=run_id,
                     step=step,
-                    action="finish",
+                    action="provide_final_answer",
                     arguments={
                         "citations_from_model": list(args.citations),
                         "intent": trace_intent,
@@ -969,7 +1451,7 @@ async def _run_loop(
                 )
                 _append_tool_message(
                     messages,
-                    tool_name="finish",
+                    tool_name="provide_final_answer",
                     payload=tool_payload,
                     tool_call_id=current_tool_call_id,
                 )
@@ -1046,7 +1528,7 @@ async def _run_loop(
 
         if not step_observation:
             step_observation = "Action completed."
-        if action.action != "finish":
+        if action.action != "provide_final_answer":
             _append_tool_message(
                 messages,
                 tool_name=action.action,
@@ -1110,7 +1592,7 @@ async def _run_loop(
                 "role": "user",
                 "content": (
                     "No more tool calls are allowed. Use only observed evidence in this transcript "
-                    "and return a finish JSON object. If evidence does not answer the query, use "
+                    "and return a provide_final_answer JSON object. If evidence does not answer the query, use "
                     'answer "No answer found in the provided context." and empty citations.\n\n'
                     "Current Evidence Cache:\n"
                     f"{_summarize_evidence_cache(parent_doc_cache)}"
@@ -1161,12 +1643,13 @@ async def _run_loop(
             )
             action_payload = _safe_json_object(llm_response_text)
             action = AgentAction.model_validate(action_payload)
-            if action.action == "finish":
-                forced_tool_call_id = _tool_call_id(run_id, forced_step, "finish")
+            action.action = _canonical_action_name(action.action)
+            if action.action == "provide_final_answer":
+                forced_tool_call_id = _tool_call_id(run_id, forced_step, "provide_final_answer")
                 _attach_tool_call(
                     forced_assistant_message,
                     tool_call_id=forced_tool_call_id,
-                    action_name="finish",
+                    action_name="provide_final_answer",
                     arguments=dict(action.arguments or {}),
                 )
                 args = FinishArguments.model_validate(action.arguments)
@@ -1188,7 +1671,7 @@ async def _run_loop(
                 )
                 _append_tool_message(
                     messages,
-                    tool_name="finish",
+                    tool_name="provide_final_answer",
                     payload={
                         "status": "ok",
                         "answer_length": len(normalized_answer),

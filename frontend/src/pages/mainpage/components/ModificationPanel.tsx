@@ -266,6 +266,8 @@ export default function ModificationPanel({
             status: marker.status,
             hunks: marker.hunks,
             offset: marker.offset,
+            originalText: projectMarkdownToPlain(marker.proposal.original),
+            proposedText: projectMarkdownToPlain(marker.proposal.proposed),
         })),
         [resolvedInlineMarkers]
     );
@@ -441,6 +443,42 @@ export default function ModificationPanel({
                                         <button className="inline-review-bulk-btn accept" type="button" onClick={() => { void onAcceptActiveFileProposals(activeTab); }} disabled={pendingCount === 0}>Accept all in this file</button>
                                         <button className="inline-review-bulk-btn reject" type="button" onClick={() => onRejectActiveFileProposals(activeTab)} disabled={pendingCount === 0}>Reject all in this file</button>
                                     </div>
+                                    {resolvedInlineMarkers.length > 0 && (
+                                        <div className="inline-review-cards">
+                                            {resolvedInlineMarkers.map((marker) => {
+                                                const originalText = projectMarkdownToPlain(marker.proposal.original).trim() || "(empty)";
+                                                const proposedText = projectMarkdownToPlain(marker.proposal.proposed).trim() || "(empty)";
+                                                const isAccepted = marker.status === "accepted";
+                                                return (
+                                                    <article className={`inline-review-card ${marker.status}`} key={marker.proposalKey}>
+                                                        <div className="inline-review-card-header">
+                                                            <span>{isAccepted ? "Accepted change" : "Pending change"}</span>
+                                                            <div className="inline-review-card-actions">
+                                                                {isAccepted ? (
+                                                                    <button className="review-action review-action-undo" type="button" onClick={() => onUndoAgentProposal(marker.parentId)}>Undo</button>
+                                                                ) : (
+                                                                    <>
+                                                                        <button className="review-action review-action-accept" type="button" onClick={() => { void onAcceptAgentProposal(marker.proposal); }}>Accept</button>
+                                                                        <button className="review-action review-action-reject" type="button" onClick={() => onRejectAgentProposal(marker.parentId)}>Reject</button>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                        <div className="inline-review-card-body">
+                                                            <div className="inline-review-card-before">
+                                                                <span className="inline-review-card-label">{isAccepted ? "Original" : "Remove"}</span>
+                                                                <pre>{originalText}</pre>
+                                                            </div>
+                                                            <div className="inline-review-card-after">
+                                                                <span className="inline-review-card-label">{isAccepted ? "Current" : "Replace with"}</span>
+                                                                <pre>{proposedText}</pre>
+                                                            </div>
+                                                        </div>
+                                                    </article>
+                                                );
+                                            })}
+                                        </div>
+                                    )}
                                 </div>
                             )}
                         </div>

@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState, type KeyboardEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from "react";
 import { apiClient, authenticatedFetch } from "../../../auth/apiClient";
 import { API_BASE, CHAT_TEST_USER_EMAIL } from "../../../config/env";
 import type {
@@ -13,7 +13,7 @@ import type {
     QuerySearchScope,
 } from "../types";
 const CHAT_TEST_USER_EMAIL_STORAGE_KEY = "chatTestUserEmail";
-const AGENTIC_SEARCH_ENABLED_STORAGE_KEY = "agenticSearchEnabled";
+const NEW_CONVERSATION_CACHE_KEY = "__new_conversation__";
 
 type AppendTextMessagePayload = {
     role: ChatRole;
@@ -267,6 +267,18 @@ function toProgressSnapshot(message: ChatProgressMessage): ChatProgressSnapshot 
     };
 }
 
+function getConversationCacheKey(conversationId: string | null): string {
+    return conversationId?.trim() || NEW_CONVERSATION_CACHE_KEY;
+}
+
+function hasRunningProgress(messages: ChatMessage[]): boolean {
+    return messages.some((message) => message.kind === "progress" && message.status === "running");
+}
+
+function hasProgressMessage(messages: ChatMessage[]): boolean {
+    return messages.some((message) => message.kind === "progress");
+}
+
 function optionalText(value: unknown): string | undefined {
     if (typeof value !== "string") return undefined;
     const normalized = value.trim();
@@ -311,11 +323,44 @@ export function useChat() {
     const [conversationsError, setConversationsError] = useState<string | null>(null);
     const [conversationMessagesError, setConversationMessagesError] = useState<string | null>(null);
     const [conversationId, setConversationId] = useState<string | null>(null);
-    const [isAgenticSearchEnabled, setIsAgenticSearchEnabled] = useState<boolean>(() => {
-        const raw = localStorage.getItem(AGENTIC_SEARCH_ENABLED_STORAGE_KEY);
-        return raw === "1";
-    });
+    const isAgenticSearchEnabled = true;
     const messageCounterRef = useRef(0);
+    const messagesRef = useRef<ChatMessage[]>([]);
+    const activeConversationKeyRef = useRef(getConversationCacheKey(null));
+    const cachedMessagesByConversationRef = useRef<Record<string, ChatMessage[]>>({});
+    const progressConversationKeyRef = useRef<Record<string, string>>({});
+
+    useEffect(() => {
+        messagesRef.current = messages;
+        cachedMessagesByConversationRef.current[activeConversationKeyRef.current] = messages;
+    }, [messages]);
+
+    const cacheActiveConversationMessages = useCallback(() => {
+        cachedMessagesByConversationRef.current[activeConversationKeyRef.current] = messagesRef.current;
+    }, []);
+
+    const replaceActiveConversationMessages = useCallback((conversationKey: string, nextMessages: ChatMessage[]) => {
+        activeConversationKeyRef.current = conversationKey;
+        messagesRef.current = nextMessages;
+        cachedMessagesByConversationRef.current[conversationKey] = nextMessages;
+        setMessages(nextMessages);
+    }, []);
+
+    const updateConversationMessages = useCallback((
+        conversationKey: string,
+        updater: (previousMessages: ChatMessage[]) => ChatMessage[]
+    ) => {
+        const previousMessages = conversationKey === activeConversationKeyRef.current
+            ? messagesRef.current
+            : cachedMessagesByConversationRef.current[conversationKey] ?? [];
+        const nextMessages = updater(previousMessages);
+        cachedMessagesByConversationRef.current[conversationKey] = nextMessages;
+
+        if (conversationKey === activeConversationKeyRef.current) {
+            messagesRef.current = nextMessages;
+            setMessages(nextMessages);
+        }
+    }, []);
 
     const nextMessageId = useCallback(() => {
         messageCounterRef.current += 1;
@@ -351,8 +396,19 @@ export function useChat() {
     );
 
     const appendMessage = useCallback((payload: AppendTextMessagePayload) => {
-        setMessages((previousMessages) => [...previousMessages, buildTextMessage(payload)]);
-    }, [buildTextMessage]);
+        updateConversationMessages(activeConversationKeyRef.current, (previousMessages) => [
+            ...previousMessages,
+            buildTextMessage(payload),
+        ]);
+    }, [buildTextMessage, updateConversationMessages]);
+
+    const appendMessageForProgress = useCallback((progressMessageId: string, payload: AppendTextMessagePayload) => {
+        const conversationKey = progressConversationKeyRef.current[progressMessageId] ?? activeConversationKeyRef.current;
+        updateConversationMessages(conversationKey, (previousMessages) => [
+            ...previousMessages,
+            buildTextMessage(payload),
+        ]);
+    }, [buildTextMessage, updateConversationMessages]);
 
     const appendMessageWithProgressTrace = useCallback(
         (
@@ -361,7 +417,8 @@ export function useChat() {
             finalStatus: "completed" | "failed",
             finalStageText?: string
         ) => {
-            setMessages((previousMessages) => {
+            const conversationKey = progressConversationKeyRef.current[progressMessageId] ?? activeConversationKeyRef.current;
+            updateConversationMessages(conversationKey, (previousMessages) => {
                 let progressTrace: ChatProgressSnapshot | undefined;
                 const nextMessages: ChatMessage[] = [];
 
@@ -378,8 +435,9 @@ export function useChat() {
                 nextMessages.push(buildTextMessage({ ...payload, progressTrace }));
                 return nextMessages;
             });
+            delete progressConversationKeyRef.current[progressMessageId];
         },
-        [buildTextMessage]
+        [buildTextMessage, updateConversationMessages]
     );
 
     const startProgressMessage = useCallback(
@@ -399,10 +457,12 @@ export function useChat() {
                 steps: [initialStep],
                 transcript: [],
             };
-            setMessages((previousMessages) => [...previousMessages, message]);
+            const conversationKey = activeConversationKeyRef.current;
+            progressConversationKeyRef.current[id] = conversationKey;
+            updateConversationMessages(conversationKey, (previousMessages) => [...previousMessages, message]);
             return id;
         },
-        [nextMessageId]
+        [nextMessageId, updateConversationMessages]
     );
 
     const setTestUserEmail = useCallback((email: string) => {
@@ -419,11 +479,7 @@ export function useChat() {
     }, []);
 
     const toggleAgenticSearch = useCallback(() => {
-        setIsAgenticSearchEnabled((previous) => {
-            const next = !previous;
-            localStorage.setItem(AGENTIC_SEARCH_ENABLED_STORAGE_KEY, next ? "1" : "0");
-            return next;
-        });
+        // Agentic search is always enabled from the frontend.
     }, []);
 
     const refreshConversations = useCallback(async () => {
@@ -462,6 +518,14 @@ export function useChat() {
             return;
         }
 
+        cacheActiveConversationMessages();
+        const targetConversationKey = getConversationCacheKey(targetConversationId);
+        const cachedMessages = cachedMessagesByConversationRef.current[targetConversationKey];
+        if (cachedMessages && hasRunningProgress(cachedMessages)) {
+            replaceActiveConversationMessages(targetConversationKey, cachedMessages);
+            setConversationId(targetConversationId);
+        }
+
         setIsLoadingConversationMessages(true);
         setConversationMessagesError(null);
 
@@ -476,20 +540,31 @@ export function useChat() {
                 ? (response.data.messages as ConversationApiMessage[]).map(toConversationTextMessage)
                 : [];
 
-            setMessages(nextMessages);
+            const latestCachedMessages = cachedMessagesByConversationRef.current[targetConversationKey];
+            replaceActiveConversationMessages(
+                targetConversationKey,
+                latestCachedMessages && hasProgressMessage(latestCachedMessages)
+                    ? latestCachedMessages
+                    : nextMessages
+            );
             setConversationId(targetConversationId);
         } catch {
             setConversationMessagesError("Failed to load selected conversation.");
         } finally {
             setIsLoadingConversationMessages(false);
         }
-    }, [toConversationTextMessage]);
+    }, [cacheActiveConversationMessages, replaceActiveConversationMessages, toConversationTextMessage]);
 
     const startNewConversation = useCallback(() => {
+        cacheActiveConversationMessages();
+        const cachedNewMessages = cachedMessagesByConversationRef.current[NEW_CONVERSATION_CACHE_KEY];
         setConversationId(null);
-        setMessages([]);
+        replaceActiveConversationMessages(
+            NEW_CONVERSATION_CACHE_KEY,
+            cachedNewMessages && hasRunningProgress(cachedNewMessages) ? cachedNewMessages : []
+        );
         setConversationMessagesError(null);
-    }, []);
+    }, [cacheActiveConversationMessages, replaceActiveConversationMessages]);
 
     const persistConversationTurn = useCallback(
         async (payload: PersistConversationTurnPayload): Promise<string | null> => {
@@ -573,7 +648,8 @@ export function useChat() {
             ...(transcriptMessage ? { transcriptMessage } : {}),
         };
 
-        setMessages((previousMessages) =>
+        const conversationKey = progressConversationKeyRef.current[messageId] ?? activeConversationKeyRef.current;
+        updateConversationMessages(conversationKey, (previousMessages) =>
             previousMessages.map((message) => {
                 if (message.id !== messageId || message.kind !== "progress") return message;
 
@@ -618,7 +694,7 @@ export function useChat() {
                 };
             })
         );
-    }, []);
+    }, [updateConversationMessages]);
 
     const renameConversation = useCallback(async (targetConversationId: string, newTitle: string) => {
         const userEmail = getResolvedUserEmail();
@@ -652,9 +728,10 @@ export function useChat() {
 
         try {
             await apiClient.delete(`${API_BASE}/api/conversations/${normalizedConversationId}`);
+            delete cachedMessagesByConversationRef.current[getConversationCacheKey(normalizedConversationId)];
             if (conversationId === normalizedConversationId) {
                 setConversationId(null);
-                setMessages([]);
+                replaceActiveConversationMessages(NEW_CONVERSATION_CACHE_KEY, []);
             }
             void refreshConversations();
             return true;
@@ -662,7 +739,7 @@ export function useChat() {
             setConversationsError("Failed to delete conversation.");
             return false;
         }
-    }, [conversationId, refreshConversations]);
+    }, [conversationId, refreshConversations, replaceActiveConversationMessages]);
 
     const finishProgressMessage = useCallback(
         (
@@ -670,7 +747,8 @@ export function useChat() {
             finalStatus: "completed" | "failed",
             finalStageText?: string
         ) => {
-            setMessages((previousMessages) =>
+            const conversationKey = progressConversationKeyRef.current[messageId] ?? activeConversationKeyRef.current;
+            updateConversationMessages(conversationKey, (previousMessages) =>
                 previousMessages.map((message) => {
                     if (message.id !== messageId || message.kind !== "progress") return message;
 
@@ -678,7 +756,7 @@ export function useChat() {
                 })
             );
         },
-        []
+        [updateConversationMessages]
     );
 
     const scheduleStandardSearchLifecycle = useCallback(
@@ -712,7 +790,7 @@ export function useChat() {
         const searchScope = options?.searchScope ?? "all_collections";
         const scopedCollectionId = searchScope === "collection" ? options?.collectionId ?? null : null;
         const scopedCollectionName = searchScope === "collection" ? options?.collectionName ?? null : null;
-        const shouldUseAgenticSearch = options?.forceAgenticSearch ?? isAgenticSearchEnabled;
+        const shouldUseAgenticSearch = true;
         setIsQuerying(true);
         let agenticProgressMessageId: string | null = null;
         let standardProgressMessageId: string | null = null;
@@ -725,9 +803,9 @@ export function useChat() {
             collectionName: scopedCollectionName,
         });
         if (shouldUseAgenticSearch) {
-            setMessages((previousMessages) => [...previousMessages, userMessage]);
+            updateConversationMessages(activeConversationKeyRef.current, (previousMessages) => [...previousMessages, userMessage]);
         } else {
-            setMessages((previousMessages) => [...previousMessages, userMessage]);
+            updateConversationMessages(activeConversationKeyRef.current, (previousMessages) => [...previousMessages, userMessage]);
             standardProgressMessageId = startProgressMessage(
                 "standard-search",
                 "Retrieving relevant document context."
@@ -877,6 +955,7 @@ export function useChat() {
         refreshConversations,
         scheduleStandardSearchLifecycle,
         startProgressMessage,
+        updateConversationMessages,
     ]);
 
     const handleKeyDown = useCallback(
@@ -906,6 +985,7 @@ export function useChat() {
         setTestUserEmail,
         clearTestUserEmail,
         appendMessage,
+        appendMessageForProgress,
         persistConversationTurn,
         startProgressMessage,
         pushProgressStep,

@@ -18,7 +18,6 @@ from app.service.rag.ingestion.docling.models import DoclingStructuredBlock
 from . import config, llm_client, prompts
 from .markdown_table import (
     build_table_sample_markdown,
-    flatten_layout_table_to_bullets,
     parse_markdown_table,
     render_markdown_table_rows,
 )
@@ -1168,8 +1167,8 @@ def process_semantic_tables_for_pdf(
         context_before = _nearest_text_context(blocks, index, direction="previous")
         context_after = _nearest_text_context(blocks, index, direction="next")
 
-        # Process Semantic Tables 2.3: If classification fails, skip and treat as layout table. 
-        # If classification succeeds and is classified as layout or doesn't need description, flatten to bullets. 
+        # Process Semantic Tables 2.3: If classification fails, skip semantic chunking and keep the original table.
+        # If classification succeeds and is classified as layout or doesn't need description, preserve table structure.
         # If classification succeeds and is classified as matrix/entity_list and needs description, generate general description and row-slice summaries, build semantic chunks, and remove raw table from default chunking path.
         try:
             classification = _classify_table(
@@ -1182,32 +1181,30 @@ def process_semantic_tables_for_pdf(
                 f"Table classification failed for block_index={block.block_index}, "
                 f"treating as layout: {exc}"
             )
-            flattened = flatten_layout_table_to_bullets(parsed)
             transformed_blocks[index] = block.model_copy(
-                update={"block_type": "text", "content": flattened}
+                update={"block_type": "table", "content": block.content}
             )
             diagnostics.append({
                 "block_index": int(block.block_index),
                 "page_no": _resolve_page_number(block.page_no),
-                "status": "classification_error_treated_as_layout",
+                "status": "classification_error_preserved_as_table",
                 "error": str(exc),
             })
             continue
 
-        # Process Semantic Tables 2.4: If classification succeeds and is classified as layout or doesn't need description, flatten to bullets.
+        # Process Semantic Tables 2.4: If classification succeeds and is classified as layout or doesn't need description, preserve the table.
         if classification.table_type == "layout" or not classification.needs_description:
-            flattened = flatten_layout_table_to_bullets(parsed)
             transformed_blocks[index] = block.model_copy(
                 update={
-                    "block_type": "text",
-                    "content": flattened,
+                    "block_type": "table",
+                    "content": block.content,
                 }
             )
             diagnostics.append(
                 {
                     "block_index": int(block.block_index),
                     "page_no": _resolve_page_number(block.page_no),
-                    "status": "layout_flattened",
+                    "status": "layout_preserved_as_table",
                     "classification": classification.table_type,
                     "col_headers": classification.col_headers,
                     "row_headers": classification.row_headers,
@@ -1230,14 +1227,13 @@ def process_semantic_tables_for_pdf(
                 f"Table description/section detection failed for block_index={block.block_index}, "
                 f"treating as layout: {exc}"
             )
-            flattened = flatten_layout_table_to_bullets(parsed)
             transformed_blocks[index] = block.model_copy(
-                update={"block_type": "text", "content": flattened}
+                update={"block_type": "table", "content": block.content}
             )
             diagnostics.append({
                 "block_index": int(block.block_index),
                 "page_no": _resolve_page_number(block.page_no),
-                "status": "description_error_treated_as_layout",
+                "status": "description_error_preserved_as_table",
                 "error": str(exc),
             })
             continue
@@ -1275,14 +1271,13 @@ def process_semantic_tables_for_pdf(
                     f"Row-slice summary generation failed for block_index={block.block_index}, "
                     f"treating as layout: {exc}"
                 )
-                flattened = flatten_layout_table_to_bullets(parsed)
                 transformed_blocks[index] = block.model_copy(
-                    update={"block_type": "text", "content": flattened}
+                    update={"block_type": "table", "content": block.content}
                 )
                 diagnostics.append({
                     "block_index": int(block.block_index),
                     "page_no": _resolve_page_number(block.page_no),
-                    "status": "row_summary_error_treated_as_layout",
+                    "status": "row_summary_error_preserved_as_table",
                     "error": str(exc),
                 })
                 continue

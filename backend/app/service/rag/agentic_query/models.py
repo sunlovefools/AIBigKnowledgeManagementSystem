@@ -16,8 +16,18 @@ class AgentAction(BaseModel):
     """One model-issued action in the JSON tool protocol."""
 
     action: Literal[
+        "load_answering_instructions",
+        "find_files_by_name",
+        "find_inventory_records",
+        "search_relevant_chunks",
+        "read_chunk_detail",
+        "read_file_chunks",
+        "read_skill_reference",
+        "provide_final_answer",
+        # Backward-compatible aliases accepted from older prompts/tests.
         "load_skill",
         "search_files",
+        "find_module_overviews",
         "search_context",
         "fetch_parent_chunk",
         "fetch_file_context",
@@ -52,6 +62,13 @@ class SearchFilesArguments(BaseModel):
 
     query: str
     limit: int = 5
+
+
+class FindInventoryRecordsArguments(BaseModel):
+    """Arguments for deterministic scoped inventory discovery."""
+
+    query: str
+    max_matches: int = 50
 
 
 class FetchParentChunkArguments(BaseModel):
