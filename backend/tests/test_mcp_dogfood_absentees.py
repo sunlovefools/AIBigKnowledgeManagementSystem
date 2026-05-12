@@ -85,7 +85,7 @@ async def _codex_answer_absentees_with_mcp_tools(token: str) -> tuple[str, list[
                     search_result = await _call_tool(
                         session,
                         trace,
-                        "search_materials",
+                        "search_relevant_chunks",
                         {
                             "query": "meeting minutes attendance absentees reasons",
                             "searchScope": "all_collections",
@@ -98,7 +98,7 @@ async def _codex_answer_absentees_with_mcp_tools(token: str) -> tuple[str, list[
                         chunk_result = await _call_tool(
                             session,
                             trace,
-                            "fetch_parent_chunk",
+                            "read_chunk_detail",
                             {
                                 "parentId": item["parentId"],
                                 "collectionId": item.get("collectionId"),
@@ -225,7 +225,7 @@ def test_codex_dogfoods_mcp_tools_to_answer_absentees(monkeypatch):
     )
     assert [entry["tool"] for entry in trace] == [
         "list_collections",
-        "search_materials",
-        "fetch_parent_chunk",
-        "fetch_parent_chunk",
+        "search_relevant_chunks",
+        "read_chunk_detail",
+        "read_chunk_detail",
     ]

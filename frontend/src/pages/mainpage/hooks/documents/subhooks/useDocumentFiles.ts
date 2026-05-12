@@ -50,6 +50,10 @@ export function useDocumentFiles(activeCollectionId: string | null) {
     const cacheRef = useRef(documentStateCache);
     const fileChunkCacheRef = useRef(fileChunkCache);
     const inFlightChunkPagesRef = useRef(inFlightChunkPages);
+    const activeCacheKeyRef = useRef(activeCacheKey);
+    const fileListRequestIdRef = useRef(0);
+
+    activeCacheKeyRef.current = activeCacheKey;
 
     const getCachedFileChunks = useCallback(
         (fileId: string): CachedFileChunks | null => {
@@ -131,19 +135,39 @@ export function useDocumentFiles(activeCollectionId: string | null) {
 
     // Loads sidebar metadata once per cache cycle.
     const fetchFiles = useCallback(async () => {
+        const requestCacheKey = activeCacheKey;
+        const requestId = fileListRequestIdRef.current + 1;
+        fileListRequestIdRef.current = requestId;
         setIsLoadingFiles(true);
         setFileListError(null);
         try {
             const incoming = await getAllPreviewFiles(activeCollectionId);
+            if (
+                activeCacheKeyRef.current !== requestCacheKey ||
+                fileListRequestIdRef.current !== requestId
+            ) {
+                return;
+            }
             setIsDocsCached(true);
             setFilesState((prev) => replaceFilesFromSidebarSummaries(prev, incoming));
             setChunkAsyncByFileId((prev) => syncChunkAsyncIndex(prev, incoming));
         } catch {
+            if (
+                activeCacheKeyRef.current !== requestCacheKey ||
+                fileListRequestIdRef.current !== requestId
+            ) {
+                return;
+            }
             setFileListError("Failed to load files from vector database.");
         } finally {
-            setIsLoadingFiles(false);
+            if (
+                activeCacheKeyRef.current === requestCacheKey &&
+                fileListRequestIdRef.current === requestId
+            ) {
+                setIsLoadingFiles(false);
+            }
         }
-    }, [activeCollectionId]);
+    }, [activeCacheKey, activeCollectionId]);
 
     useEffect(() => {
         const cached = cacheRef.current[activeCacheKey];
@@ -231,8 +255,12 @@ export function useDocumentFiles(activeCollectionId: string | null) {
             }));
 
             const cursor = reset ? null : current.nextCursor;
+            const requestCacheKey = activeCacheKey;
             try {
                 const response = await fetchChunkPage(fileId, cursor);
+                if (activeCacheKeyRef.current !== requestCacheKey) {
+                    return [];
+                }
                 const existing = reset ? [] : getContentStateById(fileId).chunks;
                 const merged = reset ? response.chunks : [...existing, ...response.chunks];
                 // Deduplicate by parentId in case the backend returns overlapping windows.
@@ -257,6 +285,9 @@ export function useDocumentFiles(activeCollectionId: string | null) {
                 });
                 return deduped;
             } catch {
+                if (activeCacheKeyRef.current !== requestCacheKey) {
+                    return [];
+                }
                 const fileName = getFileNameById(fileId);
                 setChunkAsyncByFileId((prev) => ({
                     ...prev,
@@ -270,7 +301,7 @@ export function useDocumentFiles(activeCollectionId: string | null) {
                 return [];
             }
         },
-        [fetchChunkPage, getCachedFileChunks, getChunkAsyncById, getContentStateById, getFileNameById, setCachedFileChunks]
+        [activeCacheKey, fetchChunkPage, getCachedFileChunks, getChunkAsyncById, getContentStateById, getFileNameById, setCachedFileChunks]
     );
 
     const loadFileChunksUntilParent = useCallback(
@@ -308,10 +339,14 @@ export function useDocumentFiles(activeCollectionId: string | null) {
             let nextCursor: string | null = null;
             let chunks: ParentChunkContent[] = [];
             let safetyCounter = 0;
+            const requestCacheKey = activeCacheKey;
 
             try {
                 while (hasMore && safetyCounter < 200) {
                     const response = await fetchChunkPage(fileId, cursor);
+                    if (activeCacheKeyRef.current !== requestCacheKey) {
+                        return chunks;
+                    }
                     chunks = Array.from(
                         new Map([...chunks, ...response.chunks].map((chunk) => [chunk.parentId, chunk])).values()
                     );
@@ -344,6 +379,9 @@ export function useDocumentFiles(activeCollectionId: string | null) {
                 }));
                 return chunks;
             } catch {
+                if (activeCacheKeyRef.current !== requestCacheKey) {
+                    return chunks;
+                }
                 const fileName = getFileNameById(fileId);
                 setChunkAsyncByFileId((prev) => ({
                     ...prev,
@@ -357,7 +395,7 @@ export function useDocumentFiles(activeCollectionId: string | null) {
                 return chunks;
             }
         },
-        [fetchChunkPage, getCachedFileChunks, getFileNameById, setCachedFileChunks]
+        [activeCacheKey, fetchChunkPage, getCachedFileChunks, getFileNameById, setCachedFileChunks]
     );
 
     const activeTabData = useMemo<FileTabState | null>(

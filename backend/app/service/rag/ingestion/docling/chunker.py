@@ -92,6 +92,9 @@ def _coerce_blocks(
             text=block.content or "",
         ).strip()
         if not content:
+            if block.block_type == "other":
+                normalized.append(block.model_copy(update={"content": ""}))
+                continue
             print(f"Skipping empty block of type '{block.block_type}' during coercion")
             continue
         normalized.append(block.model_copy(update={"content": content}))
@@ -212,6 +215,26 @@ def _split_section_into_parent_parts(
     is_first_part = True
 
     for block in body:
+        if block.block_type == "other" and not str(block.content or "").strip():
+            if current_body_blocks:
+                parent_blocks = (
+                    list(preamble) + list(current_body_blocks)
+                    if is_first_part
+                    else list(current_body_blocks)
+                )
+                parts.append(
+                    {
+                        "parent_blocks": parent_blocks,
+                        "child_blocks": list(current_body_blocks),
+                        "child_preamble": list(preamble),
+                        "is_first_part": is_first_part,
+                    }
+                )
+                current_body_blocks = []
+                current_part_words = 0
+                is_first_part = False
+            continue
+
         block_words = _word_count(block.content)
 
         # Split only when this part already has body so whole blocks remain intact.
@@ -1031,6 +1054,16 @@ def split_parent_child_chunks_from_docling_blocks(
                         parent_page_numbers
                     ),
                     "ingested_at": datetime.now(timezone.utc).isoformat(),
+                    "source_block_start": min(
+                        int(block.block_index) for block in parent_blocks
+                    )
+                    if parent_blocks
+                    else parent_chunk_number,
+                    "source_block_end": max(
+                        int(block.block_index) for block in parent_blocks
+                    )
+                    if parent_blocks
+                    else parent_chunk_number,
                 },
                 content_flags={
                     "is_image": parent_has_image,

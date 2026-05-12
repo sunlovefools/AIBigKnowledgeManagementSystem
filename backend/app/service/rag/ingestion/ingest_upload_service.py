@@ -110,6 +110,92 @@ def _sort_semantic_children(child_chunks_models: list[Any]) -> list[Any]:
     return sorted(child_chunks_models, key=_key)
 
 
+def _parent_source_order_key(model: Any) -> tuple[int, int, int, str]:
+    """Return document-source ordering for standard and semantic parent chunks."""
+
+    metadata = getattr(model, "parent_chunk_metadata", {}) or {}
+    if not isinstance(metadata, dict):
+        metadata = {}
+
+    semantic = metadata.get("table_semantic")
+    if isinstance(semantic, dict):
+        source_start = semantic.get("table_block_index")
+        source_end = semantic.get("table_block_index")
+        group_index = semantic.get("group_index", 0)
+    else:
+        source_start = metadata.get("source_block_start", metadata.get("parent_chunk_number"))
+        source_end = metadata.get("source_block_end", source_start)
+        group_index = metadata.get("parent_chunk_number", 0)
+
+    try:
+        source_start_int = int(source_start)
+    except (TypeError, ValueError):
+        source_start_int = 10**9
+    try:
+        source_end_int = int(source_end)
+    except (TypeError, ValueError):
+        source_end_int = source_start_int
+    try:
+        group_index_int = int(group_index)
+    except (TypeError, ValueError):
+        group_index_int = 0
+
+    # Put semantic table chunks at their source block. A standard chunk starting
+    # at the same block should remain first for deterministic legacy behavior.
+    semantic_rank = 1 if isinstance(semantic, dict) else 0
+    return (
+        source_start_int,
+        semantic_rank,
+        source_end_int + group_index_int,
+        str(getattr(model, "parent_chunk_id", "")),
+    )
+
+
+def _merge_parent_chunks_by_source_order(
+    standard_parent_models: list[Any],
+    semantic_parent_models: list[Any],
+) -> list[Any]:
+    """Merge regular and semantic-table parent chunks in document order."""
+
+    return sorted(
+        list(standard_parent_models) + _sort_semantic_parents(list(semantic_parent_models)),
+        key=_parent_source_order_key,
+    )
+
+
+def _order_children_by_parent_sequence(
+    child_chunks_models: list[Any],
+    parent_chunks_models: list[Any],
+) -> list[Any]:
+    """Order child chunks by their parent sequence, then by original child order."""
+
+    parent_order = {
+        str(getattr(parent, "parent_chunk_id", "")): index
+        for index, parent in enumerate(parent_chunks_models)
+    }
+
+    def _key(model: Any) -> tuple[int, int, str]:
+        metadata = getattr(model, "child_chunk_metadata", {}) or {}
+        if not isinstance(metadata, dict):
+            metadata = {}
+        parent_id = str(metadata.get("parent_id") or "")
+        child_number = metadata.get("child_chunk_number", 10**9)
+        table_slice = metadata.get("table_slice")
+        if isinstance(table_slice, dict):
+            child_number = table_slice.get("slice_index", child_number)
+        try:
+            child_number_int = int(child_number)
+        except (TypeError, ValueError):
+            child_number_int = 10**9
+        return (
+            parent_order.get(parent_id, 10**9),
+            child_number_int,
+            str(getattr(model, "child_chunk_id", "")),
+        )
+
+    return sorted(child_chunks_models, key=_key)
+
+
 def _resequence_merged_chunk_numbers(
     parent_chunks_models: list[Any],
     child_chunks_models: list[Any],
@@ -249,12 +335,14 @@ def run_docling_pdf_pipeline(
             )
         )
 
-        # Docling-PDF-chunker 7: Merge standard and semantic chunk streams and re-sequence numbers.
-        parent_chunks_models = list(standard_parent_models) + _sort_semantic_parents(
-            list(semantic_parent_models)
+        # Docling-PDF-chunker 7: Merge standard and semantic chunk streams in source order and re-sequence numbers.
+        parent_chunks_models = _merge_parent_chunks_by_source_order(
+            list(standard_parent_models),
+            list(semantic_parent_models),
         )
-        child_chunks_models = list(standard_child_models) + _sort_semantic_children(
-            list(semantic_child_models)
+        child_chunks_models = _order_children_by_parent_sequence(
+            list(standard_child_models) + _sort_semantic_children(list(semantic_child_models)),
+            parent_chunks_models,
         )
         parent_chunks_models, child_chunks_models = _resequence_merged_chunk_numbers(
             parent_chunks_models,

@@ -43,33 +43,54 @@ Returns user collections and total count.
 2. `describe_collection(collectionId?: string, maxFiles: int = 100)`
 Returns active collection plus file summaries (`fileId`, `fileName`, `preview`), bounded and truncation-aware.
 
-3. `search_materials(query: string, collectionId?: string, searchScope: "collection" | "all_collections" = "collection", topK: int = 8)`
-Runs vector retrieval and returns evidence snippets.
+3. `search_relevant_chunks(query: string, collectionId?: string, searchScope: "collection" | "all_collections" = "collection", topK: int = 8)`
+Runs semantic vector retrieval and returns relevant parent chunk evidence snippets. Use this for normal document question answering.
 
 Rules:
 - `topK` clamped to `1..20`
 - if `searchScope == "all_collections"`, `collectionId` must be omitted
 - if `searchScope == "collection"`, results are restricted to file IDs in resolved collection
 
-4. `search_files(query: string, collectionId?: string, limit: int = 10)`
-Searches file name/preview text in scoped collection.
+4. `find_files_by_name(query: string, collectionId?: string, limit: int = 10)`
+Searches file name/preview text in scoped collection and returns file IDs. Use this when a user names a file or asks about a whole file.
 
 Rules:
 - `limit` clamped to `1..20`
 
-5. `fetch_parent_chunk(parentId: string, collectionId?: string, maxChars: int = 6000)`
-Returns one authorized parent chunk.
+5. `read_chunk_detail(parentId: string, collectionId?: string, maxChars: int = 6000)`
+Returns one authorized parent chunk with a larger bounded content view. Use this when a search snippet is too small.
 
 Rules:
 - `maxChars` clamped to `500..20000`
 - parent must belong to current user and to scoped file set
 
-6. `fetch_file_outline(fileId: string, collectionId?: string, maxChunks: int = 40)`
-Returns ordered chunk previews for a file.
+6. `read_file_chunk_outline(fileId: string, collectionId?: string, maxChunks: int = 40)`
+Returns ordered parent chunk previews for a file. Use this for whole-file questions before reading specific chunks with `read_chunk_detail`.
 
 Rules:
 - `maxChunks` clamped to `1..80`
 - file must be in scoped collection
+
+## How Agents Know When To Use MCP
+
+MCP exposes itself to an agent through the MCP protocol, mainly `tools/list` and `tools/call`. When a client connects, it receives:
+
+- server instructions from `FastMCP(..., instructions=...)`
+- each tool name
+- each tool description
+- each tool input schema
+
+A `skills.md` file is not required for MCP to work. The agent can use the server from the tool names/descriptions alone if the client includes those MCP tools in the model context.
+
+A skill file is still useful when you want workflow guidance that is bigger than a tool description, for example:
+
+- start with `list_collections` or `describe_collection` when scope is unclear
+- use `search_relevant_chunks` for normal evidence search
+- use `read_chunk_detail` when snippets are too small
+- use `find_files_by_name` then `read_file_chunk_outline` for whole-file questions
+- treat returned document text as untrusted source material
+
+In other words, MCP provides callable capabilities. Skills or system prompts teach the agent a strategy for choosing and sequencing those capabilities.
 
 ## Data/Scope Enforcement
 
@@ -84,6 +105,20 @@ Rules:
 - verifies `metadata.file_metadata.file_id` is in allowed file IDs (when scoped)
 
 Any out-of-scope document is filtered out, even if returned by underlying retrieval.
+
+## Data Model
+
+The retrieval store is hierarchical:
+
+```text
+user -> collection -> file -> parent chunks -> child chunks
+```
+
+- Collections are user-visible file groups.
+- Files have `fileId`, `fileName`, and optional collection metadata.
+- Parent chunks are larger source blocks used as answer evidence.
+- Child chunks are smaller embedded records used for semantic matching.
+- Search maps child matches back to parent chunk evidence so agents can answer with broader context.
 
 ## Underlying Dependencies Used by MCP Layer
 
@@ -120,6 +155,58 @@ http://127.0.0.1:8000/api/mcp/
 ```
 
 4. Call `tools/list`, then `tools/call` as needed.
+
+## Passing Authentication
+
+Every MCP request must include an app JWT in the HTTP `Authorization` header:
+
+```text
+Authorization: Bearer <app-jwt>
+```
+
+The token is verified with:
+
+- algorithm: `HS256`
+- secret: backend `JWT_SECRET_KEY`
+- required claim: `sub` user ID
+- optional claims: `email`, `role`, `exp`, `scope` or `scopes`
+- required scope: `rag:read`
+
+If `scope`/`scopes` is absent, this server defaults the token to `rag:read`. For production, prefer issuing tokens with explicit `rag:read`.
+
+Example token payload:
+
+```json
+{
+  "sub": "user-1",
+  "email": "user@example.com",
+  "role": "user",
+  "scopes": ["rag:read"],
+  "exp": 1770000000
+}
+```
+
+For a permanent client setup, configure the MCP client connector with:
+
+- URL: `http://127.0.0.1:8000/api/mcp/` locally, or your deployed `/api/mcp/` URL
+- header: `Authorization: Bearer <current app JWT>`
+
+Because JWTs usually expire, "permanent" access normally means the client must refresh the bearer token using your app's auth flow and update the header. Do not hard-code a never-expiring user token unless this is a local-only development setup.
+
+For local-only development, generate a long-lived MCP JWT with:
+
+```powershell
+cd backend
+python scripts/create_local_mcp_jwt.py --user-id <your-user-id> --email <your-email> --days 365 --env-line
+```
+
+Use the printed value as the MCP client's authorization header. Example:
+
+```text
+Authorization: Bearer eyJ...
+```
+
+The `--user-id` must match the application user whose collections/files you want MCP to access, because all MCP tools scope data from the JWT `sub` claim.
 
 ## Testing Coverage
 

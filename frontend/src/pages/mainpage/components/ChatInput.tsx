@@ -33,7 +33,6 @@ export default function ChatInput({
     pendingModificationItems = [],
     onInputChange,
     onInputKeyDown,
-    onModificationAgentModeChange,
     onToggleModificationPanel,
     onClearHighlightedSelection,
     onNavigateToModification,
@@ -77,29 +76,9 @@ export default function ChatInput({
     const showPendingTray = isEditMode && totalPendingChanges > 0;
 
     return (
-        <div className="input-area-wrapper">
+        <div className={`input-area-wrapper ${isEditMode ? "edit-mode-active" : ""}`}>
             <div className={`input-container ${isEditMode ? "edit-mode-active" : ""}`}>
                 {scopeControls && <div className="input-search-mode-row">{scopeControls}</div>}
-                {isEditMode && !highlightedSelection && (
-                    <div className="input-agent-mode-row" aria-label="Modification agent mode">
-                        <button
-                            type="button"
-                            className={`agent-mode-option ${modificationAgentMode === "workflow" ? "active" : ""}`}
-                            onClick={() => onModificationAgentModeChange("workflow")}
-                            aria-pressed={modificationAgentMode === "workflow"}
-                        >
-                            Workflow
-                        </button>
-                        <button
-                            type="button"
-                            className={`agent-mode-option ${modificationAgentMode === "skills" ? "active" : ""}`}
-                            onClick={() => onModificationAgentModeChange("skills")}
-                            aria-pressed={modificationAgentMode === "skills"}
-                        >
-                            Skills
-                        </button>
-                    </div>
-                )}
                 {showPendingTray && (
                     <div className="input-pending-tray">
                         <button
